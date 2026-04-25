@@ -211,10 +211,24 @@ const DashboardLawyer: React.FC = () => {
             <h1 className="text-3xl font-bold text-secondary-900 mb-1">Cabinet de {profile?.first_name} {profile?.last_name}</h1>
             <p className="text-secondary-600">Interface de gestion juridique professionnelle</p>
           </div>
-          <Button onClick={fetchLawyerData} variant="ghost" size="sm">
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Sync
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={fetchLawyerData} variant="ghost" size="sm">
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Sync
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-red-600 hover:bg-red-50"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                window.location.href = '/login';
+              }}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Déconnexion
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -235,17 +249,6 @@ const DashboardLawyer: React.FC = () => {
                     <span className="font-medium whitespace-nowrap">{tab.name}</span>
                   </button>
                 ))}
-                <div className="w-full h-px bg-secondary-100 my-2" />
-                <button
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    window.location.href = '/login';
-                  }}
-                  className="flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-red-600 hover:bg-red-50"
-                 >
-                  <LogOut className="h-5 w-5" />
-                  <span className="font-medium whitespace-nowrap">Déconnexion</span>
-                </button>
               </CardContent>
             </Card>
           </aside>

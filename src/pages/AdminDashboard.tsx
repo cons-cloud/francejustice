@@ -304,10 +304,24 @@ const AdminDashboard: React.FC = () => {
             <h1 className="text-3xl font-bold text-secondary-900 mb-2">Espace Administration</h1>
             <p className="text-secondary-600">Gestion centrale des comptes, avocats et messages</p>
           </div>
-          <Button onClick={() => { fetchUsers(); fetchMessages(); }} variant="outline" size="sm" className="hidden sm:flex">
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Actualiser
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => { fetchUsers(); fetchMessages(); }} variant="outline" size="sm" className="hidden sm:flex">
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Actualiser
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden sm:flex text-danger-600 hover:text-danger-700 hover:bg-danger-50 border-danger-200 hover:border-danger-300"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                window.location.href = '/login';
+              }}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Déconnexion
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -340,17 +354,6 @@ const AdminDashboard: React.FC = () => {
                     <span className="font-medium whitespace-nowrap">{tab.name}</span>
                   </button>
                 ))}
-                <div className="w-full h-px bg-secondary-200 my-2" />
-                <button
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    window.location.href = '/login';
-                  }}
-                  className="flex-shrink-0 lg:w-full flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 text-danger-600 hover:bg-danger-50"
-                 >
-                  <LogOut className="h-4 w-4 mr-3" />
-                  <span className="font-medium whitespace-nowrap">Déconnexion</span>
-                </button>
               </CardContent>
             </Card>
           </aside>
