@@ -1,0 +1,16 @@
+django
+django-environ
+djangorestframework
+django-cors-headers
+psycopg2-binary
+stripe
+supabase
+celery
+redis
+uvicorn
+gunicorn
+whitenoise
+dj-database-url
+pytest-django
+lucide-react  # Wait, this is for frontend, not needed here. Removing.
+python-dotenv

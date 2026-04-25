@@ -1,0 +1,44 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "services": {
+    "frontend": {
+      "name": "just-law-frontend",
+      "root": "/",
+      "source": {
+        "repo": true
+      },
+      "config": {
+        "docker": {
+          "dockerfilePath": "Dockerfile"
+        }
+      }
+    },
+    "backend": {
+      "name": "just-law-backend",
+      "root": "backend/",
+      "source": {
+        "repo": true
+      },
+      "config": {
+        "docker": {
+          "dockerfilePath": "Dockerfile"
+        }
+      }
+    },
+    "worker": {
+      "name": "just-law-worker",
+      "root": "backend/",
+      "source": {
+        "repo": true
+      },
+      "config": {
+        "docker": {
+          "dockerfilePath": "Dockerfile"
+        }
+      },
+      "deploy": {
+        "startCommand": "celery -A config worker --loglevel=info"
+      }
+    }
+  }
+}

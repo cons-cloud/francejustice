@@ -1,0 +1,64 @@
+{
+  "name": "law_just",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Plateforme juridique moderne intégrant actualités, outils juridiques, assistance pour victimes et services pour avocats",
+  "keywords": [
+    "juridique",
+    "droit",
+    "avocat",
+    "assistance",
+    "recherche",
+    "IA"
+  ],
+  "author": "Law Just Team",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@headlessui/react": "^2.2.0",
+    "@supabase/supabase-js": "^2.104.1",
+    "@tailwindcss/vite": "^4.1.16",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^6.30.1",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss": "^4.1.16"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/node": "^24.6.0",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^9.36.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.22",
+    "globals": "^16.4.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.45.0",
+    "vite": "^7.1.7"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lawjust/lawjust.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lawjust/lawjust/issues"
+  },
+  "homepage": "https://lawjust.fr"
+}
