@@ -65,7 +65,8 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-musl": "^4.0.0",
-    "@esbuild/linux-x64": "^0.24.0"
+    "@esbuild/linux-x64": "^0.24.0",
+    "lightningcss-linux-x64-musl": "^1.28.0"
   },
   "engines": {
     "node": ">=20.0.0",
