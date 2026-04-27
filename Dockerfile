@@ -1,5 +1,5 @@
 # Dockerfile pour Just-Law
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Définir le répertoire de travail
 WORKDIR /app
