@@ -42,19 +42,21 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
             {navItems.map((item) => {
               const isActive = location.pathname === item.href;
               return (
-                <a
+                <button
                   key={item.name}
-                  href={item.href}
-                  className={`flex items-center space-x-4 p-4 rounded-xl transition-all font-medium ${
+                  onClick={() => {
+                    navigate(item.href);
+                    onClose();
+                  }}
+                  className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all font-medium ${
                     isActive 
                       ? 'bg-primary-50 text-primary-600' 
                       : 'text-secondary-600 hover:bg-secondary-50 hover:text-primary-600'
                   }`}
-                  onClick={onClose}
                 >
                   <item.icon className="h-5 w-5" />
                   <span>{item.name}</span>
-                </a>
+                </button>
               );
             })}
           </nav>

@@ -27,7 +27,13 @@ const LoginPage: React.FC = () => {
     });
 
     if (error) {
-      setError(error.message);
+      if (error.message.includes('Email not confirmed')) {
+        setError('Veuillez vérifier votre boîte email et cliquer sur le lien de confirmation avant de vous connecter.');
+      } else if (error.message.includes('Invalid login credentials')) {
+        setError('Email ou mot de passe incorrect.');
+      } else {
+        setError(error.message);
+      }
       setLoading(false);
       return;
     }

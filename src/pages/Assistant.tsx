@@ -151,7 +151,7 @@ const AssistantPage: React.FC = () => {
         <div className="lg:col-span-2 xl:col-span-3">
           <Card>
             <CardHeader className="flex-col items-center gap-2">
-              <CardTitle className="text-center">Assistant IA — Rédaction de plaintes</CardTitle>
+              <CardTitle className="text-center">Assistant IA Expert — Connecté à Internet en temps réel</CardTitle>
               <div className="flex items-center gap-2 justify-center">
                 <Button variant="outline" size="sm" onClick={() => exportConversation('txt')}><Download className="h-4 w-4 mr-2" />Export TXT</Button>
                 <Button variant="outline" size="sm" onClick={() => exportConversation('json')}>Export JSON</Button>

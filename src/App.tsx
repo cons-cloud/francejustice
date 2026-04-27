@@ -19,6 +19,10 @@ import LawyerRegistrationForm from './components/forms/LawyerRegistrationForm';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import GuidePratique from './pages/GuidePratique';
 import FAQ from './pages/FAQ';
+import News from './pages/News';
+import Legal from './pages/Legal';
+import Database from './pages/Database';
+
 
 function RequireRole({ role, children }: { role: 'user' | 'admin' | 'lawyer'; children: React.ReactNode }) {
   const { role: current, loading } = useAuth();
@@ -62,6 +66,12 @@ function AppContent() {
           <Route path="/register" element={<RegistrationForm onClose={() => {}} />} />
           <Route path="/guide" element={<GuidePratique />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/legal" element={<Legal />} />
+          <Route path="/privacy" element={<Legal />} />
+          <Route path="/terms" element={<Legal />} />
+          <Route path="/cookies" element={<Legal />} />
+          <Route path="/database" element={<Database />} />
           <Route
             path="/dashboard/user"
             element={

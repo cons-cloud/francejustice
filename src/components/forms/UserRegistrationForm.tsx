@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { supabase } from '../../lib/supabase';
 import { UserPlus, Mail, Lock, User as UserIcon, MapPin, Calendar, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import Modal from '../ui/Modal';
 import { useNavigate, Link } from 'react-router-dom';
 
 interface UserRegistrationFormProps {
@@ -17,6 +18,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   const [form, setForm] = useState({
     firstName: '',
@@ -70,9 +72,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
       if (authError) throw authError;
 
       if (authData.user) {
-        alert('Compte créé avec succès ! Veuillez vérifier votre email.');
-        if (onClose) onClose();
-        navigate('/login');
+        setShowSuccessModal(true);
       }
     } catch (err: any) {
       setError(err.message || "Une erreur est survenue lors de l'inscription");
@@ -203,6 +203,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
               <div className="relative md:col-span-1">
                 <MapPin className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
                 <Input
+                  required
                   placeholder="Ville"
                   className="!pl-14"
                   value={form.city}
@@ -211,6 +212,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
               </div>
               <div className="relative md:col-span-1">
                 <Input
+                  required
                   placeholder="CP"
                   value={form.postalCode}
                   onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
@@ -219,6 +221,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
               <div className="relative md:col-span-1">
                 <Calendar className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
                 <Input
+                  required
                   type="date"
                   className="!pl-14"
                   value={form.birthDate}
@@ -244,6 +247,32 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
           </form>
         </CardContent>
       </Card>
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          if (onClose) onClose();
+          navigate('/login');
+        }}
+        title="Inscription réussie"
+      >
+        <div className="text-center py-6">
+          <div className="mx-auto h-16 w-16 bg-success-100 rounded-full flex items-center justify-center mb-4">
+            <UserIcon className="h-8 w-8 text-success-600" />
+          </div>
+          <h3 className="text-xl font-bold text-secondary-900 mb-2">Bienvenue sur Just-Law !</h3>
+          <p className="text-secondary-600 mb-6">
+            Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter à votre espace personnel.
+          </p>
+          <Button className="w-full" onClick={() => {
+            setShowSuccessModal(false);
+            if (onClose) onClose();
+            navigate('/login');
+          }}>
+            Aller à la connexion
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -1,49 +1,66 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { supabase } from './supabase';
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
-const genAI = new GoogleGenerativeAI(API_KEY);
+export async function chatWithAI(
+  prompt: string,
+  history: { role: 'user' | 'model'; parts: { text: string }[] }[] = [],
+  useSearch: boolean = true
+) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token || '';
 
-const SYSTEM_INSTRUCTION = `
-Vous êtes l'Assistant IA de Just-Law, une plateforme juridique française moderne.
-Votre rôle est d'aider les utilisateurs à comprendre des concepts juridiques, à préparer des documents et à orienter leurs recherches.
-Vous devez être professionnel, précis et clair.
-IMPORTANT: Vous ne remplacez pas un avocat humain. Rappelez-le si nécessaire.
-Répondez toujours en français, sauf demande contraire.
-Utilisez le droit français comme référence principale quand c'est pertinent.
-Répondez de manière structurée et très facile à comprendre pour un citoyen.
-`;
+    const response = await fetch('/api/ai/chat/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ prompt, history, use_search: useSearch })
+    });
 
-export async function chatWithAI(prompt: string, history: { role: 'user' | 'model'; parts: { text: string }[] }[] = []) {
-  if (!API_KEY) {
-    throw new Error("La clé API Gemini est manquante. Veuillez la configurer dans le fichier .env.");
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Erreur lors de la communication avec l\'IA');
+    }
+
+    const data = await response.json();
+    return data.text;
+  } catch (error: any) {
+    console.error('AI Chat Error:', error);
+    throw error;
   }
-
-  const model = genAI.getGenerativeModel({ 
-    model: "gemini-1.5-flash",
-    systemInstruction: SYSTEM_INSTRUCTION
-  });
-
-  const chat = model.startChat({
-    history: history,
-    generationConfig: {
-      maxOutputTokens: 2048,
-    },
-  });
-
-  const result = await chat.sendMessage(prompt);
-  const response = await result.response;
-  return response.text();
 }
 
 export async function generateLegalDocument(type: string, details: string) {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  
-  const prompt = `
-    Générez un modèle de document juridique de type: ${type}.
-    Détails fournis par l'utilisateur: ${details}.
-    Le document doit être formel, respecter les normes juridiques françaises si possible, et inclure des placeholders [ENTRE CROCHETS] pour les informations manquantes.
-  `;
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token || '';
 
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+    const response = await fetch('/api/ai/generate-document/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ type, details })
+    });
+
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Erreur lors de la génération du document');
+    }
+
+    const data = await response.json();
+    return data.text;
+  } catch (error: any) {
+    console.error('AI Document Error:', error);
+    throw error;
+  }
+}
+
+export async function analyzeAndSuggestActions(_context: any) {
+  // Simple suggestion fallback or we could add another proxy endpoint
+  return null;
 }

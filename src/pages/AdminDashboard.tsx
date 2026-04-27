@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2 } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -7,7 +7,9 @@ import { supabase } from '../lib/supabase';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import Modal from '../components/ui/Modal';
-import { LogOut } from 'lucide-react';
+import { LogOut, Download, FileJson, FileSpreadsheet } from 'lucide-react';
+import { AdvancedAreaChart, AdvancedBarChart, SimplePieChart } from '../components/features/StatsCharts';
+import { exportToCSV, exportToJSON } from '../lib/exportUtils';
 
 interface UserProfile {
   id: string;
@@ -21,7 +23,7 @@ interface UserProfile {
 
 const AdminDashboard: React.FC = () => {
   const { toasts, success, error: toastError, removeToast } = useToast();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring'>('overview');
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [allDocuments, setAllDocuments] = useState<any[]>([]);
@@ -29,6 +31,9 @@ const AdminDashboard: React.FC = () => {
   const [outils, setOutils] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
+  const [quotes, setQuotes] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [chatRooms, setChatRooms] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>({ commission_rate: 15, maintenance_mode: false, welcome_message: '' });
   const [loading, setLoading] = useState(true);
 
@@ -56,6 +61,7 @@ const AdminDashboard: React.FC = () => {
     role: 'user'
   });
   const [isCreating, setIsCreating] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -65,6 +71,8 @@ const AdminDashboard: React.FC = () => {
     fetchOutils();
     fetchTickets();
     fetchPayments();
+    fetchQuotes();
+    fetchChatRooms();
     fetchSettings();
     
     // Subscribe to multiple channels for real-time synchronization
@@ -74,6 +82,7 @@ const AdminDashboard: React.FC = () => {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'outils' }, fetchOutils)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'assistance_tickets' }, fetchTickets)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, fetchPayments)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes' }, fetchQuotes)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings' }, fetchSettings)
       .subscribe();
 
@@ -94,13 +103,33 @@ const AdminDashboard: React.FC = () => {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, () => fetchAllDocuments())
       .subscribe();
 
+    const monitorSub = supabase.channel('admin-monitor')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, async (p) => {
+        const { data } = await supabase.from('profiles').select('first_name, last_name').eq('id', p.new.sender_id).single();
+        addActivity(`Nouveau message de ${data?.first_name || 'utilisateur'}`, 'chat');
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes' }, (p) => {
+        if (p.eventType === 'INSERT') addActivity(`Nouveau devis créé: ${p.new.amount} MAD`, 'quote');
+        if (p.eventType === 'UPDATE' && (p.new as any).status === 'paid') addActivity(`Devis payé: ${(p.new as any).amount} MAD`, 'payment');
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'documents' }, async (p) => {
+        const { data } = await supabase.from('profiles').select('first_name, last_name').eq('id', p.new.owner_id).single();
+        addActivity(`Nouveau document généré par ${data?.first_name || 'Citoyen'}`, 'document');
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(usersSub);
       supabase.removeChannel(messagesSub);
       supabase.removeChannel(docsSub);
       supabase.removeChannel(techSub);
+      supabase.removeChannel(monitorSub);
     };
   }, []);
+
+  const addActivity = (message: string, type: string) => {
+    setActivities(prev => [{ id: Date.now(), message, type, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 50));
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -148,6 +177,22 @@ const AdminDashboard: React.FC = () => {
   const fetchPayments = async () => {
     const { data } = await supabase.from('payments').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
     if (data) setPayments(data);
+  };
+
+  const fetchQuotes = async () => {
+    const { data } = await supabase
+      .from('quotes')
+      .select('*, profiles:lawyer_id(first_name, last_name), client:client_id(first_name, last_name)')
+      .order('created_at', { ascending: false });
+    if (data) setQuotes(data);
+  };
+
+  const fetchChatRooms = async () => {
+    const { data } = await supabase
+      .from('chat_rooms')
+      .select('*, lawyer:lawyer_id(first_name, last_name), client:client_id(first_name, last_name)')
+      .order('created_at', { ascending: false });
+    if (data) setChatRooms(data);
   };
 
   const fetchSettings = async () => {
@@ -245,42 +290,75 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleDeleteUser = (id: string) => {
+    openModal("Supprimer l'utilisateur ?", [], async () => {
+      try {
+        const response = await fetch(`/api/accounts/delete-user-admin/${id}/`, { method: 'DELETE' });
+        if(response.ok) {
+          fetchUsers();
+          success("Supprimé", "L'utilisateur a été supprimé.");
+        } else {
+          toastError("Erreur", "Erreur lors de la suppression.");
+        }
+      } catch(e) { console.error(e); }
+    }, "Supprimer définitivement", true);
+  };
+
+  const handleToggleSuspend = async (u: any) => {
+    const action = u.is_verified ? 'suspend' : 'activate';
+    try {
+      const response = await fetch(`/api/accounts/${action}-user-admin/${u.id}/`, { method: 'POST' });
+      if(response.ok) {
+        fetchUsers();
+        success("Mise à jour", `L'utilisateur a été ${u.is_verified ? 'suspendu' : 'activé'}.`);
+      } else {
+        toastError("Erreur", "Erreur de mise à jour");
+      }
+    } catch(e) { console.error(e); }
+  };
+
+  const handleEditUser = (u: any) => {
+    openModal("Modifier Utilisateur", [
+      { name: 'firstName', label: 'Prénom', defaultValue: u.first_name || '' },
+      { name: 'lastName', label: 'Nom', defaultValue: u.last_name || '' },
+      { name: 'role', label: 'Rôle (user, lawyer, admin)', defaultValue: u.role || 'user' }
+    ], async (vals) => {
+      try {
+        const response = await fetch(`/api/accounts/update-user-admin/${u.id}/`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(vals)
+        });
+        if(response.ok) {
+          fetchUsers();
+          success("Modifié", "Les informations ont été mises à jour.");
+        } else {
+          toastError("Erreur", "Erreur lors de la modification");
+        }
+      } catch(e) { console.error(e); }
+    });
+  };
+
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
     
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: newUser.email,
-        password: newUser.password,
-        options: {
-          data: {
-            first_name: newUser.firstName,
-            last_name: newUser.lastName,
-          }
-        }
+      const response = await fetch('/api/accounts/create-user-admin/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUser)
       });
 
-      if (error) throw error;
+      const data = await response.json();
 
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: data.user.id,
-              email: newUser.email,
-              first_name: newUser.firstName,
-              last_name: newUser.lastName,
-              role: newUser.role
-            }
-          ]);
-        
-        if (profileError) throw profileError;
-
-        success("Compte créé", `Le compte ${newUser.role} a été créé avec succès.`);
-        setNewUser({ email: '', password: '', firstName: '', lastName: '', role: 'user' });
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de la création du compte');
       }
+
+      success("Compte créé", `Le compte ${newUser.role} a été créé avec succès.`);
+      setNewUser({ email: '', password: '', firstName: '', lastName: '', role: 'user' });
+      fetchUsers(); 
     } catch (err: any) {
       toastError("Erreur création", err.message);
     } finally {
@@ -288,11 +366,35 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleExportData = (type: 'users' | 'payments' | 'documents', format: 'csv' | 'json') => {
+    const dataToExport = type === 'users' ? users : type === 'payments' ? payments : allDocuments;
+    const filename = `export_${type}_${new Date().toISOString().split('T')[0]}`;
+    
+    if (format === 'csv') exportToCSV(dataToExport, filename);
+    else exportToJSON(dataToExport, filename);
+    
+    success("Export réussi", `Le fichier ${format.toUpperCase()} a été généré.`);
+  };
+
+  const chartData = [
+    { name: 'Jan', value: 400 },
+    { name: 'Feb', value: 300 },
+    { name: 'Mar', value: 600 },
+    { name: 'Apr', value: 800 },
+    { name: 'May', value: 700 },
+  ];
+
+  const roleDistribution = [
+    { name: 'Citoyens', value: users.filter(u => u.role === 'user').length },
+    { name: 'Avocats', value: users.filter(u => u.role === 'lawyer').length },
+    { name: 'Admins', value: users.filter(u => u.role === 'admin').length },
+  ];
+
   const systemStats = [
     { label: 'Utilisateurs', value: users.filter(u => u.role === 'user').length.toString(), icon: Users },
     { label: 'Avocats', value: users.filter(u => u.role === 'lawyer').length.toString(), icon: Shield },
     { label: 'Documents', value: allDocuments.length.toString(), icon: FileText },
-    { label: 'Messages', value: messages.length.toString(), icon: Mail },
+    { label: 'Commissions', value: `${quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD`, icon: CreditCard },
     { label: 'Santé Système', value: '100%', icon: Database },
   ];
 
@@ -340,6 +442,7 @@ const AdminDashboard: React.FC = () => {
                   { id: 'outils', name: "Outils Avocats", icon: PenTool },
                   { id: 'formations', name: "Formations", icon: BookOpen },
                   { id: 'payments', name: "Paiements", icon: CreditCard },
+                  { id: 'monitoring', name: "LIVE Monitoring", icon: RefreshCw },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -379,7 +482,36 @@ const AdminDashboard: React.FC = () => {
                   ))}
                 </div>
 
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <Card className="lg:col-span-2">
+                    <CardHeader>
+                      <CardTitle>Activité de la plateforme</CardTitle>
+                      <CardDescription>Évolution des inscriptions et activités</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <AdvancedAreaChart data={chartData} />
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Distribution des Rôles</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <SimplePieChart data={roleDistribution} height={250} />
+                    </CardContent>
+                  </Card>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Flux de Paiements</CardTitle>
+                      <CardDescription>Analyse hebdomadaire</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <AdvancedBarChart data={chartData} height={200} />
+                    </CardContent>
+                  </Card>
                   <Card>
                     <CardHeader>
                       <CardTitle>Derniers Messages</CardTitle>
@@ -420,6 +552,75 @@ const AdminDashboard: React.FC = () => {
               </>
             )}
 
+            {activeTab === 'monitoring' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <Card className="lg:col-span-1">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                       <RefreshCw className="h-5 w-5 text-primary-600 animate-spin" />
+                       Flux Live
+                    </CardTitle>
+                    <CardDescription>Événements en temps réel</CardDescription>
+                  </CardHeader>
+                  <CardContent className="h-[600px] overflow-y-auto">
+                    <div className="space-y-4">
+                      {activities.map(act => (
+                        <div key={act.id} className="p-3 bg-white rounded-lg border-l-4 border-primary-500 shadow-sm">
+                          <p className="text-sm font-bold">{act.message}</p>
+                          <p className="text-[10px] text-secondary-500 uppercase">{act.time} • {act.type}</p>
+                        </div>
+                      ))}
+                      {activities.length === 0 && <p className="text-center text-secondary-400 py-10">En attente d'activité...</p>}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="lg:col-span-2 space-y-6">
+                  <Card>
+                    <CardHeader><CardTitle>Surveillance des Chats</CardTitle></CardHeader>
+                    <CardContent className="p-0">
+                      <table className="w-full text-left text-sm">
+                        <thead className="bg-secondary-50 border-y">
+                          <tr><th className="px-6 py-4">Avocat</th><th className="px-6 py-4">Citizen</th><th className="px-6 py-4">Logs</th></tr>
+                        </thead>
+                        <tbody className="divide-y text-xs">
+                          {chatRooms.map(room => (
+                            <tr key={room.id} className="hover:bg-secondary-50">
+                              <td className="px-6 py-4">Me {room.lawyer?.first_name} {room.lawyer?.last_name}</td>
+                              <td className="px-6 py-4">{room.client?.first_name} {room.client?.last_name}</td>
+                              <td className="px-6 py-4">
+                                <Button variant="ghost" size="sm" className="text-primary-600 hover:bg-primary-50">Visualiser</Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader><CardTitle>Statistiques Commissions Live</CardTitle></CardHeader>
+                    <CardContent>
+                       <div className="grid grid-cols-2 gap-4">
+                         <div className="p-4 bg-success-50 rounded-xl">
+                            <p className="text-xs font-bold text-success-600 uppercase">Total Commissions</p>
+                            <p className="text-2xl font-bold text-success-900">
+                              {quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD
+                            </p>
+                         </div>
+                         <div className="p-4 bg-warning-50 rounded-xl">
+                            <p className="text-xs font-bold text-warning-600 uppercase">En attente</p>
+                            <p className="text-2xl font-bold text-warning-900">
+                              {quotes.filter(q => q.status === 'paid').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD
+                            </p>
+                         </div>
+                       </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'users' && (
               <div className="space-y-6">
                 <Card className="bg-primary-50/20">
@@ -434,7 +635,23 @@ const AdminDashboard: React.FC = () => {
                       <Input placeholder="Prénom" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} required/>
                       <Input placeholder="Nom" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} required/>
                       <Input type="email" placeholder="Email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} required/>
-                      <Input type="password" placeholder="Pass" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} required/>
+                      <div className="relative">
+                        <Input 
+                          type={showPassword ? "text" : "password"} 
+                          placeholder="Mot de passe" 
+                          value={newUser.password} 
+                          onChange={e => setNewUser({...newUser, password: e.target.value})} 
+                          required
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-[2.4rem] -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
                       <select className="w-full flex h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm" value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})}>
                         <option value="user">Utilisateur</option>
                         <option value="lawyer">Avocat</option>
@@ -446,7 +663,22 @@ const AdminDashboard: React.FC = () => {
                 </Card>
 
                 <Card>
-                  <CardHeader><CardTitle>Répertoire</CardTitle></CardHeader>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                    <div>
+                      <CardTitle>Répertoire des Utilisateurs</CardTitle>
+                      <CardDescription>Gestion complète des comptes</CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleExportData('users', 'csv')}>
+                        <FileSpreadsheet className="h-4 w-4 mr-2" />
+                        CSV
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleExportData('users', 'json')}>
+                        <FileJson className="h-4 w-4 mr-2" />
+                        JSON
+                      </Button>
+                    </div>
+                  </CardHeader>
                   <CardContent className="p-0">
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-sm">
@@ -457,8 +689,17 @@ const AdminDashboard: React.FC = () => {
                           {users.map((u) => (
                             <tr key={u.id} className="hover:bg-secondary-50">
                               <td className="px-6 py-4"><div>{u.first_name} {u.last_name}</div><div className="text-xs text-secondary-500">{u.email}</div></td>
-                              <td className="px-6 py-4"><span className="px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-secondary-100">{u.role}</span></td>
-                              <td className="px-6 py-4 text-right"><Button variant="ghost" size="sm"><Edit className="w-4 h-4"/></Button></td>
+                              <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)}>
+                                  <Edit className="w-4 h-4"/>
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleToggleSuspend(u)} className={u.is_verified ? "text-warning-600" : "text-success-600"}>
+                                  {u.is_verified ? "Suspendre" : "Activer"}
+                                </Button>
+                                <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteUser(u.id)}>
+                                  <Trash2 className="w-4 h-4"/>
+                                </Button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -574,31 +815,41 @@ const AdminDashboard: React.FC = () => {
 
             {activeTab === 'payments' && (
               <Card>
-                <CardHeader><CardTitle>Gestion des Paiements</CardTitle></CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                  <CardTitle>Gestion des Paiements</CardTitle>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleExportData('payments', 'csv')}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Rapport CSV
+                    </Button>
+                  </div>
+                </CardHeader>
                 <CardContent className="p-0">
                   <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead className="bg-secondary-50 border-y">
                       <tr>
-                        <th className="px-6 py-4">Utilisateur</th>
-                        <th className="px-6 py-4">Service</th>
-                        <th className="px-6 py-4">Montant</th>
+                        <th className="px-6 py-4">Avocat</th>
+                        <th className="px-6 py-4">Client</th>
+                        <th className="px-6 py-4">Montant Devis</th>
+                        <th className="px-6 py-4">Commission (20%)</th>
                         <th className="px-6 py-4">Statut</th>
-                        <th className="px-6 py-4">Date</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y relative">
-                      {payments.map(p => (
-                        <tr key={p.id} className="hover:bg-secondary-50">
-                          <td className="px-6 py-4 font-medium">{p.profiles ? `${p.profiles.first_name} ${p.profiles.last_name}` : p.user_id}</td>
-                          <td className="px-6 py-4">{p.service_type}</td>
-                          <td className="px-6 py-4">{p.amount} MAD</td>
+                      {quotes.map(q => (
+                        <tr key={q.id} className="hover:bg-secondary-50">
+                          <td className="px-6 py-4">{q.profiles?.first_name} {q.profiles?.last_name}</td>
+                          <td className="px-6 py-4">{(q as any).client?.first_name} {(q as any).client?.last_name}</td>
+                          <td className="px-6 py-4 font-bold">{q.amount} MAD</td>
+                          <td className="px-6 py-4 text-primary-600 font-bold">{q.commission_amount} MAD</td>
                           <td className="px-6 py-4">
-                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${p.status === 'Complété' ? 'bg-success-100 text-success-700' : p.status === 'Échoué' ? 'bg-danger-100 text-danger-700' : 'bg-warning-100 text-warning-700'}`}>{p.status}</span>
+                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'commissioned' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                              {q.status}
+                            </span>
                           </td>
-                          <td className="px-6 py-4">{new Date(p.created_at).toLocaleDateString()}</td>
                         </tr>
                       ))}
-                      {payments.length === 0 && <tr><td colSpan={5} className="px-6 py-8 text-center text-secondary-500">Aucun paiement trouvé.</td></tr>}
+                      {quotes.length === 0 && <tr><td colSpan={5} className="px-6 py-8 text-center text-secondary-500">Aucune transaction de devis.</td></tr>}
                     </tbody>
                   </table>
                 </CardContent>
@@ -624,8 +875,8 @@ const AdminDashboard: React.FC = () => {
                       <p className="text-sm text-secondary-500">Taux prélevé sur les consultations</p>
                     </div>
                     <div className="flex gap-2">
-                      <Input type="number" defaultValue={settings?.commission_rate} id="comm_rate" className="w-20" />
-                      <Button variant="outline" onClick={() => handleUpdateSettings('commission_rate', (document.getElementById('comm_rate') as HTMLInputElement).value)}>Enregistrer</Button>
+                       <Input type="number" defaultValue={settings?.commission_rate} id="comm_rate" className="w-20" />
+                       <Button variant="outline" onClick={() => handleUpdateSettings('commission_rate', (document.getElementById('comm_rate') as HTMLInputElement).value)}>Enregistrer</Button>
                     </div>
                   </div>
                   <div className="flex items-center justify-between pb-2">
@@ -633,8 +884,8 @@ const AdminDashboard: React.FC = () => {
                       <h4 className="font-semibold text-secondary-900">Message de Bienvenue</h4>
                     </div>
                     <div className="flex gap-2 w-1/2">
-                      <Input type="text" defaultValue={settings?.welcome_message} id="welcome_msg" className="w-full" />
-                      <Button variant="outline" onClick={() => handleUpdateSettings('welcome_message', (document.getElementById('welcome_msg') as HTMLInputElement).value)}>Sauver</Button>
+                       <Input type="text" defaultValue={settings?.welcome_message} id="welcome_msg" className="w-full" />
+                       <Button variant="outline" onClick={() => handleUpdateSettings('welcome_message', (document.getElementById('welcome_msg') as HTMLInputElement).value)}>Sauver</Button>
                     </div>
                   </div>
                 </CardContent>

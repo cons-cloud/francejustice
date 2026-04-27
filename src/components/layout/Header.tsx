@@ -25,14 +25,14 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-secondary-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-50 w-full border-b border-secondary-200 bg-white shadow-sm">
       <div className="container px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
             <Scale className="h-6 w-6 text-primary-600" />
             <div className="flex items-center">
-              <span className="text-xl font-bold text-primary-600 tracking-tight">Just-Law</span>
+              <span className="text-xl font-bold text-primary-600 tracking-tight">Law-Just</span>
             </div>
           </div>
 
@@ -44,11 +44,10 @@ const Header: React.FC = () => {
                 <a
                   key={item.name}
                   href={item.href}
-                  className={`nav-link font-medium transition-colors ${
-                    isActive 
-                      ? 'text-primary-600 border-b-2 border-primary-600 pb-1' 
-                      : 'text-secondary-600 hover:text-primary-600'
-                  }`}
+                  className={`nav-link font-medium transition-colors ${isActive
+                    ? 'text-primary-600 border-b-2 border-primary-600 pb-1'
+                    : 'text-secondary-600 hover:text-primary-600'
+                    }`}
                 >
                   {item.name}
                 </a>
@@ -60,9 +59,9 @@ const Header: React.FC = () => {
           <div className="hidden lg:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => navigate(role === 'admin' ? '/dashboard/admin' : role === 'lawyer' ? '/dashboard/lawyer' : '/dashboard/user')}
                 >
                   <UserIcon className="h-4 w-4 mr-2" />
@@ -94,9 +93,9 @@ const Header: React.FC = () => {
         </div>
 
         {/* Mobile Menu */}
-        <MobileMenu 
-          isOpen={isMenuOpen} 
-          onClose={() => setIsMenuOpen(false)} 
+        <MobileMenu
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
           user={user}
           role={role || undefined}
           navigate={navigate}

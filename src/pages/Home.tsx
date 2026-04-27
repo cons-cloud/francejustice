@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import AnimatedCounter from '../components/ui/AnimatedCounter';
+import heroBg from '../assets/images/3.jpg';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -133,7 +134,7 @@ const Home: React.FC = () => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.5 }}
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/src/assets/images/3.jpg')" }}
+          style={{ backgroundImage: `url(${heroBg})` }}
         />
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/60" />

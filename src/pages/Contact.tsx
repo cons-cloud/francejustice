@@ -3,6 +3,7 @@ import { Mail, Phone, MapPin, Send, CheckCircle } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
+import Modal from "../components/ui/Modal";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -50,23 +51,26 @@ const Contact = () => {
     }
   };
 
-  if (submitted) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md animate-in fade-in zoom-in duration-500">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-success-100 text-success-600 rounded-full mb-6">
-            <CheckCircle className="w-8 h-8" />
-          </div>
-          <h2 className="text-2xl font-bold text-secondary-900 mb-2">Message envoyé !</h2>
-          <p className="text-secondary-600 mb-6">Merci de nous avoir contactés. Notre équipe vous répondra dans les plus brefs délais.</p>
-          <Button onClick={() => setSubmitted(false)}>Envoyer un autre message</Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-secondary-50 min-h-screen py-12">
+      <Modal
+        isOpen={submitted}
+        onClose={() => setSubmitted(false)}
+        title="Message envoyé !"
+      >
+        <div className="text-center py-6">
+          <div className="mx-auto h-16 w-16 bg-success-100 rounded-full flex items-center justify-center mb-4">
+            <CheckCircle className="h-8 w-8 text-success-600" />
+          </div>
+          <h3 className="text-2xl font-bold text-secondary-900 mb-2">Message envoyé !</h3>
+          <p className="text-secondary-600 mb-6">
+            Merci de nous avoir contactés. Notre équipe vous répondra dans les plus brefs délais sur votre adresse email.
+          </p>
+          <Button className="w-full" onClick={() => setSubmitted(false)}>
+            Fermer
+          </Button>
+        </div>
+      </Modal>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
@@ -99,7 +103,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-secondary-900">Téléphone</h3>
-                    <p className="text-secondary-500">+212 522 00 00 00</p>
+                    <p className="text-secondary-500">+33607517416</p>
                     <p className="text-secondary-500">Lundi - Vendredi, 9h - 18h</p>
                   </div>
                 </div>
@@ -112,8 +116,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-secondary-900">Bureau</h3>
-                    <p className="text-secondary-500">Quartier d'Affaires</p>
-                    <p className="text-secondary-500">Paris, France</p>
+                    <p className="text-secondary-500">1275 route de chateau neuf 26320 saint marcelle les valence</p>
                   </div>
                 </div>
               </div>

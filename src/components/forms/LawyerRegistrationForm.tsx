@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { supabase } from '../../lib/supabase';
 import { ShieldCheck, Mail, Lock, User as UserIcon, Briefcase, FileText, MapPin, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import Modal from '../ui/Modal';
 import { useNavigate, Link } from 'react-router-dom';
 
 interface LawyerRegistrationFormProps {
@@ -16,6 +17,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [form, setForm] = useState({
     firstName: '',
@@ -40,6 +42,11 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
 
     if (form.password !== form.confirmPassword) {
       setError("Les mots de passe ne correspondent pas");
+      return;
+    }
+
+    if (!files || files.length === 0) {
+      setError("L'importation de vos documents justificatifs est obligatoire pour valider votre statut d'avocat.");
       return;
     }
 
@@ -74,9 +81,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
           // In a real scenario: supabase.storage.from('verification-docs').upload(...)
         }
 
-        alert('Candidature soumise avec succès ! Un administrateur vérifiera votre compte.');
-        if (onClose) onClose();
-        navigate('/login');
+        setShowSuccessModal(true);
       }
     } catch (err: any) {
       setError(err.message || "Une erreur est survenue");
@@ -242,6 +247,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
                 />
               </div>
               <Input
+                required
                 placeholder="Code postal"
                 value={form.postalCode}
                 onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
@@ -264,11 +270,14 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
                         type="file" 
                         className="sr-only" 
                         multiple 
+                        required
                         onChange={(e) => setFiles(e.target.files)} 
                       />
                     </label>
                   </div>
-                  <p className="text-xs text-secondary-500">PNG, JPG, PDF jusqu'à 10MB</p>
+                  <p className="text-xs text-secondary-500">
+                    {files && files.length > 0 ? `${files.length} fichier(s) sélectionné(s)` : "PNG, JPG, PDF jusqu'à 10MB"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -290,6 +299,33 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
           </form>
         </CardContent>
       </Card>
+      
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          if (onClose) onClose();
+          navigate('/login');
+        }}
+        title="Candidature Envoyée"
+      >
+        <div className="text-center py-6">
+          <div className="mx-auto h-16 w-16 bg-success-100 rounded-full flex items-center justify-center mb-4">
+            <ShieldCheck className="h-8 w-8 text-success-600" />
+          </div>
+          <h3 className="text-xl font-bold text-secondary-900 mb-2">Inscription reçue avec succès</h3>
+          <p className="text-secondary-600 mb-6">
+            Votre candidature professionnelle a été transmise. Un administrateur procédera à la vérification de vos documents sous 48h.
+          </p>
+          <Button className="w-full" onClick={() => {
+            setShowSuccessModal(false);
+            if (onClose) onClose();
+            navigate('/login');
+          }}>
+            Retourner à l'accueil
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

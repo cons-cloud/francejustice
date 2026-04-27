@@ -8,7 +8,11 @@ import { AuthModal } from '../components/ui/AuthModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 
-const SearchPage: React.FC = () => {
+interface SearchPageProps {
+  skipAuthCheck?: boolean;
+}
+
+const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
   const { user } = useAuth();
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,8 +23,16 @@ const SearchPage: React.FC = () => {
     setLoading(true);
     setAiExplanation(null);
     try {
-      const prompt = `Recherchez des informations sur le droit français concernant: "${q}". 
-      Fournissez une explication claire, citez les codes juridiques (Code Civil, Code du Travail, etc.) et donnez des conseils généraux.`;
+      const prompt = `RECHERCHE JURIDIQUE AVEC INTERNET : "${q}"
+
+INSTRUCTIONS :
+1. Recherche sur Internet les informations les plus RÉCENTES sur ce sujet
+2. Cite les articles de loi exacts (Code Civil, Code du Travail, Dahirs marocains, etc.)
+3. Trouve les jurisprudences récentes (2024-2026) sur Internet
+4. Donne des conseils pratiques et concrets
+5. Cite tes sources avec les dates
+
+Réponds de manière structurée et complète.`;
       
       const explanation = await chatWithAI(prompt);
       setAiExplanation(explanation);
@@ -41,20 +53,76 @@ const SearchPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
+    if (!user && !skipAuthCheck) {
       setShowAuthModal(true);
       return;
     }
     if (query.trim()) performSearch(query.trim());
   };
 
+  if (skipAuthCheck) {
+    return (
+      <div className="space-y-6">
+        <div className="flex gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-3.5 h-5 w-5 text-secondary-400" />
+            <form onSubmit={handleSubmit} className="flex gap-4">
+              <Input
+                className="pl-12 h-12 text-base flex-1"
+                placeholder="Ex: licenciement, pension alimentaire, héritage..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <Button type="submit" className="h-12 px-6 font-bold" disabled={loading}>
+                {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : 'Rechercher'}
+              </Button>
+            </form>
+          </div>
+        </div>
+
+        {loading && (
+          <div className="text-center py-12">
+            <RefreshCw className="h-10 w-10 animate-spin text-primary-600 mx-auto mb-4" />
+            <p className="text-secondary-600">L'IA analyse les textes de loi...</p>
+          </div>
+        )}
+
+        {aiExplanation && (
+          <Card className="border-l-4 border-l-primary-500">
+            <CardHeader className="bg-primary-50">
+              <CardTitle className="flex items-center gap-2 text-primary-900">
+                <Scale className="h-6 w-6" />
+                Analyse Juridique par l'IA
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 prose prose-slate max-w-none">
+              <div className="whitespace-pre-wrap text-secondary-800 leading-relaxed">
+                {aiExplanation}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {!loading && !aiExplanation && (
+          <Card>
+            <CardContent className="p-8 text-center text-secondary-400">
+              <Scale className="h-12 w-12 mx-auto mb-4 text-primary-200" />
+              <p className="text-lg font-medium">Posez votre question juridique</p>
+              <p className="text-sm mt-1">Jurisprudence, codes, conseils — notre IA vous répond instantanément</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-secondary-50">
       <div className="bg-primary-900 text-white py-16">
         <div className="container text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Recherche IA - Droit Français</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Recherche IA — Droit en Temps Réel</h1>
           <p className="text-xl text-primary-200 max-w-2xl mx-auto">
-            Accédez instantanément à la jurisprudence et aux textes de loi français grâce à notre intelligence artificielle.
+            Accédez instantanément à la jurisprudence et aux textes de loi grâce à notre IA connectée à Internet en temps réel.
           </p>
         </div>
       </div>

@@ -7,17 +7,16 @@ import { supabase } from '../lib/supabase';
 
 interface LawyerProfile {
   id: string;
+  first_name: string;
+  last_name: string;
+  email?: string;
   specialties?: string[];
-  specialty?: string; // fallback
+  specialty?: string;
   bio?: string;
   city?: string;
   office_phone?: string;
-  profiles?: {
-    first_name: string;
-    last_name: string;
-    email: string;
-    city?: string;
-  };
+  avatar_url?: string;
+  is_available?: boolean;
 }
 
 const LawyersPage: React.FC = () => {
@@ -52,11 +51,10 @@ const LawyersPage: React.FC = () => {
     const to = from + PAGE_SIZE - 1;
 
     const { data, error } = await supabase
-      .from('lawyers')
-      .select('*, profiles!inner(*)')
-      .eq('is_available', true)
-      .eq('profiles.role', 'lawyer')
-      .eq('profiles.is_verified', true)
+      .from('profiles')
+      .select('*')
+      .eq('role', 'lawyer')
+      .eq('is_verified', true)
       .range(from, to);
     
     if (!error && data) {
@@ -76,9 +74,9 @@ const LawyersPage: React.FC = () => {
     fetchLawyers(nextPage);
   };
 
-  const filteredLawyers = lawyers.filter(l => 
-    `${l.profiles?.first_name} ${l.profiles?.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (l.specialties?.join(', ') || '').toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredLawyers = lawyers.filter(l =>
+    `${l.first_name} ${l.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (l.specialty || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -115,31 +113,40 @@ const LawyersPage: React.FC = () => {
                 <div className="h-4 bg-primary-600"></div>
                 <CardContent className="p-8">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center font-bold text-2xl uppercase">
-                      {lawyer.profiles?.first_name?.[0]}{lawyer.profiles?.last_name?.[0]}
+                    <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center font-bold text-2xl uppercase overflow-hidden">
+                      {lawyer.avatar_url ? (
+                        <img src={lawyer.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{lawyer.first_name?.[0]}{lawyer.last_name?.[0]}</span>
+                      )}
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-secondary-900 flex items-center gap-2">
-                        Me. {lawyer.profiles?.first_name} {lawyer.profiles?.last_name}
+                        Me. {lawyer.first_name} {lawyer.last_name}
                         <CheckCircle className="h-5 w-5 text-success-500" />
                       </h3>
-                      <p className="text-primary-600 font-semibold">{lawyer.specialties?.[0] || 'Avocat au barreau'}</p>
+                      <p className="text-primary-600 font-semibold">{lawyer.specialty || 'Avocat au barreau'}</p>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-semibold mt-1 inline-block ${
+                        lawyer.is_available !== false ? 'bg-success-100 text-success-700' : 'bg-secondary-100 text-secondary-500'
+                      }`}>
+                        {lawyer.is_available !== false ? 'Disponible' : 'Indisponible'}
+                      </span>
                     </div>
                   </div>
 
                   <div className="space-y-3 mb-8">
                     <div className="flex items-center text-secondary-600 gap-3">
                       <MapPin className="h-5 w-5 text-secondary-400" />
-                      <span>{lawyer.city || lawyer.profiles?.city || 'Paris, France'}</span>
+                      <span>{lawyer.city || 'France'}</span>
                     </div>
                     <div className="flex items-center text-secondary-600 gap-3">
                       <Mail className="h-5 w-5 text-secondary-400" />
-                      <span>{lawyer.profiles?.email}</span>
+                      <span>{lawyer.email}</span>
                     </div>
                   </div>
 
                   <p className="text-secondary-600 line-clamp-3 mb-8 min-h-[4.5rem]">
-                    {lawyer.bio || "Professionnel dévoué au service du droit français, spécialisé dans l'assistance et le conseil juridique pour les particuliers et les entreprises."}
+                    {lawyer.bio || "Professionnel dévoué au service du droit, spécialisé dans l'assistance et le conseil juridique pour les particuliers et les entreprises."}
                   </p>
 
                   <div className="flex gap-2">

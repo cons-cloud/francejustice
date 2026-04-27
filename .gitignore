@@ -103,3 +103,18 @@ temp/
 
 # Netlify
 .netlify
+
+# Python / Backend
+backend/venv/
+backend/db.sqlite3
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.toast
+.lucide

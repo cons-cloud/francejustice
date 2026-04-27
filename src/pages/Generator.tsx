@@ -11,7 +11,11 @@ import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 
-export const DocumentGenerator: React.FC = () => {
+interface GeneratorProps {
+  skipAuthCheck?: boolean;
+}
+
+export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = false }) => {
   const { user, profile } = useAuth();
   const { toasts, success, error, removeToast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
@@ -54,8 +58,15 @@ export const DocumentGenerator: React.FC = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const isNextDisabled = () => {
+    if (currentStep === 1) return !formData.documentType;
+    if (currentStep === 2) return !formData.firstName || !formData.lastName || !formData.email;
+    if (currentStep === 3) return !formData.incidentDescription;
+    return false;
+  };
+
   const nextStep = () => {
-    if (currentStep < 5) {
+    if (currentStep < 5 && !isNextDisabled()) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -67,7 +78,7 @@ export const DocumentGenerator: React.FC = () => {
   };
 
   const handleGenerate = async () => {
-    if (!user) {
+    if (!user && !skipAuthCheck) {
       setShowAuthModal(true);
       return;
     }
@@ -136,10 +147,10 @@ export const DocumentGenerator: React.FC = () => {
                   <Card
                     key={type.id}
                     hover
-                    className={`cursor-pointer transition-all ${
+                    className={`cursor-pointer transition-all duration-200 ${
                       formData.documentType === type.id
-                        ? 'ring-2 ring-primary-500 bg-primary-50'
-                        : ''
+                        ? '!border-2 !border-primary-500 !bg-primary-50/50 scale-[1.02] shadow-md'
+                        : '!border-2 !border-transparent hover:!border-secondary-200'
                     }`}
                     onClick={() => handleInputChange('documentType', type.id)}
                   >
@@ -360,6 +371,73 @@ export const DocumentGenerator: React.FC = () => {
     }
   };
 
+  if (skipAuthCheck) {
+    // Inline rendering for Dashboard (no full-page wrapper, no auth modal)
+    return (
+      <div className="space-y-6">
+        {/* Progress Steps */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              {steps.map((step, index) => (
+                <div key={step.number} className="flex items-center">
+                  <div className={`flex items-center justify-center w-9 h-9 rounded-full border-2 ${
+                    currentStep >= step.number
+                      ? 'bg-primary-600 border-primary-600 text-white'
+                      : 'border-secondary-300 text-secondary-400'
+                  }`}>
+                    {currentStep > step.number ? (
+                      <CheckCircle className="h-4 w-4" />
+                    ) : (
+                      <span className="text-sm font-semibold">{step.number}</span>
+                    )}
+                  </div>
+                  <div className="ml-2 hidden sm:block">
+                    <div className="text-xs font-medium text-secondary-900">{step.title}</div>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div className={`hidden sm:block w-6 h-0.5 mx-3 ${
+                      currentStep > step.number ? 'bg-primary-600' : 'bg-secondary-300'
+                    }`} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Step Content */}
+        <Card>
+          <CardContent className="p-6">
+            {renderStepContent()}
+          </CardContent>
+        </Card>
+
+        {/* Navigation */}
+        <div className="flex justify-between">
+          <Button variant="outline" onClick={prevStep} disabled={currentStep === 1} className="flex items-center">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Précédent
+          </Button>
+          {currentStep < 5 ? (
+            <Button onClick={nextStep} disabled={isNextDisabled()} className="flex items-center">
+              Suivant
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          ) : (
+            <div className="flex space-x-4">
+              <Button onClick={handleGenerate} disabled={isGenerating}>
+                <Download className="h-4 w-4 mr-2" />
+                {isGenerating ? 'Génération...' : 'Générer le document'}
+              </Button>
+            </div>
+          )}
+        </div>
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-secondary-50">
       <div className="container py-8">
@@ -429,7 +507,7 @@ export const DocumentGenerator: React.FC = () => {
           </Button>
           
           {currentStep < 5 ? (
-            <Button onClick={nextStep} className="flex items-center">
+            <Button onClick={nextStep} disabled={isNextDisabled()} className="flex items-center">
               Suivant
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>

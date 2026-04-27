@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path('stripe-webhook/', views.stripe_webhook, name='stripe-webhook'),
-    path('create-checkout/', views.create_checkout, name='create-checkout'),
+    path('create-checkout-session/', views.create_checkout_session, name='create-checkout-session'),
 ]
