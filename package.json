@@ -1,5 +1,5 @@
 {
-  "name": "law_just",
+  "name": "france-justice",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -12,7 +12,7 @@
     "recherche",
     "IA"
   ],
-  "author": "Law Just Team",
+  "author": "france-justice Team",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
@@ -75,10 +75,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lawjust/lawjust.git"
+    "url": "https://github.com/JoelGantshua/france-justice.git"
   },
   "bugs": {
-    "url": "https://github.com/lawjust/lawjust/issues"
+    "url": "https://github.com/JoelGantshua/france-justice/issues"
   },
-  "homepage": "https://lawjust.fr"
+  "homepage": "https://france-justice.fr"
 }

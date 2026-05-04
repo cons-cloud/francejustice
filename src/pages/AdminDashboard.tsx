@@ -806,7 +806,7 @@ const AdminDashboard: React.FC = () => {
                 <CardHeader><CardTitle>État du Système</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                   <div className="p-4 border rounded-xl flex items-center justify-between bg-white">
-                    <span className="font-semibold text-secondary-700">Services Just-Law</span>
+                    <span className="font-semibold text-secondary-700">Services France Justice </span>
                     <span className="px-3 py-1 rounded-lg bg-green-50 text-green-700 text-xs font-bold">100% Online</span>
                   </div>
                 </CardContent>

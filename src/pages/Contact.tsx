@@ -90,8 +90,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-secondary-900">Email</h3>
-                    <p className="text-secondary-500">contact@lawjust.ma</p>
-                    <p className="text-secondary-500">support@lawjust.ma</p>
+                    <p className="text-secondary-500">imam@orange.fr</p>
+                    <p className="text-secondary-500">imam@orange.fr</p>
                   </div>
                 </div>
               </div>

@@ -87,7 +87,7 @@ const Home: React.FC = () => {
     {
       name: 'Marie Dubois',
       role: 'Victime de harcèlement',
-      content: 'Just-Law m\'a aidée à comprendre mes droits et à déposer ma plainte facilement.',
+      content: 'France Justice m\'a aidée à comprendre mes droits et à déposer ma plainte facilement.',
       rating: 5,
     },
     {
@@ -350,7 +350,7 @@ const Home: React.FC = () => {
               Prêt à simplifier votre accès au droit ?
             </h2>
             <p className="text-xl md:text-2xl text-primary-100 mb-12 max-w-3xl mx-auto font-medium text-center">
-              Rejoignez Just-Law aujourd'hui et bénéficiez d'une assistance juridique 100% intelligente.
+              Rejoignez France Justice aujourd'hui et bénéficiez d'une assistance juridique 100% intelligente.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center">

@@ -77,7 +77,7 @@ const About: React.FC = () => {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-4xl md:text-6xl font-black mb-8 text-secondary-900 tracking-tight leading-tight">
-              À propos de <span className="text-primary-600">Just-Law</span>
+              À propos de <span className="text-primary-600">France Justice</span>
             </h1>
 
             <p className="text-xl text-secondary-600 mb-10 leading-relaxed font-medium">

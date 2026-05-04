@@ -68,7 +68,7 @@ const LoginPage: React.FC = () => {
               <LogIn className="h-6 w-6 text-primary-600" />
             </div>
             <CardTitle className="text-3xl font-extrabold text-secondary-900">
-              Bienvenue sur Just-Law
+              Bienvenue sur France Justice
             </CardTitle>
             <CardDescription>
               Connectez-vous à votre espace juridique sécurisé

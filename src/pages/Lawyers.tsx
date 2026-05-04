@@ -189,7 +189,7 @@ const LawyersPage: React.FC = () => {
         <div className="bg-primary-50 rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between gap-8 border border-primary-100">
           <div>
             <h2 className="text-3xl font-bold text-primary-900 mb-4">Vous êtes avocat ?</h2>
-            <p className="text-lg text-primary-700">Rejoignez Law Just pour augmenter votre visibilité et gérer vos dossiers en ligne.</p>
+            <p className="text-lg text-primary-700">Rejoignez France Justice pour augmenter votre visibilité et gérer vos dossiers en ligne.</p>
           </div>
           <Button size="lg" className="px-10 h-16 text-xl shadow-lg shadow-primary-500/20">
             S'inscrire comme Avocat

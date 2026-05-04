@@ -113,7 +113,7 @@ const Services: React.FC = () => {
             </h1>
 
             <p className="text-xl text-secondary-600 mb-10 leading-relaxed font-medium">
-              Just-Law combine intelligence artificielle de pointe et expertise humaine 
+              France Justice  combine intelligence artificielle de pointe et expertise humaine 
               pour simplifier l’accès au droit et accélérer vos démarches en France.
             </p>
 
@@ -221,7 +221,7 @@ const Services: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl md:text-5xl font-black mb-10 tracking-tight leading-tight text-balance">
-                Pourquoi choisir <span className="text-primary-600">Just-Law</span> ?
+                Pourquoi choisir <span className="text-primary-600">France Justice</span> ?
               </h2>
 
               <div className="space-y-6">
@@ -307,7 +307,7 @@ const Services: React.FC = () => {
                   Gérez vos clients, automatisez votre secrétariat juridique et accédez à une base de données surpuissante.
                 </p>
                 <Button variant="outline" size="lg" className="w-full py-7 rounded-2xl font-bold text-lg" onClick={() => navigate('/register/lawyer')}>
-                  Rejoindre le réseau Just-Law
+                  Rejoindre le réseau France Justice 
                 </Button>
               </CardContent>
             </Card>
@@ -364,7 +364,7 @@ const Services: React.FC = () => {
             </h2>
 
             <p className="text-xl md:text-2xl text-primary-100 mb-12 max-w-3xl mx-auto font-medium text-center">
-              Accédez à vos droits et gérez vos dossiers plus rapidement avec l'IA avancée de Just-Law.
+              Accédez à vos droits et gérez vos dossiers plus rapidement avec l'IA avancée de France Justice.
             </p>
 
             <Button 

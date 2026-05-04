@@ -22,10 +22,10 @@ const Legal: React.FC = () => {
                                 <h2 className="text-2xl font-bold text-gray-900">Mentions Légales</h2>
                             </div>
                             <div className="prose prose-blue max-w-none text-gray-600 space-y-4">
-                                <p><strong>Éditeur du site :</strong> JustLaw SAS, société au capital de 50 000 €, dont le siège social est situé au 1275 route de chateau neuf 26320 saint marcelle les valence.</p>
-                                <p><strong>Directeur de la publication :</strong> Administrateur JustLaw.</p>
+                                <p><strong>Éditeur du site :</strong> France Justice SAS, société au capital de 50 000 €, dont le siège social est situé au 1275 route de chateau neuf 26320 saint marcelle les valence.</p>
+                                <p><strong>Directeur de la publication :</strong> Administrateur France Justice.</p>
                                 <p><strong>Hébergement :</strong> Platform.sh / Railway.</p>
-                                <p><strong>Contact :</strong> contact@lawjust.fr | +33607517416</p>
+                                <p><strong>Contact :</strong>imam@orange.fr | +33607517416</p>
                             </div>
                         </section>
 
@@ -38,7 +38,7 @@ const Legal: React.FC = () => {
                                 <h2 className="text-2xl font-bold text-gray-900">Politique de Confidentialité</h2>
                             </div>
                             <div className="prose prose-green max-w-none text-gray-600 space-y-4">
-                                <p>JustLaw s'engage à protéger vos données personnelles. Nous collectons uniquement les données nécessaires au bon fonctionnement de nos services juridiques.</p>
+                                <p>France Justice s'engage à protéger vos données personnelles. Nous collectons uniquement les données nécessaires au bon fonctionnement de nos services juridiques.</p>
                                 <ul className="list-disc pl-5">
                                     <li>Collecte de données : Nom, prénom, email, spécialité (avocats).</li>
                                     <li>Usage : Mise en relation, génération de documents IA.</li>
@@ -57,7 +57,7 @@ const Legal: React.FC = () => {
                                 <h2 className="text-2xl font-bold text-gray-900">Conditions Générales d'Utilisation</h2>
                             </div>
                             <div className="prose prose-orange max-w-none text-gray-600 space-y-4">
-                                <p>L'utilisation de la plateforme JustLaw implique l'acceptation intégrale des présentes conditions d'utilisation.</p>
+                                <p>L'utilisation de la plateforme France Justice implique l'acceptation intégrale des présentes conditions d'utilisation.</p>
                                 <p>La plateforme fournit des outils d'aide juridique basés sur l'IA, mais ne remplace en aucun cas les conseils directs d'un avocat humain. Les utilisateurs sont encouragés à contacter les avocats vérifiés via notre plateforme.</p>
                             </div>
                         </section>
