@@ -82,7 +82,7 @@ const LawyersPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-secondary-50 pb-20">
       <div className="bg-primary-900 text-white py-20 mb-12">
-        <div className="container text-center">
+        <div className="container flex flex-col items-center text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">Trouvez un Avocat de Confiance</h1>
           <p className="text-xl text-primary-200 max-w-2xl mx-auto mb-10">
             Notre annuaire regroupe uniquement des professionnels du droit français rigoureusement vérifiés par notre équipe.
@@ -191,7 +191,15 @@ const LawyersPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-primary-900 mb-4">Vous êtes avocat ?</h2>
             <p className="text-lg text-primary-700">Rejoignez France Justice pour augmenter votre visibilité et gérer vos dossiers en ligne.</p>
           </div>
-          <Button size="lg" className="px-10 h-16 text-xl shadow-lg shadow-primary-500/20">
+          <Button size="lg" className="relative overflow-hidden
+          px-5 py-2 text-sm rounded-xl border border-blue-600 text-
+          before:absolute before:inset-0
+          before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+          before:opacity-0 before:transition-opacity before:duration-300
+          hover:before:opacity-100
+          hover:text-black
+          z-0 before:z-[-1]
+          transition-all hover:scale-105 active:scale-95">
             S'inscrire comme Avocat
           </Button>
         </div>

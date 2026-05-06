@@ -150,7 +150,7 @@ const Home: React.FC = () => {
               Votre <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-indigo-400">partenaire juridique</span>
             </h1>
 
-            <p className="text-lg md:text-2xl text-secondary-200 mb-10 leading-relaxed max-w-3xl mx-auto font-medium">
+            <p className="text-lg md:text-2xl text-white mb-10 leading-relaxed max-w-3xl mx-auto font-medium">
               Accédez facilement au droit grâce à notre intelligence artificielle,
               générez vos documents juridiques et trouvez un avocat en quelques clics.
             </p>
@@ -158,7 +158,20 @@ const Home: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
               <Button
                 size="lg"
-                className="text-lg px-10 py-7 rounded-2xl bg-primary-600 hover:bg-primary-500 shadow-xl shadow-primary-600/30 transition-all hover:scale-105 active:scale-95"
+                className="relative overflow-hidden
+    px-5 py-2 text-sm rounded-xl
+    border border-blue-600 text-white
+    bg-blue-600
+    before:absolute before:inset-0
+    before:bg-gradient-to-r before:from-blue-600 before:via-white before:to-red-600
+    before:opacity-0 before:transition-opacity before:duration-300
+
+    hover:before:opacity-100
+    hover:text-black
+
+    z-0 before:z-[-1]
+
+    transition-all hover:scale-105 active:scale-95"
                 onClick={() => navigate('/login')}
               >
                 Démarrez votre session
@@ -166,13 +179,28 @@ const Home: React.FC = () => {
               </Button>
 
               <Button
-                variant="outline"
-                size="lg"
-                className="text-lg px-10 py-7 rounded-2xl border-white/30 text-white hover:bg-white hover:text-black backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
-                onClick={() => navigate('/services')}
-              >
-                Nos services
-              </Button>
+  variant="outline"
+  size="md"
+  className="
+    relative overflow-hidden
+    px-5 py-2 text-sm rounded-xl
+    border border-blue-600 text-blue-600
+    bg-white
+    before:absolute before:inset-0
+    before:bg-gradient-to-r before:from-blue-600 before:via-white before:to-red-600
+    before:opacity-0 before:transition-opacity before:duration-300
+
+    hover:before:opacity-100
+    hover:text-black
+
+    z-0 before:z-[-1]
+
+    transition-all hover:scale-105 active:scale-95
+  "
+  onClick={() => navigate('/services')}
+>
+  Nos services
+</Button>
             </div>
           </motion.div>
         </div>
@@ -354,15 +382,29 @@ const Home: React.FC = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="text-lg px-12 py-8 rounded-2xl bg-white text-primary-700 hover:bg-primary-50 shadow-2xl scale-110"
-                onClick={() => navigate('/register')}
-              >
-                Commencer gratuitement
-                <ArrowRight className="ml-2 h-6 w-6" />
-              </Button>
+             <Button
+  variant="outline"
+  size="md"
+  className="
+    relative overflow-hidden
+    px-5 py-2 text-sm rounded-xl
+    border border-blue-600text-lg px-12 py-8 rounded-2xl bg-white text-primary-700
+
+    before:absolute before:inset-0
+    before:bg-gradient-to-r before:from-blue-600 before:via-white before:to-red-600
+    before:opacity-0 before:transition-opacity before:duration-300
+
+    hover:before:opacity-100
+    hover:text-black
+
+    z-0 before:z-[-1]
+
+    transition-all hover:scale-105 active:scale-95
+  "
+  onClick={() => navigate('/register')}
+>
+ Commencez gratuitement
+</Button>
             </div>
           </motion.div>
         </div>

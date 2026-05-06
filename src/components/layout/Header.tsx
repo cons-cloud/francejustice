@@ -32,7 +32,9 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
             <Scale className="h-6 w-6 text-primary-600" />
             <div className="flex items-center">
-              <span className="text-xl font-bold text-primary-600 tracking-tight">Law-Just</span>
+              <span className="text-xl font-bold tracking-tight
+  bg-gradient-to-r from-blue-600 via-gray-200 to-red-600
+  bg-clip-text text-transparent">France Justice</span>
             </div>
           </div>
 
@@ -72,10 +74,29 @@ const Header: React.FC = () => {
                 </Button>
               </div>
             ) : (
-              <Button variant="primary" size="sm" onClick={() => navigate('/login')}>
-                <UserIcon className="h-4 w-4 mr-2" />
-                {isEnglish ? 'Login' : 'Connexion'}
-              </Button>
+              <Button
+  variant="outline"
+  size="md"
+  className="
+    relative overflow-hidden
+    px-5 py-2 text-sm rounded-xl
+    border border-blue-600 text-white
+    bg-blue-600 hover:bg-blue-600
+    before:absolute before:inset-0
+    before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+    before:opacity-0 before:transition-opacity before:duration-300
+
+    hover:before:opacity-100
+    hover:text-black
+
+    z-0 before:z-[-1]
+
+    transition-all hover:scale-105 active:scale-95
+  "
+  onClick={() => navigate('/login')}
+>
+  Connexion
+</Button>
             )}
           </div>
 

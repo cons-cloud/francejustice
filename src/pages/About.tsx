@@ -85,7 +85,15 @@ const About: React.FC = () => {
               l’intelligence artificielle et des services juridiques simplifiés en France.
             </p>
 
-            <Button size="lg" className="px-10 py-7 rounded-2xl shadow-xl shadow-primary-600/20" onClick={() => navigate('/services')}>
+            <Button size="lg" className="relative overflow-hidden
+            px-5 py-2 text-sm rounded-xl border border-blue-600 text-white
+            before:absolute before:inset-0
+            before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+            before:opacity-0 before:transition-opacity before:duration-300
+            hover:before:opacity-100
+            hover:text-black
+            z-0 before:z-[-1]
+            transition-all hover:scale-105 active:scale-95" onClick={() => navigate('/services')}>
               Découvrir nos services
             </Button>
           </motion.div>
@@ -239,7 +247,15 @@ const About: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row justify-center gap-6">
               <Button 
-                className="text-lg px-12 py-8 rounded-2xl bg-white text-primary-700 hover:bg-primary-50 shadow-2xl transition-transform hover:scale-105" 
+                className="relative overflow-hidden
+                px-5 py-2 text-sm rounded-xl border border-blue-600 text-white
+                before:absolute before:inset-0
+                before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+                before:opacity-0 before:transition-opacity before:duration-300
+                hover:before:opacity-100
+                hover:text-black
+                z-0 before:z-[-1]
+                transition-all hover:scale-105 active:scale-95" 
                 onClick={() => navigate('/register')}
               >
                 Créer un compte
@@ -247,7 +263,15 @@ const About: React.FC = () => {
 
               <Button 
                 variant="outline" 
-                className="text-lg px-12 py-8 rounded-2xl border-white text-white hover:bg-white hover:text-primary-700 transition-transform hover:scale-105"
+                className="relative overflow-hidden
+                px-5 py-2 text-sm rounded-xl border border-blue-600 text-white
+                before:absolute before:inset-0
+                before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+                before:opacity-0 before:transition-opacity before:duration-300
+                hover:before:opacity-100
+                hover:text-black
+                z-0 before:z-[-1]
+                transition-all hover:scale-105 active:scale-95"
                 onClick={() => navigate('/register/lawyer')}
               >
                 Espace avocat

@@ -73,7 +73,7 @@ const Contact = () => {
       </Modal>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <div className=" container flex flex-col items-center text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-secondary-900 mb-4">Contactez-nous</h1>
             <p className="text-xl text-secondary-600 max-w-2xl mx-auto">
               Besoin d'un conseil juridique ou d'une assistance ? Notre équipe est à votre écoute.
@@ -183,7 +183,15 @@ const Contact = () => {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-14 text-lg font-bold shadow-lg shadow-primary-500/20"
+                    className="relative overflow-hidden
+                    px-5 py-2 text-sm rounded-xl border border-blue-600 text-white
+                    before:absolute before:inset-0
+                    before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+                    before:opacity-0 before:transition-opacity before:duration-300
+                    hover:before:opacity-100
+                    hover:text-black
+                    z-0 before:z-[-1]
+                    transition-all hover:scale-105 active:scale-95"
                   >
                     {loading ? (
                       <span className="flex items-center justify-center">

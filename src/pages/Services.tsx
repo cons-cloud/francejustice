@@ -118,11 +118,28 @@ const Services: React.FC = () => {
             </p>
 
             <div className="flex gap-6 flex-wrap">
-              <Button size="lg" className="px-10 py-7 rounded-2xl shadow-xl shadow-primary-600/20" onClick={() => navigate('/register')}>
+              <Button size="lg" className="relative overflow-hidden
+              px-5 py-2 text-sm rounded-xl border border-blue-600 text-whithe
+              before:absolute before:inset-0
+              before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+              before:opacity-0 before:transition-opacity before:duration-300
+              hover:before:opacity-100
+              hover:text-black
+              z-0 before:z-[-1]
+              transition-all hover:scale-105 active:scale-95" onClick={() => navigate('/register')}>
                 Démarrez maintenant
               </Button>
 
-              <Button variant="outline" size="lg" className="px-10 py-7 rounded-2xl" onClick={() => navigate('/register/lawyer')}>
+              <Button variant="outline" size="lg" className="relative overflow-hidden
+              px-5 py-2 text-sm rounded-xl border border-blue-600 text-blue-600
+              before:absolute before:inset-0
+              before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+              before:opacity-0 before:transition-opacity before:duration-300
+              hover:before:opacity-100
+              hover:text-black
+              z-0 before:z-[-1]
+              transition-all hover:scale-105 active:scale-95" 
+              onClick={() => navigate('/register/lawyer')}>
                 Espace avocat
               </Button>
             </div>
@@ -151,7 +168,7 @@ const Services: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-24"
+            className=" container flex flex-col items-center text-center mb-24"
           >
             <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tight">
               Ce que nous proposons
@@ -283,7 +300,15 @@ const Services: React.FC = () => {
                 <p className="text-lg text-secondary-600 mb-8 leading-relaxed">
                   Déposez vos dossiers, générez vos documents officiels et obtenez de l’aide intelligente instantanément.
                 </p>
-                <Button size="lg" className="w-full py-7 rounded-2xl font-bold text-lg" onClick={() => navigate('/register')}>
+                <Button size="lg" className="relative overflow-hidden
+                px-5 py-2 text-sm rounded-xl border border-blue-600 text-white
+                before:absolute before:inset-0
+                before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+                before:opacity-0 before:transition-opacity before:duration-300
+                hover:before:opacity-100
+                hover:text-black
+                z-0 before:z-[-1]
+                transition-all hover:scale-105 active:scale-95" onClick={() => navigate('/register')}>
                   Créer mon compte citoyen
                 </Button>
               </CardContent>
@@ -306,7 +331,15 @@ const Services: React.FC = () => {
                 <p className="text-lg text-secondary-600 mb-8 leading-relaxed">
                   Gérez vos clients, automatisez votre secrétariat juridique et accédez à une base de données surpuissante.
                 </p>
-                <Button variant="outline" size="lg" className="w-full py-7 rounded-2xl font-bold text-lg" onClick={() => navigate('/register/lawyer')}>
+                <Button variant="outline" size="lg" className="relative overflow-hidden
+                px-5 py-2 text-sm rounded-xl border border-blue-600 text-white
+                before:absolute before:inset-0
+                before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+                before:opacity-0 before:transition-opacity before:duration-300
+                hover:before:opacity-100
+                hover:text-white
+                z-0 before:z-[-1]
+                transition-all hover:scale-105 active:scale-95" onClick={() => navigate('/register/lawyer')}>
                   Rejoindre le réseau France Justice 
                 </Button>
               </CardContent>
@@ -370,7 +403,15 @@ const Services: React.FC = () => {
             <Button 
               size="lg" 
               variant="secondary" 
-              className="text-xl px-16 py-10 rounded-3xl bg-white text-primary-700 hover:bg-primary-50 shadow-2xl hover:scale-110 active:scale-95 transition-all"
+              className="relative overflow-hidden
+              px-5 py-2 text-sm rounded-xl border border-blue-600 text-blue-600
+              before:absolute before:inset-0
+              before:bg-linear-to-r before:from-blue-600 before:via-white before:to-red-600
+              before:opacity-0 before:transition-opacity before:duration-300
+              hover:before:opacity-100
+              hover:text-black
+              z-0 before:z-[-1]
+              transition-all hover:scale-105 active:scale-95"
               onClick={() => navigate('/register')}
             >
               Commencer gratuitement
