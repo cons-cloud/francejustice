@@ -75,10 +75,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/JoelGantshua/france-justice.git"
+    "url": "https://github.com/cons-cloud/francejustice.git"
   },
   "bugs": {
-    "url": "https://github.com/JoelGantshua/france-justice/issues"
+    "url": "https://github.com/cons-cloud/francejustice/issues"
   },
-  "homepage": "https://france-justice.fr"
+  "homepage": "https://francejustice.com"
 }
