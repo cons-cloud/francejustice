@@ -11,10 +11,6 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isEnglish = (typeof document !== 'undefined' && typeof navigator !== 'undefined')
-    ? ((document.documentElement.lang || '').toLowerCase().startsWith('en') || navigator.language.toLowerCase().startsWith('en'))
-    : false;
-
   const navigation = [
     { name: 'Accueil', href: '/' },
     { name: 'Services', href: '/services' },
