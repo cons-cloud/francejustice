@@ -7,7 +7,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function testQuery() {
   const { data, error } = await supabase
-    .from('profiles')
+    .from('profiles_just')
     .select('*, lawyers!inner(*)')
     .eq('role', 'lawyer')
     .eq('is_verified', true)

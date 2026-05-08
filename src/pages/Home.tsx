@@ -24,22 +24,22 @@ const Home: React.FC = () => {
     
     const formSub = supabase
       .channel('public-formations')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'formations' }, () => fetchFormations())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'formations_just' }, () => fetchFormations())
       .subscribe();
       
     return () => { supabase.removeChannel(formSub); };
   }, []);
 
   const fetchFormations = async () => {
-    const { data } = await supabase.from('formations').select('*').eq('status', 'Publié').order('created_at', { ascending: false }).limit(3);
+    const { data } = await supabase.from('formations_just').select('*').eq('status', 'Publié').order('created_at', { ascending: false }).limit(3);
     if (data) setActiveFormations(data);
   };
 
   const fetchStats = async () => {
     try {
-      const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-      const { count: lawyersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'lawyer').eq('is_verified', true);
-      const { count: docsCount } = await supabase.from('documents').select('*', { count: 'exact', head: true });
+      const { count: usersCount } = await supabase.from('profiles_just').select('*', { count: 'exact', head: true });
+      const { count: lawyersCount } = await supabase.from('profiles_just').select('*', { count: 'exact', head: true }).eq('role', 'lawyer').eq('is_verified', true);
+      const { count: docsCount } = await supabase.from('documents_just').select('*', { count: 'exact', head: true });
       
       setStats([
         { number: '1,500+', label: 'Articles de loi' },

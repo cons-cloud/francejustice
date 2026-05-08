@@ -66,31 +66,31 @@ const DashboardPage: React.FC = () => {
       
       const docsSub = supabase
         .channel('user-docs')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'documents', filter: `owner_id=eq.${user.id}` }, () => fetchDocuments())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'documents_just', filter: `owner_id=eq.${user.id}` }, () => fetchDocuments())
         .subscribe();
         
       const searchSub = supabase
         .channel('user-search')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'search_history', filter: `user_id=eq.${user.id}` }, () => fetchSearches())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'search_history_just', filter: `user_id=eq.${user.id}` }, () => fetchSearches())
         .subscribe();
         
       const formSub = supabase
         .channel('user-formations')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'formations' }, () => fetchFormations())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'formations_just' }, () => fetchFormations())
         .subscribe();
       const quotesSub = supabase
         .channel('user-quotes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes', filter: `client_id=eq.${user.id}` }, () => fetchQuotes())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes_just', filter: `client_id=eq.${user.id}` }, () => fetchQuotes())
         .subscribe();
         
       const chatSub = supabase
         .channel('user-chats')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_rooms', filter: `client_id=eq.${user.id}` }, () => fetchChatRooms())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_rooms_just', filter: `client_id=eq.${user.id}` }, () => fetchChatRooms())
         .subscribe();
         
       const lawyersSub = supabase
         .channel('citizen-lawyers')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, fetchLawyers)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles_just' }, fetchLawyers)
         .subscribe();
 
       return () => {
@@ -113,7 +113,7 @@ const DashboardPage: React.FC = () => {
   const fetchDocuments = async () => {
     if (!user) return;
     const { data } = await supabase
-      .from('documents')
+      .from('documents_just')
       .select('*')
       .eq('owner_id', user.id)
       .order('created_at', { ascending: false });
@@ -122,7 +122,7 @@ const DashboardPage: React.FC = () => {
 
   const fetchFormations = async () => {
     const { data } = await supabase
-      .from('formations')
+      .from('formations_just')
       .select('*')
       .eq('status', 'Publié')
       .order('created_at', { ascending: false });
@@ -132,7 +132,7 @@ const DashboardPage: React.FC = () => {
   const fetchSearches = async () => {
     if (!user) return;
     const { data } = await supabase
-      .from('search_history')
+      .from('search_history_just')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
@@ -143,7 +143,7 @@ const DashboardPage: React.FC = () => {
   const fetchQuotes = async () => {
     if (!user) return;
     const { data } = await supabase
-      .from('quotes')
+      .from('quotes_just')
       .select('*, profiles:lawyer_id(first_name, last_name, email)')
       .eq('client_id', user.id)
       .order('created_at', { ascending: false });
@@ -153,7 +153,7 @@ const DashboardPage: React.FC = () => {
   const fetchChatRooms = async () => {
     if (!user) return;
     const { data } = await supabase
-      .from('chat_rooms')
+      .from('chat_rooms_just')
       .select('*, profiles:lawyer_id(first_name, last_name, email)')
       .eq('client_id', user.id);
     if (data) setChatRooms(data);
@@ -161,7 +161,7 @@ const DashboardPage: React.FC = () => {
 
   const fetchLawyers = async () => {
     const { data } = await supabase
-      .from('profiles')
+      .from('profiles_just')
       .select('*')
       .eq('role', 'lawyer')
       .eq('is_verified', true)
@@ -173,14 +173,14 @@ const DashboardPage: React.FC = () => {
     if (!user) return;
     // Create or get existing chat room
     let { data: existingRoom } = await supabase
-      .from('chat_rooms')
+      .from('chat_rooms_just')
       .select('*')
       .eq('lawyer_id', lawyerId)
       .eq('client_id', user.id)
       .maybeSingle();
     if (!existingRoom) {
       const { data: newRoom } = await supabase
-        .from('chat_rooms')
+        .from('chat_rooms_just')
         .insert([{ lawyer_id: lawyerId, client_id: user.id }])
         .select().single();
       existingRoom = newRoom;
@@ -219,7 +219,7 @@ Ce document est généré par la plateforme JustLaw.
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    const { error: saveErr } = await supabase.from('profiles').update({
+    const { error: saveErr } = await supabase.from('profiles_just').update({
       first_name: profileForm.first_name,
       last_name: profileForm.last_name,
       phone: profileForm.phone,

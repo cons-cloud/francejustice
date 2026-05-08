@@ -101,7 +101,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
       // Save to Supabase
       if (user) {
         const { error: saveError } = await supabase
-          .from('documents')
+          .from('documents_just')
           .insert([{
             name: `${formData.documentType} - ${new Date().toLocaleDateString()}`,
             type: 'legal_template',

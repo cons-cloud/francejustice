@@ -24,7 +24,7 @@ const News: React.FC = () => {
 
     const fetchNews = async () => {
         const { data, error } = await supabase
-            .from('legal_news')
+            .from('legal_news_just')
             .select('*')
             .order('published_at', { ascending: false });
 

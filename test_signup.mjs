@@ -39,7 +39,7 @@ async function signUpUser(email, password, role) {
 async function createProfile(userId, email, role) {
   // Now explicitly insert/update into profiles
   const { error: profileError } = await supabase
-    .from('profiles')
+    .from('profiles_just')
     .upsert({
       id: userId,
       email: email,
@@ -54,7 +54,7 @@ async function createProfile(userId, email, role) {
   } else {
     console.log(`Profile ${role} created/updated successfully!`);
     if (role === 'lawyer') {
-        const { error: lawyerErr } = await supabase.from('lawyers').upsert({
+        const { error: lawyerErr } = await supabase.from('lawyers_just').upsert({
             id: userId,
             bar_association: 'Paris',
             license_number: 'L-' + Math.floor(Math.random() * 10000),

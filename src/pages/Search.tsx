@@ -38,7 +38,7 @@ Réponds de manière structurée et complète.`;
       setAiExplanation(explanation);
       
       if (user) {
-        await supabase.from('search_history').insert([{
+        await supabase.from('search_history_just').insert([{
           user_id: user.id,
           query: q,
           results_count: 1

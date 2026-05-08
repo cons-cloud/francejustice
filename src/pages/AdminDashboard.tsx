@@ -78,42 +78,42 @@ const AdminDashboard: React.FC = () => {
     // Subscribe to multiple channels for real-time synchronization
     const techSub = supabase
       .channel('admin-tech-sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'formations' }, fetchFormations)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'outils' }, fetchOutils)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'assistance_tickets' }, fetchTickets)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, fetchPayments)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes' }, fetchQuotes)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings' }, fetchSettings)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'formations_just' }, fetchFormations)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'outils_just' }, fetchOutils)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'assistance_tickets_just' }, fetchTickets)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments_just' }, fetchPayments)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes_just' }, fetchQuotes)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings_just' }, fetchSettings)
       .subscribe();
 
     const usersSub = supabase
       .channel('admin-users-sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchUsers())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles_just' }, () => fetchUsers())
       .subscribe();
 
     const messagesSub = supabase
       .channel('admin-messages-sync')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, (payload) => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages_just' }, (payload) => {
         setMessages(prev => [payload.new, ...prev]);
       })
       .subscribe();
 
     const docsSub = supabase
       .channel('admin-docs-sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, () => fetchAllDocuments())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'documents_just' }, () => fetchAllDocuments())
       .subscribe();
 
     const monitorSub = supabase.channel('admin-monitor')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, async (p) => {
-        const { data } = await supabase.from('profiles').select('first_name, last_name').eq('id', p.new.sender_id).single();
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages_just' }, async (p) => {
+        const { data } = await supabase.from('profiles_just').select('first_name, last_name').eq('id', p.new.sender_id).single();
         addActivity(`Nouveau message de ${data?.first_name || 'utilisateur'}`, 'chat');
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes' }, (p) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes_just' }, (p) => {
         if (p.eventType === 'INSERT') addActivity(`Nouveau devis créé: ${p.new.amount} MAD`, 'quote');
         if (p.eventType === 'UPDATE' && (p.new as any).status === 'paid') addActivity(`Devis payé: ${(p.new as any).amount} MAD`, 'payment');
       })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'documents' }, async (p) => {
-        const { data } = await supabase.from('profiles').select('first_name, last_name').eq('id', p.new.owner_id).single();
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'documents_just' }, async (p) => {
+        const { data } = await supabase.from('profiles_just').select('first_name, last_name').eq('id', p.new.owner_id).single();
         addActivity(`Nouveau document généré par ${data?.first_name || 'Citoyen'}`, 'document');
       })
       .subscribe();
@@ -134,7 +134,7 @@ const AdminDashboard: React.FC = () => {
   const fetchUsers = async () => {
     setLoading(true);
     const { data } = await supabase
-      .from('profiles')
+      .from('profiles_just')
       .select('*')
       .limit(50); // Limit initial load for performance
     if (data) setUsers(data);
@@ -143,7 +143,7 @@ const AdminDashboard: React.FC = () => {
 
   const fetchAllDocuments = async () => {
     const { data } = await supabase
-      .from('documents')
+      .from('documents_just')
       .select('*, profiles:owner_id(first_name, last_name)')
       .order('created_at', { ascending: false })
       .limit(50);
@@ -152,7 +152,7 @@ const AdminDashboard: React.FC = () => {
 
   const fetchMessages = async () => {
     const { data } = await supabase
-      .from('contact_messages')
+      .from('contact_messages_just')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(50);
@@ -160,28 +160,28 @@ const AdminDashboard: React.FC = () => {
   };
 
   const fetchFormations = async () => {
-    const { data } = await supabase.from('formations').select('*').order('created_at', { ascending: false });
+    const { data } = await supabase.from('formations_just').select('*').order('created_at', { ascending: false });
     if (data) setFormations(data);
   };
 
   const fetchOutils = async () => {
-    const { data } = await supabase.from('outils').select('*').order('created_at', { ascending: false });
+    const { data } = await supabase.from('outils_just').select('*').order('created_at', { ascending: false });
     if (data) setOutils(data);
   };
 
   const fetchTickets = async () => {
-    const { data } = await supabase.from('assistance_tickets').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
+    const { data } = await supabase.from('assistance_tickets_just').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
     if (data) setTickets(data);
   };
 
   const fetchPayments = async () => {
-    const { data } = await supabase.from('payments').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
+    const { data } = await supabase.from('payments_just').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
     if (data) setPayments(data);
   };
 
   const fetchQuotes = async () => {
     const { data } = await supabase
-      .from('quotes')
+      .from('quotes_just')
       .select('*, profiles:lawyer_id(first_name, last_name), client:client_id(first_name, last_name)')
       .order('created_at', { ascending: false });
     if (data) setQuotes(data);
@@ -189,19 +189,19 @@ const AdminDashboard: React.FC = () => {
 
   const fetchChatRooms = async () => {
     const { data } = await supabase
-      .from('chat_rooms')
+      .from('chat_rooms_just')
       .select('*, lawyer:lawyer_id(first_name, last_name), client:client_id(first_name, last_name)')
       .order('created_at', { ascending: false });
     if (data) setChatRooms(data);
   };
 
   const fetchSettings = async () => {
-    const { data } = await supabase.from('platform_settings').select('*').eq('id', 'global').maybeSingle();
+    const { data } = await supabase.from('platform_settings_just').select('*').eq('id', 'global').maybeSingle();
     if (data) setSettings(data);
   };
 
   const handleUpdateSettings = async (key: string, value: any) => {
-    const { error } = await supabase.from('platform_settings').update({ [key]: value }).eq('id', 'global');
+    const { error } = await supabase.from('platform_settings_just').update({ [key]: value }).eq('id', 'global');
     if (!error) success("Paramètre mis à jour", `Le paramètre a été enregistré en temps réel.`);
     else toastError("Erreur", error.message);
   };
@@ -212,7 +212,7 @@ const AdminDashboard: React.FC = () => {
       [{ name: 'title', label: "Nom de l'outil" }, { name: 'category', label: 'Catégorie (ex: Intelligence Artificielle)' }],
       async (vals) => {
         if (!vals.title || !vals.category) return;
-        const { error } = await supabase.from('outils').insert([{ title: vals.title, category: vals.category }]);
+        const { error } = await supabase.from('outils_just').insert([{ title: vals.title, category: vals.category }]);
         if (error) toastError("Erreur", error.message);
         else success("Outil ajouté", "L'outil est en ligne.");
       }
@@ -221,13 +221,13 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteOutil = (id: string) => {
     openModal("Supprimer l'outil ?", [], async () => {
-      await supabase.from('outils').delete().eq('id', id);
+      await supabase.from('outils_just').delete().eq('id', id);
     }, "Supprimer définitivement", true);
   };
 
   const handleEditOutil = (outil: any) => {
     openModal("Modifier l'outil", [{ name: 'title', label: "Nouveau titre", defaultValue: outil.title }], async (vals) => {
-      if (vals.title) await supabase.from('outils').update({ title: vals.title }).eq('id', outil.id);
+      if (vals.title) await supabase.from('outils_just').update({ title: vals.title }).eq('id', outil.id);
     });
   };
 
@@ -238,7 +238,7 @@ const AdminDashboard: React.FC = () => {
       { name: 'category', label: "Catégorie (ex: Droit Social)" }
     ], async (vals) => {
       if (!vals.title) return;
-      const { error } = await supabase.from('formations').insert([{ title: vals.title, duration: vals.duration, level: 'Débutant', category: vals.category }]);
+      const { error } = await supabase.from('formations_just').insert([{ title: vals.title, duration: vals.duration, level: 'Débutant', category: vals.category }]);
       if (error) toastError("Erreur", error.message);
       else success("Formation créée", "Formation enregistrée.");
     });
@@ -246,41 +246,41 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteFormation = (id: string) => {
     openModal("Supprimer la formation ?", [], async () => {
-      await supabase.from('formations').delete().eq('id', id);
+      await supabase.from('formations_just').delete().eq('id', id);
     }, "Supprimer définitivement", true);
   };
 
   const handleEditFormation = (formation: any) => {
     openModal("Modifier la formation", [{ name: 'title', label: "Nouveau titre", defaultValue: formation.title }], async (vals) => {
-      if (vals.title) await supabase.from('formations').update({ title: vals.title }).eq('id', formation.id);
+      if (vals.title) await supabase.from('formations_just').update({ title: vals.title }).eq('id', formation.id);
     });
   };
 
   const handleManageTicket = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === 'En attente' ? 'En cours' : currentStatus === 'En cours' ? 'Résolu' : 'En attente';
-    const { error } = await supabase.from('assistance_tickets').update({ status: newStatus }).eq('id', id);
+    const { error } = await supabase.from('assistance_tickets_just').update({ status: newStatus }).eq('id', id);
     if (error) toastError("Erreur", error.message);
   };
 
   const handleDeleteTicket = (id: string) => {
     openModal("Supprimer ce ticket ?", [], async () => {
-      await supabase.from('assistance_tickets').delete().eq('id', id);
+      await supabase.from('assistance_tickets_just').delete().eq('id', id);
     }, "Supprimer", true);
   };
   
   const handleToggleOutilStatus = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === 'En Test' ? 'Actif' : 'En Test';
-    await supabase.from('outils').update({ status: newStatus }).eq('id', id);
+    await supabase.from('outils_just').update({ status: newStatus }).eq('id', id);
   };
   
   const handleToggleFormationStatus = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === 'Brouillon' ? 'Publié' : 'Brouillon';
-    await supabase.from('formations').update({ status: newStatus }).eq('id', id);
+    await supabase.from('formations_just').update({ status: newStatus }).eq('id', id);
   };
 
   const handleApproveLawyer = async (userId: string) => {
     const { error } = await supabase
-      .from('profiles')
+      .from('profiles_just')
       .update({ is_verified: true })
       .eq('id', userId);
     

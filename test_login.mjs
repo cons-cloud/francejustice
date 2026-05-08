@@ -21,7 +21,7 @@ async function testAuth() {
   
   console.log('Testing profile fetch (to check if RLS loop is gone)');
   const { data: profileData, error: profileError } = await supabase
-    .from('profiles')
+    .from('profiles_just')
     .select('*')
     .eq('id', data.user.id)
     .single();

@@ -32,10 +32,10 @@ const LawyersPage: React.FC = () => {
     
     const lawyersSub = supabase
       .channel('public-lawyers')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'lawyers' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'lawyers_just' }, () => {
         fetchLawyers(0, true);
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles_just' }, () => {
         fetchLawyers(0, true);
       })
       .subscribe();
@@ -51,7 +51,7 @@ const LawyersPage: React.FC = () => {
     const to = from + PAGE_SIZE - 1;
 
     const { data, error } = await supabase
-      .from('profiles')
+      .from('profiles_just')
       .select('*')
       .eq('role', 'lawyer')
       .eq('is_verified', true)

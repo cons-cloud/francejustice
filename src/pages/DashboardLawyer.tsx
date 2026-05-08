@@ -82,7 +82,7 @@ const DashboardLawyer: React.FC = () => {
         .on('postgres_changes', { 
           event: '*', 
           schema: 'public', 
-          table: 'appointments', 
+          table: 'appointments_just', 
           filter: `lawyer_id=eq.${user.id}` 
         }, () => fetchAppointments())
         .subscribe()
@@ -92,18 +92,18 @@ const DashboardLawyer: React.FC = () => {
         .on('postgres_changes', { 
           event: '*', 
           schema: 'public', 
-          table: 'documents' 
+          table: 'documents_just' 
         }, () => fetchCases())
         .subscribe()
       const techSub = supabase
         .channel('lawyer-tech-sync')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'outils' }, () => fetchOutils())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'assistance_tickets', filter: `user_id=eq.${user.id}` }, () => fetchTickets())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'outils_just' }, () => fetchOutils())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'assistance_tickets_just', filter: `user_id=eq.${user.id}` }, () => fetchTickets())
         .subscribe()
         
       const quotesSub = supabase
         .channel(`lawyer-quotes-${user.id}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes', filter: `lawyer_id=eq.${user.id}` }, () => fetchQuotes())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes_just', filter: `lawyer_id=eq.${user.id}` }, () => fetchQuotes())
         .subscribe()
         
       return () => {
@@ -124,20 +124,20 @@ const DashboardLawyer: React.FC = () => {
   }
 
   const fetchOutils = async () => {
-    const { data } = await supabase.from('outils').select('*').order('created_at', { ascending: false })
+    const { data } = await supabase.from('outils_just').select('*').order('created_at', { ascending: false })
     if (data) setOutils(data)
   }
 
   const fetchTickets = async () => {
     if (!user) return;
-    const { data } = await supabase.from('assistance_tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+    const { data } = await supabase.from('assistance_tickets_just').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
     if (data) setTickets(data)
   }
 
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !ticketSubject) return;
-    await supabase.from('assistance_tickets').insert([{ user_id: user.id, subject: ticketSubject, status: 'En attente' }]);
+    await supabase.from('assistance_tickets_just').insert([{ user_id: user.id, subject: ticketSubject, status: 'En attente' }]);
     setModalOpen(false);
     setTicketSubject('');
   }
@@ -145,7 +145,7 @@ const DashboardLawyer: React.FC = () => {
   const fetchAppointments = async () => {
     if (!user) return
     const { data } = await supabase
-      .from('appointments')
+      .from('appointments_just')
       .select('*, profiles(first_name, last_name, email)')
       .eq('lawyer_id', user.id)
       .order('scheduled_at', { ascending: true })
@@ -155,7 +155,7 @@ const DashboardLawyer: React.FC = () => {
   const fetchCases = async () => {
     if (!user) return
     const { data } = await supabase
-      .from('documents')
+      .from('documents_just')
       .select('*, profiles:owner_id(first_name, last_name, email)')
       .order('created_at', { ascending: false })
       .limit(50);
@@ -184,7 +184,7 @@ const DashboardLawyer: React.FC = () => {
   const fetchQuotes = async () => {
     if (!user) return
     const { data } = await supabase
-      .from('quotes')
+      .from('quotes_just')
       .select('*, profiles:client_id(first_name, last_name, email)')
       .eq('lawyer_id', user.id)
       .order('created_at', { ascending: false })
@@ -194,7 +194,7 @@ const DashboardLawyer: React.FC = () => {
   const fetchChatRooms = async () => {
     if (!user) return
     const { data } = await supabase
-      .from('chat_rooms')
+      .from('chat_rooms_just')
       .select('*, profiles:client_id(first_name, last_name, email)')
       .eq('lawyer_id', user.id)
     if (data) setChatRooms(data)
@@ -206,7 +206,7 @@ const DashboardLawyer: React.FC = () => {
     
     if (!room) {
       const { data } = await supabase
-        .from('chat_rooms')
+        .from('chat_rooms_just')
         .insert([{ lawyer_id: user?.id, client_id: clientId }])
         .select()
         .single()
@@ -227,7 +227,7 @@ const DashboardLawyer: React.FC = () => {
     const amountNum = parseFloat(newQuote.amount)
     const commission = amountNum * 0.20
     
-    const { error } = await supabase.from('quotes').insert([{
+    const { error } = await supabase.from('quotes_just').insert([{
       lawyer_id: user.id,
       client_id: newQuote.client_id,
       amount: amountNum,
@@ -264,7 +264,7 @@ const DashboardLawyer: React.FC = () => {
 
   const handleMarkAsPaid = async (quoteId: string) => {
     const { error } = await supabase
-      .from('quotes')
+      .from('quotes_just')
       .update({ status: 'paid' })
       .eq('id', quoteId);
     
@@ -280,7 +280,7 @@ const DashboardLawyer: React.FC = () => {
     const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true })
     if (!uploadError) {
       const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath)
-      await supabase.from('profiles').update({ avatar_url: urlData.publicUrl }).eq('id', user.id)
+      await supabase.from('profiles_just').update({ avatar_url: urlData.publicUrl }).eq('id', user.id)
       success('Photo mise à jour', 'Votre photo de profil a été enregistrée.')
     } else {
       success('Info', 'Photo mise à jour localement (éventuellement bucket à créer dans Supabase).')
@@ -290,7 +290,7 @@ const DashboardLawyer: React.FC = () => {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
-    const { error } = await supabase.from('profiles').update({
+    const { error } = await supabase.from('profiles_just').update({
       first_name: profileForm.first_name,
       last_name: profileForm.last_name,
       phone: profileForm.phone,

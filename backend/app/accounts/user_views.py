@@ -47,7 +47,7 @@ def create_user_admin(request):
             
             # Update profile created by the trigger
             if role == 'admin':
-                supabase.table('profiles').update({
+                supabase.table('profiles_just').update({
                     "is_verified": True
                 }).eq("id", user_id).execute()
         except Exception as supabase_err:
@@ -73,7 +73,7 @@ def delete_user_admin(request, user_id):
         
         # Le trigger ON DELETE CASCADE dans postgres gèrera la suppression de public.profiles si bien configuré,
         # mais par précaution, on efface aussi profil manuellement si possible.
-        supabase.table('profiles').delete().eq('id', user_id).execute()
+        supabase.table('profiles_just').delete().eq('id', user_id).execute()
         res = supabase.auth.admin.delete_user(user_id)
         
         return Response({"status": "success", "message": "Utilisateur supprimé"})
@@ -87,7 +87,7 @@ def suspend_user(request, user_id):
     try:
         # Suspend for 100 years
         res = supabase.auth.admin.update_user_by_id(user_id, {"ban_duration": "876000h"})
-        supabase.table('profiles').update({"is_verified": False}).eq('id', user_id).execute()
+        supabase.table('profiles_just').update({"is_verified": False}).eq('id', user_id).execute()
         return Response({"status": "success", "message": "Utilisateur suspendu"})
     except Exception as e:
         return Response({"status": "error", "message": str(e)}, status=400)
@@ -99,7 +99,7 @@ def activate_user(request, user_id):
     try:
         # Remove suspension
         res = supabase.auth.admin.update_user_by_id(user_id, {"ban_duration": "none"})
-        supabase.table('profiles').update({"is_verified": True}).eq('id', user_id).execute()
+        supabase.table('profiles_just').update({"is_verified": True}).eq('id', user_id).execute()
         return Response({"status": "success", "message": "Utilisateur activé"})
     except Exception as e:
         return Response({"status": "error", "message": str(e)}, status=400)
@@ -121,7 +121,7 @@ def update_user(request, user_id):
             }
         })
         
-        supabase.table('profiles').update({
+        supabase.table('profiles_just').update({
             "first_name": first_name,
             "last_name": last_name,
             "role": role

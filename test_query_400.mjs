@@ -8,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 async function testFetch() {
   console.log('Fetching profiles...');
   const { data, error } = await supabase
-    .from('profiles')
+    .from('profiles_just')
     .select('role,first_name,last_name,avatar_url,is_verified')
     .limit(1);
 

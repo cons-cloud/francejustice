@@ -99,7 +99,7 @@ const AssistantPage: React.FC = () => {
       // Save to Supabase
       if (user) {
         const { error: saveError } = await supabase
-          .from('ai_conversations')
+          .from('ai_conversations_just')
           .insert([
             {
               user_id: user.id,

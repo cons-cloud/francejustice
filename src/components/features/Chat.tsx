@@ -25,7 +25,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, recipientName
       .on('postgres_changes', { 
         event: 'INSERT', 
         schema: 'public', 
-        table: 'chat_messages', 
+        table: 'chat_messages_just', 
         filter: `room_id=eq.${roomId}` 
       }, (payload) => {
         setMessages(prev => [...prev, payload.new]);
@@ -46,7 +46,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, recipientName
   const fetchMessages = async () => {
     setLoading(true);
     const { data } = await supabase
-      .from('chat_messages')
+      .from('chat_messages_just')
       .select('*')
       .eq('room_id', roomId)
       .order('created_at', { ascending: true });
@@ -58,7 +58,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, recipientName
     e.preventDefault();
     if (!newMessage.trim() || isAdmin) return;
 
-    const { error } = await supabase.from('chat_messages').insert([{
+    const { error } = await supabase.from('chat_messages_just').insert([{
       room_id: roomId,
       sender_id: currentUserId,
       content: newMessage

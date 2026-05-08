@@ -17,7 +17,7 @@ const Services: React.FC = () => {
     // Real-time synchronization for services
     const servicesSub = supabase
       .channel('public-services-sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, () => fetchServices())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'services_just' }, () => fetchServices())
       .subscribe();
 
     return () => {
@@ -28,7 +28,7 @@ const Services: React.FC = () => {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const { data } = await supabase.from('services').select('*').eq('is_active', true);
+      const { data } = await supabase.from('services_just').select('*').eq('is_active', true);
       if (data && data.length > 0) {
         setServices(data);
       } else {
