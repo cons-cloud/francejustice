@@ -1,7 +1,6 @@
-from django.test import TestCase
-from django.contrib.auth import get_user_model
+import unittest
 
-class AccountCreationTest(TestCase):
+class AccountCreationTest(unittest.TestCase):
     def test_user_creation_logic(self):
         """
         Verify that user creation parameters are handled correctly.
@@ -21,3 +20,5 @@ class AccountCreationTest(TestCase):
         
         self.assertEqual(user_data["role"], "lawyer")
         self.assertEqual(user_data["first_name"], "Jean")
+        self.assertEqual(user_data["last_name"], "Dupont")
+        self.assertEqual(user_data["email"], "test@example.com")
