@@ -36,6 +36,24 @@ def configure_genai():
         genai.configure(api_key=api_key)
     return api_key
 
+def extract_grounding_chunks(response):
+    grounding_data = []
+    try:
+        if response and hasattr(response, 'candidates') and response.candidates:
+            candidate = response.candidates[0]
+            if hasattr(candidate, 'grounding_metadata') and candidate.grounding_metadata:
+                metadata = candidate.grounding_metadata
+                if hasattr(metadata, 'grounding_chunks') and metadata.grounding_chunks:
+                    for chunk in metadata.grounding_chunks:
+                        if hasattr(chunk, 'web') and chunk.web:
+                            grounding_data.append({
+                                "title": getattr(chunk.web, 'title', ''),
+                                "uri": getattr(chunk.web, 'uri', '')
+                            })
+    except Exception as e:
+        print("Error extracting grounding chunks:", e)
+    return grounding_data
+
 @ratelimit(key='user', rate='10/m', block=True)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -64,10 +82,46 @@ def chat_proxy(request):
 
         chat = model.start_chat(history=history or [])
         response = chat.send_message(prompt)
+        sources_web = extract_grounding_chunks(response)
         
-        return Response({"text": response.text})
+        return Response({
+            "text": response.text,
+            "sources_web": sources_web
+        })
     except Exception as e:
-        return Response({"error": str(e)}, status=400)
+        err_msg = str(e)
+        if "429" in err_msg or "ResourceExhausted" in err_msg or "quota" in err_msg.lower():
+            # Fallback 1: gemini-flash-latest with search
+            try:
+                model = genai.GenerativeModel(
+                    model_name="gemini-flash-latest",
+                    system_instruction=SYSTEM_INSTRUCTION,
+                    tools=tools
+                )
+                chat = model.start_chat(history=history or [])
+                response = chat.send_message(prompt)
+                sources_web = extract_grounding_chunks(response)
+                return Response({
+                    "text": response.text,
+                    "sources_web": sources_web
+                })
+            except Exception as e2:
+                # Fallback 2: gemini-flash-latest without search (to avoid potential tools compatibility issues)
+                try:
+                    model = genai.GenerativeModel(
+                        model_name="gemini-flash-latest",
+                        system_instruction=SYSTEM_INSTRUCTION,
+                        tools=None
+                    )
+                    chat = model.start_chat(history=history or [])
+                    response = chat.send_message(prompt)
+                    return Response({
+                        "text": response.text,
+                        "sources_web": []
+                    })
+                except Exception as e3:
+                    return Response({"error": "Quota d'utilisation de l'API Gemini dépassé (limite de requêtes atteinte). Veuillez réessayer plus tard ou configurer une clé API valide dans votre fichier backend/.env (GEMINI_API_KEY)."}, status=400)
+        return Response({"error": err_msg}, status=400)
 
 @ratelimit(key='user', rate='5/m', block=True)
 @api_view(['POST'])
@@ -94,4 +148,27 @@ def document_proxy(request):
         response = model.generate_content(prompt)
         return Response({"text": response.text})
     except Exception as e:
-        return Response({"error": str(e)}, status=400)
+        err_msg = str(e)
+        if "429" in err_msg or "ResourceExhausted" in err_msg or "quota" in err_msg.lower():
+            # Fallback 1: gemini-flash-latest with search
+            try:
+                model = genai.GenerativeModel(
+                    model_name="gemini-flash-latest",
+                    system_instruction=SYSTEM_INSTRUCTION,
+                    tools=[{"google_search_retrieval": {}}]
+                )
+                response = model.generate_content(prompt)
+                return Response({"text": response.text})
+            except Exception as e2:
+                # Fallback 2: gemini-flash-latest without search
+                try:
+                    model = genai.GenerativeModel(
+                        model_name="gemini-flash-latest",
+                        system_instruction=SYSTEM_INSTRUCTION,
+                        tools=None
+                    )
+                    response = model.generate_content(prompt)
+                    return Response({"text": response.text})
+                except Exception as e3:
+                    return Response({"error": "Quota d'utilisation de l'API Gemini dépassé (limite de requêtes atteinte). Veuillez réessayer plus tard ou configurer une clé API valide dans votre fichier backend/.env (GEMINI_API_KEY)."}, status=400)
+        return Response({"error": err_msg}, status=400)

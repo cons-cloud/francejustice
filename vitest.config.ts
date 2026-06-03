@@ -8,6 +8,15 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
+    maxWorkers: 1,
+    fileParallelism: false,
+    isolate: true,
+    // @ts-expect-error - 'forks' is a valid Vitest top-level test option but may not match InlineConfig typings
+    forks: {
+      execArgv: ['--max-old-space-size=4096'],
+    },
+
+
   },
   resolve: {
     alias: {

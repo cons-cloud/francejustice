@@ -13,7 +13,11 @@ import {
   LogOut,
   FileSpreadsheet,
   DollarSign,
-  Receipt
+  Receipt,
+  Sparkles,
+  Eye,
+  Download,
+  AlertTriangle
 } from "lucide-react"
 
 import { AdvancedAreaChart } from "../components/features/StatsCharts"
@@ -27,10 +31,11 @@ import { useAuth } from "../hooks/useAuth"
 import { useToast } from "../hooks/useToast"
 import Modal from "../components/ui/Modal"
 import { Input } from "../components/ui/Input"
+import { VoiceAssistant } from "../components/ui/VoiceAssistant"
 
 const DashboardLawyer: React.FC = () => {
   const { user, profile } = useAuth()
-  const { success } = useToast()
+  const { success, error: toastError } = useToast()
   const [activeTab, setActiveTab] = useState("overview")
   const [showWelcome, setShowWelcome] = useState(false)
   const [appointments, setAppointments] = useState<any[]>([])
@@ -42,15 +47,77 @@ const DashboardLawyer: React.FC = () => {
   const [activeRoom, setActiveRoom] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
-  // Modal state
+  const [ticketSubject, setTicketSubject] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [quoteModalOpen, setQuoteModalOpen] = useState(false)
-  const [ticketSubject, setTicketSubject] = useState('')
   const [newQuote, setNewQuote] = useState({ client_id: '', amount: '', description: '', case_id: '' })
+  const [docModalOpen, setDocModalOpen] = useState(false)
+  const [newDoc, setNewDoc] = useState({ name: '', type: 'client_document', client_id: '' })
+  const [selectedIADoc, setSelectedIADoc] = useState<any>(null)
+  const [paymentAlarmQuote, setPaymentAlarmQuote] = useState<any | null>(null)
   const [profileForm, setProfileForm] = useState({
     first_name: '', last_name: '', phone: '', city: '', postal_code: '',
-    bio: '', specialty: '', bar_number: '', experience_years: 0, is_available: true
+    bio: '', specialty: '', bar_number: '', experience_years: 0, is_available: true,
+    stripe_public_key: '', stripe_secret_key: ''
   })
+
+  const handleVoiceAction = (action: { type: string; payload: any }) => {
+    if (action.type === 'SWITCH_TAB') {
+      setActiveTab(action.payload.tab);
+    } else if (action.type === 'CREATE_DOCUMENT') {
+      if (user && action.payload.title && action.payload.content) {
+        supabase
+          .from('documents_just')
+          .insert([{
+            name: action.payload.title,
+            type: 'client_document',
+            owner_id: user.id,
+            metadata: { 
+              content: action.payload.content, 
+              source: 'IA Vocale',
+              type: 'ai_generated',
+              created_at: new Date().toISOString()
+            }
+          }])
+          .then(({ error }) => {
+            if (error) {
+              console.error('Error saving AI generated document:', error);
+            } else {
+              success('Document généré par l\'IA 📄', `Le document "${action.payload.title}" a été enregistré dans vos dossiers.`);
+              fetchCases();
+            }
+          });
+      }
+    }
+  };
+
+  const playAlarmSound = () => {
+    if (typeof window === 'undefined') return;
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    try {
+      const ctx = new AudioContextClass();
+      const playBeep = (time: number, freq: number, duration: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, time);
+        gain.gain.setValueAtTime(0.25, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(time);
+        osc.stop(time + duration);
+      };
+      
+      playBeep(ctx.currentTime, 587.33, 0.25);
+      playBeep(ctx.currentTime + 0.25, 698.46, 0.25);
+      playBeep(ctx.currentTime + 0.5, 587.33, 0.25);
+      playBeep(ctx.currentTime + 0.75, 698.46, 0.35);
+    } catch (e) {
+      console.warn('Audio feedback failed:', e);
+    }
+  };
 
   useEffect(() => {
     if (profile && !sessionStorage.getItem('lawyer_welcome_shown')) {
@@ -58,7 +125,8 @@ const DashboardLawyer: React.FC = () => {
       sessionStorage.setItem('lawyer_welcome_shown', 'true')
     }
     if (profile) {
-      setProfileForm({
+      setProfileForm(p => ({
+        ...p,
         first_name: profile.first_name || '',
         last_name: profile.last_name || '',
         phone: (profile as any).phone || '',
@@ -69,7 +137,7 @@ const DashboardLawyer: React.FC = () => {
         bar_number: (profile as any).bar_number || '',
         experience_years: (profile as any).experience_years || 0,
         is_available: (profile as any).is_available ?? true
-      })
+      }))
     }
   }, [profile])
 
@@ -103,7 +171,28 @@ const DashboardLawyer: React.FC = () => {
         
       const quotesSub = supabase
         .channel(`lawyer-quotes-${user.id}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes_just', filter: `lawyer_id=eq.${user.id}` }, () => fetchQuotes())
+        .on('postgres_changes', { 
+          event: '*', 
+          schema: 'public', 
+          table: 'quotes_just', 
+          filter: `lawyer_id=eq.${user.id}` 
+        }, (payload) => {
+          if (payload.eventType === 'UPDATE' && payload.new && payload.new.status === 'paid' && payload.old && payload.old.status !== 'paid') {
+            supabase
+              .from('profiles_just')
+              .select('first_name, last_name')
+              .eq('id', payload.new.client_id)
+              .single()
+              .then(({ data }) => {
+                setPaymentAlarmQuote({
+                  ...payload.new,
+                  profiles: data
+                });
+                playAlarmSound();
+              });
+          }
+          fetchQuotes();
+        })
         .subscribe()
         
       return () => {
@@ -115,9 +204,61 @@ const DashboardLawyer: React.FC = () => {
     }
   }, [user])
 
+  // Real-time payment verification redirect handler
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const payment = params.get('payment')
+    const quoteId = params.get('quote_id')
+    
+    if (payment === 'success' && quoteId) {
+      const markQuoteAsPaid = async () => {
+        const { error } = await supabase
+          .from('quotes_just')
+          .update({ status: 'commissioned' })
+          .eq('id', quoteId)
+        
+        if (!error) {
+          success('Commission réglée 🎉', 'Le paiement de votre commission a été validé avec succès en temps réel.')
+          fetchQuotes()
+        }
+        window.history.replaceState({}, document.title, window.location.pathname)
+      }
+      markQuoteAsPaid()
+    } else if (payment === 'cancel') {
+      toastError('Paiement annulé', 'Le paiement de la commission a été annulé.')
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [user])
+
+  const fetchFullProfile = async () => {
+    if (!user) return
+    const { data } = await supabase
+      .from('profiles_just')
+      .select('stripe_public_key, stripe_secret_key, phone, city, postal_code, bio, specialty, bar_number, experience_years, is_available, first_name, last_name')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (data) {
+      setProfileForm({
+        first_name: data.first_name || '',
+        last_name: data.last_name || '',
+        phone: data.phone || '',
+        city: data.city || '',
+        postal_code: data.postal_code || '',
+        bio: data.bio || '',
+        specialty: data.specialty || '',
+        bar_number: data.bar_number || '',
+        experience_years: data.experience_years || 0,
+        is_available: data.is_available ?? true,
+        stripe_public_key: data.stripe_public_key || '',
+        stripe_secret_key: data.stripe_secret_key || ''
+      })
+    }
+  }
+
   const fetchLawyerData = async () => {
     setLoading(true)
-    await Promise.all([fetchAppointments(), fetchCases(), fetchQuotes(), fetchChatRooms()])
+    await Promise.all([fetchAppointments(), fetchCases(), fetchQuotes(), fetchChatRooms(), fetchFullProfile()])
     fetchOutils()
     fetchTickets()
     setLoading(false)
@@ -146,7 +287,7 @@ const DashboardLawyer: React.FC = () => {
     if (!user) return
     const { data } = await supabase
       .from('appointments_just')
-      .select('*, profiles(first_name, last_name, email)')
+      .select('*, profiles:client_id(first_name, last_name, email)')
       .eq('lawyer_id', user.id)
       .order('scheduled_at', { ascending: true })
     if (data) setAppointments(data)
@@ -273,6 +414,38 @@ const DashboardLawyer: React.FC = () => {
     }
   }
 
+  const handleUpdateAppointmentStatus = async (apptId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from('appointments_just')
+      .update({ status: newStatus })
+      .eq('id', apptId);
+    
+    if (!error) {
+      fetchAppointments();
+      success('Statut mis à jour', `Le rendez-vous a été mis à jour avec succès.`);
+    }
+  };
+
+  const handleUploadLawyerDocument = async (name: string, type: string, ownerId: string) => {
+    if (!user || !name || !ownerId) return;
+    const mockFileUrl = `https://zchhijltemvrsthdaxex.supabase.co/storage/v1/object/public/documents/${ownerId}/${Date.now()}_${name.replace(/\s+/g, '_')}.pdf`;
+    
+    const { error } = await supabase
+      .from('documents_just')
+      .insert([{
+        name,
+        type,
+        file_url: mockFileUrl,
+        owner_id: ownerId,
+        metadata: { source: 'Avocat', uploaded_by: user.id, uploaded_at: new Date().toISOString() }
+      }]);
+      
+    if (!error) {
+      fetchCases();
+      success('Document ajouté 📁', "Le document a bien été téléversé pour votre client.");
+    }
+  };
+
   const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !user) return
@@ -301,9 +474,11 @@ const DashboardLawyer: React.FC = () => {
       bar_number: profileForm.bar_number,
       experience_years: profileForm.experience_years,
       is_available: profileForm.is_available,
+      stripe_public_key: profileForm.stripe_public_key,
+      stripe_secret_key: profileForm.stripe_secret_key,
       updated_at: new Date().toISOString()
     }).eq('id', user.id)
-    if (!error) success('Profil mis à jour', 'Vos informations ont été enregistrées.')
+    if (!error) success('Profil mis à jour', 'Vos informations et clés Stripe ont été enregistrées.')
   }
 
   const tabs = [
@@ -405,23 +580,58 @@ const DashboardLawyer: React.FC = () => {
     </div>
   )
 
+  const unpaidQuotes = quotes.filter(q => q.status === 'paid');
+
   return (
     <div className="min-h-screen bg-secondary-50">
       <div className="container py-8">
-        <div className="mb-8 flex justify-between items-end">
+        {unpaidQuotes.length > 0 && (
+          <div className="mb-6 p-4.5 bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-500/30 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-pulse">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-red-500/20 rounded-xl flex items-center justify-center text-red-500 animate-bounce">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-red-700 text-sm">Action Requise : Commission Plateforme Due ({unpaidQuotes.length})</h4>
+                <p className="text-xs text-secondary-600">Vous avez reçu des paiements de clients. Veuillez verser la commission de 20% à l'administration.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="danger" className="text-xs bg-red-600 hover:bg-red-700 text-white font-medium shadow-sm transition-all" onClick={() => {
+                setPaymentAlarmQuote(unpaidQuotes[0]);
+                playAlarmSound();
+              }}>
+                Régler la commission
+              </Button>
+            </div>
+          </div>
+        )}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-secondary-900 mb-1">Cabinet de {profile?.first_name} {profile?.last_name}</h1>
             <p className="text-secondary-600">Interface de gestion juridique professionnelle</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={fetchLawyerData} variant="ghost" size="sm">
+            <Button onClick={fetchLawyerData} variant="outline" size="sm">
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Sync
             </Button>
+            <VoiceAssistant
+              mode="lawyer"
+              activeTab={activeTab}
+              onAction={handleVoiceAction}
+              variant="inline"
+              stateContext={{
+                profile,
+                appointments,
+                cases,
+                quotes
+              }}
+            />
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="text-red-600 hover:bg-red-50"
+              className="text-danger-600 hover:text-danger-700 hover:bg-danger-50 border-danger-200 hover:border-danger-300 flex items-center justify-center font-semibold"
               onClick={async () => {
                 await supabase.auth.signOut();
                 window.location.href = '/login';
@@ -463,56 +673,135 @@ const DashboardLawyer: React.FC = () => {
                 {activeTab === "overview" && renderOverview()}
                 {activeTab === "appointments" && (
                   <Card>
-                    <CardHeader><CardTitle>Historique des Rendez-vous</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>Historique & Gestion des Rendez-vous</CardTitle></CardHeader>
                     <CardContent className="p-0">
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
                           <thead className="bg-secondary-50 border-y">
-                            <tr><th className="px-6 py-4">Client</th><th className="px-6 py-4">Date</th><th className="px-6 py-4">Statut</th></tr>
+                            <tr>
+                              <th className="px-6 py-4">Client</th>
+                              <th className="px-6 py-4">Date & Heure</th>
+                              <th className="px-6 py-4">Notes / Sujet</th>
+                              <th className="px-6 py-4">Statut</th>
+                              <th className="px-6 py-4 text-right">Actions de Gestion</th>
+                            </tr>
                           </thead>
                           <tbody className="divide-y">
-                            {appointments.map((a) => (
-                              <tr key={a.id} className="hover:bg-secondary-50">
-                                <td className="px-6 py-4">{(a.profiles as any)?.first_name} {(a.profiles as any)?.last_name}</td>
-                                <td className="px-6 py-4">{new Date(a.scheduled_at).toLocaleString()}</td>
-                                <td className="px-6 py-4">{a.status}</td>
-                              </tr>
-                            ))}
+                            {appointments.map((a) => {
+                              const statusLabels: Record<string, { text: string; color: string }> = {
+                                pending: { text: "En attente", color: "bg-yellow-100 text-yellow-700" },
+                                confirmed: { text: "Confirmé", color: "bg-green-100 text-green-700" },
+                                cancelled: { text: "Annulé", color: "bg-red-100 text-red-700" },
+                                completed: { text: "Terminé", color: "bg-primary-100 text-primary-700" }
+                              };
+                              const label = statusLabels[a.status] || { text: a.status, color: "bg-secondary-100 text-secondary-600" };
+                              
+                              return (
+                                <tr key={a.id} className="hover:bg-secondary-50">
+                                  <td className="px-6 py-4 font-semibold">{(a.profiles as any)?.first_name} {(a.profiles as any)?.last_name}</td>
+                                  <td className="px-6 py-4">{new Date(a.scheduled_at).toLocaleString('fr-FR')}</td>
+                                  <td className="px-6 py-4 max-w-xs truncate text-secondary-500" title={a.notes}>{a.notes || "Aucune note fournie"}</td>
+                                  <td className="px-6 py-4">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${label.color}`}>
+                                      {label.text}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                    {a.status === 'pending' && (
+                                      <>
+                                        <Button size="sm" className="bg-success-600 hover:bg-success-700" onClick={() => handleUpdateAppointmentStatus(a.id, 'confirmed')}>
+                                          Confirmer
+                                        </Button>
+                                        <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50 border-red-200" onClick={() => handleUpdateAppointmentStatus(a.id, 'cancelled')}>
+                                          Réfuser
+                                        </Button>
+                                      </>
+                                    )}
+                                    {a.status === 'confirmed' && (
+                                      <>
+                                        <Button size="sm" className="bg-primary-600 hover:bg-primary-700" onClick={() => handleUpdateAppointmentStatus(a.id, 'completed')}>
+                                          Terminer
+                                        </Button>
+                                        <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50 border-red-200" onClick={() => handleUpdateAppointmentStatus(a.id, 'cancelled')}>
+                                          Annuler
+                                        </Button>
+                                      </>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
+                        {appointments.length === 0 && (
+                          <div className="p-12 text-center text-secondary-400 italic">Aucun rendez-vous planifié.</div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
                 )}
                 {activeTab === "cases" && (
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Dossiers & Documents Clients</CardTitle>
+                    <CardHeader className="flex justify-between items-center flex-row flex-wrap gap-4">
+                      <div>
+                        <CardTitle>Dossiers & Documents Clients</CardTitle>
+                      </div>
+                      <Button onClick={() => setDocModalOpen(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nouveau Document Client
+                      </Button>
                     </CardHeader>
                     <CardContent className="p-0">
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
                           <thead className="bg-secondary-50 border-y">
                             <tr>
                               <th className="px-6 py-4">Document</th>
                               <th className="px-6 py-4">Client</th>
-                              <th className="px-6 py-4">Type</th>
-                              <th className="px-6 py-4">Date</th>
+                              <th className="px-6 py-4">Type de Document</th>
+                              <th className="px-6 py-4">Date de Création</th>
+                              <th className="px-6 py-4 text-right">Fichier</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y">
-                            {cases.map((c) => (
-                              <tr key={c.id} className="hover:bg-secondary-50">
-                                <td className="px-6 py-4 font-medium">{c.name}</td>
-                                <td className="px-6 py-4">
-                                  {c.profiles?.first_name} {c.profiles?.last_name}
-                                </td>
-                                <td className="px-6 py-4">{c.type}</td>
-                                <td className="px-6 py-4 text-secondary-500">
-                                  {new Date(c.created_at).toLocaleDateString()}
-                                </td>
-                              </tr>
-                            ))}
+                            {cases.map((c) => {
+                              const docTypeLabels: Record<string, string> = {
+                                identity: "🪪 Pièce d'identité client",
+                                license: "📜 Licence / Diplôme client",
+                                legal_template: "📝 Modèle de document",
+                                client_document: "📁 Pièce de dossier / Justificatif"
+                              };
+                              return (
+                                <tr key={c.id} className="hover:bg-secondary-50">
+                                  <td className="px-6 py-4 font-semibold text-secondary-900">{c.name}</td>
+                                  <td className="px-6 py-4">
+                                    {c.profiles?.first_name} {c.profiles?.last_name}
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <span className="bg-secondary-100 text-secondary-800 px-2 py-0.5 rounded text-xs">
+                                      {docTypeLabels[c.type] || c.type}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 text-secondary-500">
+                                    {new Date(c.created_at).toLocaleDateString('fr-FR')}
+                                  </td>
+                                  <td className="px-6 py-4 text-right">
+                                    {c.file_url ? (
+                                      <a href={c.file_url} target="_blank" rel="noreferrer">
+                                        <Button variant="outline" size="sm">
+                                          Ouvrir
+                                        </Button>
+                                      </a>
+                                    ) : c.metadata?.content ? (
+                                      <Button variant="outline" size="sm" onClick={() => setSelectedIADoc(c)}>
+                                        <Eye className="h-4 w-4 mr-2 text-primary-600" />
+                                        Visualiser
+                                      </Button>
+                                    ) : null}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                         {cases.length === 0 && <div className="p-12 text-center text-secondary-400 italic">Aucun dossier disponible.</div>}
@@ -747,11 +1036,44 @@ const DashboardLawyer: React.FC = () => {
                           <div className="md:col-span-2">
                             <label className="block text-sm font-medium mb-1">Biographie professionnelle</label>
                             <textarea
-                              value={profileForm.bio}
-                              onChange={e => setProfileForm(p => ({...p, bio: e.target.value}))}
-                              rows={4}
-                              placeholder="Décrivez votre parcours, vos domaines d'expertise..."
-                              className="w-full rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                value={profileForm.bio}
+                                onChange={e => setProfileForm(p => ({...p, bio: e.target.value}))}
+                                rows={4}
+                                placeholder="Décrivez votre parcours, vos domaines d'expertise..."
+                                className="w-full rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Configuration Stripe */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2 text-primary-700">
+                            <Sparkles className="w-5 h-5" />
+                            Configuration Stripe personnelle
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="md:col-span-2 text-sm text-secondary-500 mb-2">
+                            Entrez vos clés API Stripe personnelles ci-dessous pour que les paiements de vos clients aillent directement sur votre compte Stripe.
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Clé Publique Stripe (Publishable Key)</label>
+                            <Input 
+                              type="text" 
+                              value={profileForm.stripe_public_key} 
+                              onChange={e => setProfileForm(p => ({...p, stripe_public_key: e.target.value}))} 
+                              placeholder="pk_live_... ou pk_test_..." 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Clé Secrète Stripe (Secret Key)</label>
+                            <Input 
+                              type="password" 
+                              value={profileForm.stripe_secret_key} 
+                              onChange={e => setProfileForm(p => ({...p, stripe_secret_key: e.target.value}))} 
+                              placeholder="sk_live_... ou sk_test_..." 
                             />
                           </div>
                         </CardContent>
@@ -835,6 +1157,58 @@ const DashboardLawyer: React.FC = () => {
         </form>
       </Modal>
 
+      <Modal isOpen={docModalOpen} onClose={() => setDocModalOpen(false)}>
+        <h2 className="text-xl font-bold mb-4">Ajouter un Document Client / Modèle</h2>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          handleUploadLawyerDocument(newDoc.name, newDoc.type, newDoc.client_id);
+          setDocModalOpen(false);
+          setNewDoc({ name: '', type: 'client_document', client_id: '' });
+        }} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Dossier / Client</label>
+            <select 
+              className="w-full flex h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              value={newDoc.client_id}
+              onChange={(e) => setNewDoc({...newDoc, client_id: e.target.value})}
+              required
+            >
+              <option value="">Sélectionner un client</option>
+              {Array.from(new Set(cases.map(c => JSON.stringify({id: c.owner_id, name: `${c.profiles?.first_name} ${c.profiles?.last_name}` }))))
+                .map(s => JSON.parse(s))
+                .map(u => <option key={u.id} value={u.id}>{u.name}</option>)
+              }
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Nom du document</label>
+            <Input 
+              value={newDoc.name}
+              onChange={(e) => setNewDoc({...newDoc, name: e.target.value})}
+              placeholder="Ex: Acte de Naissance, Statuts de Société..."
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Classification / Type</label>
+            <select 
+              className="w-full flex h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" 
+              value={newDoc.type} 
+              onChange={e => setNewDoc({...newDoc, type: e.target.value})}
+            >
+              <option value="identity">🪪 Pièce d'identité client</option>
+              <option value="license">📜 Licence / Diplôme client</option>
+              <option value="legal_template">📝 Modèle de document</option>
+              <option value="client_document">📁 Pièce de dossier / Justificatif</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button type="button" variant="ghost" onClick={() => setDocModalOpen(false)}>Annuler</Button>
+            <Button type="submit">Importer le Document</Button>
+          </div>
+        </form>
+      </Modal>
+
       <Modal
         isOpen={showWelcome}
         onClose={() => setShowWelcome(false)}
@@ -851,6 +1225,106 @@ const DashboardLawyer: React.FC = () => {
           <Button className="w-full" onClick={() => setShowWelcome(false)}>
             Accéder au tableau de bord
           </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={!!selectedIADoc}
+        onClose={() => setSelectedIADoc(null)}
+        title={selectedIADoc?.name || "Visualisation du Document"}
+      >
+        <div className="space-y-6">
+          <div className="p-5 bg-secondary-50 border border-secondary-200 rounded-2xl max-h-[60vh] overflow-y-auto whitespace-pre-wrap font-serif text-secondary-800 text-sm leading-relaxed shadow-inner">
+            {selectedIADoc?.metadata?.content}
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t border-secondary-100">
+            <Button variant="outline" onClick={() => setSelectedIADoc(null)}>Fermer</Button>
+            <Button onClick={() => {
+              const printWindow = window.open('', '_blank');
+              if (printWindow) {
+                printWindow.document.write(`
+                  <html>
+                    <head>
+                      <title>${selectedIADoc?.name || 'Document Juridique'}</title>
+                      <style>
+                        body { font-family: Georgia, serif; padding: 40px; color: #1f2937; line-height: 1.6; }
+                        h1 { font-family: sans-serif; text-align: center; margin-bottom: 30px; }
+                        pre { white-space: pre-wrap; font-family: Georgia, serif; font-size: 14px; }
+                      </style>
+                    </head>
+                    <body>
+                      <h1>${selectedIADoc?.name || 'Document Juridique'}</h1>
+                      <pre>${selectedIADoc?.metadata?.content}</pre>
+                      <script>
+                        window.onload = function() {
+                          window.print();
+                          window.close();
+                        }
+                      </script>
+                    </body>
+                  </html>
+                `);
+                printWindow.document.close();
+              }
+            }}>
+              <Download className="h-4 w-4 mr-2" />
+              Imprimer / PDF
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal d'Alarme de Paiement */}
+      <Modal
+        isOpen={!!paymentAlarmQuote}
+        onClose={() => setPaymentAlarmQuote(null)}
+        title="⚠️ ALERTE DE PAIEMENT : Commission en attente !"
+      >
+        <div className="text-center py-6 space-y-4">
+          <div className="mx-auto h-16 w-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center animate-bounce shadow-lg shadow-red-500/20">
+            <AlertTriangle className="h-8 w-8" />
+          </div>
+          <h3 className="text-xl font-bold text-secondary-900">
+            Paiement Client Reçu !
+          </h3>
+          <p className="text-sm text-secondary-600 leading-relaxed px-2">
+            Le client <strong className="text-secondary-800">{paymentAlarmQuote?.profiles?.first_name || 'Citoyen'} {paymentAlarmQuote?.profiles?.last_name || ''}</strong> a payé la somme de <strong>{paymentAlarmQuote?.amount} MAD</strong> pour le devis <strong>#{paymentAlarmQuote?.id?.slice(0, 8)}</strong>.
+          </p>
+          <div className="bg-red-50/70 border border-red-200/50 rounded-2xl p-4.5 text-left space-y-2">
+            <div className="flex justify-between text-xs text-secondary-600">
+              <span>Montant versé par le client :</span>
+              <span className="font-semibold text-secondary-800">{paymentAlarmQuote?.amount} MAD</span>
+            </div>
+            <div className="flex justify-between text-xs text-red-600 font-semibold border-t border-red-100 pt-2">
+              <span>Commission due (20%) :</span>
+              <span>{(paymentAlarmQuote?.amount * 0.2).toFixed(2)} MAD</span>
+            </div>
+          </div>
+          <p className="text-xs text-secondary-500 italic">
+            Pour activer le dossier, valider l'accès aux documents et à la messagerie sécurisée, vous devez régler cette commission.
+          </p>
+          <div className="flex flex-col gap-2 pt-4">
+            <Button 
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl shadow-md transition-all duration-200 animate-pulse"
+              onClick={() => {
+                const quoteToPay = {
+                  ...paymentAlarmQuote,
+                  commission_amount: paymentAlarmQuote.amount * 0.2
+                };
+                handlePayCommission(quoteToPay);
+                setPaymentAlarmQuote(null);
+              }}
+            >
+              Régler la commission maintenant (Stripe)
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full text-secondary-500 hover:text-secondary-600 text-xs"
+              onClick={() => setPaymentAlarmQuote(null)}
+            >
+              Fermer et régler plus tard
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

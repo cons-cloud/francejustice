@@ -57,6 +57,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const profileChannel = supabase
+      .channel(`profile-realtime-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles_just',
+          filter: `id=eq.${user.id}`
+        },
+        (payload) => {
+          const updated = payload.new as any;
+          setRole(updated.role);
+          setProfile({
+            first_name: updated.first_name,
+            last_name: updated.last_name,
+            is_verified: updated.is_verified
+          });
+          localStorage.setItem('role', updated.role);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(profileChannel);
+    };
+  }, [user]);
+
     const fetchProfile = async (userId: string) => {
       const { data, error } = await supabase
         .from('profiles_just')

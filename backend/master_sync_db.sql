@@ -174,16 +174,69 @@ CREATE POLICY "Formations public access" ON public.formations FOR SELECT USING (
 -- This ensures that every user created in Supabase Auth gets a row in public.profiles
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
+DECLARE
+  v_role text;
 BEGIN
-  INSERT INTO public.profiles (id, email, first_name, last_name, role)
+  v_role := COALESCE(new.raw_user_meta_data->>'role', 'user');
+
+  -- Insertion dans les tables ORIGINALES
+  INSERT INTO public.profiles (id, email, first_name, last_name, role, is_verified, phone, city, country, postal_code, birth_date)
   VALUES (
     new.id,
     new.email,
     COALESCE(new.raw_user_meta_data->>'first_name', ''),
     COALESCE(new.raw_user_meta_data->>'last_name', ''),
-    COALESCE((new.raw_user_meta_data->>'role')::text, 'user')
+    v_role,
+    false,
+    new.raw_user_meta_data->>'phone',
+    new.raw_user_meta_data->>'city',
+    new.raw_user_meta_data->>'country',
+    new.raw_user_meta_data->>'postal_code',
+    NULLIF(new.raw_user_meta_data->>'birth_date', '')::date
   )
   ON CONFLICT (id) DO NOTHING;
+
+  -- Insertion dans les tables _JUST
+  INSERT INTO public.profiles_just (id, email, first_name, last_name, role, is_verified, phone, city, country, postal_code, birth_date)
+  VALUES (
+    new.id,
+    new.email,
+    COALESCE(new.raw_user_meta_data->>'first_name', ''),
+    COALESCE(new.raw_user_meta_data->>'last_name', ''),
+    v_role,
+    false,
+    new.raw_user_meta_data->>'phone',
+    new.raw_user_meta_data->>'city',
+    new.raw_user_meta_data->>'country',
+    new.raw_user_meta_data->>'postal_code',
+    NULLIF(new.raw_user_meta_data->>'birth_date', '')::date
+  )
+  ON CONFLICT (id) DO NOTHING;
+
+  IF v_role = 'lawyer' THEN
+    -- Original
+    INSERT INTO public.lawyers (id, bar_association, license_number, experience_years, is_available)
+    VALUES (
+      new.id,
+      COALESCE(new.raw_user_meta_data->>'bar_association', ''),
+      COALESCE(new.raw_user_meta_data->>'license_number', ''),
+      NULLIF(new.raw_user_meta_data->>'experience', '')::integer,
+      true
+    )
+    ON CONFLICT (id) DO NOTHING;
+    
+    -- _Just
+    INSERT INTO public.lawyers_just (id, bar_association, license_number, experience_years, is_available)
+    VALUES (
+      new.id,
+      COALESCE(new.raw_user_meta_data->>'bar_association', ''),
+      COALESCE(new.raw_user_meta_data->>'license_number', ''),
+      NULLIF(new.raw_user_meta_data->>'experience', '')::integer,
+      true
+    )
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

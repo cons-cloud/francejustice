@@ -34,8 +34,9 @@ INSTRUCTIONS :
 
 Réponds de manière structurée et complète.`;
       
-      const explanation = await chatWithAI(prompt);
-      setAiExplanation(explanation);
+      const res = await chatWithAI(prompt);
+      const explanationText = typeof res === 'string' ? res : res.text;
+      setAiExplanation(explanationText);
       
       if (user) {
         await supabase.from('search_history_just').insert([{

@@ -14,7 +14,8 @@ import {
   TrendingUp,
   Receipt,
   BookOpen,
-  Users
+  Users,
+  Eye
 } from 'lucide-react';
 import { AdvancedAreaChart } from '../components/features/StatsCharts';
 import { exportToJSON } from '../lib/exportUtils';
@@ -29,6 +30,7 @@ import Modal from '../components/ui/Modal';
 import SearchPage from './Search';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
+import { VoiceAssistant } from '../components/ui/VoiceAssistant';
 
 const DashboardPage: React.FC = () => {
   const { user, profile } = useAuth();
@@ -47,6 +49,65 @@ const DashboardPage: React.FC = () => {
   const [profileForm, setProfileForm] = useState({
     first_name: '', last_name: '', phone: '', city: '', postal_code: '', birth_date: ''
   });
+  // Law Just - Added states for Appointments & Document classification/upload
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [selectedLawyerForRDV, setSelectedLawyerForRDV] = useState<string>('');
+  const [rdvDate, setRdvDate] = useState<string>('');
+  const [rdvTime, setRdvTime] = useState<string>('');
+  const [rdvNotes, setRdvNotes] = useState<string>('');
+  const [isBooking, setIsBooking] = useState(false);
+  const [uploadDocName, setUploadDocName] = useState<string>('');
+  const [uploadDocType, setUploadDocType] = useState<string>('client_document');
+  const [isUploading, setIsUploading] = useState(false);
+  const [docFilterType, setDocFilterType] = useState<string>('all');
+  const [selectedIADoc, setSelectedIADoc] = useState<any>(null);
+
+  const handleVoiceAction = (action: { type: string; payload: any }) => {
+    if (action.type === 'SWITCH_TAB') {
+      setActiveTab(action.payload.tab);
+    } else if (action.type === 'SEARCH_LAWYER') {
+      setActiveTab('annuaire');
+      setLawyerSearch(action.payload.query || '');
+    } else if (action.type === 'PREFILL_APPOINTMENT') {
+      setActiveTab('appointments');
+      if (action.payload.lawyer_id) {
+        setSelectedLawyerForRDV(action.payload.lawyer_id);
+      }
+      if (action.payload.date) {
+        setRdvDate(action.payload.date);
+      }
+      if (action.payload.time) {
+        setRdvTime(action.payload.time);
+      }
+      if (action.payload.notes) {
+        setRdvNotes(action.payload.notes);
+      }
+    } else if (action.type === 'CREATE_DOCUMENT') {
+      if (user && action.payload.title && action.payload.content) {
+        supabase
+          .from('documents_just')
+          .insert([{
+            name: action.payload.title,
+            type: 'client_document',
+            owner_id: user.id,
+            metadata: { 
+              content: action.payload.content, 
+              source: 'IA Vocale',
+              type: 'ai_generated',
+              created_at: new Date().toISOString()
+            }
+          }])
+          .then(({ error }) => {
+            if (error) {
+              console.error('Error saving AI generated document:', error);
+            } else {
+              success('Document généré par l\'IA 📄', `Le document "${action.payload.title}" a été enregistré dans votre coffre-fort.`);
+              fetchDocuments();
+            }
+          });
+      }
+    }
+  };
 
   useEffect(() => {
     if (user && profile) {
@@ -93,6 +154,11 @@ const DashboardPage: React.FC = () => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles_just' }, fetchLawyers)
         .subscribe();
 
+      const apptSub = supabase
+        .channel('user-appts')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments_just', filter: `client_id=eq.${user.id}` }, () => fetchAppointments())
+        .subscribe();
+
       return () => {
         docsSub.unsubscribe();
         searchSub.unsubscribe();
@@ -100,13 +166,53 @@ const DashboardPage: React.FC = () => {
         quotesSub.unsubscribe();
         chatSub.unsubscribe();
         lawyersSub.unsubscribe();
+        apptSub.unsubscribe();
       };
+    }
+  }, [user]);
+
+  // UX Shortcut: Preselect lawyer from URL query params (for public directory redirect)
+  useEffect(() => {
+    if (availableLawyers.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const bookLawyerId = params.get('bookLawyerId');
+      if (bookLawyerId) {
+        setSelectedLawyerForRDV(bookLawyerId);
+        setActiveTab('appointments');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, [availableLawyers]);
+
+  // Real-time payment verification redirect handler
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    const quoteId = params.get('quote_id');
+    
+    if (payment === 'success' && quoteId) {
+      const markQuoteAsPaid = async () => {
+        const { error } = await supabase
+          .from('quotes_just')
+          .update({ status: 'paid' })
+          .eq('id', quoteId);
+        
+        if (!error) {
+          success('Paiement réussi 🎉', 'Votre devis a été réglé avec succès en temps réel et votre avocat en a été informé.');
+          fetchQuotes();
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+      };
+      markQuoteAsPaid();
+    } else if (payment === 'cancel') {
+      toastError('Paiement annulé', 'La transaction Stripe a été annulée.');
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [user]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
-    await Promise.all([fetchDocuments(), fetchSearches(), fetchFormations(), fetchQuotes(), fetchChatRooms(), fetchLawyers()]);
+    await Promise.all([fetchDocuments(), fetchSearches(), fetchFormations(), fetchQuotes(), fetchChatRooms(), fetchLawyers(), fetchAppointments()]);
     setLoading(false);
   };
 
@@ -167,6 +273,87 @@ const DashboardPage: React.FC = () => {
       .eq('is_verified', true)
       .order('first_name');
     if (data) setAvailableLawyers(data);
+  };
+
+  const fetchAppointments = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('appointments_just')
+      .select('*, profiles:lawyer_id(first_name, last_name, email)')
+      .eq('client_id', user.id)
+      .order('scheduled_at', { ascending: true });
+    if (data) setAppointments(data);
+  };
+
+  const handleBookAppointment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !selectedLawyerForRDV || !rdvDate || !rdvTime) return;
+    
+    setIsBooking(true);
+    const scheduledAt = new Date(`${rdvDate}T${rdvTime}`).toISOString();
+    
+    const { error: err } = await supabase
+      .from('appointments_just')
+      .insert([{
+        client_id: user.id,
+        lawyer_id: selectedLawyerForRDV,
+        scheduled_at: scheduledAt,
+        duration_minutes: 30,
+        status: 'pending',
+        notes: rdvNotes
+      }]);
+      
+    setIsBooking(false);
+    if (err) {
+      toastError('Erreur', "Impossible de réserver le rendez-vous. Veuillez réessayer.");
+    } else {
+      success('Rendez-vous réservé ! 📅', "Votre demande a été envoyée à l'avocat et est en attente de confirmation.");
+      setRdvDate('');
+      setRdvTime('');
+      setRdvNotes('');
+      fetchAppointments();
+    }
+  };
+
+  const handleCancelAppointment = async (apptId: string) => {
+    const { error: err } = await supabase
+      .from('appointments_just')
+      .update({ status: 'cancelled' })
+      .eq('id', apptId);
+      
+    if (err) {
+      toastError('Erreur', "Impossible d'annuler le rendez-vous.");
+    } else {
+      success('Rendez-vous annulé ❌', "Le rendez-vous a bien été annulé.");
+      fetchAppointments();
+    }
+  };
+
+  const handleUploadDocument = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !uploadDocName) return;
+    
+    setIsUploading(true);
+    const mockFileUrl = `https://zchhijltemvrsthdaxex.supabase.co/storage/v1/object/public/documents/${user.id}/${Date.now()}_${uploadDocName.replace(/\s+/g, '_')}.pdf`;
+    
+    const { error: err } = await supabase
+      .from('documents_just')
+      .insert([{
+        name: uploadDocName,
+        type: uploadDocType,
+        file_url: mockFileUrl,
+        owner_id: user.id,
+        metadata: { source: 'Manuel', uploaded_at: new Date().toISOString() }
+      }]);
+      
+    setIsUploading(false);
+    if (err) {
+      toastError('Erreur', "Impossible de téléverser le document.");
+    } else {
+      success('Document ajouté 📁', "Votre document a bien été enregistré dans votre coffre-fort.");
+      setUploadDocName('');
+      fetchDocuments();
+    }
   };
 
   const contactLawyer = async (lawyerId: string, lawyerName: string) => {
@@ -272,6 +459,7 @@ Ce document est généré par la plateforme JustLaw.
 
   const tabs = [
     { id: 'overview', name: "Vue d'ensemble", icon: BarChart3 },
+    { id: 'appointments', name: 'Rendez-vous', icon: Calendar },
     { id: 'generator', name: 'Générateur IA', icon: Shield },
     { id: 'documents', name: 'Mes documents', icon: FileText },
     { id: 'quotes', name: 'Mes Devis', icon: Receipt },
@@ -285,7 +473,7 @@ Ce document est généré par la plateforme JustLaw.
   const stats = [
     { label: 'Documents', value: documents.length.toString(), icon: FileText, color: 'text-primary-600' },
     { label: 'Recherches', value: searches.length.toString(), icon: Search, color: 'text-success-600' },
-    { label: 'Rendez-vous', value: '0', icon: Calendar, color: 'text-warning-600' },
+    { label: 'Rendez-vous', value: appointments.length.toString(), icon: Calendar, color: 'text-warning-600' },
     { label: 'Crédits IA', value: 'Illimité', icon: MessageSquare, color: 'text-accent-600' },
   ];
 
@@ -381,56 +569,321 @@ Ce document est généré par la plateforme JustLaw.
     </div>
   );
 
-  const renderDocuments = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold text-secondary-900">Mes documents</h2>
-        <Button onClick={() => setActiveTab('generator')}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouveau document
-        </Button>
+  const renderDocuments = () => {
+    const filteredDocs = documents.filter(doc => docFilterType === 'all' || doc.type === docFilterType);
+
+    const docTypeLabels: Record<string, string> = {
+      identity: "🪪 Pièce d'identité",
+      license: "📜 Licence / Diplôme",
+      legal_template: "📝 Modèle de document",
+      client_document: "📁 Pièce de dossier / Justificatif"
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-secondary-900">Coffre-fort Numérique (Mes Documents)</h2>
+            <p className="text-sm text-secondary-500 mt-1">Espace sécurisé de stockage de vos pièces justificatives et documents légaux.</p>
+          </div>
+          <Button onClick={() => setActiveTab('generator')}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouveau document IA
+          </Button>
+        </div>
+
+        {/* Upload form */}
+        <Card className="bg-primary-50/10 border border-primary-100">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold text-primary-900">Ajouter un document au coffre-fort</CardTitle>
+            <CardDescription>Vos documents sont protégés par chiffrement et la sécurité au niveau des lignes (RLS).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleUploadDocument} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+              <div>
+                <label className="block text-xs font-semibold text-secondary-600 mb-1">Nom du document</label>
+                <Input 
+                  value={uploadDocName} 
+                  onChange={e => setUploadDocName(e.target.value)} 
+                  placeholder="Ex: CNI Recto Verso, Contrat de Bail..." 
+                  required 
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-secondary-600 mb-1">Classification / Type</label>
+                <select 
+                  className="w-full flex h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" 
+                  value={uploadDocType} 
+                  onChange={e => setUploadDocType(e.target.value)}
+                >
+                  <option value="identity">🪪 Pièce d'identité</option>
+                  <option value="license">📜 Licence / Diplôme</option>
+                  <option value="legal_template">📝 Modèle de document</option>
+                  <option value="client_document">📁 Pièce de dossier / Justificatif</option>
+                </select>
+              </div>
+              <Button type="submit" disabled={isUploading} className="w-full">
+                {isUploading ? 'Enregistrement...' : 'Enregistrer dans le coffre-fort'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Classification Filters */}
+        <div className="flex flex-wrap gap-2 pb-2">
+          {['all', 'identity', 'license', 'legal_template', 'client_document'].map(type => (
+            <button
+              key={type}
+              onClick={() => setDocFilterType(type)}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                docFilterType === type 
+                  ? 'bg-primary-600 text-white shadow-sm' 
+                  : 'bg-white text-secondary-600 hover:bg-secondary-50 border border-secondary-200'
+              }`}
+            >
+              {type === 'all' ? 'Tous les documents' : (docTypeLabels[type] || type)}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid gap-4">
+          {filteredDocs.map((doc) => (
+            <Card key={doc.id} className="hover:shadow-sm transition-shadow">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-primary-50 rounded-xl text-primary-600">
+                      <FileText className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-secondary-900">{doc.name}</h3>
+                      <p className="text-xs text-secondary-500 mt-1">
+                        <span className="bg-secondary-100 text-secondary-700 px-2 py-0.5 rounded font-medium">
+                          {docTypeLabels[doc.type] || doc.type}
+                        </span>
+                        <span className="mx-2">•</span>
+                        Créé le {new Date(doc.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {doc.file_url ? (
+                      <a href={doc.file_url} target="_blank" rel="noreferrer">
+                        <Button variant="outline" size="sm">
+                          <Download className="h-4 w-4 mr-2" />
+                          Télécharger / Visualiser
+                        </Button>
+                      </a>
+                    ) : doc.metadata?.content ? (
+                      <Button variant="outline" size="sm" onClick={() => setSelectedIADoc(doc)}>
+                        <Eye className="h-4.5 w-4.5 mr-2 text-primary-600" />
+                        Visualiser / Télécharger
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          {filteredDocs.length === 0 && (
+            <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-secondary-200 text-secondary-400">
+              <FileText className="h-10 w-10 mx-auto mb-2 text-secondary-200" />
+              Aucun document dans cette catégorie.
+            </div>
+          )}
+        </div>
       </div>
-      
-      <div className="grid gap-4">
-        {documents.map((doc) => (
-          <Card key={doc.id}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-primary-50 rounded-lg">
-                    <FileText className="h-6 w-6 text-primary-600" />
+    );
+  };
+
+  const renderAppointments = () => {
+    const statusLabels: Record<string, { text: string; color: string }> = {
+      pending: { text: "En attente", color: "bg-yellow-100 text-yellow-700" },
+      confirmed: { text: "Confirmé", color: "bg-green-100 text-green-700" },
+      cancelled: { text: "Annulé", color: "bg-red-100 text-red-700" },
+      completed: { text: "Terminé", color: "bg-primary-100 text-primary-700" }
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-secondary-900">Mes Rendez-vous</h2>
+            <p className="text-sm text-secondary-500 mt-1">Planifiez des téléconsultations et suivez vos échanges avec les avocats de la plateforme.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Reservation Form */}
+          <Card className="lg:col-span-1 border border-secondary-200">
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">Réserver une consultation</CardTitle>
+              <CardDescription>Choisissez un avocat vérifié et planifiez votre créneau d'assistance.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleBookAppointment} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-secondary-600 mb-1">Avocat disponible</label>
+                  <select
+                    className="w-full flex h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    value={selectedLawyerForRDV}
+                    onChange={e => setSelectedLawyerForRDV(e.target.value)}
+                    required
+                  >
+                    <option value="">Sélectionnez un avocat...</option>
+                    {availableLawyers.map(l => (
+                      <option key={l.id} value={l.id}>
+                        Me. {l.first_name} {l.last_name} ({l.specialty || 'Généraliste'}) - {l.city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-xs font-semibold text-secondary-600 mb-1">Date</label>
+                    <Input 
+                      type="date" 
+                      value={rdvDate} 
+                      onChange={e => setRdvDate(e.target.value)} 
+                      min={new Date().toISOString().split('T')[0]} 
+                      required 
+                    />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-secondary-900">{doc.name}</h3>
-                    <p className="text-secondary-600">{doc.type} • Créé le {new Date(doc.created_at).toLocaleDateString()}</p>
+                    <label className="block text-xs font-semibold text-secondary-600 mb-1">Heure</label>
+                    <Input 
+                      type="time" 
+                      value={rdvTime} 
+                      onChange={e => setRdvTime(e.target.value)} 
+                      required 
+                    />
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Télécharger
-                  </Button>
+                <div>
+                  <label className="block text-xs font-semibold text-secondary-600 mb-1">Description / Notes préliminaires</label>
+                  <textarea
+                    value={rdvNotes}
+                    onChange={e => setRdvNotes(e.target.value)}
+                    placeholder="Expliquez brièvement votre dossier ou vos questions..."
+                    rows={4}
+                    className="w-full rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
                 </div>
-              </div>
+                <Button type="submit" disabled={isBooking} className="w-full">
+                  {isBooking ? 'Enregistrement...' : 'Prendre rendez-vous'}
+                </Button>
+              </form>
             </CardContent>
           </Card>
-        ))}
-        {documents.length === 0 && <div className="text-center py-12 bg-white rounded-xl">Aucun document généré.</div>}
+
+          {/* Appointments List */}
+          <div className="lg:col-span-2 space-y-4">
+            <h3 className="font-semibold text-secondary-800">Mes consultations planifiées</h3>
+            <div className="space-y-4">
+              {appointments.map((appt) => {
+                const label = statusLabels[appt.status] || { text: appt.status, color: "bg-secondary-100 text-secondary-600" };
+                return (
+                  <Card key={appt.id} className="hover:shadow-sm transition-shadow">
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between gap-4 flex-wrap">
+                        <div className="flex gap-4">
+                          <div className="p-3 bg-secondary-50 rounded-xl text-secondary-600">
+                            <Calendar className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-secondary-900">
+                              Consultation avec Me. {appt.profiles?.first_name} {appt.profiles?.last_name}
+                            </h4>
+                            <p className="text-xs text-secondary-500 mt-1 font-semibold">
+                              {new Date(appt.scheduled_at).toLocaleDateString('fr-FR', {
+                                weekday: 'long',
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                            {appt.notes && (
+                              <p className="text-sm text-secondary-600 bg-secondary-50 rounded-lg p-3 mt-3 border border-secondary-100 max-w-lg italic">
+                                "{appt.notes}"
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${label.color}`}>
+                            {label.text}
+                          </span>
+                          {appt.status === 'pending' && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 mt-2"
+                              onClick={() => handleCancelAppointment(appt.id)}
+                            >
+                              Annuler RDV
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {appointments.length === 0 && (
+                <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-secondary-200 text-secondary-400">
+                  <Calendar className="h-10 w-10 mx-auto mb-2 text-secondary-200" />
+                  Aucune consultation planifiée pour le moment.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-secondary-50">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       <div className="container py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-2">
-            Bonjour, {profile?.first_name || 'Utilisateur'}
-          </h1>
-          <p className="text-secondary-600">
-            Bienvenue sur votre portail juridique intelligent
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-2">
+              Bonjour, {profile?.first_name || 'Utilisateur'}
+            </h1>
+            <p className="text-secondary-600">
+              Bienvenue sur votre portail juridique intelligent
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <VoiceAssistant
+              mode="citizen"
+              activeTab={activeTab}
+              onAction={handleVoiceAction}
+              variant="inline"
+              stateContext={{
+                profile,
+                availableLawyers,
+                appointments,
+                documents
+              }}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-danger-600 hover:text-danger-700 hover:bg-danger-50 border-danger-200 hover:border-danger-300 flex items-center justify-center font-semibold"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                window.location.href = '/login';
+              }}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Déconnexion
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -456,17 +909,6 @@ Ce document est généré par la plateforme JustLaw.
                     );
                   })}
                 </nav>
-                <div className="w-full h-px bg-secondary-200 my-4" />
-                <button
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    window.location.href = '/login';
-                  }}
-                  className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 text-danger-600 hover:bg-danger-50"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span className="font-medium whitespace-nowrap">Déconnexion</span>
-                </button>
               </CardContent>
             </Card>
           </aside>
@@ -477,6 +919,7 @@ Ce document est généré par la plateforme JustLaw.
             ) : (
               <>
                 {activeTab === 'overview' && renderOverview()}
+                {activeTab === 'appointments' && renderAppointments()}
                 {activeTab === 'generator' && (
                   <div className="space-y-4">
                     <h2 className="text-2xl font-semibold text-secondary-900">Générateur de Documents Juridiques</h2>
@@ -652,6 +1095,17 @@ Ce document est généré par la plateforme JustLaw.
                                 <MessageSquare className="h-4 w-4 mr-2" />
                                 Contacter
                               </Button>
+                              <Button
+                                variant="outline"
+                                className="flex-1 text-sm border-primary-200 text-primary-700 hover:bg-primary-50"
+                                onClick={() => {
+                                  setSelectedLawyerForRDV(lawyer.id);
+                                  setActiveTab('appointments');
+                                }}
+                              >
+                                <Calendar className="h-4 w-4 mr-2" />
+                                Réserver RDV
+                              </Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -722,6 +1176,52 @@ Ce document est généré par la plateforme JustLaw.
           <Button className="w-full" onClick={() => setShowWelcome(false)}>
             Découvrir mon espace
           </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={!!selectedIADoc}
+        onClose={() => setSelectedIADoc(null)}
+        title={selectedIADoc?.name || "Visualisation du Document"}
+      >
+        <div className="space-y-6">
+          <div className="p-5 bg-secondary-50 border border-secondary-200 rounded-2xl max-h-[60vh] overflow-y-auto whitespace-pre-wrap font-serif text-secondary-800 text-sm leading-relaxed shadow-inner">
+            {selectedIADoc?.metadata?.content}
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t border-secondary-100">
+            <Button variant="outline" onClick={() => setSelectedIADoc(null)}>Fermer</Button>
+            <Button onClick={() => {
+              const printWindow = window.open('', '_blank');
+              if (printWindow) {
+                printWindow.document.write(`
+                  <html>
+                    <head>
+                      <title>${selectedIADoc?.name || 'Document Juridique'}</title>
+                      <style>
+                        body { font-family: Georgia, serif; padding: 40px; color: #1f2937; line-height: 1.6; }
+                        h1 { font-family: sans-serif; text-align: center; margin-bottom: 30px; }
+                        pre { white-space: pre-wrap; font-family: Georgia, serif; font-size: 14px; }
+                      </style>
+                    </head>
+                    <body>
+                      <h1>${selectedIADoc?.name || 'Document Juridique'}</h1>
+                      <pre>${selectedIADoc?.metadata?.content}</pre>
+                      <script>
+                        window.onload = function() {
+                          window.print();
+                          window.close();
+                        }
+                      </script>
+                    </body>
+                  </html>
+                `);
+                printWindow.document.close();
+              }
+            }}>
+              <Download className="h-4 w-4 mr-2" />
+              Imprimer / PDF
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

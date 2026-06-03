@@ -76,9 +76,42 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
       if (authError) throw authError;
 
       if (authData.user) {
-        // 2. Handle File Uploads (Simulation of bucket upload)
+        const userId = authData.user.id;
+        const uploadedUrls: string[] = [];
+
+        // 2. Handle File Uploads
         if (files && files.length > 0) {
-          // In a real scenario: supabase.storage.from('verification-docs').upload(...)
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const filePath = `${userId}/${Date.now()}_${file.name}`;
+            
+            const { error: uploadError } = await supabase.storage
+              .from('verification-docs')
+              .upload(filePath, file, { upsert: true });
+
+            if (!uploadError) {
+              const { data: urlData } = supabase.storage
+                .from('verification-docs')
+                .getPublicUrl(filePath);
+              if (urlData) {
+                uploadedUrls.push(urlData.publicUrl);
+              }
+            } else {
+              console.error(`Error uploading file ${file.name}:`, uploadError);
+            }
+          }
+        }
+
+        // 3. Save file URLs to lawyers_just table
+        if (uploadedUrls.length > 0) {
+          const { error: updateError } = await supabase
+            .from('lawyers_just')
+            .update({ verification_documents: uploadedUrls })
+            .eq('id', userId);
+            
+          if (updateError) {
+            console.error('Error updating lawyer documents:', updateError);
+          }
         }
 
         setShowSuccessModal(true);

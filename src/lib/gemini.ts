@@ -25,7 +25,10 @@ export async function chatWithAI(
     }
 
     const data = await response.json();
-    return data.text;
+    return {
+      text: data.text,
+      sources_web: data.sources_web || []
+    };
   } catch (error: any) {
     console.error('AI Chat Error:', error);
     throw error;

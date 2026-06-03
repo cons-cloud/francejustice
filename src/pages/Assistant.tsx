@@ -93,7 +93,8 @@ const AssistantPage: React.FC = () => {
         parts: [{ text: m.content }]
       }));
 
-      const reply = await chatWithAI(userMessage, history);
+      const res = await chatWithAI(userMessage, history);
+      const reply = typeof res === 'string' ? res : res.text;
       appendMessage('assistant', reply);
 
       // Save to Supabase

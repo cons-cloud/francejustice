@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, Search, Phone, Mail, MapPin, CheckCircle, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -20,6 +21,7 @@ interface LawyerProfile {
 }
 
 const LawyersPage: React.FC = () => {
+  const navigate = useNavigate();
   const [lawyers, setLawyers] = useState<LawyerProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -150,7 +152,7 @@ const LawyersPage: React.FC = () => {
                   </p>
 
                   <div className="flex gap-2">
-                    <Button className="flex-1 font-bold">Prendre RDV</Button>
+                    <Button className="flex-1 font-bold" onClick={() => navigate(`/dashboard/user?bookLawyerId=${lawyer.id}`)}>Prendre RDV</Button>
                     <Button variant="outline" className="px-4">
                       <Phone className="h-5 w-5" />
                     </Button>
@@ -191,7 +193,7 @@ const LawyersPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-primary-900 mb-4">Vous êtes avocat ?</h2>
             <p className="text-lg text-primary-700">Rejoignez Law Just pour augmenter votre visibilité et gérer vos dossiers en ligne.</p>
           </div>
-          <Button size="lg" className="px-10 h-16 text-xl shadow-lg shadow-primary-500/20">
+          <Button size="lg" className="px-10 h-16 text-xl shadow-lg shadow-primary-500/20" onClick={() => navigate('/register/lawyer')}>
             S'inscrire comme Avocat
           </Button>
         </div>

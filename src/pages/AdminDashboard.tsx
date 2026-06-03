@@ -19,11 +19,24 @@ interface UserProfile {
   role: string;
   created_at: string;
   is_verified?: boolean;
+  lawyers?: {
+    bar_association?: string;
+    license_number?: string;
+    experience_years?: number;
+    verification_status?: string;
+    verification_documents?: string[];
+  } | {
+    bar_association?: string;
+    license_number?: string;
+    experience_years?: number;
+    verification_status?: string;
+    verification_documents?: string[];
+  }[];
 }
 
 const AdminDashboard: React.FC = () => {
   const { toasts, success, error: toastError, removeToast } = useToast();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments'>('overview');
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [allDocuments, setAllDocuments] = useState<any[]>([]);
@@ -36,6 +49,7 @@ const AdminDashboard: React.FC = () => {
   const [chatRooms, setChatRooms] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>({ commission_rate: 15, maintenance_mode: false, welcome_message: '' });
   const [loading, setLoading] = useState(true);
+  const [allAppointments, setAllAppointments] = useState<any[]>([]);
 
   // Modern Modal State
   const [modalConfig, setModalConfig] = useState<{
@@ -74,6 +88,7 @@ const AdminDashboard: React.FC = () => {
     fetchQuotes();
     fetchChatRooms();
     fetchSettings();
+    fetchAllAppointments();
     
     // Subscribe to multiple channels for real-time synchronization
     const techSub = supabase
@@ -84,6 +99,8 @@ const AdminDashboard: React.FC = () => {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'payments_just' }, fetchPayments)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes_just' }, fetchQuotes)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings_just' }, fetchSettings)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments_just' }, fetchAllAppointments)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_rooms_just' }, fetchChatRooms)
       .subscribe();
 
     const usersSub = supabase
@@ -116,6 +133,17 @@ const AdminDashboard: React.FC = () => {
         const { data } = await supabase.from('profiles_just').select('first_name, last_name').eq('id', p.new.owner_id).single();
         addActivity(`Nouveau document généré par ${data?.first_name || 'Citoyen'}`, 'document');
       })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments_just' }, () => {
+        addActivity(`Nouveau rendez-vous créé`, 'appointment');
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles_just' }, (p) => {
+        const name = `${p.new.first_name || ''} ${p.new.last_name || ''}`.trim() || p.new.email;
+        if (p.new.role === 'lawyer') {
+          addActivity(`Nouvel avocat inscrit : Me ${name} (en attente d'approbation)`, 'lawyer');
+        } else {
+          addActivity(`Nouvel utilisateur inscrit : ${name}`, 'user');
+        }
+      })
       .subscribe();
 
     return () => {
@@ -135,7 +163,7 @@ const AdminDashboard: React.FC = () => {
     setLoading(true);
     const { data } = await supabase
       .from('profiles_just')
-      .select('*')
+      .select('*, lawyers:lawyers_just(*)')
       .limit(50); // Limit initial load for performance
     if (data) setUsers(data);
     setLoading(false);
@@ -198,6 +226,42 @@ const AdminDashboard: React.FC = () => {
   const fetchSettings = async () => {
     const { data } = await supabase.from('platform_settings_just').select('*').eq('id', 'global').maybeSingle();
     if (data) setSettings(data);
+  };
+
+  const fetchAllAppointments = async () => {
+    const { data } = await supabase
+      .from('appointments_just')
+      .select('*, client:client_id(first_name, last_name), lawyer:lawyer_id(first_name, last_name)')
+      .order('scheduled_at', { ascending: false });
+    if (data) setAllAppointments(data);
+  };
+
+  const handleCancelAppointmentByAdmin = async (id: string) => {
+    const { error } = await supabase
+      .from('appointments_just')
+      .update({ status: 'cancelled' })
+      .eq('id', id);
+    if (!error) {
+      fetchAllAppointments();
+      success("Rendez-vous annulé", "Le rendez-vous a été annulé par l'administrateur.");
+    } else {
+      toastError("Erreur", error.message);
+    }
+  };
+
+  const handleDeleteAppointmentByAdmin = async (id: string) => {
+    openModal("Supprimer ce rendez-vous ?", [], async () => {
+      const { error } = await supabase
+        .from('appointments_just')
+        .delete()
+        .eq('id', id);
+      if (!error) {
+        fetchAllAppointments();
+        success("Rendez-vous supprimé", "Le rendez-vous a été retiré de la plateforme.");
+      } else {
+        toastError("Erreur", error.message);
+      }
+    }, "Supprimer définitivement", true);
   };
 
   const handleUpdateSettings = async (key: string, value: any) => {
@@ -285,6 +349,10 @@ const AdminDashboard: React.FC = () => {
       .eq('id', userId);
     
     if (!error) {
+      await supabase
+        .from('lawyers_just')
+        .update({ verification_status: 'approved' })
+        .eq('id', userId);
       success("Avocat approuvé", "Le compte a été vérifié avec succès.");
       fetchUsers();
     }
@@ -432,6 +500,7 @@ const AdminDashboard: React.FC = () => {
               <CardContent className="p-2 sm:p-4 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible no-scrollbar pb-2 lg:pb-0">
                 {[
                   { id: 'overview', name: "Vue d'ensemble", icon: BarChart3 },
+                  { id: 'appointments', name: "Rendez-vous", icon: RefreshCw },
                   { id: 'users', name: "Utilisateurs", icon: Users },
                   { id: 'lawyers', name: "Approbations", icon: Shield },
                   { id: 'documents', name: "Documents", icon: FileText },
@@ -718,21 +787,130 @@ const AdminDashboard: React.FC = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="divide-y border-t">
-                    {users.filter(u => u.role === 'lawyer').map((l) => (
-                      <div key={l.id} className="p-6 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={`h-3 w-3 rounded-full ${l.is_verified ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                          <div>
-                            <p className="font-bold">{l.first_name} {l.last_name}</p>
-                            <p className="text-xs text-secondary-500">{l.email}</p>
+                    {users.filter(u => u.role === 'lawyer').map((l) => {
+                      const lawyerInfo = Array.isArray(l.lawyers) ? l.lawyers[0] : l.lawyers;
+                      return (
+                      <div key={l.id} className="p-6 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={`h-3 w-3 rounded-full shrink-0 ${l.is_verified ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                            <div>
+                              <p className="font-bold">Me {l.first_name} {l.last_name}</p>
+                              <p className="text-xs text-secondary-500">{l.email}</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            {!l.is_verified && <Button size="sm" onClick={() => handleApproveLawyer(l.id)}>Approuver</Button>}
+                            <Button size="sm" variant="outline" className="text-red-600">Suspendre</Button>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          {!l.is_verified && <Button size="sm" onClick={() => handleApproveLawyer(l.id)}>Approuver</Button>}
-                          <Button size="sm" variant="outline" className="text-red-600">Suspendre</Button>
-                        </div>
+
+                        {lawyerInfo && (
+                          <div className="ml-7 space-y-2">
+                            <div className="flex flex-wrap gap-3 text-xs">
+                              {lawyerInfo.bar_association && (
+                                <span className="bg-secondary-100 text-secondary-700 px-2.5 py-1 rounded-full font-medium">🏛️ Barreau : {lawyerInfo.bar_association}</span>
+                              )}
+                              {lawyerInfo.license_number && (
+                                <span className="bg-secondary-100 text-secondary-700 px-2.5 py-1 rounded-full font-medium">📋 Licence : {lawyerInfo.license_number}</span>
+                              )}
+                              {lawyerInfo.experience_years != null && (
+                                <span className="bg-secondary-100 text-secondary-700 px-2.5 py-1 rounded-full font-medium">⏳ {lawyerInfo.experience_years} ans d'expérience</span>
+                              )}
+                              <span className={`px-2.5 py-1 rounded-full font-medium ${lawyerInfo.verification_status === 'approved' ? 'bg-green-100 text-green-700' : lawyerInfo.verification_status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                {lawyerInfo.verification_status === 'approved' ? '✅ Approuvé' : lawyerInfo.verification_status === 'rejected' ? '❌ Rejeté' : '⏳ En attente'}
+                              </span>
+                            </div>
+
+                            {lawyerInfo.verification_documents && lawyerInfo.verification_documents.length > 0 && (
+                              <div className="flex flex-wrap gap-2 pt-1">
+                                {lawyerInfo.verification_documents.map((docUrl: string, idx: number) => (
+                                  <a
+                                    key={idx}
+                                    href={docUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-primary-600 hover:underline flex items-center gap-1 bg-primary-50 px-2.5 py-1 rounded-full font-medium transition-colors hover:bg-primary-100"
+                                  >
+                                    📄 Document justificatif #{idx + 1}
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+
+                            {(!lawyerInfo.verification_documents || lawyerInfo.verification_documents.length === 0) && !l.is_verified && (
+                              <p className="text-xs text-orange-500 italic">⚠️ Aucun document justificatif soumis</p>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    ))}
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {activeTab === 'appointments' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Suivi Global des Rendez-vous</CardTitle>
+                  <CardDescription>Tous les rendez-vous de consultation planifiés sur la plateforme</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm whitespace-nowrap">
+                      <thead className="bg-secondary-50 border-y">
+                        <tr>
+                          <th className="px-6 py-3">Client</th>
+                          <th className="px-6 py-3">Avocat</th>
+                          <th className="px-6 py-3">Date planifiée</th>
+                          <th className="px-6 py-3">Statut</th>
+                          <th className="px-6 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {allAppointments.map((appt) => {
+                          const statusLabels: Record<string, { text: string; color: string }> = {
+                            pending: { text: "En attente", color: "bg-yellow-100 text-yellow-700" },
+                            confirmed: { text: "Confirmé", color: "bg-green-100 text-green-700" },
+                            cancelled: { text: "Annulé", color: "bg-red-100 text-red-700" },
+                            completed: { text: "Terminé", color: "bg-primary-100 text-primary-700" }
+                          };
+                          const label = statusLabels[appt.status] || { text: appt.status, color: "bg-secondary-100 text-secondary-600" };
+                          
+                          return (
+                            <tr key={appt.id} className="hover:bg-secondary-50">
+                              <td className="px-6 py-4 font-medium">
+                                {appt.client ? `${appt.client.first_name} ${appt.client.last_name}` : "Client inconnu"}
+                              </td>
+                              <td className="px-6 py-4">
+                                {appt.lawyer ? `Me. ${appt.lawyer.first_name} ${appt.lawyer.last_name}` : "Avocat inconnu"}
+                              </td>
+                              <td className="px-6 py-4 text-secondary-500">
+                                {new Date(appt.scheduled_at).toLocaleString('fr-FR')}
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${label.color}`}>
+                                  {label.text}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                {appt.status !== 'cancelled' && appt.status !== 'completed' && (
+                                  <Button size="sm" variant="outline" className="text-red-600 border-red-100" onClick={() => handleCancelAppointmentByAdmin(appt.id)}>
+                                    Annuler
+                                  </Button>
+                                )}
+                                <Button size="sm" variant="ghost" className="text-red-600" onClick={() => handleDeleteAppointmentByAdmin(appt.id)}>
+                                  Supprimer
+                                </Button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                    {allAppointments.length === 0 && <div className="p-8 text-center text-secondary-500">Aucun rendez-vous sur la plateforme.</div>}
                   </div>
                 </CardContent>
               </Card>
