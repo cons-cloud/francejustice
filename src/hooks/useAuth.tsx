@@ -13,6 +13,17 @@ interface AuthContextType {
     last_name: string;
     avatar_url?: string;
     is_verified?: boolean;
+    phone?: string;
+    city?: string;
+    postal_code?: string;
+    birth_date?: string;
+    bio?: string;
+    specialty?: string;
+    bar_number?: string;
+    experience_years?: number;
+    is_available?: boolean;
+    stripe_public_key?: string;
+    stripe_secret_key?: string;
   } | null;
 }
 
@@ -76,7 +87,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile({
             first_name: updated.first_name,
             last_name: updated.last_name,
-            is_verified: updated.is_verified
+            avatar_url: updated.avatar_url,
+            is_verified: updated.is_verified,
+            phone: updated.phone,
+            city: updated.city,
+            postal_code: updated.postal_code,
+            birth_date: updated.birth_date,
+            bio: updated.bio,
+            specialty: updated.specialty,
+            bar_number: updated.bar_number,
+            experience_years: updated.experience_years,
+            is_available: updated.is_available,
+            stripe_public_key: updated.stripe_public_key,
+            stripe_secret_key: updated.stripe_secret_key
           });
           localStorage.setItem('role', updated.role);
         }
@@ -91,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const fetchProfile = async (userId: string) => {
       const { data, error } = await supabase
         .from('profiles_just')
-        .select('role, first_name, last_name, is_verified')
+        .select('role, first_name, last_name, is_verified, avatar_url, phone, city, postal_code, birth_date, bio, specialty, bar_number, experience_years, is_available, stripe_public_key, stripe_secret_key')
         .eq('id', userId)
         .maybeSingle();
 
@@ -100,7 +123,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile({
         first_name: data.first_name,
         last_name: data.last_name,
-        is_verified: data.is_verified
+        avatar_url: data.avatar_url,
+        is_verified: data.is_verified,
+        phone: data.phone,
+        city: data.city,
+        postal_code: data.postal_code,
+        birth_date: data.birth_date,
+        bio: data.bio,
+        specialty: data.specialty,
+        bar_number: data.bar_number,
+        experience_years: data.experience_years,
+        is_available: data.is_available,
+        stripe_public_key: data.stripe_public_key,
+        stripe_secret_key: data.stripe_secret_key
       });
       localStorage.setItem('role', data.role);
     }

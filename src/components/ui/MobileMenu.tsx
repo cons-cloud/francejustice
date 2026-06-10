@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Scale, User as UserIcon, Home, FileText, Users, Info, LayoutGrid, LogOut } from 'lucide-react';
+import { X, Scale, User as UserIcon, Home, FileText, Users, Info, LayoutGrid, LogOut, Sparkles } from 'lucide-react';
 import { Button } from './Button';
 import { useLocation } from 'react-router-dom';
 
@@ -17,6 +17,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
   const navItems = [
     { name: 'Accueil', href: '/', icon: Home },
     { name: 'Services', href: '/services', icon: Scale },
+    { name: 'GénIA-L Avocat', href: '/genia-l', icon: Sparkles },
     { name: 'Générateur', href: '/generator', icon: FileText },
     { name: 'Avocats', href: '/lawyers', icon: Users },
     { name: 'À propos', href: '/about', icon: Info },

@@ -22,6 +22,7 @@ import FAQ from './pages/FAQ';
 import News from './pages/News';
 import Legal from './pages/Legal';
 import Database from './pages/Database';
+import GeniaLAvocat from './pages/GeniaLAvocat';
 
 
 function RequireRole({ role, children }: { role: 'user' | 'admin' | 'lawyer'; children: React.ReactNode }) {
@@ -72,6 +73,7 @@ function AppContent() {
           <Route path="/terms" element={<Legal />} />
           <Route path="/cookies" element={<Legal />} />
           <Route path="/database" element={<Database />} />
+          <Route path="/genia-l" element={<GeniaLAvocat />} />
           <Route
             path="/dashboard/user"
             element={

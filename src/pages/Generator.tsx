@@ -106,6 +106,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
             name: `${formData.documentType} - ${new Date().toLocaleDateString()}`,
             type: 'legal_template',
             owner_id: user.id,
+            created_at: new Date().toISOString(),
             metadata: { ...formData, content }
           }]);
         if (saveError) console.error('Error saving document:', saveError);

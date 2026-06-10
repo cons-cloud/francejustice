@@ -15,8 +15,13 @@ import {
   Receipt,
   BookOpen,
   Users,
-  Eye
+  Eye,
+  MapPin
 } from 'lucide-react';
+import LawCodes from '../components/features/LawCodes';
+import ProcedureLibrary from '../components/features/ProcedureLibrary';
+import CodeAnalysis from '../components/features/CodeAnalysis';
+import { FranceMap, regions } from '../components/features/FranceMap';
 import { AdvancedAreaChart } from '../components/features/StatsCharts';
 import { exportToJSON } from '../lib/exportUtils';
 import { Button } from '../components/ui/Button';
@@ -45,6 +50,105 @@ const DashboardPage: React.FC = () => {
   const [formations, setFormations] = useState<any[]>([]);
   const [availableLawyers, setAvailableLawyers] = useState<any[]>([]);
   const [lawyerSearch, setLawyerSearch] = useState('');
+
+  const [selectedFormation, setSelectedFormation] = useState<{ id: string; title: string; category: string; duration: string; level: string } | null>(null);
+  const [formationViewMode, setFormationViewMode] = useState<'start' | 'preview'>('preview');
+  const [activeChapterIndex, setActiveChapterIndex] = useState<number>(0);
+  const [chaptersRead, setChaptersRead] = useState<Record<number, boolean>>({});
+  const [completedFormations, setCompletedFormations] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('completedFormations');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Curriculums dynamiques pour les formations
+  const getFormationCurriculum = (title: string) => {
+    const t = title.toLowerCase();
+    if (t.includes('contrat')) {
+      return [
+        {
+          title: "1. Définition et formation du contrat",
+          content: "Un contrat est un accord de volontés entre deux ou plusieurs personnes destiné à créer, modifier, transmettre ou éteindre des obligations. Pour être valide, il exige le consentement des parties, leur capacité de contracter, et un contenu licite et certain. L'offre et l'acceptation constituent la rencontre des volontés indispensable au contrat."
+        },
+        {
+          title: "2. Les clauses contractuelles clés",
+          content: "La rédaction des clauses nécessite une précision chirurgicale. Les clauses limitatives de responsabilité encadrent l'indemnisation en cas de manquement. La clause pénale fixe forfaitairement le montant des dommages-intérêts. La clause de force majeure suspend ou met fin au contrat en cas d'événement imprévisible et irrésistible."
+        },
+        {
+          title: "3. Inexécution et résolution",
+          content: "En cas d'inexécution des obligations contractuelles par l'une des parties, le créancier dispose de plusieurs recours : refuser d'exécuter sa propre obligation (exception d'inexécution), poursuivre l'exécution forcée, solliciter une réduction du prix, ou provoquer la résolution/résiliation du contrat assortie de dommages-intérêts."
+        }
+      ];
+    } else if (t.includes('contentieux') || t.includes('litige')) {
+      return [
+        {
+          title: "1. Phase précontentieuse et mise en demeure",
+          content: "Avant toute action judiciaire, la tentative de résolution amiable est souvent requise. La lettre de mise en demeure formalise la réclamation et fait courir les intérêts moratoires. Elle fixe un dernier délai de conformité et constitue le préalable obligatoire à de nombreuses actions en justice."
+        },
+        {
+          title: "2. Stratégies de procédure et saisine",
+          content: "Choisir la bonne juridiction (Tribunal de Commerce, Tribunal Judiciaire, Conseil de Prud'hommes) est primordial. L'assignation doit être rédigée rigoureusement et signifiée par commissaire de justice. La gestion du calendrier de procédure et la communication des pièces respectent le principe du contradictoire."
+        },
+        {
+          title: "3. L'audience et la plaidoirie",
+          content: "La préparation du dossier de plaidoirie combine une synthèse des faits et des arguments de droit. Lors de l'audience, l'avocat doit structurer sa plaidoirie de manière percutante, répondre aux arguments de la partie adverse, et convaincre le juge par une démonstration juridique claire et concise."
+        }
+      ];
+    } else if (t.includes('travail') || t.includes('social')) {
+      return [
+        {
+          title: "1. Le contrat de travail et ses clauses",
+          content: "Le contrat de travail (CDI, CDD) formalise la relation de subordination, les fonctions, la rémunération et le temps de travail. Il peut contenir des clauses sensibles comme la clause de non-concurrence (qui doit être limitée dans le temps/l'espace et comporter une contrepartie financière) ou la clause de mobilité."
+        },
+        {
+          title: "2. Les procédures de rupture",
+          content: "La rupture du contrat à l'initiative de l'employeur (licenciement pour motif personnel ou économique) est strictement encadrée : entretien préalable, notification écrite motivée, respect du préavis. La rupture conventionnelle homologuée offre une alternative consensuelle sécurisée."
+        },
+        {
+          title: "3. Le contentieux prud'homal",
+          content: "Le Conseil de Prud'hommes règle les litiges individuels du travail. La procédure comporte deux phases : l'audience de conciliation et d'orientation (ACO) cherchant un accord amiable, et en cas d'échec, l'audience de jugement (AJ). La charge de la preuve est partagée selon les motifs invoqués."
+        }
+      ];
+    } else if (t.includes('rgpd') || t.includes('données') || t.includes('numérique')) {
+      return [
+        {
+          title: "1. Les principes fondamentaux du RGPD",
+          content: "Le Règlement Général sur la Protection des Données régit le traitement des données personnelles dans l'UE. Les principes clés sont la licéité, la loyauté, la transparence, la limitation des finalités, la minimisation des données, et l'obligation d'obtenir un consentement libre, spécifique, éclairé et univoque."
+        },
+        {
+          title: "2. Obligations du responsable de traitement",
+          content: "Les organisations doivent tenir un registre des activités de traitement, nommer un DPO (Délégué à la Protection des Données) dans certains cas, effectuer des Analyses d'Impact sur la Protection des Données (AIPD) pour les traitements à risque, et notifier toute violation de données à la CNIL sous 72 heures."
+        },
+        {
+          title: "3. Droits des personnes concernées",
+          content: "Le RGPD confère aux citoyens des droits étendus sur leurs données : droit d'accès, de rectification, d'effacement (droit à l'oubli), de limitation du traitement, de portabilité des données, et d'opposition. L'avocat doit guider les clients pour répondre efficacement à ces demandes d'exercice de droits."
+        }
+      ];
+    } else {
+      return [
+        {
+          title: "1. Analyse et recherche doctrinale",
+          content: "Chaque dossier juridique commence par une qualification rigoureuse des faits. L'avocat doit rechercher les textes législatifs applicables, analyser la jurisprudence récente (arrêts de la Cour de cassation ou du Conseil d'État), et consulter la doctrine pertinente pour fonder son argumentation."
+        },
+        {
+          title: "2. Rédaction d'actes et de mémoires",
+          content: "La clarté, la rigueur logique et la précision terminologique sont les piliers de la rédaction juridique. Qu'il s'agisse de conclusions, de contrats ou de statuts de société, la structure doit être limpide, éliminant toute ambiguïté qui pourrait nuire aux intérêts du client ou engendrer un litige futur."
+        },
+        {
+          title: "3. Déontologie et éthique professionnelle",
+          content: "L'avocat exerce ses fonctions avec dignité, conscience, indépendance, probité et humanité, conformément à son serment. Le respect du secret professionnel est absolu et d'ordre public. La gestion des conflits d'intérêts et le maniement des fonds via la CARPA font l'objet d'une vigilance constante."
+        }
+      ];
+    }
+  };
+
+  // Geographical filtering states
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string>('');
+  const [selectedBarreau, setSelectedBarreau] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [profileForm, setProfileForm] = useState({
     first_name: '', last_name: '', phone: '', city: '', postal_code: '', birth_date: ''
@@ -66,7 +170,7 @@ const DashboardPage: React.FC = () => {
     if (action.type === 'SWITCH_TAB') {
       setActiveTab(action.payload.tab);
     } else if (action.type === 'SEARCH_LAWYER') {
-      setActiveTab('annuaire');
+      setActiveTab('avocats');
       setLawyerSearch(action.payload.query || '');
     } else if (action.type === 'PREFILL_APPOINTMENT') {
       setActiveTab('appointments');
@@ -90,11 +194,11 @@ const DashboardPage: React.FC = () => {
             name: action.payload.title,
             type: 'client_document',
             owner_id: user.id,
+            created_at: new Date().toISOString(),
             metadata: { 
               content: action.payload.content, 
               source: 'IA Vocale',
-              type: 'ai_generated',
-              created_at: new Date().toISOString()
+              type: 'ai_generated'
             }
           }])
           .then(({ error }) => {
@@ -212,8 +316,21 @@ const DashboardPage: React.FC = () => {
 
   const fetchDashboardData = async () => {
     setLoading(true);
-    await Promise.all([fetchDocuments(), fetchSearches(), fetchFormations(), fetchQuotes(), fetchChatRooms(), fetchLawyers(), fetchAppointments()]);
-    setLoading(false);
+    try {
+      await Promise.all([
+        fetchDocuments().catch(err => console.error("Error fetching documents:", err)),
+        fetchSearches().catch(err => console.error("Error fetching searches:", err)),
+        fetchFormations().catch(err => console.error("Error fetching formations:", err)),
+        fetchQuotes().catch(err => console.error("Error fetching quotes:", err)),
+        fetchChatRooms().catch(err => console.error("Error fetching chat rooms:", err)),
+        fetchLawyers().catch(err => console.error("Error fetching lawyers:", err)),
+        fetchAppointments().catch(err => console.error("Error fetching appointments:", err))
+      ]);
+    } catch (err) {
+      console.error("Error loading dashboard data:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchDocuments = async () => {
@@ -268,12 +385,54 @@ const DashboardPage: React.FC = () => {
   const fetchLawyers = async () => {
     const { data } = await supabase
       .from('profiles_just')
-      .select('*')
+      .select('*, lawyers:lawyers_just(bar_association)')
       .eq('role', 'lawyer')
       .eq('is_verified', true)
       .order('first_name');
     if (data) setAvailableLawyers(data);
   };
+
+  // Helper to resolve region from postal code
+  const getRegionFromPostalCode = (postalCode?: string) => {
+    if (!postalCode) return null;
+    const dept = postalCode.trim().substring(0, 2);
+    const region = regions.find(r => r.departments.includes(dept));
+    return region ? region.name : null;
+  };
+
+  const availableCities = React.useMemo(() => {
+    return Array.from(new Set(availableLawyers.map(l => l.city).filter(Boolean).map(c => c!.trim()))).sort() as string[];
+  }, [availableLawyers]);
+
+  const availableBarreaux = React.useMemo(() => {
+    return Array.from(
+      new Set(
+        availableLawyers
+          .map(l => {
+            const bar = Array.isArray(l.lawyers) 
+              ? l.lawyers[0]?.bar_association 
+              : l.lawyers?.bar_association;
+            return bar?.trim();
+          })
+          .filter(Boolean)
+      )
+    ).sort() as string[];
+  }, [availableLawyers]);
+
+  const lawyerCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    regions.forEach(r => {
+      counts[r.name] = 0;
+    });
+    
+    availableLawyers.forEach(l => {
+      const regionName = getRegionFromPostalCode(l.postal_code);
+      if (regionName) {
+        counts[regionName] = (counts[regionName] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [availableLawyers]);
 
   const fetchAppointments = async () => {
     if (!user) return;
@@ -343,7 +502,8 @@ const DashboardPage: React.FC = () => {
         type: uploadDocType,
         file_url: mockFileUrl,
         owner_id: user.id,
-        metadata: { source: 'Manuel', uploaded_at: new Date().toISOString() }
+        created_at: new Date().toISOString(),
+        metadata: { source: 'Manuel' }
       }]);
       
     setIsUploading(false);
@@ -450,12 +610,26 @@ Ce document est généré par la plateforme JustLaw.
     exportToJSON(personalData, `mon_export_donnees_${user?.id}`);
   };
 
-  const caseActivityData = [
-    { name: 'Sem 1', value: 2 },
-    { name: 'Sem 2', value: 5 },
-    { name: 'Sem 3', value: 3 },
-    { name: 'Sem 4', value: 8 },
-  ];
+  // Dynamically compute weekly activity from real documents data
+  const caseActivityData = React.useMemo(() => {
+    const now = new Date();
+    const weeks: { name: string; value: number }[] = [];
+    for (let w = 3; w >= 0; w--) {
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - (w + 1) * 7);
+      const weekEnd = new Date(now);
+      weekEnd.setDate(now.getDate() - w * 7);
+      const count = documents.filter(d => {
+        const created = new Date(d.created_at);
+        return created >= weekStart && created < weekEnd;
+      }).length + searches.filter(s => {
+        const created = new Date(s.created_at);
+        return created >= weekStart && created < weekEnd;
+      }).length;
+      weeks.push({ name: `Sem ${4 - w}`, value: count });
+    }
+    return weeks;
+  }, [documents, searches]);
 
   const tabs = [
     { id: 'overview', name: "Vue d'ensemble", icon: BarChart3 },
@@ -465,6 +639,9 @@ Ce document est généré par la plateforme JustLaw.
     { id: 'quotes', name: 'Mes Devis', icon: Receipt },
     { id: 'chat', name: 'Discussion Avocat', icon: MessageSquare },
     { id: 'searches', name: 'IA Juridique', icon: Search },
+    { id: 'codes', name: 'Codes de Loi', icon: BookOpen },
+    { id: 'procedures', name: 'Procédures', icon: FileText },
+    { id: 'analyse', name: 'Analyse IA', icon: Shield },
     { id: 'formations', name: 'Formations', icon: BookOpen },
     { id: 'avocats', name: 'Annuaire Avocats', icon: Users },
     { id: 'profile', name: 'Profil', icon: User },
@@ -472,9 +649,9 @@ Ce document est généré par la plateforme JustLaw.
 
   const stats = [
     { label: 'Documents', value: documents.length.toString(), icon: FileText, color: 'text-primary-600' },
-    { label: 'Recherches', value: searches.length.toString(), icon: Search, color: 'text-success-600' },
+    { label: 'Devis', value: quotes.length.toString(), icon: Receipt, color: 'text-success-600' },
     { label: 'Rendez-vous', value: appointments.length.toString(), icon: Calendar, color: 'text-warning-600' },
-    { label: 'Crédits IA', value: 'Illimité', icon: MessageSquare, color: 'text-accent-600' },
+    { label: 'Discussions', value: chatRooms.length.toString(), icon: MessageSquare, color: 'text-accent-600' },
   ];
 
   const renderOverview = () => (
@@ -504,7 +681,7 @@ Ce document est généré par la plateforme JustLaw.
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Progression des Dossiers</span>
+              <span>Activité Hebdomadaire</span>
               <TrendingUp className="h-4 w-4 text-primary-600" />
             </CardTitle>
           </CardHeader>
@@ -921,13 +1098,13 @@ Ce document est généré par la plateforme JustLaw.
                 {activeTab === 'overview' && renderOverview()}
                 {activeTab === 'appointments' && renderAppointments()}
                 {activeTab === 'generator' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 animate-fade-in">
                     <h2 className="text-2xl font-semibold text-secondary-900">Générateur de Documents Juridiques</h2>
                     <DocumentGenerator skipAuthCheck />
                   </div>
                 )}
                 {activeTab === 'quotes' && (
-                  <div className="space-y-6">
+                  <div className="space-y-6 animate-fade-in">
                     <h2 className="text-2xl font-semibold text-secondary-900">Mes Devis & Honoraires</h2>
                     <div className="grid gap-4">
                       {quotes.map((q) => (
@@ -969,67 +1146,137 @@ Ce document est généré par la plateforme JustLaw.
                 )}
                 {activeTab === 'documents' && renderDocuments()}
                 {activeTab === 'searches' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 animate-fade-in">
                     <h2 className="text-2xl font-semibold text-secondary-900">IA Juridique — Recherche de Droit</h2>
                     <SearchPage skipAuthCheck />
                   </div>
                 )}
+                {activeTab === 'codes' && (
+                  <div className="space-y-4 animate-fade-in">
+                    <h2 className="text-2xl font-semibold text-secondary-900">Codes de Loi</h2>
+                    <LawCodes />
+                  </div>
+                )}
+                {activeTab === 'procedures' && (
+                  <div className="space-y-4 animate-fade-in">
+                    <h2 className="text-2xl font-semibold text-secondary-900">Bibliothèque des Procédures</h2>
+                    <ProcedureLibrary />
+                  </div>
+                )}
+                {activeTab === 'analyse' && (
+                  <div className="space-y-4 animate-fade-in">
+                    <h2 className="text-2xl font-semibold text-secondary-900">Analyse de Contrats & Codes (IA)</h2>
+                    <CodeAnalysis />
+                  </div>
+                )}
                 {activeTab === 'formations' && (
-                  <div className="space-y-6">
+                  <div className="space-y-6 animate-fade-in">
                     <h2 className="text-2xl font-semibold text-secondary-900">Formations et Guides</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {formations.map((f) => (
-                        <Card key={f.id}>
-                          <CardContent className="p-6">
-                            <div className="flex flex-col space-y-2">
-                              <span className="text-xs font-bold text-primary-600 uppercase">{f.category}</span>
-                              <h3 className="text-lg font-bold text-secondary-900">{f.title}</h3>
-                              <p className="text-sm text-secondary-500">Durée: {f.duration} • Niveau: {f.level}</p>
-                              <Button variant="outline" className="mt-4 w-full">Commencer le module</Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {formations.map((f) => {
+                        const isCompleted = completedFormations.includes(f.id);
+                        return (
+                          <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100">
+                            <CardContent className="p-6">
+                              <div className="flex flex-col space-y-3">
+                                <div className="flex justify-between items-start">
+                                  <span className="text-xs font-bold text-primary-600 uppercase">{f.category}</span>
+                                  {isCompleted ? (
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-success-100 text-success-700 flex items-center gap-1">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
+                                      Terminé
+                                    </span>
+                                  ) : (
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-100 text-secondary-600">
+                                      Disponible
+                                    </span>
+                                  )}
+                                </div>
+                                <h3 className="text-lg font-bold text-secondary-900 line-clamp-2 h-14">{f.title}</h3>
+                                <p className="text-sm text-secondary-500">Durée: {f.duration} • Niveau: {f.level}</p>
+                                
+                                <div className="space-y-1.5 pt-2">
+                                  <div className="flex justify-between text-xs text-secondary-400">
+                                    <span>Progression</span>
+                                    <span>{isCompleted ? '100%' : '0%'}</span>
+                                  </div>
+                                  <div className="w-full bg-secondary-100 rounded-full h-1.5">
+                                    <div 
+                                      className={`h-1.5 rounded-full transition-all duration-300 ${isCompleted ? 'bg-success-500' : 'bg-secondary-300'}`}
+                                      style={{ width: isCompleted ? '100%' : '0%' }}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="flex gap-2 pt-2">
+                                  <Button 
+                                    variant={isCompleted ? "outline" : "primary"}
+                                    className="flex-1 text-sm font-semibold"
+                                    onClick={() => {
+                                      setSelectedFormation(f);
+                                      setFormationViewMode('start');
+                                      setActiveChapterIndex(0);
+                                      setChaptersRead(isCompleted ? {0: true, 1: true, 2: true} : {});
+                                    }}
+                                  >
+                                    {isCompleted ? "Recommencer" : "Commencer le module"}
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="px-3 text-secondary-500 hover:text-primary-600"
+                                    onClick={() => {
+                                      setSelectedFormation(f);
+                                      setFormationViewMode('preview');
+                                      setActiveChapterIndex(0);
+                                      setChaptersRead({0: true, 1: true, 2: true});
+                                    }}
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                      {formations.length === 0 && (
+                        <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl">
+                          Aucun module de formation n'est actuellement publié.
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
                 {activeTab === 'profile' && (
-                  <div className="space-y-6">
+                  <div className="space-y-6 animate-fade-in">
                     <h2 className="text-2xl font-semibold text-secondary-900">Mon Profil</h2>
                     <form onSubmit={handleSaveProfile} className="space-y-6">
                       <Card>
-                        <CardContent className="p-6 flex items-center gap-4">
-                          <div className="h-20 w-20 bg-primary-100 rounded-full flex items-center justify-center text-2xl font-bold text-primary-700">
-                            {profile?.first_name?.[0]}{profile?.last_name?.[0]}
-                          </div>
-                          <div>
-                            <p className="text-xl font-bold">{profile?.first_name} {profile?.last_name}</p>
-                            <p className="text-secondary-500 text-sm">{user?.email}</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardHeader><CardTitle>Informations personnelles</CardTitle></CardHeader>
+                        <CardHeader>
+                          <CardTitle>Informations Personnelles</CardTitle>
+                          <CardDescription>Mettez à jour vos coordonnées pour faciliter vos échanges.</CardDescription>
+                        </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium mb-1">Prénom</label>
-                            <Input value={profileForm.first_name} onChange={e => setProfileForm(p => ({...p, first_name: e.target.value}))} required />
+                            <Input value={profileForm.first_name} onChange={e => setProfileForm(p => ({...p, first_name: e.target.value}))} />
                           </div>
                           <div>
                             <label className="block text-sm font-medium mb-1">Nom</label>
-                            <Input value={profileForm.last_name} onChange={e => setProfileForm(p => ({...p, last_name: e.target.value}))} required />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1">Email</label>
-                            <Input value={user?.email || ''} disabled className="bg-secondary-50" />
+                            <Input value={profileForm.last_name} onChange={e => setProfileForm(p => ({...p, last_name: e.target.value}))} />
                           </div>
                           <div>
                             <label className="block text-sm font-medium mb-1">Téléphone</label>
-                            <Input value={profileForm.phone} onChange={e => setProfileForm(p => ({...p, phone: e.target.value}))} placeholder="+212 6 00 00 00 00" />
+                            <Input value={profileForm.phone} onChange={e => setProfileForm(p => ({...p, phone: e.target.value}))} />
                           </div>
                           <div>
                             <label className="block text-sm font-medium mb-1">Ville</label>
                             <Input value={profileForm.city} onChange={e => setProfileForm(p => ({...p, city: e.target.value}))} placeholder="Casablanca" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Email</label>
+                            <Input value={user?.email || ''} disabled className="bg-secondary-50" />
                           </div>
                           <div>
                             <label className="block text-sm font-medium mb-1">Code Postal</label>
@@ -1046,8 +1293,106 @@ Ce document est généré par la plateforme JustLaw.
                   </div>
                 )}
               {activeTab === 'avocats' && (
-                <div className="space-y-4">
+                <div className="space-y-6 animate-fade-in">
                   <h2 className="text-2xl font-semibold text-secondary-900">Annuaire des Avocats</h2>
+
+                  {(!(profile as any)?.city || !(profile as any)?.postal_code) ? (
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-2xl flex items-center justify-between text-yellow-800 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span>⚠️</span>
+                        <span>Complétez votre profil avec votre ville et votre code postal pour filtrer automatiquement les avocats près de chez vous.</span>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setActiveTab('profile')} className="text-xs text-yellow-900 hover:bg-yellow-100 font-semibold">
+                        Compléter mon profil
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-primary-50 border border-primary-100 rounded-2xl text-primary-800 text-xs flex justify-between items-center">
+                      <span>📍 Recherche restreinte automatiquement à votre secteur : <strong>{(profile as any).city} ({(profile as any).postal_code.substring(0, 2)})</strong>.</span>
+                      <Button variant="ghost" size="sm" onClick={() => setActiveTab('profile')} className="text-xs text-primary-900 hover:bg-primary-100 font-semibold">
+                        Modifier
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {/* Interactive Map & Dropdowns */}
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div className="xl:col-span-2">
+                      <FranceMap 
+                        selectedRegion={selectedRegion} 
+                        onSelectRegion={setSelectedRegion} 
+                        lawyerCounts={lawyerCounts} 
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-3xl p-5 border border-secondary-200 shadow-sm flex flex-col justify-between space-y-4">
+                      <div>
+                        <h3 className="font-bold text-secondary-900 mb-3 flex items-center gap-2">
+                          🏛️ Localisation
+                        </h3>
+                        
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-[11px] font-semibold text-secondary-500 block mb-1">Région</label>
+                            <select
+                              value={selectedRegion || ''}
+                              onChange={(e) => setSelectedRegion(e.target.value || null)}
+                              className="w-full h-10 px-2.5 border border-secondary-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                            >
+                              <option value="">Toutes les régions</option>
+                              {regions.map(r => (
+                                <option key={r.id} value={r.name}>{r.name}</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="text-[11px] font-semibold text-secondary-500 block mb-1">Barreau d'inscription</label>
+                            <select
+                              value={selectedBarreau}
+                              onChange={(e) => setSelectedBarreau(e.target.value)}
+                              className="w-full h-10 px-2.5 border border-secondary-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                            >
+                              <option value="">Tous les barreaux</option>
+                              {availableBarreaux.map(b => (
+                                <option key={b} value={b}>{b}</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="text-[11px] font-semibold text-secondary-500 block mb-1">Ville du cabinet</label>
+                            <select
+                              value={selectedCity}
+                              onChange={(e) => setSelectedCity(e.target.value)}
+                              className="w-full h-10 px-2.5 border border-secondary-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                            >
+                              <option value="">Toutes les villes</option>
+                              {availableCities.map(c => (
+                                <option key={c} value={c}>{c}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {(selectedRegion || selectedBarreau || selectedCity) && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedRegion(null);
+                            setSelectedBarreau('');
+                            setSelectedCity('');
+                          }}
+                          className="w-full"
+                        >
+                          Réinitialiser les filtres
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-secondary-400" />
                     <input
@@ -1058,62 +1403,141 @@ Ce document est généré par la plateforme JustLaw.
                       className="w-full pl-9 pr-4 py-2 text-sm border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {availableLawyers
-                      .filter(l => `${l.first_name} ${l.last_name} ${l.specialty || ''}`.toLowerCase().includes(lawyerSearch.toLowerCase()))
-                      .map(lawyer => (
-                        <Card key={lawyer.id} className="overflow-hidden">
-                          <div className="h-1 bg-primary-600" />
-                          <CardContent className="p-5">
-                            <div className="flex items-start gap-4">
-                              <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden shrink-0">
-                                {lawyer.avatar_url ? (
-                                  <img src={lawyer.avatar_url} alt="" className="w-full h-full object-cover" />
-                                ) : (
-                                  <span className="text-primary-700 text-xl font-bold">{lawyer.first_name?.[0]}{lawyer.last_name?.[0]}</span>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <p className="font-bold text-secondary-900">Me. {lawyer.first_name} {lawyer.last_name}</p>
-                                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                                    lawyer.is_available !== false ? 'bg-success-100 text-success-700' : 'bg-secondary-100 text-secondary-500'
-                                  }`}>
-                                    {lawyer.is_available !== false ? 'Disponible' : 'Indisponible'}
-                                  </span>
+                      .filter(l => {
+                        const matchesSearch = `${l.first_name} ${l.last_name} ${l.specialty || ''}`.toLowerCase().includes(lawyerSearch.toLowerCase());
+                        if (!matchesSearch) return false;
+
+                        // Strict location restriction for citizen matching: same city & department
+                        const citizenCity = (profile as any)?.city?.trim().toLowerCase();
+                        const citizenDept = (profile as any)?.postal_code?.trim().substring(0, 2);
+                        if (citizenCity && citizenDept) {
+                          const lawyerCity = l.city?.trim().toLowerCase();
+                          const lawyerDept = l.postal_code?.trim().substring(0, 2);
+                          if (lawyerCity !== citizenCity || lawyerDept !== citizenDept) {
+                            return false;
+                          }
+                        }
+
+                        if (selectedRegion) {
+                          const lawyerRegion = getRegionFromPostalCode(l.postal_code);
+                          if (lawyerRegion !== selectedRegion) return false;
+                        }
+
+                        if (selectedCity && l.city !== selectedCity) return false;
+
+                        if (selectedBarreau) {
+                          const bar = Array.isArray(l.lawyers) 
+                            ? l.lawyers[0]?.bar_association 
+                            : l.lawyers?.bar_association;
+                          if (bar !== selectedBarreau) return false;
+                        }
+
+                        return true;
+                      })
+                      .map(lawyer => {
+                        const bar = Array.isArray(lawyer.lawyers) 
+                          ? lawyer.lawyers[0]?.bar_association 
+                          : lawyer.lawyers?.bar_association;
+
+                        return (
+                          <Card key={lawyer.id} className="overflow-hidden">
+                            <div className="h-1 bg-primary-600" />
+                            <CardContent className="p-5">
+                              <div className="flex items-start gap-4">
+                                <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden shrink-0">
+                                  {lawyer.avatar_url ? (
+                                    <img src={lawyer.avatar_url} alt="" className="w-full h-full object-cover" />
+                                  ) : (
+                                    <span className="text-primary-700 text-xl font-bold">{lawyer.first_name?.[0]}{lawyer.last_name?.[0]}</span>
+                                  )}
                                 </div>
-                                <p className="text-sm text-primary-600 font-medium">{lawyer.specialty || 'Avocat au barreau'}</p>
-                                <p className="text-xs text-secondary-500 mt-1">{lawyer.city || ''}</p>
-                                {lawyer.bio && <p className="text-xs text-secondary-600 mt-2 line-clamp-2">{lawyer.bio}</p>}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <p className="font-bold text-secondary-900">Me. {lawyer.first_name} {lawyer.last_name}</p>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                                      lawyer.is_available !== false ? 'bg-success-100 text-success-700' : 'bg-secondary-100 text-secondary-500'
+                                    }`}>
+                                      {lawyer.is_available !== false ? 'Disponible' : 'Indisponible'}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-primary-600 font-medium">{lawyer.specialty || 'Avocat au barreau'}</p>
+                                  <p className="text-xs text-secondary-500 mt-1 flex items-center gap-1">
+                                    <MapPin className="h-3 w-3 text-secondary-400 shrink-0" />
+                                    <span>
+                                      {lawyer.city || ''}
+                                      {lawyer.postal_code ? ` (${lawyer.postal_code.substring(0, 2)})` : ''}
+                                    </span>
+                                  </p>
+                                  {bar && (
+                                    <p className="text-xs text-secondary-500 mt-1 flex items-center gap-1">
+                                      <span className="text-sm">🏛️</span>
+                                      <span>Barreau de {bar}</span>
+                                    </p>
+                                  )}
+                                  {lawyer.bio && <p className="text-xs text-secondary-600 mt-2 line-clamp-2">{lawyer.bio}</p>}
+                                </div>
                               </div>
-                            </div>
-                            <div className="mt-4 flex gap-2">
-                              <Button
-                                className="flex-1 text-sm"
-                                onClick={() => contactLawyer(lawyer.id, `Me. ${lawyer.first_name} ${lawyer.last_name}`)}
-                              >
-                                <MessageSquare className="h-4 w-4 mr-2" />
-                                Contacter
-                              </Button>
-                              <Button
-                                variant="outline"
-                                className="flex-1 text-sm border-primary-200 text-primary-700 hover:bg-primary-50"
-                                onClick={() => {
-                                  setSelectedLawyerForRDV(lawyer.id);
-                                  setActiveTab('appointments');
-                                }}
-                              >
-                                <Calendar className="h-4 w-4 mr-2" />
-                                Réserver RDV
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    {availableLawyers.filter(l => `${l.first_name} ${l.last_name} ${l.specialty || ''}`.toLowerCase().includes(lawyerSearch.toLowerCase())).length === 0 && (
+                              <div className="mt-4 flex gap-2">
+                                <Button
+                                  className="flex-1 text-sm"
+                                  onClick={() => contactLawyer(lawyer.id, `Me. ${lawyer.first_name} ${lawyer.last_name}`)}
+                                >
+                                  <MessageSquare className="h-4 w-4 mr-2" />
+                                  Contacter
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  className="flex-1 text-sm border-primary-200 text-primary-700 hover:bg-primary-50"
+                                  onClick={() => {
+                                    setSelectedLawyerForRDV(lawyer.id);
+                                    setActiveTab('appointments');
+                                  }}
+                                >
+                                  <Calendar className="h-4 w-4 mr-2" />
+                                  Réserver RDV
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    {availableLawyers.filter(l => {
+                      const matchesSearch = `${l.first_name} ${l.last_name} ${l.specialty || ''}`.toLowerCase().includes(lawyerSearch.toLowerCase());
+                      if (!matchesSearch) return false;
+
+                      // Strict location restriction for citizen matching: same city & department
+                      const citizenCity = (profile as any)?.city?.trim().toLowerCase();
+                      const citizenDept = (profile as any)?.postal_code?.trim().substring(0, 2);
+                      if (citizenCity && citizenDept) {
+                        const lawyerCity = l.city?.trim().toLowerCase();
+                        const lawyerDept = l.postal_code?.trim().substring(0, 2);
+                        if (lawyerCity !== citizenCity || lawyerDept !== citizenDept) {
+                          return false;
+                        }
+                      }
+
+                      if (selectedRegion) {
+                        const lawyerRegion = getRegionFromPostalCode(l.postal_code);
+                        if (lawyerRegion !== selectedRegion) return false;
+                      }
+
+                      if (selectedCity && l.city !== selectedCity) return false;
+
+                      if (selectedBarreau) {
+                        const bar = Array.isArray(l.lawyers) 
+                          ? l.lawyers[0]?.bar_association 
+                          : l.lawyers?.bar_association;
+                        if (bar !== selectedBarreau) return false;
+                      }
+
+                      return true;
+                    }).length === 0 && (
                       <div className="col-span-2 text-center py-12 text-secondary-400">
                         <Users className="h-10 w-10 mx-auto mb-2 text-secondary-200" />
-                        <p>Aucun avocat disponible pour le moment.</p>
+                        <p>Aucun avocat disponible pour ces critères de recherche.</p>
                       </div>
                     )}
                   </div>
@@ -1223,6 +1647,120 @@ Ce document est généré par la plateforme JustLaw.
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Modal Formations Interactif */}
+      <Modal
+        isOpen={!!selectedFormation}
+        onClose={() => setSelectedFormation(null)}
+        title={selectedFormation ? `${selectedFormation.category} : ${selectedFormation.title}` : "Module de Formation"}
+      >
+        {(() => {
+          if (!selectedFormation) return null;
+          const chapters = getFormationCurriculum(selectedFormation.title);
+          const totalChapters = chapters.length;
+          const readCount = chapters.reduce((acc, _, idx) => acc + (chaptersRead[idx] ? 1 : 0), 0);
+          const percent = Math.round((readCount / totalChapters) * 100);
+
+          return (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center bg-secondary-50 p-4 rounded-2xl border border-secondary-100">
+                <div className="space-y-1">
+                  <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Durée du module</p>
+                  <p className="text-sm font-semibold text-secondary-900 font-sans">{selectedFormation.duration}</p>
+                </div>
+                <div className="space-y-1 text-right">
+                  <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Niveau requis</p>
+                  <p className="text-sm font-semibold text-secondary-900 font-sans">{selectedFormation.level}</p>
+                </div>
+              </div>
+
+              {/* Progress bar in Modal */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm font-bold text-secondary-700">
+                  <span>Progression globale</span>
+                  <span>{percent}%</span>
+                </div>
+                <div className="w-full bg-secondary-100 rounded-full h-2">
+                  <div 
+                    className="h-2 rounded-full bg-success-500 transition-all duration-300"
+                    style={{ width: `${percent}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Chapter navigation */}
+              <div className="border-t border-secondary-100 pt-4">
+                <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                  {chapters.map((ch, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveChapterIndex(idx)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                        activeChapterIndex === idx 
+                          ? 'bg-primary-600 text-white shadow-sm shadow-primary-500/20' 
+                          : 'bg-secondary-50 text-secondary-600 hover:bg-secondary-100 border border-secondary-200'
+                      }`}
+                    >
+                      {ch.title.split('.')[0]}. {ch.title.split('.').slice(1).join('.').trim()}
+                      {chaptersRead[idx] && " ✓"}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Chapter content */}
+                <div className="bg-secondary-50/50 border border-secondary-200/50 rounded-2xl p-5 min-h-[180px] flex flex-col justify-between font-sans">
+                  <div className="space-y-3">
+                    <h4 className="font-bold text-secondary-900 text-base">{chapters[activeChapterIndex].title}</h4>
+                    <p className="text-sm text-secondary-700 leading-relaxed font-sans">{chapters[activeChapterIndex].content}</p>
+                  </div>
+                  {formationViewMode === 'start' && (
+                    <div className="mt-4 pt-4 border-t border-secondary-100 flex items-center justify-between">
+                      <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={!!chaptersRead[activeChapterIndex]}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setChaptersRead(prev => ({
+                              ...prev,
+                              [activeChapterIndex]: checked
+                            }));
+                          }}
+                          className="h-4 w-4 rounded border-secondary-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                        />
+                        <span className="text-xs font-bold text-secondary-700">J'ai lu et compris ce chapitre</span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-secondary-100">
+                <Button variant="outline" onClick={() => setSelectedFormation(null)}>
+                  Fermer
+                </Button>
+                {formationViewMode === 'start' && (
+                  <Button
+                    disabled={percent < 100}
+                    onClick={() => {
+                      const newCompleted = [...completedFormations];
+                      if (!newCompleted.includes(selectedFormation.id)) {
+                        newCompleted.push(selectedFormation.id);
+                        setCompletedFormations(newCompleted);
+                        localStorage.setItem('completedFormations', JSON.stringify(newCompleted));
+                      }
+                      success("Module Terminé 🎓", `Félicitations, vous avez validé le module "${selectedFormation.title}" !`);
+                      setSelectedFormation(null);
+                    }}
+                  >
+                    Valider le module
+                  </Button>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </Modal>
     </div>
   );

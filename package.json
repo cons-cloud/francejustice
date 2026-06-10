@@ -15,7 +15,9 @@
   "author": "Law Just Team",
   "license": "MIT",
   "scripts": {
-    "dev": "vite",
+    "dev:frontend": "vite",
+    "dev:backend": "backend/venv/bin/python backend/manage.py runserver",
+    "dev": "concurrently --names \"FRONT,BACK\" --prefix-colors \"cyan,yellow\" \"npm run dev:frontend\" \"npm run dev:backend\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -49,6 +51,7 @@
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
     "aria-query": "^5.3.0",
+    "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "dequal": "^2.0.3",
     "dom-accessibility-api": "^0.5.16",

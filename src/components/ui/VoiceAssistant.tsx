@@ -227,15 +227,32 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
   // Local rule-based command interpreter for rapid zero-latency reactions
   const interpretLocalCommand = (text: string): boolean => {
     const clean = text.toLowerCase().trim();
+
+    // CRITICAL: If the user is asking an informational/legal question, let Gemini handle it
+    // Only intercept clear navigation commands like "va dans", "ouvre", "montre", "affiche"
+    const hasNavigationVerb = /(\bva\b|\bouvre\b|\baffiche\b|\bmontre\b|\bbascule\b|\bnavigue\b|\baller\b|\baller sur\b|\baller à\b|\baccède\b|\baccéder\b|\bmontre-moi l'onglet|\bnavigue vers|\bva sur|\bva à|\bouvre l'onglet|\baffiche l'onglet)/.test(clean);
+    const isInformationalQuery = /(\bdonne|\bexpliq|\bqu'est|\bquelles?\b|\bcomment\b|\bpourquoi\b|\bc'est quoi|\bdéfini|\bdis-moi|\bparle|\binforme|\bdétaille|\bdécris|\brésume|\banalyse|\brecherche|\btrouves?-moi|\bjurisprudence|\barrêt|\bdécision|\bdroit\b|\beuropé|\bcour de justice|\bcjue|\bcedh|\bconventions?\b|\btraité|\bdirective|\brègle|\bqu'est-ce|\bdonnes?-moi|\bcite|\bquels? sont|\bquelle est)/.test(clean);
+
+    // If it's clearly a question/research request (not just a navigation command), skip local routing
+    if (isInformationalQuery && !hasNavigationVerb) {
+      return false;
+    }
     
     if (mode === 'citizen') {
       const citizenTabs: Record<string, string[]> = {
         overview: ['accueil', 'tableau', 'dashboard', 'principale', 'vue d\'ensemble'],
-        appointments: ['rendez-vous', 'rdv', 'planning', 'calendrier', 'réserver', 'agenda'],
-        documents: ['document', 'justificatif', 'pièce', 'télécharger', 'fichier', 'pdf'],
-        annuaire: ['annuaire', 'avocat', 'rechercher', 'trouver', 'spécialiste'],
+        appointments: ['rendez-vous', 'rdv', 'planning', 'calendrier', 'réserver', 'agenda', 'consultation'],
+        documents: ['document', 'justificatif', 'pièce', 'télécharger', 'fichier', 'pdf', 'coffre-fort'],
+        avocats: ['annuaire', 'avocat', 'rechercher', 'trouver', 'spécialiste'],
         generator: ['générateur', 'rédiger', 'créer un document', 'générer', 'contrat', 'mise en demeure'],
-        profile: ['profil', 'mon compte', 'informations', 'paramètres', 'adresse']
+        profile: ['profil', 'mon compte', 'informations', 'paramètres', 'adresse'],
+        quotes: ['devis', 'facture', 'paiement', 'tarif'],
+        chat: ['discussion', 'messagerie', 'chat', 'avocat discussion'],
+        searches: ['ia juridique', 'recherche juridique', 'intelligence artificielle', 'poser une question'],
+        codes: ['code de loi', 'lois', 'article', 'légifrance', 'code civil'],
+        procedures: ['procédure', 'étapes', 'démarches', 'formalités'],
+        analyse: ['analyse', 'analyser un document'],
+        formations: ['formation', 'cours', 'apprendre']
       };
 
       for (const [tab, keywords] of Object.entries(citizenTabs)) {
@@ -247,12 +264,19 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
     } else {
       const lawyerTabs: Record<string, string[]> = {
         overview: ['accueil', 'tableau', 'dashboard', 'principale', 'vue d\'ensemble', 'statistiques'],
-        appointments: ['rendez-vous', 'rdv', 'agenda', 'calendrier', 'planning'],
+        appointments: ['rendez-vous', 'rdv', 'agenda', 'calendrier', 'planning', 'consultation'],
         cases: ['dossier', 'client', 'affaire', 'dossier client', 'documents clients'],
-        billing: ['facture', 'billing', 'compta', 'tarif', 'paiement', 'argent'],
-        tools: ['outil', 'tech', 'ressource', 'calcul', 'simulateur'],
-        support: ['support', 'assistance', 'ticket', 'aide', 'support technique'],
-        profile: ['profil', 'compte', 'biographie', 'specialité', 'bio']
+        quotes: ['devis', 'facture', 'billing', 'compta', 'tarif', 'paiement', 'argent'],
+        outils: ['outil', 'tech', 'ressource', 'calcul', 'simulateur', 'contrat'],
+        assistance: ['support', 'assistance', 'ticket', 'aide', 'support technique'],
+        profil: ['profil', 'compte', 'biographie', 'specialité', 'bio'],
+        messages: ['discussion', 'messagerie', 'chat', 'messages ia'],
+        searches: ['ia juridique', 'recherche juridique'],
+        avocats: ['réseau', 'confrère', 'avocats'],
+        codes: ['code de loi', 'lois', 'article', 'code civil'],
+        procedures: ['procédure', 'étapes', 'démarches'],
+        analyse: ['analyse', 'analyser un document'],
+        formations: ['formation', 'cours', 'apprendre']
       };
 
       for (const [tab, keywords] of Object.entries(lawyerTabs)) {
@@ -281,8 +305,8 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
 
     // Build advanced contextual prompts for Gemini to enable dynamic reads, writes, and modifications
     const availableTabs = mode === 'citizen' 
-      ? ['overview', 'appointments', 'documents', 'annuaire', 'generator', 'profile']
-      : ['overview', 'appointments', 'cases', 'billing', 'tools', 'support', 'profile'];
+      ? ['overview', 'appointments', 'generator', 'documents', 'quotes', 'chat', 'searches', 'codes', 'procedures', 'analyse', 'formations', 'avocats', 'profile']
+      : ['overview', 'appointments', 'cases', 'quotes', 'messages', 'searches', 'avocats', 'codes', 'procedures', 'analyse', 'formations', 'outils', 'assistance', 'profil'];
 
     const promptContext = `
 Vous êtes l'assistant vocal ultra-intelligent et réactif de Law Just, la plateforme juridique française de pointe.
@@ -350,7 +374,20 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
       
       if (actionMatch) {
         try {
-          const actionJson = JSON.parse(actionMatch[1].trim());
+          let actionJson: any = null;
+          const jsonRaw = actionMatch[1].trim();
+          try {
+            actionJson = JSON.parse(jsonRaw);
+          } catch (e) {
+            try {
+              // Fallback to JS object evaluation to support date concatenations or trailing commas
+              const parseFn = new Function(`return (${jsonRaw});`);
+              actionJson = parseFn();
+            } catch (e2) {
+              throw e; // Throw the original JSON parse error if fallback also fails
+            }
+          }
+
           // Execute dynamic UI action callback
           if (actionJson && actionJson.type) {
             onAction(actionJson);

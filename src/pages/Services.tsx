@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
-import { Search, Scale, Users, Shield, MessageSquare, ArrowRight, CheckCircle } from 'lucide-react';
+import { Search, Scale, Users, Shield, MessageSquare, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -256,6 +256,69 @@ const Services: React.FC = () => {
                 className="relative z-10 rounded-2xl shadow-2xl"
               />
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* GENIA-L PROMO */}
+      <section className="py-24 relative overflow-hidden bg-secondary-900 text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(124,58,237,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(99,102,241,0.15),transparent_50%)]" />
+        
+        {/* Decorative elements */}
+        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="container px-4 relative z-10">
+          <div className="max-w-5xl mx-auto bg-linear-to-r from-secondary-800/80 to-secondary-900/80 backdrop-blur-md rounded-3xl border border-secondary-800 p-8 md:p-16 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-10">
+              <Sparkles className="h-48 w-48 text-primary-400" />
+            </div>
+
+            <div className="grid md:grid-cols-5 gap-12 items-center">
+              <div className="md:col-span-3 space-y-6 text-left">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-400 text-sm font-semibold tracking-wide uppercase">
+                  <Sparkles className="h-4 w-4" />
+                  Nouveau service IA
+                </div>
+                
+                <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+                  GénIA-L Avocat <span className="bg-clip-text text-transparent bg-linear-to-r from-primary-400 to-indigo-400">l'IA générative</span> pour les professionnels
+                </h2>
+                
+                <p className="text-lg text-secondary-300 leading-relaxed">
+                  Augmentez votre productivité au quotidien : recherche jurisprudentielle ultrarapide, génération intelligente de projets d’actes et analyse approfondie de pièces contractuelles complexes.
+                </p>
+
+                <div className="flex flex-wrap gap-4 pt-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-primary-400 flex-shrink-0" />
+                    <span className="text-secondary-200 font-medium">Gain de temps de 50%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-primary-400 flex-shrink-0" />
+                    <span className="text-secondary-200 font-medium">Données 100% sécurisées</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="md:col-span-2 flex flex-col justify-center gap-4">
+                <Button 
+                  size="lg" 
+                  className="w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-6 rounded-2xl shadow-xl shadow-primary-600/20 hover:shadow-primary-600/30 transition-all text-center flex items-center justify-center gap-2" 
+                  onClick={() => navigate('/genia-l')}
+                >
+                  Découvrir GénIA-L Avocat
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+                
+                <button 
+                  className="w-full py-4 text-secondary-400 hover:text-white font-semibold transition-colors flex items-center justify-center gap-1"
+                  onClick={() => navigate('/contact')}
+                >
+                  Demander une démo personnalisée
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -10,6 +10,7 @@ import Modal from '../components/ui/Modal';
 import { LogOut, Download, FileJson, FileSpreadsheet } from 'lucide-react';
 import { AdvancedAreaChart, AdvancedBarChart, SimplePieChart } from '../components/features/StatsCharts';
 import { exportToCSV, exportToJSON } from '../lib/exportUtils';
+import { regions } from '../components/features/FranceMap';
 
 interface UserProfile {
   id: string;
@@ -19,6 +20,8 @@ interface UserProfile {
   role: string;
   created_at: string;
   is_verified?: boolean;
+  city?: string;
+  postal_code?: string;
   lawyers?: {
     bar_association?: string;
     license_number?: string;
@@ -38,6 +41,12 @@ const AdminDashboard: React.FC = () => {
   const { toasts, success, error: toastError, removeToast } = useToast();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments'>('overview');
   const [users, setUsers] = useState<UserProfile[]>([]);
+
+  // Geographical filtering states
+  const [filterBarreau, setFilterBarreau] = useState('');
+  const [filterCity, setFilterCity] = useState('');
+  const [filterRegion, setFilterRegion] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
   const [messages, setMessages] = useState<any[]>([]);
   const [allDocuments, setAllDocuments] = useState<any[]>([]);
   const [formations, setFormations] = useState<any[]>([]);
@@ -158,6 +167,29 @@ const AdminDashboard: React.FC = () => {
   const addActivity = (message: string, type: string) => {
     setActivities(prev => [{ id: Date.now(), message, type, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 50));
   };
+
+  // Helper to resolve region from postal code
+  const getRegionFromPostalCode = (postalCode?: string) => {
+    if (!postalCode) return null;
+    const dept = postalCode.trim().substring(0, 2);
+    const region = regions.find(r => r.departments.includes(dept));
+    return region ? region.name : null;
+  };
+
+  const uniqueCities = React.useMemo(() => {
+    return Array.from(new Set(users.map(u => u.city).filter(Boolean).map(c => c!.trim()))).sort();
+  }, [users]);
+
+  const uniqueBarreaux = React.useMemo(() => {
+    const list: string[] = [];
+    users.forEach(u => {
+      const lawyerInfo = Array.isArray(u.lawyers) ? u.lawyers[0] : u.lawyers;
+      if (lawyerInfo?.bar_association) {
+        list.push(lawyerInfo.bar_association.trim());
+      }
+    });
+    return Array.from(new Set(list)).sort();
+  }, [users]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -692,6 +724,62 @@ const AdminDashboard: React.FC = () => {
 
             {activeTab === 'users' && (
               <div className="space-y-6">
+                {/* Filters Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl border shadow-sm">
+                  <div>
+                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Rôle</label>
+                    <select
+                      value={filterRole}
+                      onChange={(e) => setFilterRole(e.target.value)}
+                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                    >
+                      <option value="all">Tous les rôles</option>
+                      <option value="user">Citoyens</option>
+                      <option value="lawyer">Avocats</option>
+                      <option value="admin">Administrateurs</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Région</label>
+                    <select
+                      value={filterRegion}
+                      onChange={(e) => setFilterRegion(e.target.value)}
+                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                    >
+                      <option value="">Toutes les régions</option>
+                      {regions.map(r => (
+                        <option key={r.id} value={r.name}>{r.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Barreau</label>
+                    <select
+                      value={filterBarreau}
+                      onChange={(e) => setFilterBarreau(e.target.value)}
+                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                    >
+                      <option value="">Tous les barreaux</option>
+                      {uniqueBarreaux.map(b => (
+                        <option key={b} value={b}>{b}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Ville</label>
+                    <select
+                      value={filterCity}
+                      onChange={(e) => setFilterCity(e.target.value)}
+                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                    >
+                      <option value="">Toutes les villes</option>
+                      {uniqueCities.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 <Card className="bg-primary-50/20">
                   <CardHeader>
                     <CardTitle className="flex items-center">
@@ -755,22 +843,46 @@ const AdminDashboard: React.FC = () => {
                           <tr><th className="px-6 py-3">Membre</th><th className="px-6 py-3">Rôle</th><th className="px-6 py-3 text-right">Actions</th></tr>
                         </thead>
                         <tbody className="divide-y">
-                          {users.map((u) => (
-                            <tr key={u.id} className="hover:bg-secondary-50">
-                              <td className="px-6 py-4"><div>{u.first_name} {u.last_name}</div><div className="text-xs text-secondary-500">{u.email}</div></td>
-                              <td className="px-6 py-4 text-right flex justify-end gap-2">
-                                <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)}>
-                                  <Edit className="w-4 h-4"/>
-                                </Button>
-                                <Button variant="ghost" size="sm" onClick={() => handleToggleSuspend(u)} className={u.is_verified ? "text-warning-600" : "text-success-600"}>
-                                  {u.is_verified ? "Suspendre" : "Activer"}
-                                </Button>
-                                <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteUser(u.id)}>
-                                  <Trash2 className="w-4 h-4"/>
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
+                          {users
+                            .filter(u => {
+                              if (filterRole !== 'all' && u.role !== filterRole) return false;
+                              if (filterCity && u.city !== filterCity) return false;
+                              if (filterRegion) {
+                                const reg = getRegionFromPostalCode(u.postal_code);
+                                if (reg !== filterRegion) return false;
+                              }
+                              if (filterBarreau) {
+                                const lawyerInfo = Array.isArray(u.lawyers) ? u.lawyers[0] : u.lawyers;
+                                if (lawyerInfo?.bar_association !== filterBarreau) return false;
+                              }
+                              return true;
+                            })
+                            .map((u) => {
+                              const regName = getRegionFromPostalCode(u.postal_code);
+                              return (
+                                <tr key={u.id} className="hover:bg-secondary-50">
+                                  <td className="px-6 py-4">
+                                    <div>{u.first_name} {u.last_name}</div>
+                                    <div className="text-xs text-secondary-500">{u.email}</div>
+                                    <div className="text-[10px] text-secondary-400 font-semibold mt-1">
+                                      📍 {u.city || 'Non renseigné'}{u.postal_code ? ` (${u.postal_code.substring(0, 2)})` : ''} 
+                                      {regName ? ` - Région : ${regName}` : ''}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)}>
+                                      <Edit className="w-4 h-4"/>
+                                    </Button>
+                                    <Button variant="ghost" size="sm" onClick={() => handleToggleSuspend(u)} className={u.is_verified ? "text-warning-600" : "text-success-600"}>
+                                      {u.is_verified ? "Suspendre" : "Activer"}
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteUser(u.id)}>
+                                      <Trash2 className="w-4 h-4"/>
+                                    </Button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
                         </tbody>
                       </table>
                     </div>
@@ -780,26 +892,89 @@ const AdminDashboard: React.FC = () => {
             )}
 
             {activeTab === 'lawyers' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Validation des Avocats</CardTitle>
-                  <CardDescription>Approuvez ou suspendez l'accès des avocats à la plateforme</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="divide-y border-t">
-                    {users.filter(u => u.role === 'lawyer').map((l) => {
-                      const lawyerInfo = Array.isArray(l.lawyers) ? l.lawyers[0] : l.lawyers;
-                      return (
-                      <div key={l.id} className="p-6 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className={`h-3 w-3 rounded-full shrink-0 ${l.is_verified ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                            <div>
-                              <p className="font-bold">Me {l.first_name} {l.last_name}</p>
-                              <p className="text-xs text-secondary-500">{l.email}</p>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
+              <div className="space-y-6">
+                {/* Filters Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-4 rounded-xl border shadow-sm">
+                  <div>
+                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Région</label>
+                    <select
+                      value={filterRegion}
+                      onChange={(e) => setFilterRegion(e.target.value)}
+                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                    >
+                      <option value="">Toutes les régions</option>
+                      {regions.map(r => (
+                        <option key={r.id} value={r.name}>{r.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Barreau</label>
+                    <select
+                      value={filterBarreau}
+                      onChange={(e) => setFilterBarreau(e.target.value)}
+                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                    >
+                      <option value="">Tous les barreaux</option>
+                      {uniqueBarreaux.map(b => (
+                        <option key={b} value={b}>{b}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Ville</label>
+                    <select
+                      value={filterCity}
+                      onChange={(e) => setFilterCity(e.target.value)}
+                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                    >
+                      <option value="">Toutes les villes</option>
+                      {uniqueCities.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Validation des Avocats</CardTitle>
+                    <CardDescription>Approuvez ou suspendez l'accès des avocats à la plateforme</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="divide-y border-t">
+                      {users
+                        .filter(u => u.role === 'lawyer')
+                        .filter(u => {
+                          if (filterCity && u.city !== filterCity) return false;
+                          if (filterRegion) {
+                            const reg = getRegionFromPostalCode(u.postal_code);
+                            if (reg !== filterRegion) return false;
+                          }
+                          if (filterBarreau) {
+                            const lawyerInfo = Array.isArray(u.lawyers) ? u.lawyers[0] : u.lawyers;
+                            if (lawyerInfo?.bar_association !== filterBarreau) return false;
+                          }
+                          return true;
+                        })
+                        .map((l) => {
+                          const lawyerInfo = Array.isArray(l.lawyers) ? l.lawyers[0] : l.lawyers;
+                          const regName = getRegionFromPostalCode(l.postal_code);
+                          return (
+                          <div key={l.id} className="p-6 space-y-3 animate-fade-in">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div className={`h-3 w-3 rounded-full shrink-0 ${l.is_verified ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                                <div>
+                                  <p className="font-bold">Me {l.first_name} {l.last_name}</p>
+                                  <p className="text-xs text-secondary-500">{l.email}</p>
+                                  <p className="text-[10px] text-secondary-400 font-semibold mt-0.5">
+                                    📍 Cabinet : {l.city || 'Non renseigné'}{l.postal_code ? ` (${l.postal_code.substring(0, 2)})` : ''} 
+                                    {regName ? ` - Région : ${regName}` : ''}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
                             {!l.is_verified && <Button size="sm" onClick={() => handleApproveLawyer(l.id)}>Approuver</Button>}
                             <Button size="sm" variant="outline" className="text-red-600">Suspendre</Button>
                           </div>
@@ -849,6 +1024,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
+              </div>
             )}
 
             {activeTab === 'appointments' && (

@@ -30,6 +30,9 @@ Vous êtes l'Assistant IA Expert de JustLaw, la plateforme juridique n°1 au Mar
 Vous êtes un assistant FIABLE et PRÉCIS.
 """
 
+# Google search tools are not supported by the deprecated google.generativeai SDK with gemini-3.5-flash/gemini-2.5-flash.
+# Therefore, we run the model without search tools (tools=None) for stability.
+
 def configure_genai():
     api_key = getattr(settings, 'GEMINI_API_KEY', '')
     if api_key:
@@ -67,61 +70,54 @@ def chat_proxy(request):
 
     api_key = configure_genai()
     if not api_key:
-        return Response({"error": "Gemini API key is not configured in backend."}, status=500)
+        return Response({
+            "error": "Gemini API key is not configured.",
+            "is_fallback_trigger": True
+        }, status=200)
 
     try:
         # Configuration du modèle
-        model_name = "gemini-2.0-flash"
-        tools = [{"google_search_retrieval": {}}] if use_search else None
+        model_name = "gemini-3.5-flash"
         
         model = genai.GenerativeModel(
             model_name=model_name,
             system_instruction=SYSTEM_INSTRUCTION,
-            tools=tools
+            tools=None
         )
 
         chat = model.start_chat(history=history or [])
         response = chat.send_message(prompt)
-        sources_web = extract_grounding_chunks(response)
         
         return Response({
             "text": response.text,
-            "sources_web": sources_web
+            "sources_web": []
         })
     except Exception as e:
         err_msg = str(e)
         if "429" in err_msg or "ResourceExhausted" in err_msg or "quota" in err_msg.lower():
-            # Fallback 1: gemini-flash-latest with search
+            # Fallback: gemini-2.5-flash without search
             try:
                 model = genai.GenerativeModel(
-                    model_name="gemini-flash-latest",
+                    model_name="gemini-2.5-flash",
                     system_instruction=SYSTEM_INSTRUCTION,
-                    tools=tools
+                    tools=None
                 )
                 chat = model.start_chat(history=history or [])
                 response = chat.send_message(prompt)
-                sources_web = extract_grounding_chunks(response)
                 return Response({
                     "text": response.text,
-                    "sources_web": sources_web
+                    "sources_web": []
                 })
             except Exception as e2:
-                # Fallback 2: gemini-flash-latest without search (to avoid potential tools compatibility issues)
-                try:
-                    model = genai.GenerativeModel(
-                        model_name="gemini-flash-latest",
-                        system_instruction=SYSTEM_INSTRUCTION,
-                        tools=None
-                    )
-                    chat = model.start_chat(history=history or [])
-                    response = chat.send_message(prompt)
-                    return Response({
-                        "text": response.text,
-                        "sources_web": []
-                    })
-                except Exception as e3:
-                    return Response({"error": "Quota d'utilisation de l'API Gemini dépassé (limite de requêtes atteinte). Veuillez réessayer plus tard ou configurer une clé API valide dans votre fichier backend/.env (GEMINI_API_KEY)."}, status=400)
-        return Response({"error": err_msg}, status=400)
+                return Response({
+                    "error": "Quota d'utilisation de l'API Gemini dépassé (limite de requêtes atteinte).",
+                    "is_fallback_trigger": True
+                }, status=200)
+        return Response({
+            "error": err_msg,
+            "is_fallback_trigger": True
+        }, status=200)
+
 
 @ratelimit(key='user', rate='5/m', block=True)
 @api_view(['POST'])
@@ -135,40 +131,39 @@ def document_proxy(request):
 
     api_key = configure_genai()
     if not api_key:
-        return Response({"error": "Gemini API key is not configured in backend."}, status=500)
+        return Response({
+            "error": "Gemini API key is not configured.",
+            "is_fallback_trigger": True
+        }, status=200)
 
     prompt = f"INSTRUCTION: Générez un document juridique COMPLET et PROFESSIONNEL de type: {doc_type}. Détails fournis: {details}. Utilisez le droit en vigueur (Maroc/France)."
 
     try:
         model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash",
+            model_name="gemini-3.5-flash",
             system_instruction=SYSTEM_INSTRUCTION,
-            tools=[{"google_search_retrieval": {}}]
+            tools=None
         )
         response = model.generate_content(prompt)
         return Response({"text": response.text})
     except Exception as e:
         err_msg = str(e)
         if "429" in err_msg or "ResourceExhausted" in err_msg or "quota" in err_msg.lower():
-            # Fallback 1: gemini-flash-latest with search
+            # Fallback: gemini-2.5-flash without search
             try:
                 model = genai.GenerativeModel(
-                    model_name="gemini-flash-latest",
+                    model_name="gemini-2.5-flash",
                     system_instruction=SYSTEM_INSTRUCTION,
-                    tools=[{"google_search_retrieval": {}}]
+                    tools=None
                 )
                 response = model.generate_content(prompt)
                 return Response({"text": response.text})
             except Exception as e2:
-                # Fallback 2: gemini-flash-latest without search
-                try:
-                    model = genai.GenerativeModel(
-                        model_name="gemini-flash-latest",
-                        system_instruction=SYSTEM_INSTRUCTION,
-                        tools=None
-                    )
-                    response = model.generate_content(prompt)
-                    return Response({"text": response.text})
-                except Exception as e3:
-                    return Response({"error": "Quota d'utilisation de l'API Gemini dépassé (limite de requêtes atteinte). Veuillez réessayer plus tard ou configurer une clé API valide dans votre fichier backend/.env (GEMINI_API_KEY)."}, status=400)
-        return Response({"error": err_msg}, status=400)
+                return Response({
+                    "error": "Quota d'utilisation de l'API Gemini dépassé (limite de requêtes atteinte).",
+                    "is_fallback_trigger": True
+                }, status=200)
+        return Response({
+            "error": err_msg,
+            "is_fallback_trigger": True
+        }, status=200)
