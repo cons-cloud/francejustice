@@ -66,5 +66,13 @@ http {
             return 200 "healthy\n";
             add_header Content-Type text/plain;
         }
+
+        # Backend debug
+        location /backend-debug {
+            access_log off;
+            set $debug_val "${BACKEND_UPSTREAM}";
+            return 200 "BACKEND_UPSTREAM: $debug_val\n";
+            add_header Content-Type text/plain;
+        }
     }
 }
