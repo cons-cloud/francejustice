@@ -37,5 +37,9 @@ COPY nginx.conf.template /etc/nginx/nginx.conf.template
 # Exposer le port 80
 EXPOSE 80
 
-# Au démarrage, substituer les variables d'environnement puis lancer nginx
-CMD ["/bin/sh", "-c", "export BACKEND_UPSTREAM=\"${BACKEND_UPSTREAM:-justlaw.railway.internal:8000}\" && envsubst '${BACKEND_UPSTREAM}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
+# Copier le script d'entrée
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Lancer le script d'entrée au démarrage
+CMD ["/entrypoint.sh"]
