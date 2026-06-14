@@ -1,4 +1,7 @@
-import google.generativeai as genai
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=FutureWarning)
+    import google.generativeai as genai
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
