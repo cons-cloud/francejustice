@@ -10,4 +10,4 @@ python manage.py collectstatic --noinput
 
 # Démarrer le serveur Gunicorn
 echo "Starting gunicorn..."
-exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000}
+exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --bind 0.0.0.0:${PORT:-8000}
