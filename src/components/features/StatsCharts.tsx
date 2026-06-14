@@ -36,7 +36,7 @@ export const AdvancedAreaChart: React.FC<ChartProps> = ({ data, height = 300, co
 
   return (
     <div style={{ width: '100%', height: `${height}px`, minWidth: 0, minHeight: 0, position: 'relative' }}>
-      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+      <ResponsiveContainer width="100%" height={height} minWidth={0} minHeight={0}>
         <AreaChart data={data}>
           <defs>
             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
@@ -82,7 +82,7 @@ export const AdvancedBarChart: React.FC<ChartProps> = ({ data, height = 300, col
 
   return (
     <div style={{ width: '100%', height: `${height}px`, minWidth: 0, minHeight: 0, position: 'relative' }}>
-      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+      <ResponsiveContainer width="100%" height={height} minWidth={0} minHeight={0}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
           <XAxis 
@@ -116,7 +116,7 @@ export const SimplePieChart: React.FC<ChartProps> = ({ data, height = 300, nameK
 
   return (
     <div style={{ width: '100%', height: `${height}px`, minWidth: 0, minHeight: 0, position: 'relative' }}>
-      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+      <ResponsiveContainer width="100%" height={height} minWidth={0} minHeight={0}>
         <PieChart>
           <Pie
             data={data}
