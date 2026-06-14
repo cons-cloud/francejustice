@@ -25,14 +25,17 @@ RUN npm run build
 # Stage de production
 FROM nginx:alpine
 
+# Installer gettext pour envsubst
+RUN apk add --no-cache gettext
+
 # Copier les fichiers buildés
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copier la configuration nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copier la configuration nginx comme template
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
 # Exposer le port 80
 EXPOSE 80
 
-# Démarrer nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Au démarrage, substituer les variables d'environnement puis lancer nginx
+CMD ["/bin/sh", "-c", "export BACKEND_UPSTREAM=\"${BACKEND_UPSTREAM:-justlaw.railway.internal:8000}\" && envsubst '${BACKEND_UPSTREAM}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
