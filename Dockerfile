@@ -11,7 +11,7 @@ ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 RUN npm run build
 
 # Stage 2: Production container running both Nginx and Django/Gunicorn
-FROM python:3.11-slim
+FROM python:3.12-slim
 WORKDIR /app
 
 # Install system dependencies, Nginx, gettext (for envsubst)
