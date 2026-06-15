@@ -1,72 +1,27 @@
 #!/bin/sh
 
 # Touch log files
-touch /tmp/nginx_access.log /tmp/nginx_error.log /tmp/dns_test.log /tmp/env.log
-chmod 666 /tmp/nginx_access.log /tmp/nginx_error.log /tmp/dns_test.log /tmp/env.log
+touch /tmp/nginx_access.log /tmp/nginx_error.log /tmp/gunicorn_access.log /tmp/gunicorn_error.log
+chmod 666 /tmp/nginx_access.log /tmp/nginx_error.log /tmp/gunicorn_access.log /tmp/gunicorn_error.log
 
-# Dump safe environment variables
-echo "=== Environment Variables (Names only or Safe Values) ===" > /tmp/env.log
-env | while read -r line; do
-    name=$(echo "$line" | cut -d= -f1)
-    val=$(echo "$line" | cut -d= -f2-)
-    # Only print value for safe keys, else print name and length
-    case "$name" in
-        RAILWAY_*|PORT|HOSTNAME|NODE_ENV|PUBLIC_*)
-            echo "$name=$val" >> /tmp/env.log
-            ;;
-        *KEY*|*SECRET*|*PASSWORD*|*TOKEN*|*AUTH*|*STRIPE*)
-            echo "$name=[REDACTED (length: ${#val})]" >> /tmp/env.log
-            ;;
-        *)
-            echo "$name=$val" >> /tmp/env.log
-            ;;
-    esac
-done
+echo "=== Applying Django Migrations ==="
+cd /app/backend
+python manage.py migrate --noinput
 
-# If BACKEND_UPSTREAM is already set, skip discovery
-if [ -n "$BACKEND_UPSTREAM" ]; then
-    echo "Using provided BACKEND_UPSTREAM: $BACKEND_UPSTREAM"
-else
-    echo "BACKEND_UPSTREAM not set. Running quick DNS check..."
-    echo "=== DNS Check ===" > /tmp/dns_test.log
+echo "=== Collecting Static Files ==="
+python manage.py collectstatic --noinput
 
-    # Check a few likely hostnames in parallel
-    for candidate in just-law-backend justlaw-backend justlaw backend api django web; do
-        (
-            host="${candidate}.railway.internal"
-            if nslookup $host >/dev/null 2>&1; then
-                echo "RESOLVED: $host" >> /tmp/dns_test.log
-                echo "$host" >> /tmp/resolved_hosts.txt
-            else
-                echo "NXDOMAIN: $host" >> /tmp/dns_test.log
-            fi
-        ) &
-    done
-    wait
+echo "=== Starting Gunicorn on 127.0.0.1:8000 ==="
+# Launch Gunicorn in the background
+gunicorn config.wsgi:application \
+    --bind 127.0.0.1:8000 \
+    --workers 2 \
+    --timeout 120 \
+    --access-logfile /tmp/gunicorn_access.log \
+    --error-logfile /tmp/gunicorn_error.log &
 
-    echo "============================" >> /tmp/dns_test.log
-    cat /tmp/dns_test.log
-
-    # Pick first resolved candidate (excluding justlaw which is frontend)
-    FOUND=""
-    if [ -f /tmp/resolved_hosts.txt ]; then
-        # Exclude justlaw if others exist
-        FOUND=$(grep -v "^justlaw\." /tmp/resolved_hosts.txt | head -1)
-        if [ -z "$FOUND" ]; then
-            FOUND=$(head -1 /tmp/resolved_hosts.txt)
-        fi
-    fi
-
-    if [ -n "$FOUND" ]; then
-        export BACKEND_UPSTREAM="${FOUND}:8000"
-        echo "Auto-detected BACKEND_UPSTREAM: $BACKEND_UPSTREAM"
-    else
-        # Fallback: use the known service name from railway.json
-        export BACKEND_UPSTREAM="just-law-backend.railway.internal:8000"
-        echo "Could not auto-detect. Falling back to $BACKEND_UPSTREAM"
-    fi
-fi
-
+# Set backend upstream destination to localhost
+export BACKEND_UPSTREAM="127.0.0.1:8000"
 
 echo "Substituting BACKEND_UPSTREAM=${BACKEND_UPSTREAM} in nginx.conf.template"
 envsubst '${BACKEND_UPSTREAM}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
@@ -76,3 +31,4 @@ head -n 65 /etc/nginx/nginx.conf
 
 echo "Starting Nginx..."
 exec nginx -g "daemon off;"
+

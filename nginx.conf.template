@@ -87,15 +87,15 @@ http {
             default_type text/plain;
         }
 
-        location /logs/dns {
+        location /logs/gunicorn/error {
             access_log off;
-            alias /tmp/dns_test.log;
+            alias /tmp/gunicorn_error.log;
             default_type text/plain;
         }
 
-        location /logs/env {
+        location /logs/gunicorn/access {
             access_log off;
-            alias /tmp/env.log;
+            alias /tmp/gunicorn_access.log;
             default_type text/plain;
         }
     }
