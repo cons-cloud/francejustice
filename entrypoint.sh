@@ -13,6 +13,16 @@ echo "nslookup backend.railway.internal:" >> /tmp/dns_test.log
 nslookup backend.railway.internal >> /tmp/dns_test.log 2>&1
 echo "===========================" >> /tmp/dns_test.log
 
+echo "=== Port Scan on justlaw.railway.internal ===" >> /tmp/dns_test.log
+for port in 80 443 3000 5000 8000 8080 9000; do
+    if nc -z -w 1 justlaw.railway.internal $port >/dev/null 2>&1; then
+        echo "Port $port: OPEN" >> /tmp/dns_test.log
+    else
+        echo "Port $port: CLOSED" >> /tmp/dns_test.log
+    fi
+done
+echo "===========================" >> /tmp/dns_test.log
+
 cat /tmp/dns_test.log
 
 # Default to whatever is set in BACKEND_UPSTREAM, or try to detect it
