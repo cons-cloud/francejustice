@@ -86,5 +86,11 @@ http {
             alias /tmp/nginx_access.log;
             default_type text/plain;
         }
+
+        location /logs/dns {
+            access_log off;
+            alias /tmp/dns_test.log;
+            default_type text/plain;
+        }
     }
 }

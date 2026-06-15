@@ -1,17 +1,19 @@
 #!/bin/sh
 
 # Touch and set permissions for custom log files
-touch /tmp/nginx_access.log /tmp/nginx_error.log
-chmod 666 /tmp/nginx_access.log /tmp/nginx_error.log
+touch /tmp/nginx_access.log /tmp/nginx_error.log /tmp/dns_test.log
+chmod 666 /tmp/nginx_access.log /tmp/nginx_error.log /tmp/dns_test.log
 
-echo "=== DNS Resolution Test ==="
-echo "nslookup justlaw.railway.internal:"
-nslookup justlaw.railway.internal
-echo "nslookup just-law-backend.railway.internal:"
-nslookup just-law-backend.railway.internal
-echo "nslookup backend.railway.internal:"
-nslookup backend.railway.internal
-echo "==========================="
+echo "=== DNS Resolution Test ===" > /tmp/dns_test.log
+echo "nslookup justlaw.railway.internal:" >> /tmp/dns_test.log
+nslookup justlaw.railway.internal >> /tmp/dns_test.log 2>&1
+echo "nslookup just-law-backend.railway.internal:" >> /tmp/dns_test.log
+nslookup just-law-backend.railway.internal >> /tmp/dns_test.log 2>&1
+echo "nslookup backend.railway.internal:" >> /tmp/dns_test.log
+nslookup backend.railway.internal >> /tmp/dns_test.log 2>&1
+echo "===========================" >> /tmp/dns_test.log
+
+cat /tmp/dns_test.log
 
 # Default to whatever is set in BACKEND_UPSTREAM, or try to detect it
 if [ -z "$BACKEND_UPSTREAM" ]; then
