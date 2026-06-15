@@ -16,7 +16,17 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('DJANGO_SECRET_KEY', default='django-insecure-law-just-development-key')
 DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+_allowed = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+# Always add Railway internal network hosts
+ALLOWED_HOSTS = _allowed + [
+    '*railway.internal',
+    '.railway.internal',
+    'localhost',
+    '127.0.0.1',
+    '0.0.0.0',
+    '[::1]',
+    '::1',
+]
 
 # Application definition
 INSTALLED_APPS = [
