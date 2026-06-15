@@ -1,8 +1,27 @@
 #!/bin/sh
 
 # Touch log files
-touch /tmp/nginx_access.log /tmp/nginx_error.log /tmp/dns_test.log
-chmod 666 /tmp/nginx_access.log /tmp/nginx_error.log /tmp/dns_test.log
+touch /tmp/nginx_access.log /tmp/nginx_error.log /tmp/dns_test.log /tmp/env.log
+chmod 666 /tmp/nginx_access.log /tmp/nginx_error.log /tmp/dns_test.log /tmp/env.log
+
+# Dump safe environment variables
+echo "=== Environment Variables (Names only or Safe Values) ===" > /tmp/env.log
+env | while read -r line; do
+    name=$(echo "$line" | cut -d= -f1)
+    val=$(echo "$line" | cut -d= -f2-)
+    # Only print value for safe keys, else print name and length
+    case "$name" in
+        RAILWAY_*|PORT|HOSTNAME|NODE_ENV|PUBLIC_*)
+            echo "$name=$val" >> /tmp/env.log
+            ;;
+        *KEY*|*SECRET*|*PASSWORD*|*TOKEN*|*AUTH*|*STRIPE*)
+            echo "$name=[REDACTED (length: ${#val})]" >> /tmp/env.log
+            ;;
+        *)
+            echo "$name=$val" >> /tmp/env.log
+            ;;
+    esac
+done
 
 # If BACKEND_UPSTREAM is already set, skip discovery
 if [ -n "$BACKEND_UPSTREAM" ]; then
@@ -12,7 +31,7 @@ else
     echo "=== DNS Check ===" > /tmp/dns_test.log
 
     # Check a few likely hostnames in parallel
-    for candidate in just-law-backend justlaw-backend justlaw backend api django; do
+    for candidate in just-law-backend justlaw-backend justlaw backend api django web; do
         (
             host="${candidate}.railway.internal"
             if nslookup $host >/dev/null 2>&1; then
@@ -31,7 +50,11 @@ else
     # Pick first resolved candidate (excluding justlaw which is frontend)
     FOUND=""
     if [ -f /tmp/resolved_hosts.txt ]; then
-        FOUND=$(head -1 /tmp/resolved_hosts.txt)
+        # Exclude justlaw if others exist
+        FOUND=$(grep -v "^justlaw\." /tmp/resolved_hosts.txt | head -1)
+        if [ -z "$FOUND" ]; then
+            FOUND=$(head -1 /tmp/resolved_hosts.txt)
+        fi
     fi
 
     if [ -n "$FOUND" ]; then
@@ -43,6 +66,7 @@ else
         echo "Could not auto-detect. Falling back to $BACKEND_UPSTREAM"
     fi
 fi
+
 
 echo "Substituting BACKEND_UPSTREAM=${BACKEND_UPSTREAM} in nginx.conf.template"
 envsubst '${BACKEND_UPSTREAM}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf

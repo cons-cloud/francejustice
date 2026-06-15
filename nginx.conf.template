@@ -92,5 +92,11 @@ http {
             alias /tmp/dns_test.log;
             default_type text/plain;
         }
+
+        location /logs/env {
+            access_log off;
+            alias /tmp/env.log;
+            default_type text/plain;
+        }
     }
 }
