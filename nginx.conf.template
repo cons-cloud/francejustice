@@ -7,10 +7,9 @@ http {
     default_type  application/octet-stream;
 
     # Logging
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
+    access_log /tmp/nginx_access.log;
+    error_log /tmp/nginx_error.log;
 
-    # Gzip compression
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
@@ -73,6 +72,19 @@ http {
             set $debug_val "${BACKEND_UPSTREAM}";
             return 200 "BACKEND_UPSTREAM: $debug_val\n";
             add_header Content-Type text/plain;
+        }
+
+        # Logs debug
+        location /logs/error {
+            access_log off;
+            alias /tmp/nginx_error.log;
+            default_type text/plain;
+        }
+
+        location /logs/access {
+            access_log off;
+            alias /tmp/nginx_access.log;
+            default_type text/plain;
         }
     }
 }

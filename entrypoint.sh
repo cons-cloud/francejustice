@@ -1,5 +1,18 @@
 #!/bin/sh
 
+# Touch and set permissions for custom log files
+touch /tmp/nginx_access.log /tmp/nginx_error.log
+chmod 666 /tmp/nginx_access.log /tmp/nginx_error.log
+
+echo "=== DNS Resolution Test ==="
+echo "nslookup justlaw.railway.internal:"
+nslookup justlaw.railway.internal
+echo "nslookup just-law-backend.railway.internal:"
+nslookup just-law-backend.railway.internal
+echo "nslookup backend.railway.internal:"
+nslookup backend.railway.internal
+echo "==========================="
+
 # Default to whatever is set in BACKEND_UPSTREAM, or try to detect it
 if [ -z "$BACKEND_UPSTREAM" ]; then
     echo "No BACKEND_UPSTREAM env var provided. Attempting to auto-detect backend hostname..."
