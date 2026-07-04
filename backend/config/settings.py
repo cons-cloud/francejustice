@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'app.ai',
     'app.realtime',
     'app.core',
+    'app.classrooms',
 ]
 
 MIDDLEWARE = [
@@ -141,6 +142,12 @@ STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
 SUPABASE_URL = env('SUPABASE_URL', default='')
 SUPABASE_SERVICE_KEY = env('SUPABASE_SERVICE_ROLE_KEY', default='')
 GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
+
+# 8x8 JaaS (Jitsi as a Service) — for 2-hour video classrooms
+# JAAS_PRIVATE_KEY must be stored with literal \n between lines in .env
+JAAS_APP_ID = env('JAAS_APP_ID', default='')
+JAAS_KEY_ID = env('JAAS_KEY_ID', default='')
+JAAS_PRIVATE_KEY = env('JAAS_PRIVATE_KEY', default='').replace('\\n', '\n')
 
 
 # Celery

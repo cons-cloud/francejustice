@@ -10,4 +10,5 @@ urlpatterns = [
     path('api/payments/', include('app.payments.urls')),
     path('api/notifications/', include('app.notifications.urls')),
     path('api/ai/', include('app.ai.urls')),
+    path('api/classrooms/', include('app.classrooms.urls')),
 ]

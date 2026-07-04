@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -11,6 +11,8 @@ import { LogOut, Download, FileJson, FileSpreadsheet } from 'lucide-react';
 import { AdvancedAreaChart, AdvancedBarChart, SimplePieChart } from '../components/features/StatsCharts';
 import { exportToCSV, exportToJSON } from '../lib/exportUtils';
 import { regions } from '../components/features/FranceMap';
+import { useAuth } from '../hooks/useAuth';
+import NotificationBell from '../components/ui/NotificationBell';
 
 interface UserProfile {
   id: string;
@@ -38,9 +40,11 @@ interface UserProfile {
 }
 
 const AdminDashboard: React.FC = () => {
+  const { user } = useAuth();
   const { toasts, success, error: toastError, removeToast } = useToast();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments' | 'classrooms'>('overview');
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [classrooms, setClassrooms] = useState<any[]>([]);
 
   // Geographical filtering states
   const [filterBarreau, setFilterBarreau] = useState('');
@@ -98,6 +102,7 @@ const AdminDashboard: React.FC = () => {
     fetchChatRooms();
     fetchSettings();
     fetchAllAppointments();
+    fetchClassrooms();
     
     // Subscribe to multiple channels for real-time synchronization
     const techSub = supabase
@@ -127,6 +132,11 @@ const AdminDashboard: React.FC = () => {
     const docsSub = supabase
       .channel('admin-docs-sync')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'documents_just' }, () => fetchAllDocuments())
+      .subscribe();
+
+    const classroomsSub = supabase
+      .channel('admin-classrooms-sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'classrooms_just' }, () => fetchClassrooms())
       .subscribe();
 
     const monitorSub = supabase.channel('admin-monitor')
@@ -161,6 +171,7 @@ const AdminDashboard: React.FC = () => {
       supabase.removeChannel(docsSub);
       supabase.removeChannel(techSub);
       supabase.removeChannel(monitorSub);
+      supabase.removeChannel(classroomsSub);
     };
   }, []);
 
@@ -253,6 +264,29 @@ const AdminDashboard: React.FC = () => {
       .select('*, lawyer:lawyer_id(first_name, last_name), client:client_id(first_name, last_name)')
       .order('created_at', { ascending: false });
     if (data) setChatRooms(data);
+  };
+
+  const fetchClassrooms = async () => {
+    const { data } = await supabase
+      .from('classrooms_just')
+      .select('*, lawyer:profiles_just!classrooms_just_lawyer_id_fkey(first_name, last_name)')
+      .order('created_at', { ascending: false });
+    if (data) setClassrooms(data);
+  };
+
+  const handleDeleteClassroomByAdmin = async (id: string) => {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette visioconférence ?")) {
+      const { error } = await supabase
+        .from('classrooms_just')
+        .delete()
+        .eq('id', id);
+      if (error) {
+        toastError("Erreur", error.message);
+      } else {
+        success("Classe supprimée", "La visioconférence a été supprimée avec succès par l'administrateur.");
+        fetchClassrooms();
+      }
+    }
   };
 
   const fetchSettings = async () => {
@@ -507,6 +541,7 @@ const AdminDashboard: React.FC = () => {
             <p className="text-secondary-600">Gestion centrale des comptes, avocats et messages</p>
           </div>
           <div className="flex items-center gap-2">
+            <NotificationBell userId={user?.id ?? null} />
             <Button onClick={() => { fetchUsers(); fetchMessages(); }} variant="outline" size="sm" className="hidden sm:flex">
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Actualiser
@@ -542,6 +577,7 @@ const AdminDashboard: React.FC = () => {
                   { id: 'assistance', name: "Assistance", icon: HelpCircle },
                   { id: 'outils', name: "Outils Avocats", icon: PenTool },
                   { id: 'formations', name: "Formations", icon: BookOpen },
+                  { id: 'classrooms', name: "Visioconférences", icon: Video },
                   { id: 'payments', name: "Paiements", icon: CreditCard },
                   { id: 'monitoring', name: "LIVE Monitoring", icon: RefreshCw },
                 ].map((tab) => (
@@ -1338,6 +1374,72 @@ const AdminDashboard: React.FC = () => {
                     </Card>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'classrooms' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-semibold text-secondary-900">Gestion des Visioconférences</h2>
+                </div>
+                <Card>
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-secondary-50 border-b border-secondary-100 text-xs font-bold text-secondary-500 uppercase">
+                            <th className="px-6 py-4">Titre</th>
+                            <th className="px-6 py-4">Description</th>
+                            <th className="px-6 py-4">Type</th>
+                            <th className="px-6 py-4">Avocat</th>
+                            <th className="px-6 py-4">Date / Heure</th>
+                            <th className="px-6 py-4">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-secondary-50 text-sm">
+                          {classrooms.map((room) => (
+                            <tr key={room.id} className="hover:bg-secondary-50/50">
+                              <td className="px-6 py-4 font-semibold text-secondary-900">{room.title}</td>
+                              <td className="px-6 py-4 text-secondary-500 max-w-xs truncate" title={room.description}>{room.description}</td>
+                              <td className="px-6 py-4">
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                  room.type === 'direct' ? 'bg-red-50 text-red-700' :
+                                  room.type === 'video' ? 'bg-blue-50 text-blue-700' :
+                                  'bg-emerald-50 text-emerald-700'
+                                }`}>
+                                  {room.type === 'direct' ? 'Direct' : room.type === 'video' ? 'Vidéo' : 'Différé'}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-secondary-700">
+                                {room.lawyer ? `Me ${room.lawyer.first_name} ${room.lawyer.last_name}` : 'Avocat inconnu'}
+                              </td>
+                              <td className="px-6 py-4 text-secondary-500">
+                                {room.scheduled_at ? new Date(room.scheduled_at).toLocaleString('fr-FR') : 'Non planifié'}
+                              </td>
+                              <td className="px-6 py-4">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => handleDeleteClassroomByAdmin(room.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                          {classrooms.length === 0 && (
+                            <tr>
+                              <td colSpan={6} className="px-6 py-8 text-center text-secondary-400 italic">
+                                Aucune visioconférence active.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
           </main>

@@ -41,11 +41,14 @@ import { useToast } from "../hooks/useToast"
 import Modal from "../components/ui/Modal"
 import { Input } from "../components/ui/Input"
 import { VoiceAssistant } from "../components/ui/VoiceAssistant"
+import NotificationBell from '../components/ui/NotificationBell';
 import { cn } from "../lib/utils";
+import { createCheckoutSession } from "../lib/api";
 
 const DashboardLawyer: React.FC = () => {
   const { user, profile } = useAuth()
   const { success, error: toastError } = useToast()
+  const [payingCommissionId, setPayingCommissionId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("overview")
   const [showWelcome, setShowWelcome] = useState(false)
   const [appointments, setAppointments] = useState<any[]>([])
@@ -476,31 +479,22 @@ const DashboardLawyer: React.FC = () => {
     }
   }, [user, profile?.city, profile?.postal_code])
 
-  // Real-time payment verification redirect handler
+  // Feedback visuel après retour de Stripe Checkout (commission avocat)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const payment = params.get('payment')
-    const quoteId = params.get('quote_id')
-    
-    if (payment === 'success' && quoteId) {
-      const markQuoteAsPaid = async () => {
-        const { error } = await supabase
-          .from('quotes_just')
-          .update({ status: 'commissioned' })
-          .eq('id', quoteId)
-        
-        if (!error) {
-          success('Commission réglée 🎉', 'Le paiement de votre commission a été validé avec succès en temps réel.')
-          fetchQuotes()
-        }
-        window.history.replaceState({}, document.title, window.location.pathname)
-      }
-      markQuoteAsPaid()
+
+    if (payment === 'success') {
+      // Le webhook Stripe (Django) a déjà mis à jour quotes_just.status = 'commissioned'
+      success('Commission réglée ✓', 'Le paiement de votre commission a été validé. Merci !')
+      fetchQuotes()
+      window.history.replaceState({}, document.title, window.location.pathname)
     } else if (payment === 'cancel') {
-      toastError('Paiement annulé', 'Le paiement de la commission a été annulé.')
+      toastError('Paiement annulé', 'Le paiement de la commission a été annulé. Vous pouvez réessayer.')
       window.history.replaceState({}, document.title, window.location.pathname)
     }
   }, [user])
+
 
   const fetchFullProfile = async () => {
     if (!user) return null
@@ -804,20 +798,18 @@ const DashboardLawyer: React.FC = () => {
   }
 
   const handlePayCommission = async (quote: any) => {
+    setPayingCommissionId(quote.id)
     try {
-      const response = await fetch('/api/payments/create-checkout-session/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          quote_id: quote.id,
-          type: 'commission_payment',
-          amount: Math.round(quote.commission_amount * 100) // conversion en centimes
-        })
-      });
-      const data = await response.json();
-      if (data.url) window.location.href = data.url;
-    } catch (err) {
-      console.error(err);
+      const url = await createCheckoutSession(quote.id, 'commission_payment', quote.commission_amount)
+      window.location.href = url
+    } catch (err: any) {
+      console.error('Stripe commission error:', err)
+      toastError(
+        'Erreur de paiement commission',
+        err?.message || 'Impossible de créer la session Stripe. Vérifiez que le backend Django est lancé sur le port 8000.'
+      )
+    } finally {
+      setPayingCommissionId(null)
     }
   }
 
@@ -1048,6 +1040,7 @@ const DashboardLawyer: React.FC = () => {
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Sync
             </Button>
+            <NotificationBell userId={user?.id ?? null} />
             <VoiceAssistant
               mode="lawyer"
               activeTab={activeTab}
@@ -1464,7 +1457,20 @@ const DashboardLawyer: React.FC = () => {
                                     <Button size="sm" variant="outline" onClick={() => handleMarkAsPaid(q.id)}>Confirmer Encaissement</Button>
                                   )}
                                   {q.status === 'paid' && (
-                                    <Button size="sm" onClick={() => handlePayCommission(q)}>Payer Commission (20%)</Button>
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handlePayCommission(q)}
+                                      disabled={payingCommissionId === q.id}
+                                    >
+                                      {payingCommissionId === q.id ? (
+                                        <span className="flex items-center gap-1.5">
+                                          <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                                          Redirection...
+                                        </span>
+                                      ) : (
+                                        "Payer Commission (20%)"
+                                      )}
+                                    </Button>
                                   )}
                                 </td>
                               </tr>
@@ -2180,7 +2186,8 @@ const DashboardLawyer: React.FC = () => {
           </p>
           <div className={cn('flex', 'flex-col', 'gap-2', 'pt-4')}>
             <Button 
-              className={cn('w-full', 'bg-red-600', 'hover:bg-red-700', 'text-white', 'font-semibold', 'py-2.5', 'rounded-xl', 'shadow-md', 'transition-all', 'duration-200', 'animate-pulse')}
+              className={cn('w-full', 'bg-red-600', 'hover:bg-red-700', 'text-white', 'font-semibold', 'py-2.5', 'rounded-xl', 'shadow-md', 'transition-all', 'duration-200')}
+              disabled={payingCommissionId === paymentAlarmQuote?.id}
               onClick={() => {
                 const quoteToPay = {
                   ...paymentAlarmQuote,
@@ -2190,7 +2197,14 @@ const DashboardLawyer: React.FC = () => {
                 setPaymentAlarmQuote(null);
               }}
             >
-              Régler la commission maintenant (Stripe)
+              {payingCommissionId === paymentAlarmQuote?.id ? (
+                <span className="flex items-center justify-center gap-1.5">
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Redirection...
+                </span>
+              ) : (
+                "Régler la commission maintenant (Stripe)"
+              )}
             </Button>
             <Button 
               variant="ghost" 

@@ -140,18 +140,45 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Footer */}
-        <div className="border-t border-secondary-800 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-sm text-secondary-400">
-              © {currentYear} Law Just. Tous droits réservés.
+        {/* Bottom Footer — fond blanc, textes sombres */}
+        <div className="border-t border-slate-200 py-6 bg-white">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+
+            {/* Copyright + Réalisé par */}
+            <div className="flex flex-col sm:flex-row items-center gap-2 text-sm">
+              <span style={{ color: '#1e293b', fontWeight: 500 }}>
+                © {currentYear} Law Just. Tous droits réservés.
+              </span>
+              <span className="hidden sm:inline" style={{ color: '#94a3b8' }}>•</span>
+              <span style={{ color: '#475569' }}>
+                Réalisé par{' '}
+                <a
+                  href="https://www.marocgestionentreprendre.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: '#2563eb',
+                    fontWeight: 700,
+                    fontSize: '1.1rem',
+                    textDecoration: 'none',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#1d4ed8')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = '#2563eb')}
+                >
+                  Maroc Gestion Entreprendre
+                </a>
+              </span>
             </div>
+
+            {/* Réseaux sociaux */}
             <div className="flex items-center space-x-6">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
-                  className="text-secondary-400 hover:text-white transition-colors"
+                  style={{ color: '#64748b' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#1e293b')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
                   aria-label={social.name}
                 >
                   <social.icon className="h-5 w-5" />

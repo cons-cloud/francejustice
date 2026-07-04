@@ -16,7 +16,9 @@ import {
   BookOpen,
   Users,
   Eye,
-  MapPin
+  MapPin,
+  Video,
+  Clock
 } from 'lucide-react';
 import LawCodes from '../components/features/LawCodes';
 import ProcedureLibrary from '../components/features/ProcedureLibrary';
@@ -24,6 +26,7 @@ import CodeAnalysis from '../components/features/CodeAnalysis';
 import { FranceMap, regions } from '../components/features/FranceMap';
 import { AdvancedAreaChart } from '../components/features/StatsCharts';
 import { exportToJSON } from '../lib/exportUtils';
+import { createCheckoutSession } from '../lib/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
@@ -36,6 +39,7 @@ import SearchPage from './Search';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import { VoiceAssistant } from '../components/ui/VoiceAssistant';
+import NotificationBell from '../components/ui/NotificationBell';
 
 const DashboardPage: React.FC = () => {
   const { user, profile } = useAuth();
@@ -48,6 +52,12 @@ const DashboardPage: React.FC = () => {
   const [chatRooms, setChatRooms] = useState<any[]>([]);
   const [activeRoom, setActiveRoom] = useState<any>(null);
   const [formations, setFormations] = useState<any[]>([]);
+  const [classrooms, setClassrooms] = useState<any[]>([]);
+  const [registrations, setRegistrations] = useState<string[]>([]);
+  const [classroomsSubTab, setClassroomsSubTab] = useState<'static' | 'virtual'>('virtual');
+  
+
+
   const [availableLawyers, setAvailableLawyers] = useState<any[]>([]);
   const [lawyerSearch, setLawyerSearch] = useState('');
 
@@ -263,14 +273,21 @@ const DashboardPage: React.FC = () => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments_just', filter: `client_id=eq.${user.id}` }, () => fetchAppointments())
         .subscribe();
 
+      const classroomsSub = supabase
+        .channel('user-classrooms')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'classrooms_just' }, () => fetchClassrooms())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'classroom_registrations_just' }, () => fetchClassrooms())
+        .subscribe();
+
       return () => {
-        docsSub.unsubscribe();
-        searchSub.unsubscribe();
-        formSub.unsubscribe();
-        quotesSub.unsubscribe();
-        chatSub.unsubscribe();
-        lawyersSub.unsubscribe();
-        apptSub.unsubscribe();
+        supabase.removeChannel(docsSub);
+        supabase.removeChannel(searchSub);
+        supabase.removeChannel(formSub);
+        supabase.removeChannel(quotesSub);
+        supabase.removeChannel(chatSub);
+        supabase.removeChannel(lawyersSub);
+        supabase.removeChannel(apptSub);
+        supabase.removeChannel(classroomsSub);
       };
     }
   }, [user]);
@@ -288,28 +305,19 @@ const DashboardPage: React.FC = () => {
     }
   }, [availableLawyers]);
 
-  // Real-time payment verification redirect handler
+  // Feedback visuel après retour de Stripe Checkout
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const payment = params.get('payment');
-    const quoteId = params.get('quote_id');
-    
-    if (payment === 'success' && quoteId) {
-      const markQuoteAsPaid = async () => {
-        const { error } = await supabase
-          .from('quotes_just')
-          .update({ status: 'paid' })
-          .eq('id', quoteId);
-        
-        if (!error) {
-          success('Paiement réussi 🎉', 'Votre devis a été réglé avec succès en temps réel et votre avocat en a été informé.');
-          fetchQuotes();
-        }
-        window.history.replaceState({}, document.title, window.location.pathname);
-      };
-      markQuoteAsPaid();
+
+    if (payment === 'success') {
+      // Le webhook Stripe (Django) a déjà mis à jour quotes_just.status
+      // On se contente d'afficher le toast et de rafraîchir
+      success('Paiement confirmé 🎉', 'Votre paiement a été validé. Votre avocat en a été notifié en temps réel.');
+      fetchQuotes();
+      window.history.replaceState({}, document.title, window.location.pathname);
     } else if (payment === 'cancel') {
-      toastError('Paiement annulé', 'La transaction Stripe a été annulée.');
+      toastError('Paiement annulé', 'La transaction Stripe a été annulée. Vous pouvez réessayer.');
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [user]);
@@ -324,7 +332,8 @@ const DashboardPage: React.FC = () => {
         fetchQuotes().catch(err => console.error("Error fetching quotes:", err)),
         fetchChatRooms().catch(err => console.error("Error fetching chat rooms:", err)),
         fetchLawyers().catch(err => console.error("Error fetching lawyers:", err)),
-        fetchAppointments().catch(err => console.error("Error fetching appointments:", err))
+        fetchAppointments().catch(err => console.error("Error fetching appointments:", err)),
+        fetchClassrooms().catch(err => console.error("Error fetching classrooms:", err))
       ]);
     } catch (err) {
       console.error("Error loading dashboard data:", err);
@@ -332,6 +341,77 @@ const DashboardPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const fetchClassrooms = async () => {
+    try {
+      const { data: rooms, error: roomsErr } = await supabase
+        .from('classrooms_just')
+        .select('*, registrations:classroom_registrations_just(count)')
+        .order('created_at', { ascending: false });
+      
+      if (roomsErr) throw roomsErr;
+
+      if (rooms && rooms.length > 0) {
+        const lawyerIds = [...new Set(rooms.map(r => r.lawyer_id))];
+        const { data: profiles } = await supabase
+          .from('profiles_just')
+          .select('id, first_name, last_name')
+          .in('id', lawyerIds);
+
+        const profileMap: Record<string, any> = {};
+        profiles?.forEach(p => { profileMap[p.id] = p; });
+
+        const enriched = rooms.map(r => ({
+          ...r,
+          lawyer_first_name: profileMap[r.lawyer_id]?.first_name || '',
+          lawyer_last_name: profileMap[r.lawyer_id]?.last_name || '',
+          registered_count: r.registrations?.[0]?.count || 0
+        }));
+        setClassrooms(enriched);
+      } else {
+        setClassrooms([]);
+      }
+
+      if (user) {
+        const { data: regs } = await supabase
+          .from('classroom_registrations_just')
+          .select('classroom_id')
+          .eq('user_id', user.id);
+        if (regs) setRegistrations(regs.map(r => r.classroom_id));
+      }
+    } catch (e) {
+      console.error("Error fetching classrooms:", e);
+    }
+  };
+
+  const handleRegisterClassroom = async (classroom: any) => {
+    if (!user) return;
+    try {
+      const isRegistered = registrations.includes(classroom.id);
+      if (isRegistered) {
+        await supabase
+          .from('classroom_registrations_just')
+          .delete()
+          .eq('classroom_id', classroom.id)
+          .eq('user_id', user.id);
+        setRegistrations(prev => prev.filter(id => id !== classroom.id));
+      } else {
+        await supabase
+          .from('classroom_registrations_just')
+          .insert([{ classroom_id: classroom.id, user_id: user.id }]);
+        setRegistrations(prev => [...prev, classroom.id]);
+      }
+    } catch (e) {
+      console.error("Error toggling classroom registration:", e);
+    }
+  };
+
+  const startClassroomSimulator = (classroom: any) => {
+    window.location.href = `/classrooms?join=${classroom.id}`;
+  };
+
+
+
 
   const fetchDocuments = async () => {
     if (!user) return;
@@ -582,21 +662,21 @@ Ce document est généré par la plateforme JustLaw.
     }
   };
 
+  const [payingQuoteId, setPayingQuoteId] = React.useState<string | null>(null);
+
   const handlePayQuote = async (quote: any) => {
+    setPayingQuoteId(quote.id);
     try {
-      const response = await fetch('/api/payments/create-checkout-session/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          quote_id: quote.id,
-          type: 'quote_payment',
-          amount: Math.round(quote.amount * 100)
-        })
-      });
-      const data = await response.json();
-      if (data.url) window.location.href = data.url;
-    } catch (err) {
-      console.error(err);
+      const url = await createCheckoutSession(quote.id, 'quote_payment', quote.amount);
+      window.location.href = url;
+    } catch (err: any) {
+      console.error('Stripe checkout error:', err);
+      toastError(
+        'Erreur de paiement',
+        err?.message || 'Impossible de créer la session de paiement. Vérifiez que le backend Django est lancé.'
+      );
+    } finally {
+      setPayingQuoteId(null);
     }
   };
 
@@ -1036,6 +1116,7 @@ Ce document est généré par la plateforme JustLaw.
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <NotificationBell userId={user?.id ?? null} />
             <VoiceAssistant
               mode="citizen"
               activeTab={activeTab}
@@ -1127,12 +1208,27 @@ Ce document est généré par la plateforme JustLaw.
                                   Télécharger
                                 </Button>
                                 {q.status === 'pending' ? (
-                                  <Button onClick={() => handlePayQuote(q)}>
-                                    Payer {q.amount} MAD
+                                  <Button
+                                    onClick={() => handlePayQuote(q)}
+                                    disabled={payingQuoteId === q.id}
+                                    className="relative"
+                                  >
+                                    {payingQuoteId === q.id ? (
+                                      <span className="flex items-center gap-2">
+                                        <RefreshCw className="h-4 w-4 animate-spin" />
+                                        Redirection...
+                                      </span>
+                                    ) : (
+                                      `Payer ${q.amount} MAD`
+                                    )}
                                   </Button>
+                                ) : q.status === 'paid' ? (
+                                  <span className="px-4 py-2 bg-green-50 text-green-700 rounded-lg font-bold flex items-center gap-1">
+                                    ✅ Payé
+                                  </span>
                                 ) : (
-                                  <span className="px-4 py-2 bg-green-50 text-green-700 rounded-lg font-bold">
-                                    Payé
+                                  <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold">
+                                    Commission payée
                                   </span>
                                 )}
                               </div>
@@ -1171,83 +1267,177 @@ Ce document est généré par la plateforme JustLaw.
                 )}
                 {activeTab === 'formations' && (
                   <div className="space-y-6 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">Formations et Guides</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {formations.map((f) => {
-                        const isCompleted = completedFormations.includes(f.id);
-                        return (
-                          <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100">
-                            <CardContent className="p-6">
-                              <div className="flex flex-col space-y-3">
-                                <div className="flex justify-between items-start">
-                                  <span className="text-xs font-bold text-primary-600 uppercase">{f.category}</span>
-                                  {isCompleted ? (
-                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-success-100 text-success-700 flex items-center gap-1">
-                                      <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
-                                      Terminé
-                                    </span>
-                                  ) : (
-                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-100 text-secondary-600">
-                                      Disponible
-                                    </span>
-                                  )}
-                                </div>
-                                <h3 className="text-lg font-bold text-secondary-900 line-clamp-2 h-14">{f.title}</h3>
-                                <p className="text-sm text-secondary-500">Durée: {f.duration} • Niveau: {f.level}</p>
-                                
-                                <div className="space-y-1.5 pt-2">
-                                  <div className="flex justify-between text-xs text-secondary-400">
-                                    <span>Progression</span>
-                                    <span>{isCompleted ? '100%' : '0%'}</span>
-                                  </div>
-                                  <div className="w-full bg-secondary-100 rounded-full h-1.5">
-                                    <div 
-                                      className={`h-1.5 rounded-full transition-all duration-300 ${isCompleted ? 'bg-success-500' : 'bg-secondary-300'}`}
-                                      style={{ width: isCompleted ? '100%' : '0%' }}
-                                    />
-                                  </div>
-                                </div>
-
-                                <div className="flex gap-2 pt-2">
-                                  <Button 
-                                    variant={isCompleted ? "outline" : "primary"}
-                                    className="flex-1 text-sm font-semibold"
-                                    onClick={() => {
-                                      setSelectedFormation(f);
-                                      setFormationViewMode('start');
-                                      setActiveChapterIndex(0);
-                                      setChaptersRead(isCompleted ? {0: true, 1: true, 2: true} : {});
-                                    }}
-                                  >
-                                    {isCompleted ? "Recommencer" : "Commencer le module"}
-                                  </Button>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="px-3 text-secondary-500 hover:text-primary-600"
-                                    onClick={() => {
-                                      setSelectedFormation(f);
-                                      setFormationViewMode('preview');
-                                      setActiveChapterIndex(0);
-                                      setChaptersRead({0: true, 1: true, 2: true});
-                                    }}
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                      {formations.length === 0 && (
-                        <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl">
-                          Aucun module de formation n'est actuellement publié.
-                        </div>
-                      )}
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                      <h2 className="text-2xl font-semibold text-secondary-900">Formations et Espace Académique</h2>
+                      
+                      <div className="flex bg-secondary-100 p-1 rounded-xl self-start">
+                        <button
+                          onClick={() => setClassroomsSubTab('virtual')}
+                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                            classroomsSubTab === 'virtual' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
+                          }`}
+                        >
+                          Salles de Classe Virtuelles
+                        </button>
+                        <button
+                          onClick={() => setClassroomsSubTab('static')}
+                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                            classroomsSubTab === 'static' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
+                          }`}
+                        >
+                          Guides de Formation
+                        </button>
+                      </div>
                     </div>
+
+                    {classroomsSubTab === 'virtual' ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {classrooms.map((room) => {
+                          const isRegistered = registrations.includes(room.id);
+                          return (
+                            <Card key={room.id} className="overflow-hidden hover:shadow-md transition-all border-secondary-100 bg-white flex flex-col h-full">
+                              <div className={`p-3 text-white font-bold flex justify-between items-center bg-gradient-to-r ${
+                                room.type === 'direct' 
+                                  ? 'from-red-600 to-orange-500' 
+                                  : room.type === 'video' 
+                                  ? 'from-blue-600 to-indigo-500' 
+                                  : 'from-emerald-600 to-teal-500'
+                              }`}>
+                                <span className="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">
+                                  {room.type === 'direct' ? 'Direct / Conférence' : room.type === 'video' ? 'Salle Vidéo' : 'Différé'}
+                                </span>
+                                <span className="text-[10px] font-semibold bg-white/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                  <Users className="w-3 h-3" /> Max {room.max_members}
+                                </span>
+                              </div>
+                              <CardContent className="p-5 flex flex-col justify-between flex-1 gap-4">
+                                <div className="space-y-2">
+                                  <h3 className="text-base font-bold text-secondary-900 line-clamp-1">{room.title}</h3>
+                                  <p className="text-xs text-secondary-500 line-clamp-3">{room.description}</p>
+                                </div>
+                                <div className="space-y-1.5 border-t border-secondary-50 pt-3 text-xs text-secondary-600">
+                                  <div className="flex items-center gap-1.5">
+                                    <User className="w-3.5 h-3.5 text-secondary-400" />
+                                    <span>Par : Me {room.lawyer_first_name} {room.lawyer_last_name}</span>
+                                  </div>
+                                  {room.scheduled_at && (
+                                    <div className="flex items-center gap-1.5">
+                                      <Calendar className="w-3.5 h-3.5 text-secondary-400" />
+                                      <span>Le {new Date(room.scheduled_at).toLocaleDateString()} à {new Date(room.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5 text-secondary-400" />
+                                    <span>Durée : {room.duration_minutes} min</span>
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 pt-2">
+                                  <Button
+                                    variant="primary"
+                                    size="sm"
+                                    className="flex-1 text-xs font-bold"
+                                    onClick={() => startClassroomSimulator(room)}
+                                  >
+                                    <Video className="w-3.5 h-3.5 mr-1" /> Rejoindre
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs"
+                                    onClick={() => handleRegisterClassroom(room)}
+                                  >
+                                    {isRegistered ? 'Désinscrire' : 'S\'inscrire'}
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                        {classrooms.length === 0 && (
+                          <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl">
+                            Aucune salle de classe virtuelle n'est disponible pour le moment.
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {formations.map((f) => {
+                          const isCompleted = completedFormations.includes(f.id);
+                          return (
+                            <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100">
+                              <CardContent className="p-6">
+                                <div className="flex flex-col space-y-3">
+                                  <div className="flex justify-between items-start">
+                                    <span className="text-xs font-bold text-primary-600 uppercase">{f.category}</span>
+                                    {isCompleted ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-success-100 text-success-700 flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
+                                        Terminé
+                                      </span>
+                                    ) : (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-100 text-secondary-600">
+                                        Disponible
+                                      </span>
+                                    )}
+                                  </div>
+                                  <h3 className="text-lg font-bold text-secondary-900 line-clamp-2 h-14">{f.title}</h3>
+                                  <p className="text-sm text-secondary-500">Durée: {f.duration} • Niveau: {f.level}</p>
+                                  
+                                  <div className="space-y-1.5 pt-2">
+                                    <div className="flex justify-between text-xs text-secondary-400">
+                                      <span>Progression</span>
+                                      <span>{isCompleted ? '100%' : '0%'}</span>
+                                    </div>
+                                    <div className="w-full bg-secondary-100 rounded-full h-1.5">
+                                      <div 
+                                        className={`h-1.5 rounded-full transition-all duration-300 ${isCompleted ? 'bg-success-500' : 'bg-secondary-300'}`}
+                                        style={{ width: isCompleted ? '100%' : '0%' }}
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="flex gap-2 pt-2">
+                                    <Button 
+                                      variant={isCompleted ? "outline" : "primary"}
+                                      className="flex-1 text-sm font-semibold"
+                                      onClick={() => {
+                                        setSelectedFormation(f);
+                                        setFormationViewMode('start');
+                                        setActiveChapterIndex(0);
+                                        setChaptersRead(isCompleted ? {0: true, 1: true, 2: true} : {});
+                                      }}
+                                    >
+                                      {isCompleted ? "Recommencer" : "Commencer le module"}
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="px-3 text-secondary-500 hover:text-primary-600"
+                                      onClick={() => {
+                                        setSelectedFormation(f);
+                                        setFormationViewMode('preview');
+                                        setActiveChapterIndex(0);
+                                        setChaptersRead({0: true, 1: true, 2: true});
+                                      }}
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                        {formations.length === 0 && (
+                          <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl">
+                            Aucun module de formation n'est actuellement publié.
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
+
                 {activeTab === 'profile' && (
                   <div className="space-y-6 animate-fade-in">
                     <h2 className="text-2xl font-semibold text-secondary-900">Mon Profil</h2>
@@ -1762,6 +1952,8 @@ Ce document est généré par la plateforme JustLaw.
           );
         })()}
       </Modal>
+
+
     </div>
   );
 };
