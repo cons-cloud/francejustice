@@ -21,7 +21,10 @@ import {
   BookOpen,
   Globe,
   Search,
-  ArrowLeft
+  ArrowLeft,
+  Video,
+  Clock,
+  Trash2
 } from "lucide-react"
 
 import { AdvancedAreaChart } from "../components/features/StatsCharts"
@@ -32,6 +35,7 @@ import SearchPage from './Search';
 import { exportToCSV } from "../lib/exportUtils"
 import { Chat } from "../components/features/Chat"
 import { FranceMap, regions } from "../components/features/FranceMap"
+import JitsiMeeting from "../components/features/JitsiMeeting"
 
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
 import { Button } from "../components/ui/Button"
@@ -82,6 +86,23 @@ const DashboardLawyer: React.FC = () => {
 
   const [selectedClientForCases, setSelectedClientForCases] = useState<string | null>(null)
   const [clientSearchText, setClientSearchText] = useState('')
+
+  // Salles de classe / Visioconférences
+  const [classrooms, setClassrooms] = useState<any[]>([])
+  const [classroomsSubTab, setClassroomsSubTab] = useState<'static' | 'virtual'>('virtual')
+  const [activeClassroom, setActiveClassroom] = useState<any | null>(null)
+  const [isInMeeting, setIsInMeeting] = useState(false)
+  const [createClassroomOpen, setCreateClassroomOpen] = useState(false)
+  const [newClassroom, setNewClassroom] = useState({
+    title: '',
+    description: '',
+    type: 'direct', // 'direct' | 'video' | 'differe'
+    scheduled_at: '',
+    duration_minutes: 60,
+    max_members: 100,
+    video_url: '',
+    meeting_link: ''
+  })
 
   // États pour le module Formations
   const [selectedFormation, setSelectedFormation] = useState<any | null>(null)
@@ -418,6 +439,8 @@ const DashboardLawyer: React.FC = () => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'outils_just' }, () => fetchOutils())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'assistance_tickets_just', filter: `user_id=eq.${user.id}` }, () => fetchTickets())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'formations_just' }, () => fetchFormations())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'classrooms_just' }, () => fetchClassrooms())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'classroom_registrations_just' }, () => fetchClassrooms())
         .subscribe()
         
       const quotesSub = supabase
@@ -539,7 +562,8 @@ const DashboardLawyer: React.FC = () => {
         fetchAppointments(lawyerLoc || undefined).catch(e => console.error("Error fetching appointments:", e)),
         fetchCases(lawyerLoc || undefined).catch(e => console.error("Error fetching cases:", e)),
         fetchQuotes(lawyerLoc || undefined).catch(e => console.error("Error fetching quotes:", e)),
-        fetchChatRooms(lawyerLoc || undefined).catch(e => console.error("Error fetching chat rooms:", e))
+        fetchChatRooms(lawyerLoc || undefined).catch(e => console.error("Error fetching chat rooms:", e)),
+        fetchClassrooms().catch(e => console.error("Error fetching classrooms:", e))
       ])
       await fetchOutils().catch(e => console.error("Error fetching outils:", e))
       await fetchTickets().catch(e => console.error("Error fetching tickets:", e))
@@ -551,6 +575,122 @@ const DashboardLawyer: React.FC = () => {
       setLoading(false)
     }
   }
+
+  const fetchClassrooms = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('classrooms_just')
+        .select('*, registrations:classroom_registrations_just(count)')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching classrooms:", error.message);
+        setClassrooms([]);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const lawyerIds = [...new Set(data.map(r => r.lawyer_id))];
+        const { data: profiles } = await supabase
+          .from('profiles_just')
+          .select('id, first_name, last_name')
+          .in( 'id', lawyerIds);
+
+        const profileMap = (profiles || []).reduce((acc: any, p: any) => {
+          acc[p.id] = p;
+          return acc;
+        }, {});
+
+        const enriched = data.map(r => ({
+          ...r,
+          lawyer_first_name: profileMap[r.lawyer_id]?.first_name || '',
+          lawyer_last_name: profileMap[r.lawyer_id]?.last_name || '',
+          registered_count: r.registrations?.[0]?.count || 0
+        }));
+        setClassrooms(enriched);
+      } else {
+        setClassrooms([]);
+      }
+    } catch (e) {
+      console.error("Error fetching classrooms:", e);
+    }
+  };
+
+  const joinMeeting = async (classroom: any) => {
+    if (!user) return;
+    setActiveClassroom(classroom);
+    setIsInMeeting(true);
+
+    if (classroom.lawyer_id === user.id) {
+      await supabase
+        .from("classrooms_just")
+        .update({ is_live: true })
+        .eq("id", classroom.id);
+    }
+  };
+
+  const leaveMeeting = async () => {
+    if (activeClassroom && user && activeClassroom.lawyer_id === user.id) {
+      await supabase
+        .from("classrooms_just")
+        .update({ is_live: false })
+        .eq("id", activeClassroom.id);
+    }
+    setIsInMeeting(false);
+    setActiveClassroom(null);
+  };
+
+  const handleCreateClassroom = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('classrooms_just')
+        .insert([{
+          ...newClassroom,
+          lawyer_id: user.id
+        }]);
+
+      if (error) {
+        toastError('Erreur', 'Impossible de créer la visioconférence : ' + error.message);
+      } else {
+        success('Succès 🎉', 'La visioconférence a été programmée en temps réel !');
+        setCreateClassroomOpen(false);
+        setNewClassroom({
+          title: '',
+          description: '',
+          type: 'direct',
+          scheduled_at: '',
+          duration_minutes: 60,
+          max_members: 100,
+          video_url: '',
+          meeting_link: ''
+        });
+        fetchClassrooms();
+      }
+    } catch (err: any) {
+      toastError('Erreur', err.message);
+    }
+  };
+
+  const handleDeleteClassroom = async (id: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette visioconférence ?")) return;
+    try {
+      const { error } = await supabase
+        .from('classrooms_just')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        toastError('Erreur', 'Impossible de supprimer la visioconférence : ' + error.message);
+      } else {
+        success('Supprimé', 'La visioconférence a été supprimée avec succès.');
+        fetchClassrooms();
+      }
+    } catch (err: any) {
+      toastError('Erreur', err.message);
+    }
+  };
 
   const fetchFormations = async () => {
     const { data } = await supabase.from('formations_just').select('*').order('created_at', { ascending: false })
@@ -1003,6 +1143,24 @@ const DashboardLawyer: React.FC = () => {
         </div>
     </div>
   )
+
+  if (isInMeeting && activeClassroom) {
+    const displayName = profile
+      ? `${profile.first_name || ""} ${profile.last_name || ""}`.trim()
+      : user?.email || "Participant";
+    const email = user?.email || "";
+    const isHost = activeClassroom.lawyer_id === user?.id;
+
+    return (
+      <JitsiMeeting
+        roomId={activeClassroom.id}
+        displayName={displayName || "Participant"}
+        email={email}
+        onLeave={leaveMeeting}
+        isHost={isHost}
+      />
+    );
+  }
 
   const unpaidQuotes = quotes.filter(q => q.status === 'paid');
 
@@ -1751,81 +1909,280 @@ const DashboardLawyer: React.FC = () => {
 
                 {activeTab === 'formations' && (
                   <div className={cn('space-y-6', 'animate-fade-in')}>
-                    <h2 className={cn('text-2xl', 'font-semibold', 'text-secondary-900')}>Formations et Guides</h2>
-                    <div className={cn('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-6')}>
-                      {formations.map((f) => {
-                        const isCompleted = completedFormations.includes(f.id);
-                        return (
-                          <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100">
-                            <CardContent className="p-6">
-                              <div className={cn('flex', 'flex-col', 'space-y-3')}>
-                                <div className="flex justify-between items-start">
-                                  <span className={cn('text-xs', 'font-bold', 'text-primary-600', 'uppercase')}>{f.category}</span>
-                                  {isCompleted ? (
-                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-success-100 text-success-700 flex items-center gap-1">
-                                      <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
-                                      Terminé
-                                    </span>
-                                  ) : (
-                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-100 text-secondary-600">
-                                      Disponible
-                                    </span>
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                      <h2 className={cn('text-2xl', 'font-semibold', 'text-secondary-900')}>Formations et Espace Académique</h2>
+                      
+                      <div className="flex bg-secondary-100 p-1 rounded-xl self-start">
+                        <button
+                          onClick={() => setClassroomsSubTab('virtual')}
+                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                            classroomsSubTab === 'virtual' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
+                          }`}
+                        >
+                          Salles de Classe Virtuelles
+                        </button>
+                        <button
+                          onClick={() => setClassroomsSubTab('static')}
+                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                            classroomsSubTab === 'static' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
+                          }`}
+                        >
+                          Guides de Formation
+                        </button>
+                      </div>
+                    </div>
+
+                    {classroomsSubTab === 'virtual' ? (
+                      <div className="space-y-6">
+                        <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-secondary-150 shadow-sm">
+                          <div>
+                            <h3 className="text-sm font-bold text-secondary-800">Organisez vos visioconférences en direct</h3>
+                            <p className="text-xs text-secondary-500">Planifiez des sessions WebRTC avec vos confrères ou vos clients avec visioconférence haute définition intégrée.</p>
+                          </div>
+                          <Button variant="primary" size="sm" onClick={() => setCreateClassroomOpen(true)}>
+                            <Plus className="w-4 h-4 mr-1" /> Programmer une session
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {classrooms.map((room) => {
+                            const isMyRoom = room.lawyer_id === user?.id;
+                            return (
+                              <Card key={room.id} className="overflow-hidden hover:shadow-md transition-all border-secondary-100 bg-white flex flex-col h-full">
+                                <div className={`p-3 text-white font-bold flex justify-between items-center bg-gradient-to-r ${
+                                  room.type === 'direct' 
+                                    ? 'from-red-600 to-orange-500' 
+                                    : room.type === 'video' 
+                                    ? 'from-blue-600 to-indigo-500' 
+                                    : 'from-emerald-600 to-teal-500'
+                                }`}>
+                                  <span className="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">
+                                    {room.type === 'direct' ? 'Direct / Conférence' : room.type === 'video' ? 'Salle Vidéo' : 'Différé'}
+                                  </span>
+                                  {room.is_live && (
+                                    <span className="bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded animate-pulse">🔴 EN DIRECT</span>
                                   )}
                                 </div>
-                                <h3 className={cn('text-lg', 'font-bold', 'text-secondary-900', 'line-clamp-2', 'h-14')}>{f.title}</h3>
-                                <p className={cn('text-sm', 'text-secondary-500')}>Durée: {f.duration} • Niveau: {f.level}</p>
-                                
-                                <div className="space-y-1.5 pt-2">
-                                  <div className="flex justify-between text-xs text-secondary-400">
-                                    <span>Progression</span>
-                                    <span>{isCompleted ? '100%' : '0%'}</span>
+                                <CardContent className="p-5 flex flex-col justify-between flex-1 gap-4">
+                                  <div className="space-y-2">
+                                    <h3 className="text-base font-bold text-secondary-900 line-clamp-1">{room.title}</h3>
+                                    <p className="text-xs text-secondary-500 line-clamp-3">{room.description}</p>
                                   </div>
-                                  <div className="w-full bg-secondary-100 rounded-full h-1.5">
-                                    <div 
-                                      className={cn('h-1.5 rounded-full transition-all duration-300', isCompleted ? 'bg-success-500' : 'bg-secondary-300')}
-                                      style={{ width: isCompleted ? '100%' : '0%' }}
-                                    />
+                                  <div className="space-y-1.5 border-t border-secondary-50 pt-3 text-xs text-secondary-600">
+                                    <div className="flex items-center gap-1.5">
+                                      <Users className="w-3.5 h-3.5 text-secondary-400" />
+                                      <span>Animateur : Me {room.lawyer_first_name} {room.lawyer_last_name} {isMyRoom && "(Vous)"}</span>
+                                    </div>
+                                    {room.scheduled_at && (
+                                      <div className="flex items-center gap-1.5">
+                                        <Calendar className="w-3.5 h-3.5 text-secondary-400" />
+                                        <span>Le {new Date(room.scheduled_at).toLocaleDateString()} à {new Date(room.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-1.5">
+                                      <Clock className="w-3.5 h-3.5 text-secondary-400" />
+                                      <span>Durée : {room.duration_minutes} min</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                      <Users className="w-3.5 h-3.5 text-secondary-400" />
+                                      <span>Inscrits : {room.registered_count} / {room.max_members}</span>
+                                    </div>
                                   </div>
-                                </div>
-
-                                <div className="flex gap-2 pt-2">
-                                  <Button 
-                                    variant={isCompleted ? "outline" : "primary"}
-                                    className="flex-1 text-sm font-semibold"
-                                    onClick={() => {
-                                      setSelectedFormation(f);
-                                      setFormationViewMode('start');
-                                      setActiveChapterIndex(0);
-                                      setChaptersRead(isCompleted ? {0: true, 1: true, 2: true} : {});
-                                    }}
-                                  >
-                                    {isCompleted ? "Recommencer" : "Commencer le module"}
-                                  </Button>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="px-3 text-secondary-500 hover:text-primary-600"
-                                    onClick={() => {
-                                      setSelectedFormation(f);
-                                      setFormationViewMode('preview');
-                                      setActiveChapterIndex(0);
-                                      setChaptersRead({0: true, 1: true, 2: true});
-                                    }}
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                      {formations.length === 0 && (
-                        <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl">
-                          Aucun module de formation n'est actuellement publié.
+                                  <div className="flex gap-2 pt-2">
+                                    <Button
+                                      variant="primary"
+                                      size="sm"
+                                      className={`flex-1 text-xs font-bold ${room.is_live ? 'bg-red-600 hover:bg-red-700' : ''}`}
+                                      onClick={() => joinMeeting(room)}
+                                    >
+                                      <Video className="w-3.5 h-3.5 mr-1" /> {room.is_live ? "Rejoindre (Session en cours 🔴)" : "Rejoindre la visio"}
+                                    </Button>
+                                    {isMyRoom && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-red-500 hover:text-red-700 border-red-200 hover:bg-red-50 px-2"
+                                        onClick={() => handleDeleteClassroom(room.id)}
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
+                          {classrooms.length === 0 && (
+                            <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl bg-white">
+                              Aucune visioconférence n'est programmée pour le moment.
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className={cn('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-6')}>
+                        {formations.map((f) => {
+                          const isCompleted = completedFormations.includes(f.id);
+                          return (
+                            <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100">
+                              <CardContent className="p-6">
+                                <div className={cn('flex', 'flex-col', 'space-y-3')}>
+                                  <div className="flex justify-between items-start">
+                                    <span className={cn('text-xs', 'font-bold', 'text-primary-600', 'uppercase')}>{f.category}</span>
+                                    {isCompleted ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-success-100 text-success-700 flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
+                                        Terminé
+                                      </span>
+                                    ) : (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-100 text-secondary-600">
+                                        Disponible
+                                      </span>
+                                    )}
+                                  </div>
+                                  <h3 className={cn('text-lg', 'font-bold', 'text-secondary-900', 'line-clamp-2', 'h-14')}>{f.title}</h3>
+                                  <p className={cn('text-sm', 'text-secondary-500')}>Durée: {f.duration} • Niveau: {f.level}</p>
+                                  
+                                  <div className="space-y-1.5 pt-2">
+                                    <div className="flex justify-between text-xs text-secondary-400">
+                                      <span>Progression</span>
+                                      <span>{isCompleted ? '100%' : '0%'}</span>
+                                    </div>
+                                    <div className="w-full bg-secondary-100 rounded-full h-1.5">
+                                      <div 
+                                        className={cn('h-1.5 rounded-full transition-all duration-300', isCompleted ? 'bg-success-500' : 'bg-secondary-300')}
+                                        style={{ width: isCompleted ? '100%' : '0%' }}
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="flex gap-2 pt-2">
+                                    <Button 
+                                      variant={isCompleted ? "outline" : "primary"}
+                                      className="flex-1 text-sm font-semibold"
+                                      onClick={() => {
+                                        setSelectedFormation(f);
+                                        setFormationViewMode('start');
+                                        setActiveChapterIndex(0);
+                                        setChaptersRead(isCompleted ? {0: true, 1: true, 2: true} : {});
+                                      }}
+                                    >
+                                      {isCompleted ? "Recommencer" : "Commencer le module"}
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="px-3 text-secondary-500 hover:text-primary-600"
+                                      onClick={() => {
+                                        setSelectedFormation(f);
+                                        setFormationViewMode('preview');
+                                        setActiveChapterIndex(0);
+                                        setChaptersRead({0: true, 1: true, 2: true});
+                                      }}
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                        {formations.length === 0 && (
+                          <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl bg-white">
+                            Aucun module de formation n'est actuellement publié.
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Modal de création de visioconférence */}
+                    <Modal
+                      isOpen={createClassroomOpen}
+                      onClose={() => setCreateClassroomOpen(false)}
+                      title="Programmer une Visioconférence"
+                    >
+                      <form onSubmit={handleCreateClassroom} className="space-y-4 text-sm font-sans">
+                        <div>
+                          <label className="block text-xs font-bold text-secondary-700 mb-1">Titre de la session</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Ex: Réforme du code pénal marocain"
+                            value={newClassroom.title}
+                            onChange={e => setNewClassroom(prev => ({ ...prev, title: e.target.value }))}
+                            className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-secondary-700 mb-1">Description</label>
+                          <textarea
+                            required
+                            rows={3}
+                            placeholder="Ex: Analyse approfondie des modifications et impacts pratiques..."
+                            value={newClassroom.description}
+                            onChange={e => setNewClassroom(prev => ({ ...prev, description: e.target.value }))}
+                            className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-bold text-secondary-700 mb-1">Type de session</label>
+                            <select
+                              value={newClassroom.type}
+                              onChange={e => setNewClassroom(prev => ({ ...prev, type: e.target.value as any }))}
+                              className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                            >
+                              <option value="direct">Direct (Conférence)</option>
+                              <option value="video">Salle Vidéo</option>
+                              <option value="differe">Différé</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-secondary-700 mb-1">Nombre max de participants</label>
+                            <input
+                              type="number"
+                              value={newClassroom.max_members}
+                              onChange={e => setNewClassroom(prev => ({ ...prev, max_members: parseInt(e.target.value) || 100 }))}
+                              className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-bold text-secondary-700 mb-1">Date et heure de planification</label>
+                            <input
+                              type="datetime-local"
+                              required
+                              value={newClassroom.scheduled_at}
+                              onChange={e => setNewClassroom(prev => ({ ...prev, scheduled_at: e.target.value }))}
+                              className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-secondary-700 mb-1">Durée (minutes)</label>
+                            <input
+                              type="number"
+                              value={newClassroom.duration_minutes}
+                              onChange={e => setNewClassroom(prev => ({ ...prev, duration_minutes: parseInt(e.target.value) || 60 }))}
+                              className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex gap-3 pt-4 border-t border-secondary-100">
+                          <Button variant="outline" type="button" className="flex-1" onClick={() => setCreateClassroomOpen(false)}>
+                            Annuler
+                          </Button>
+                          <Button variant="primary" type="submit" className="flex-1">
+                            Programmer
+                          </Button>
+                        </div>
+                      </form>
+                    </Modal>
                   </div>
                 )}
 
