@@ -10,6 +10,7 @@ import { AuthModal } from '../components/ui/AuthModal';
 import { chatWithAI } from '../lib/gemini';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { useTranslation } from '../i18n';
 
 type ChatMessage = { id: string; role: 'user' | 'assistant' | 'system'; content: string; ts: number };
 
@@ -17,6 +18,7 @@ const AUTOSAVE_KEY = 'assistant_chat_draft_v1';
 
 const AssistantPage: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const { toasts, success, error, removeToast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -30,20 +32,20 @@ const AssistantPage: React.FC = () => {
   // Quick suggestions (litiges types)
   const suggestions = useMemo(
     () => [
-      'Litige commercial: impayé client B2B',
-      'Consommation: défaut de conformité e-commerce',
-      'Travail: harcèlement moral en entreprise',
-      'Famille: demande de pension alimentaire',
+      t('assistant.suggest_comm', 'Litige commercial: impayé client B2B'),
+      t('assistant.suggest_cons', 'Consommation: défaut de conformité e-commerce'),
+      t('assistant.suggest_work', 'Travail: harcèlement moral en entreprise'),
+      t('assistant.suggest_family', 'Famille: demande de pension alimentaire'),
     ],
-    []
+    [t]
   );
 
   // Guided steps
   const guideSteps = [
-    'Décrivez brièvement le litige (dates, parties, contexte).',
-    'Précisez les faits essentiels et les preuves disponibles.',
-    'Indiquez le préjudice et l’objectif recherché.',
-    'Ajoutez toute contrainte de délai connue (prescription).',
+    t('assistant.guide_step1', 'Décrivez brièvement le litige (dates, parties, contexte).'),
+    t('assistant.guide_step2', 'Précisez les faits essentiels et les preuves disponibles.'),
+    t('assistant.guide_step3', 'Indiquez le préjudice et l’objectif recherché.'),
+    t('assistant.guide_step4', 'Ajoutez toute contrainte de délai connue (prescription).'),
   ];
 
   // Load draft
@@ -104,14 +106,14 @@ const AssistantPage: React.FC = () => {
           .insert([
             {
               user_id: user.id,
-              title: messages[0]?.content.slice(0, 40) || 'Nouvelle conversation',
+              title: messages[0]?.content.slice(0, 40) || t('assistant.new_chat', 'Nouvelle conversation'),
               messages: [...messages, newUserMsg, { role: 'assistant', content: reply, ts: Date.now() }]
             }
           ]);
         if (saveError) console.error('Erreur sauvegarde IA:', saveError);
       }
     } catch (e: any) {
-      error('Erreur IA', e.message || 'Le traitement a échoué.');
+      error(t('common.error'), e.message || t('assistant.failed', 'Le traitement a échoué.'));
     } finally {
       setIsSending(false);
     }
@@ -128,9 +130,9 @@ const AssistantPage: React.FC = () => {
       await navigator.clipboard.writeText(m.content);
       setCopiedId(m.id);
       setTimeout(() => setCopiedId(null), 1200);
-      success('Copié', 'Le contenu a été copié.');
+      success(t('assistant.copied_title', 'Copié'), t('assistant.copied_desc', 'Le contenu a été copié.'));
     } catch {
-      error('Impossible de copier');
+      error(t('assistant.copy_failed', 'Impossible de copier'));
     }
   };
 
@@ -152,21 +154,23 @@ const AssistantPage: React.FC = () => {
         <div className="lg:col-span-2 xl:col-span-3">
           <Card>
             <CardHeader className="flex-col items-center gap-2">
-              <CardTitle className="text-center">Assistant IA Expert — Connecté à Internet en temps réel</CardTitle>
+              <CardTitle className="text-center">{t('assistant.card_title', 'Assistant IA Expert — Connecté à Internet en temps réel')}</CardTitle>
               <div className="flex items-center gap-2 justify-center">
-                <Button variant="outline" size="sm" onClick={() => exportConversation('txt')}><Download className="h-4 w-4 mr-2" />Export TXT</Button>
-                <Button variant="outline" size="sm" onClick={() => exportConversation('json')}>Export JSON</Button>
+                <Button variant="outline" size="sm" onClick={() => exportConversation('txt')}><Download className="h-4 w-4 mr-2" />{t('assistant.export_txt', 'Export TXT')}</Button>
+                <Button variant="outline" size="sm" onClick={() => exportConversation('json')}>{t('assistant.export_json', 'Export JSON')}</Button>
               </div>
             </CardHeader>
             <CardContent>
               <div className={`${messages.length === 0 ? 'h-24 lg:h-28 xl:h-32' : 'h-[45vh] lg:h-[50vh] xl:h-[55vh]'} overflow-y-auto space-y-3 px-2 pt-1 pb-0 bg-secondary-50 rounded`}>
                 {messages.length === 0 && (
-                  <div className="text-secondary-600 text-sm">Commencez par décrire le litige ou utilisez une suggestion à droite.</div>
+                  <div className="text-secondary-600 text-sm">{t('assistant.start_desc', 'Commencez par décrire le litige ou utilisez une suggestion à droite.')}</div>
                 )}
                 {messages.map((m) => (
                   <div key={m.id} className={`p-3 rounded-lg ${m.role === 'user' ? 'bg-primary-50' : 'bg-white border'}`}>
                     <div className="flex items-center justify-between mb-1">
-                      <div className="text-xs text-secondary-500">{m.role === 'user' ? 'Vous' : m.role === 'assistant' ? 'Assistant' : 'Système'}</div>
+                      <div className="text-xs text-secondary-500">
+                        {m.role === 'user' ? t('assistant.you', 'Vous') : m.role === 'assistant' ? t('assistant.title') : t('assistant.system', 'Système')}
+                      </div>
                       <Button variant="ghost" size="sm" onClick={() => copyMessage(m)}>
                         {copiedId === m.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                       </Button>
@@ -178,12 +182,12 @@ const AssistantPage: React.FC = () => {
 
               <div className="mt-1 flex items-start gap-3">
                 <div className="flex-1 min-w-0">
-                  <Textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder="Décrivez votre cas..." rows={6} className="min-h-40 lg:min-h-48 w-full" />
+                  <Textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder={t('assistant.placeholder')} rows={6} className="min-h-40 lg:min-h-48 w-full" />
                 </div>
                 <div className="flex flex-col gap-2 w-36">
                   <Input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" onChange={onFileSelected} className="hidden" />
-                  <Button variant="outline" onClick={onUploadClick}><Paperclip className="h-4 w-4 mr-2" />Joindre</Button>
-                  <Button onClick={onSend} disabled={isSending}><Send className="h-4 w-4 mr-2" />{isSending ? 'Envoi...' : 'Envoyer'}</Button>
+                  <Button variant="outline" onClick={onUploadClick}><Paperclip className="h-4 w-4 mr-2" />{t('assistant.attach', 'Joindre')}</Button>
+                  <Button onClick={onSend} disabled={isSending}><Send className="h-4 w-4 mr-2" />{isSending ? t('assistant.sending', 'Envoi...') : t('assistant.send')}</Button>
                 </div>
               </div>
               {upload && (
@@ -197,7 +201,7 @@ const AssistantPage: React.FC = () => {
         <div className="lg:col-span-1 xl:col-span-2 space-y-6 lg:sticky lg:top-24 self-start">
           <Card>
             <CardHeader>
-              <CardTitle>Suggestions rapides</CardTitle>
+              <CardTitle>{t('assistant.quick_suggestions', 'Suggestions rapides')}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               {suggestions.map((s, i) => (
@@ -208,9 +212,9 @@ const AssistantPage: React.FC = () => {
 
           <Card>
             <CardHeader className="flex-row items-center justify-between">
-              <CardTitle>Mode guidé</CardTitle>
+              <CardTitle>{t('assistant.guided_mode', 'Mode guidé')}</CardTitle>
               <div className="flex items-center gap-2">
-                <label className="text-sm text-secondary-600">{guided ? 'Activé' : 'Désactivé'}</label>
+                <label className="text-sm text-secondary-600">{guided ? t('common.yes') : t('common.no')}</label>
                 <input type="checkbox" checked={guided} onChange={e => setGuided(e.target.checked)} />
               </div>
             </CardHeader>
@@ -222,7 +226,7 @@ const AssistantPage: React.FC = () => {
                 </div>
               ))}
               {!guided && (
-                <div className="text-sm text-secondary-600">Activez le mode guidé pour vous assister étape par étape.</div>
+                <div className="text-sm text-secondary-600">{t('assistant.guided_mode_desc', 'Activez le mode guidé pour vous assister étape par étape.')}</div>
               )}
             </CardContent>
           </Card>
@@ -234,5 +238,3 @@ const AssistantPage: React.FC = () => {
 };
 
 export default AssistantPage;
-
-

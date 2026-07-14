@@ -9,6 +9,7 @@ import {
 import { Button } from "../components/ui/Button";
 import { Card, CardContent } from "../components/ui/Card";
 import JitsiMeeting from "../components/features/JitsiMeeting";
+import { useTranslation } from "../i18n";
 
 interface Classroom {
   id: string;
@@ -28,6 +29,7 @@ interface Classroom {
 const ClassroomsPage: React.FC = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -133,7 +135,6 @@ const ClassroomsPage: React.FC = () => {
     setActiveClassroom(classroom);
     setIsInMeeting(true);
 
-    // If the lawyer of the classroom is the current user, set the classroom live in real-time!
     if (classroom.lawyer_id === user.id) {
       await supabase
         .from("classrooms_just")
@@ -178,6 +179,13 @@ const ClassroomsPage: React.FC = () => {
     );
   }
 
+  const filters = [
+    { id: "all", label: t('classrooms.filter_all', 'Toutes les salles') },
+    { id: "direct", label: t('classrooms.filter_direct', 'Direct') },
+    { id: "video", label: t('classrooms.filter_video', 'Vidéo') },
+    { id: "differe", label: t('classrooms.filter_delayed', 'Différé') },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -186,23 +194,23 @@ const ClassroomsPage: React.FC = () => {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_20%,rgba(139,92,246,0.1),transparent_60%)]" />
           <div className="relative z-10 max-w-3xl space-y-5">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary-500/30 text-primary-200 border border-primary-500/20">
-              <Tv className="w-3.5 h-3.5" /> Espace Academique
+              <Tv className="w-3.5 h-3.5" /> {t('classrooms.academic_space', 'Espace Académique')}
             </span>
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-              Formations et Visioconferences Juridiques
+              {t('classrooms.title')}
             </h1>
             <p className="text-lg text-slate-300 leading-relaxed">
-              Rejoignez des sessions en direct avec vos pairs, participez a des classes video interactives avec une vraie visioconference integree.
+              {t('classrooms.subtitle', 'Rejoignez des sessions en direct avec vos pairs, participez à des classes vidéo interactives avec une vraie visioconférence intégrée.')}
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <div className="flex items-center gap-2 text-sm text-slate-300 bg-white/5 backdrop-blur px-4 py-2 rounded-xl border border-white/10">
-                <Video className="w-4 h-4 text-primary-400" /> Visio WebRTC reelle
+                <Video className="w-4 h-4 text-primary-400" /> {t('classrooms.feature_webrtc', 'Visio WebRTC réelle')}
               </div>
               <div className="flex items-center gap-2 text-sm text-slate-300 bg-white/5 backdrop-blur px-4 py-2 rounded-xl border border-white/10">
-                <Users className="w-4 h-4 text-emerald-400" /> 100+ participants
+                <Users className="w-4 h-4 text-emerald-400" /> 100+ {t('classrooms.participants', 'participants')}
               </div>
               <div className="flex items-center gap-2 text-sm text-slate-300 bg-white/5 backdrop-blur px-4 py-2 rounded-xl border border-white/10">
-                <Video className="w-4 h-4 text-purple-400" /> Partage ecran reel
+                <Video className="w-4 h-4 text-purple-400" /> {t('classrooms.feature_screen', 'Partage écran réel')}
               </div>
             </div>
           </div>
@@ -210,12 +218,7 @@ const ClassroomsPage: React.FC = () => {
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8">
           <div className="flex flex-wrap gap-2">
-            {[
-              { id: "all", label: "Toutes les salles" },
-              { id: "direct", label: "Direct" },
-              { id: "video", label: "Video" },
-              { id: "differe", label: "Differe" },
-            ].map((f) => (
+            {filters.map((f) => (
               <button
                 key={f.id}
                 onClick={() => setActiveFilter(f.id as "all" | "direct" | "differe" | "video")}
@@ -233,7 +236,7 @@ const ClassroomsPage: React.FC = () => {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Rechercher..."
+              placeholder={t('common.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-sm"
@@ -244,13 +247,13 @@ const ClassroomsPage: React.FC = () => {
         {loading ? (
           <div className="flex justify-center items-center gap-3 py-24 text-slate-400">
             <Loader2 className="animate-spin h-8 w-8" />
-            <span className="text-sm font-medium">Chargement des salles...</span>
+            <span className="text-sm font-medium">{t('common.loading')}</span>
           </div>
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-3xl border border-slate-100 p-16 text-center max-w-xl mx-auto shadow-sm">
             <BookOpen className="h-14 w-14 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Aucune salle disponible</h3>
-            <p className="text-slate-400 text-sm">Les avocats n ont pas encore cree de salle.</p>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">{t('classrooms.no_rooms', 'Aucune salle disponible')}</h3>
+            <p className="text-slate-400 text-sm">{t('classrooms.no_rooms_desc', "Les avocats n'ont pas encore créé de salle.")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
@@ -271,12 +274,14 @@ const ClassroomsPage: React.FC = () => {
                           room.type === "video" ? "bg-blue-50 text-blue-600" :
                           "bg-emerald-50 text-emerald-600"
                         }`}>
-                          {room.type === "direct" ? "Direct" : room.type === "video" ? "Salle Video" : "Cours Differe"}
+                          {room.type === "direct" ? t('classrooms.type_direct', 'Direct') : 
+                           room.type === "video" ? t('classrooms.type_video', 'Salle Vidéo') : 
+                           t('classrooms.type_delayed', 'Cours Différé')}
                         </span>
                         {(room as any).is_live && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-600 text-white animate-pulse">
                             <span className="w-1 h-1 rounded-full bg-white" />
-                            EN DIRECT
+                            {t('classrooms.live', 'EN DIRECT')}
                           </span>
                         )}
                       </div>
@@ -296,7 +301,7 @@ const ClassroomsPage: React.FC = () => {
                       {room.scheduled_at && (
                         <div className="flex items-center gap-2 text-slate-600">
                           <Calendar className="w-4 h-4 text-slate-400" />
-                          <span>{new Date(room.scheduled_at).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}</span>
+                          <span>{new Date(room.scheduled_at).toLocaleString(i18n.language, { dateStyle: "medium", timeStyle: "short" })}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-2 text-slate-600">
@@ -316,22 +321,22 @@ const ClassroomsPage: React.FC = () => {
                             }`}
                             onClick={() => joinMeeting(room)}
                           >
-                            <Video className="w-4 h-4" /> {(room as any).is_live ? "Rejoindre (Session en cours 🔴)" : "Rejoindre la visio"}
+                            <Video className="w-4 h-4" /> {(room as any).is_live ? t('classrooms.join_live', 'Rejoindre (Session en cours 🔴)') : t('classrooms.join', 'Rejoindre la visio')}
                           </Button>
                           <Button
                             variant="outline"
                             className="w-full text-slate-600 text-sm"
                             onClick={() => handleRegister(room)}
                           >
-                            {isReg ? "Inscrit - Se desinscrire" : "S inscrire"}
+                            {isReg ? t('classrooms.unregister', 'Inscrit - Se désinscrire') : t('classrooms.enroll')}
                           </Button>
                         </>
                       ) : (
                         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
                           <AlertCircle className="w-5 h-5 text-amber-500 mx-auto mb-1.5" />
-                          <p className="text-xs text-amber-700 font-medium mb-2">Connectez-vous pour acceder</p>
+                          <p className="text-xs text-amber-700 font-medium mb-2">{t('classrooms.login_required', 'Connectez-vous pour accéder')}</p>
                           <Button size="sm" variant="primary" className="w-full" onClick={() => navigate("/login?redirect=/classrooms")}>
-                            Se connecter
+                            {t('nav.login')}
                           </Button>
                         </div>
                       )}

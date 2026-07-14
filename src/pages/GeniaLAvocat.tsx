@@ -6,90 +6,92 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '../i18n';
 
 const GeniaLAvocat: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   // Features list
   const features = [
     {
       icon: Sparkles,
-      title: "Expertise Métier Augmentée",
-      desc: "GénIA-L s'appuie sur les sources juridiques les plus fiables du marché pour structurer des raisonnements solides et identifier les points clés et risques majeurs sur vos dossiers complexes."
+      title: t('genia.feat_expertise', "Expertise Métier Augmentée"),
+      desc: t('genia.feat_expertise_desc', "GénIA-L s'appuie sur les sources juridiques les plus fiables du marché pour structurer des raisonnements solides.")
     },
     {
       icon: Zap,
-      title: "Productivité Décuplée",
-      desc: "Optimisez vos tâches chronophages : analyse de pièces, recherche de jurisprudence, comparaison de contrats et génération de premiers projets ou drafts de qualité."
+      title: t('genia.feat_productivity', "Productivité Décuplée"),
+      desc: t('genia.feat_productivity_desc', "Optimisez vos tâches chronophages : analyse de pièces, recherche de jurisprudence et génération de premiers drafts.")
     },
     {
       icon: Shield,
-      title: "Sécurité & Conformité Strictes",
-      desc: "Conçue dans le respect rigoureux du RGPD et de l'IA Act. Vos données de dossiers sont chiffrées de bout en bout, sans stockage permanent ni réutilisation pour l'entraînement."
+      title: t('genia.feat_security', "Sécurité & Conformité Strictes"),
+      desc: t('genia.feat_security_desc', "Conçue dans le respect rigoureux du RGPD. Vos données de dossiers sont chiffrées de bout en bout.")
     },
     {
       icon: TrendingUp,
-      title: "Accompagnement Décisionnel",
-      desc: "Libérez du temps de cerveau disponible pour vous concentrer sur la stratégie, l'argumentation d'audience et l'orientation stratégique à forte valeur ajoutée."
+      title: t('genia.feat_decisions', "Accompagnement Décisionnel"),
+      desc: t('genia.feat_decisions_desc', "Libérez du temps pour vous concentrer sur la stratégie, l'audience et l'orientation à forte valeur ajoutée.")
     },
     {
       icon: BookOpen,
-      title: "Livrables Robustes",
-      desc: "Rédigez en toute sécurité des documents adaptés : conclusions, contrats, procès-verbaux, clauses spécifiques, lettres de mission ou comptes-rendus de rendez-vous."
+      title: t('genia.feat_deliverables', "Livrables Robustes"),
+      desc: t('genia.feat_deliverables_desc', "Rédigez en toute sécurité des conclusions, contrats, clauses spécifiques ou lettres de mission.")
     },
     {
       icon: Handshake,
-      title: "Relation Client Renforcée",
-      desc: "Améliorez la réactivité de votre cabinet avec des réponses structurées, claires et sourcées, faciles à vulgariser pour vos clients."
+      title: t('genia.feat_relations', "Relation Client Renforcée"),
+      desc: t('genia.feat_relations_desc', "Améliorez la réactivité de votre cabinet avec des réponses structurées, claires et sourcées.")
     }
   ];
 
   // Onboarding steps
   const steps = [
-    { num: "1", title: "Inscription en 3 min", desc: "Choisissez l'offre adaptée aux besoins de votre cabinet et activez votre espace sécurisé en quelques instants." },
-    { num: "2", title: "Onboarding & Configuration", desc: "Bénéficiez d'une session d'accueil personnalisée pour configurer vos accès et connecter vos outils." },
-    { num: "3", title: "Prise en main guidée", desc: "Des capsules de formation courtes et un accompagnement pas-à-pas pour maîtriser l'art des prompts juridiques." },
-    { num: "4", title: "Support Client Dédié", desc: "Notre équipe support, composée de juristes et d'experts, répond à vos questions en moins de 2 heures." },
-    { num: "5", title: "Mises à jour régulières", desc: "Accédez en continu aux nouvelles fonctionnalités et aux enrichissements hebdomadaires de nos bases de données." }
+    { num: "1", title: t('genia.step1_title', "Inscription en 3 min"), desc: t('genia.step1_desc', "Choisissez l'offre adaptée aux besoins de votre cabinet et activez votre espace sécurisé en quelques instants.") },
+    { num: "2", title: t('genia.step2_title', "Onboarding & Configuration"), desc: t('genia.step2_desc', "Bénéficiez d'une session d'accueil personnalisée pour configurer vos accès et connecter vos outils.") },
+    { num: "3", title: t('genia.step3_title', "Prise en main guidée"), desc: t('genia.step3_desc', "Des capsules de formation courtes et un accompagnement pas-à-pas pour maîtriser l'art des prompts juridiques.") },
+    { num: "4", title: t('genia.step4_title', "Support Client Dédié"), desc: t('genia.step4_desc', "Notre équipe support, composée de juristes et d'experts, répond à vos questions en moins de 2 heures.") },
+    { num: "5", title: t('genia.step5_title', "Mises à jour régulières"), desc: t('genia.step5_desc', "Accédez en continu aux nouvelles fonctionnalités et aux enrichissements hebdomadaires de nos bases de données.") }
   ];
 
   // Comparison criteria
   const comparison = [
     {
-      criterion: "Conformité RGPD & IA Act",
-      genial: "Totale (Hébergement souverain, conformité stricte)",
-      public: "Partielle ou inexistante (Risque de transfert hors UE)",
+      criterion: t('genia.comp_rgpd', "Conformité RGPD & IA Act"),
+      genial: t('genial.comp_rgpd_yes', "Totale (Hébergement souverain, conformité stricte)"),
+      public: t('genial.comp_rgpd_no', "Partielle ou inexistante (Risque de transfert hors UE)"),
       check: true
     },
     {
-      criterion: "Confidentialité des dossiers",
-      genial: "Absolue (Chiffrement de bout en bout, aucune donnée stockée/réutilisée)",
-      public: "Très faible (Données potentiellement exploitées pour l'entraînement)",
+      criterion: t('genia.comp_confidentiality', "Confidentialité des dossiers"),
+      genial: t('genial.comp_confidentiality_yes', "Absolue (Chiffrement de bout en bout, aucune donnée stockée/réutilisée)"),
+      public: t('genial.comp_confidentiality_no', "Très faible (Données potentiellement exploitées pour l'entraînement)"),
       check: true
     },
     {
-      criterion: "Source des informations",
-      genial: "Bases de données vérifiées & validées par plus de 300 juristes",
-      public: "Internet ouvert (Risque élevé d'hallucinations et de textes obsolètes)",
+      criterion: t('genia.comp_sources', "Source des informations"),
+      genial: t('genial.comp_sources_yes', "Bases de données vérifiées & validées par des juristes"),
+      public: t('genial.comp_sources_no', "Internet ouvert (Risque d'hallucinations et textes obsolètes)"),
       check: true
     },
     {
-      criterion: "Rigueur de la rédaction",
-      genial: "Fiable et adaptée aux usages des avocats et professionnels",
-      public: "Générique, approximative et nécessitant une réécriture lourde",
+      criterion: t('genia.comp_rigor', "Rigueur de la rédaction"),
+      genial: t('genial.comp_rigor_yes', "Fiable et adaptée aux usages des professionnels"),
+      public: t('genial.comp_rigor_no', "Générique, approximative et nécessitant une réécriture"),
       check: true
     },
     {
-      criterion: "Précision des références",
-      genial: "Citations précises avec liens directs vers la jurisprudence et la loi",
-      public: "Absentes ou fausses (Hallucinations de jurisprudence)",
+      criterion: t('genia.comp_precision', "Précision des références"),
+      genial: t('genial.comp_precision_yes', "Citations précises avec liens vers la jurisprudence et la loi"),
+      public: t('genial.comp_precision_no', "Absentes ou fausses (Hallucinations)"),
       check: true
     },
     {
-      criterion: "Accompagnement & Support",
-      genial: "Inclus (Support par des experts du droit, formation initiale)",
-      public: "Aucun (Auto-apprentissage uniquement)",
+      criterion: t('genia.comp_support', "Accompagnement & Support"),
+      genial: t('genial.comp_support_yes', "Inclus (Support par des experts du droit, formation)"),
+      public: t('genial.comp_support_no', "Aucun (Auto-apprentissage uniquement)"),
       check: true
     }
   ];
@@ -97,20 +99,20 @@ const GeniaLAvocat: React.FC = () => {
   // FAQ list
   const faqs = [
     {
-      q: "GénIA-L Avocat remplace-t-il le travail de recherche de l'avocat ?",
-      a: "Non. GénIA-L agit comme un copilote ou un collaborateur virtuel ultra-rapide. Il effectue le travail de tri, de synthèse et de premier jet en quelques secondes, mais l'avocat conserve l'entière maîtrise, la responsabilité et la validation finale du livrable."
+      q: t('genia.faq_q1', "GénIA-L Avocat remplace-t-il le travail de recherche de l'avocat ?"),
+      a: t('genia.faq_a1', "Non. GénIA-L agit comme un copilote ou un collaborateur virtuel ultra-rapide. Il effectue le travail de tri et de synthèse, mais l'avocat conserve l'entière maîtrise.")
     },
     {
-      q: "Où sont stockées mes données et comment est garantie la sécurité ?",
-      a: "Toutes les conversations et pièces jointes sont chiffrées de bout en bout. Nous utilisons des serveurs sécurisés et conformes aux exigences européennes du RGPD. Aucune donnée saisie n'est utilisée pour réentraîner les modèles d'IA, préservant ainsi le secret professionnel de manière absolue."
+      q: t('genia.faq_q2', "Où sont stockées mes données et comment est garantie la sécurité ?"),
+      a: t('genia.faq_a2', "Toutes les conversations sont chiffrées. Nous utilisons des serveurs conformes au RGPD. Aucune donnée saisie n'est utilisée pour réentraîner les modèles.")
     },
     {
-      q: "Quelles sont les sources utilisées par l'intelligence artificielle ?",
-      a: "GénIA-L combine notre technologie d'intelligence artificielle avec une recherche en temps réel sur les codes officiels, la jurisprudence mise à jour de la Cour de cassation, du Conseil d'État et des cours d'appel, ainsi que les bases doctrinales de référence."
+      q: t('genia.faq_q3', "Quelles sont les sources utilisées par l'intelligence artificielle ?"),
+      a: t('genia.faq_a3', "GénIA-L combine notre technologie d'intelligence artificielle avec une recherche en temps réel sur les codes officiels, la jurisprudence et les bases doctrinales.")
     },
     {
-      q: "Puis-je analyser des documents volumineux (contrats, conclusions adverses) ?",
-      a: "Oui, notre outil intègre un module d'analyse de pièces. Vous pouvez y téléverser des documents complexes (PDF, Word) pour en obtenir une synthèse des risques juridiques, une comparaison de clauses, ou extraire des arguments clés en quelques secondes."
+      q: t('genia.faq_q4', "Puis-je analyser des documents volumineux ?"),
+      a: t('genia.faq_a4', "Oui, vous pouvez y téléverser des documents (PDF, Word) pour obtenir une synthèse des risques juridiques, une comparaison de clauses, ou extraire des arguments en quelques secondes.")
     }
   ];
 
@@ -135,7 +137,7 @@ const GeniaLAvocat: React.FC = () => {
                 className="inline-flex items-center space-x-2 bg-primary-500/15 border border-primary-500/30 px-4 py-1.5 rounded-full text-primary-400 text-sm font-semibold"
               >
                 <Sparkles className="h-4 w-4" />
-                <span>L'IA Juridique de Référence pour les Avocats</span>
+                <span>{t('genia.hero_badge', "L'IA Juridique de Référence pour les Avocats")}</span>
               </motion.div>
               
               <motion.h1
@@ -144,7 +146,10 @@ const GeniaLAvocat: React.FC = () => {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight"
               >
-                Décuplez la puissance de votre cabinet avec <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-indigo-300">GénIA-L Avocat</span>
+                {t('genia.hero_title_left', "Décuplez la puissance de votre cabinet avec")}{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-indigo-300">
+                  {t('genia.title', 'GénIA-L Avocat')}
+                </span>
               </motion.h1>
               
               <motion.p
@@ -153,7 +158,7 @@ const GeniaLAvocat: React.FC = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-2xl"
               >
-                Économisez jusqu'à <strong className="text-white">30 jours de travail par an</strong>. Effectuez des recherches de jurisprudence complexes en temps réel, analysez vos pièces et rédigez vos drafts en toute sécurité.
+                {t('genia.hero_desc', "Économisez jusqu'à 30 jours de travail par an. Effectuez des recherches de jurisprudence complexes en temps réel, analysez vos pièces et rédigez vos drafts en toute sécurité.")}
               </motion.p>
               
               <motion.div
@@ -167,7 +172,7 @@ const GeniaLAvocat: React.FC = () => {
                   className="bg-primary-600 hover:bg-primary-500 text-white rounded-xl shadow-lg shadow-primary-600/30 px-8 py-4 text-base font-bold transition-all duration-300 hover:scale-105"
                   onClick={() => navigate('/assistant')}
                 >
-                  Essayer l'Assistant IA
+                  {t('genia.try_cta', "Essayer l'Assistant IA")}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button 
@@ -176,7 +181,7 @@ const GeniaLAvocat: React.FC = () => {
                   className="border-slate-700 text-white hover:bg-slate-800 rounded-xl px-8 py-4 text-base font-bold"
                   onClick={() => navigate('/contact')}
                 >
-                  Demander une Démo
+                  {t('genia.demo_cta', "Demander une Démo")}
                 </Button>
               </motion.div>
 
@@ -184,10 +189,10 @@ const GeniaLAvocat: React.FC = () => {
                 <div className="flex items-center space-x-1">
                   <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
                   <span className="font-bold text-white">4.8/5</span>
-                  <span>par les cabinets</span>
+                  <span>{t('genia.rating_by', 'par les cabinets')}</span>
                 </div>
                 <div className="h-4 w-px bg-slate-800" />
-                <div>Conforme RGPD & Secret Pro</div>
+                <div>{t('genia.compliance_tag', 'Conforme RGPD & Secret Pro')}</div>
               </div>
             </div>
 
@@ -210,17 +215,17 @@ const GeniaLAvocat: React.FC = () => {
 
                 <div className="space-y-4 text-sm">
                   <div className="bg-slate-900/50 border border-slate-700/40 rounded-xl p-3.5 text-slate-300">
-                    <span className="text-primary-400 font-bold block mb-1">Recherche Assistée</span>
-                    "Trouve la jurisprudence récente concernant le manquement à l'obligation de délivrance conforme en matière de vente de matériel industriel."
+                    <span className="text-primary-400 font-bold block mb-1">{t('genia.mock_search_label', 'Recherche Assistée')}</span>
+                    {t('genia.mock_query', '"Trouve la jurisprudence récente concernant le manquement à l\'obligation de délivrance conforme en matière de vente de matériel industriel."')}
                   </div>
                   
                   <div className="bg-primary-950/40 border border-primary-500/20 rounded-xl p-4 text-slate-200">
                     <div className="flex items-center space-x-2 text-primary-400 font-bold mb-2">
                       <Sparkles className="h-4 w-4" />
-                      <span>Synthèse GénIA-L</span>
+                      <span>{t('genia.mock_reply_title', 'Synthèse GénIA-L')}</span>
                     </div>
                     <p className="text-xs leading-relaxed mb-2 text-slate-300">
-                      Selon l'art. 1604 du Code civil et la jurisprudence constante de la Cour de cassation (Com. 12 janv. 2024, n° 22-18.450), le vendeur est tenu de livrer une chose conforme aux spécifications contractuelles...
+                      {t('genia.mock_reply_text', "Selon l'art. 1604 du Code civil et la jurisprudence constante de la Cour de cassation (Com. 12 janv. 2024, n° 22-18.450), le vendeur est tenu de livrer une chose conforme aux spécifications contractuelles...")}
                     </p>
                     <div className="flex flex-wrap gap-1.5 text-[10px]">
                       <span className="bg-slate-800 text-primary-300 px-2 py-0.5 rounded border border-slate-700">Art. 1604 C. Civ.</span>
@@ -229,8 +234,8 @@ const GeniaLAvocat: React.FC = () => {
                   </div>
 
                   <div className="border border-dashed border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center text-center text-slate-400 cursor-pointer hover:bg-slate-700/20 transition-all duration-200">
-                    <span className="text-xs font-semibold block text-slate-300">Glisser-déposer un contrat ou conclusions</span>
-                    <span className="text-[10px] text-slate-500">Formats supportés : PDF, DOCX (Max 20Mo)</span>
+                    <span className="text-xs font-semibold block text-slate-300">{t('genia.mock_drag_drop', 'Glisser-déposer un contrat ou conclusions')}</span>
+                    <span className="text-[10px] text-slate-500">{t('genia.mock_formats', 'Formats supportés : PDF, DOCX (Max 20Mo)')}</span>
                   </div>
                 </div>
               </motion.div>
@@ -245,10 +250,10 @@ const GeniaLAvocat: React.FC = () => {
         <div className="container px-4 mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-6 text-slate-900">
-              Conçu pour répondre aux exigences des professionnels du droit
+              {t('genia.features_title', 'Conçu pour répondre aux exigences des professionnels du droit')}
             </h2>
             <p className="text-lg text-slate-600">
-              GénIA-L Avocat sécurise vos démarches, libère du temps de recherche et structure vos livrables.
+              {t('genia.features_subtitle', "GénIA-L Avocat sécurise vos démarches, libère du temps de recherche et structure vos livrables.")}
             </p>
           </div>
 
@@ -281,13 +286,13 @@ const GeniaLAvocat: React.FC = () => {
             {/* Left side: content details */}
             <div className="lg:col-span-5 text-left space-y-6">
               <div className="inline-flex items-center space-x-2 bg-indigo-500/10 border border-indigo-500/30 px-3.5 py-1 rounded-full text-indigo-300 text-xs font-semibold">
-                <span>Démo Interactive</span>
+                <span>{t('genia.demo_badge', 'Démo Interactive')}</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-                Visualisez l'IA en action
+                {t('genia.demo_title', "Visualisez l'IA en action")}
               </h2>
               <p className="text-slate-400 leading-relaxed">
-                Découvrez comment GénIA-L analyse vos requêtes et structure instantanément ses rapports :
+                {t('genia.demo_desc', "Découvrez comment GénIA-L analyse vos requêtes et structure instantanément ses rapports :")}
               </p>
               
               <div className="space-y-4">
@@ -296,8 +301,8 @@ const GeniaLAvocat: React.FC = () => {
                     <Check className="w-3.5 h-3.5 font-bold" />
                   </div>
                   <div>
-                    <strong className="text-white block text-sm">Synthèse Immédiate</strong>
-                    <span className="text-xs text-slate-400">Une réponse concise et argumentée à votre problématique.</span>
+                    <strong className="text-white block text-sm">{t('genia.demo_point1_title', 'Synthèse Immédiate')}</strong>
+                    <span className="text-xs text-slate-400">{t('genia.demo_point1_desc', 'Une réponse concise et argumentée à votre problématique.')}</span>
                   </div>
                 </div>
                 
@@ -306,8 +311,8 @@ const GeniaLAvocat: React.FC = () => {
                     <Check className="w-3.5 h-3.5 font-bold" />
                   </div>
                   <div>
-                    <strong className="text-white block text-sm">Cas Pratiques & Exemples</strong>
-                    <span className="text-xs text-slate-400">Des mises en situation concrètes pour appliquer la règle de droit.</span>
+                    <strong className="text-white block text-sm">{t('genia.demo_point2_title', 'Cas Pratiques & Exemples')}</strong>
+                    <span className="text-xs text-slate-400">{t('genia.demo_point2_desc', 'Des mises en situation concrètes pour appliquer la règle de droit.')}</span>
                   </div>
                 </div>
 
@@ -316,8 +321,8 @@ const GeniaLAvocat: React.FC = () => {
                     <Check className="w-3.5 h-3.5 font-bold" />
                   </div>
                   <div>
-                    <strong className="text-white block text-sm">Points de Vigilance</strong>
-                    <span className="text-xs text-slate-400">Mise en avant des risques juridiques et des délais d'action.</span>
+                    <strong className="text-white block text-sm">{t('genia.demo_point3_title', 'Points de Vigilance')}</strong>
+                    <span className="text-xs text-slate-400">{t('genia.demo_point3_desc', 'Mise en avant des risques juridiques et des délais d\'action.')}</span>
                   </div>
                 </div>
               </div>
@@ -327,7 +332,7 @@ const GeniaLAvocat: React.FC = () => {
                   className="bg-white hover:bg-slate-100 text-slate-900 font-bold px-6 rounded-xl transition-all"
                   onClick={() => navigate('/assistant')}
                 >
-                  Ouvrir mon assistant de recherche
+                  {t('genia.demo_cta_btn', 'Ouvrir mon assistant de recherche')}
                 </Button>
               </div>
             </div>
@@ -335,7 +340,6 @@ const GeniaLAvocat: React.FC = () => {
             {/* Right side: iframe simulation */}
             <div className="lg:col-span-7">
               <div className="relative rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950 aspect-video w-full">
-                {/* Embedded walk-through interactive demo */}
                 <iframe 
                   src="https://demo.arcade.software/XF8i48HBWJNPVUhgeLfL?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true" 
                   title="GenIA-L Avocat - Démo interactive" 
@@ -355,10 +359,10 @@ const GeniaLAvocat: React.FC = () => {
         <div className="container px-4 mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-slate-900">
-              Pourquoi choisir une IA juridique dédiée ?
+              {t('genia.comparison_title', 'Pourquoi choisir une IA juridique dédiée ?')}
             </h2>
             <p className="text-lg text-slate-600">
-              Comparatif entre GénIA-L et les outils d'intelligence artificielle grand public.
+              {t('genia.comparison_subtitle', "Comparatif entre GénIA-L et les outils d'intelligence artificielle grand public.")}
             </p>
           </div>
 
@@ -366,9 +370,9 @@ const GeniaLAvocat: React.FC = () => {
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="border-b-2 border-slate-100">
-                  <th className="py-4 px-6 text-sm font-extrabold text-slate-500 uppercase tracking-wider w-1/3">Critères d'exigences</th>
-                  <th className="py-4 px-6 text-sm font-extrabold text-primary-600 uppercase tracking-wider bg-primary-50/40 rounded-t-2xl w-1/3 text-center">GénIA-L Avocat</th>
-                  <th className="py-4 px-6 text-sm font-extrabold text-slate-400 uppercase tracking-wider w-1/3 text-center">IA Grand Public (ChatGPT, etc.)</th>
+                  <th className="py-4 px-6 text-sm font-extrabold text-slate-500 uppercase tracking-wider w-1/3">{t('genia.comp_header1', "Critères d'exigences")}</th>
+                  <th className="py-4 px-6 text-sm font-extrabold text-primary-600 uppercase tracking-wider bg-primary-50/40 rounded-t-2xl w-1/3 text-center">{t('nav.genia')}</th>
+                  <th className="py-4 px-6 text-sm font-extrabold text-slate-400 uppercase tracking-wider w-1/3 text-center">{t('genia.comp_header3', 'IA Grand Public')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -400,17 +404,16 @@ const GeniaLAvocat: React.FC = () => {
         <div className="container px-4 mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-6">
-              Votre cabinet équipé en 5 étapes
+              {t('genia.steps_title', 'Votre cabinet équipé en 5 étapes')}
             </h2>
             <p className="text-lg text-slate-400">
-              Un parcours d'intégration fluide et assisté pour maximiser le potentiel de l'outil.
+              {t('genia.steps_subtitle', "Un parcours d'intégration fluide et assisté pour maximiser le potentiel de l'outil.")}
             </p>
           </div>
 
           <div className="grid md:grid-cols-5 gap-8 relative">
             {steps.map((st, i) => (
               <div key={i} className="relative flex flex-col text-left space-y-4">
-                {/* Line connectors */}
                 {i < steps.length - 1 && (
                   <div className="hidden md:block absolute top-6 left-12 right-0 h-0.5 bg-slate-800 z-0" />
                 )}
@@ -432,10 +435,10 @@ const GeniaLAvocat: React.FC = () => {
         <div className="container max-w-4xl px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-slate-900">
-              Questions Fréquentes
+              {t('faq.title')}
             </h2>
             <p className="text-lg text-slate-600">
-              Tout ce que vous devez savoir sur notre assistant intelligent.
+              {t('faq.subtitle')}
             </p>
           </div>
 
@@ -473,10 +476,10 @@ const GeniaLAvocat: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-indigo-900" />
         <div className="container relative z-10 text-center px-4 mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">
-            Prêt à moderniser votre cabinet ?
+            {t('genia.cta_banner_title', 'Prêt à moderniser votre cabinet ?')}
           </h2>
           <p className="text-lg text-primary-100 mb-10 max-w-2xl mx-auto">
-            Rejoignez plus de 18 000 professionnels du droit et commencez à utiliser GénIA-L dès aujourd'hui.
+            {t('genia.cta_banner_desc', "Rejoignez des milliers de professionnels du droit et commencez à utiliser GénIA-L dès aujourd'hui.")}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button 
@@ -484,7 +487,7 @@ const GeniaLAvocat: React.FC = () => {
               className="bg-white text-primary-700 hover:bg-primary-50 rounded-xl px-8 py-4 text-base font-bold shadow-xl transition-all"
               onClick={() => navigate('/assistant')}
             >
-              Démarrer Gratuitement
+              {t('genia.cta_banner_btn_try', 'Démarrer Gratuitement')}
             </Button>
             <Button 
               variant="outline"
@@ -492,7 +495,7 @@ const GeniaLAvocat: React.FC = () => {
               className="border-primary-400 text-white hover:bg-primary-700/50 rounded-xl px-8 py-4 text-base font-bold"
               onClick={() => navigate('/contact')}
             >
-              Contacter un conseiller
+              {t('genia.cta_banner_btn_contact', 'Contacter un conseiller')}
             </Button>
           </div>
         </div>

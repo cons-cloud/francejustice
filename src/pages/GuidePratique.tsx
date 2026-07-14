@@ -1,44 +1,39 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { FileText, Shield, Scale, AlertTriangle } from 'lucide-react';
+import { useTranslation } from '../i18n';
 
 const GuidePratique: React.FC = () => {
+  const { t } = useTranslation();
+
   const guides = [
     {
-      title: 'Déposer une plainte',
+      title: t('guide.guide1_title', 'Déposer une plainte'),
       icon: FileText,
-      content: `
-        1. Identifiez les faits (date, lieu, personnes impliquées)
-        2. Rassemblez les preuves (documents, photos, messages)
-        3. Rédigez votre plainte clairement
-        4. Déposez-la auprès des autorités compétentes
-      `,
+      content: t('guide.guide1_content', `1. Identifiez les faits (date, lieu, personnes impliquées)
+2. Rassemblez les preuves (documents, photos, messages)
+3. Rédigez votre plainte clairement
+4. Déposez-la auprès des autorités compétentes`),
     },
     {
-      title: 'Comprendre vos droits',
+      title: t('guide.guide2_title', 'Comprendre vos droits'),
       icon: Scale,
-      content: `
-        Chaque citoyen dispose de droits fondamentaux protégés par la loi.
-        Il est essentiel de connaître vos droits avant d'entamer toute procédure.
-      `,
+      content: t('guide.guide2_content', `Chaque citoyen dispose de droits fondamentaux protégés par la loi.
+Il est essentiel de connaître vos droits avant d'entamer toute procédure.`),
     },
     {
-      title: 'Se protéger juridiquement',
+      title: t('guide.guide3_title', 'Se protéger juridiquement'),
       icon: Shield,
-      content: `
-        Protégez-vous en gardant des preuves écrites,
-        en documentant chaque échange et en consultant un professionnel.
-      `,
+      content: t('guide.guide3_content', `Protégez-vous en gardant des preuves écrites,
+en documentant chaque échange et en consultant un professionnel.`),
     },
     {
-      title: 'Erreurs à éviter',
+      title: t('guide.guide4_title', 'Erreurs à éviter'),
       icon: AlertTriangle,
-      content: `
-        - Agir sans preuve
-        - Signer des documents sans lecture
-        - Ignorer les délais légaux
-        - Ne pas consulter un avocat
-      `,
+      content: t('guide.guide4_content', `- Agir sans preuve
+- Signer des documents sans lecture
+- Ignorer les délais légaux
+- Ne pas consulter un avocat`),
     },
   ];
 
@@ -47,11 +42,11 @@ const GuidePratique: React.FC = () => {
       <div className="container max-w-5xl mx-auto">
 
         <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-6 text-center">
-          Guide pratique juridique
+          {t('guide.title')}
         </h1>
 
         <p className="text-secondary-600 text-center mb-12">
-          Des conseils simples pour vous aider à comprendre et agir efficacement
+          {t('guide.subtitle', 'Des conseils simples pour vous aider à comprendre et agir efficacement')}
         </p>
 
         <div className="grid gap-6">

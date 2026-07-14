@@ -1,27 +1,29 @@
 import React from 'react';
 import { Scale, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { useTranslation } from '../../i18n';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation();
 
   const footerLinks = {
     services: [
-      { name: 'Recherche juridique IA', href: '/search' },
-      { name: 'Base de données légale', href: '/database' },
-      { name: 'Générateur de plaintes', href: '/generator' },
-      { name: 'Formations et ressources', href: '/search' },
+      { name: t('footer.links.ai_search'), href: '/search' },
+      { name: t('footer.links.database'), href: '/database' },
+      { name: t('footer.links.generator_link'), href: '/generator' },
+      { name: t('footer.links.formations'), href: '/search' },
     ],
     resources: [
-      { name: 'Actualités juridiques', href: '/news' },
-      { name: 'Guides pratiques', href: '/guides' },
-      { name: 'FAQ', href: '/faq' },
-      { name: 'Contact', href: '/contact' },
+      { name: t('footer.links.news'), href: '/news' },
+      { name: t('footer.links.guides'), href: '/guides' },
+      { name: t('footer.links.faq'), href: '/faq' },
+      { name: t('footer.links.contact'), href: '/contact' },
     ],
     legal: [
-      { name: 'Mentions légales', href: '/legal' },
-      { name: 'Politique de confidentialité', href: '/privacy' },
-      { name: 'CGU', href: '/terms' },
-      { name: 'Cookies', href: '/cookies' },
+      { name: t('footer.links.legal'), href: '/legal' },
+      { name: t('footer.links.privacy'), href: '/privacy' },
+      { name: t('footer.links.terms'), href: '/terms' },
+      { name: t('footer.links.cookies'), href: '/cookies' },
     ],
   };
 
@@ -45,17 +47,16 @@ const Footer: React.FC = () => {
               </div>
               <div>
                 <span className="text-xl font-bold text-primary-600">Just-Law</span>
-                <p className="text-sm text-secondary-300">Plateforme juridique moderne</p>
+                <p className="text-sm text-secondary-300">{t('footer.tagline')}</p>
               </div>
             </div>
             <p className="text-secondary-300 text-sm leading-relaxed">
-              Votre partenaire de confiance pour tous vos besoins juridiques. 
-              Accès simplifié au droit, assistance personnalisée et outils innovants.
+              {t('footer.description')}
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm text-secondary-300">
                 <Mail className="h-4 w-4" />
-                <span>contact@lawjust.fr</span>
+                <span>contact@lawjustlaw.com</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-secondary-300">
                 <Phone className="h-4 w-4" />
@@ -70,7 +71,7 @@ const Footer: React.FC = () => {
 
           {/* Services */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Services</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footer.services_title')}</h3>
             <ul className="space-y-2">
               {footerLinks.services.map((link) => (
                 <li key={link.name}>
@@ -87,7 +88,7 @@ const Footer: React.FC = () => {
 
           {/* Resources */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Ressources</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footer.resources_title')}</h3>
             <ul className="space-y-2">
               {footerLinks.resources.map((link) => (
                 <li key={link.name}>
@@ -105,7 +106,7 @@ const Footer: React.FC = () => {
           {/* Legal & Newsletter */}
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Légal</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('footer.legal_title')}</h3>
               <ul className="space-y-2">
                 {footerLinks.legal.map((link) => (
                   <li key={link.name}>
@@ -122,18 +123,18 @@ const Footer: React.FC = () => {
 
             {/* Newsletter */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('footer.newsletter_title')}</h3>
               <p className="text-secondary-300 text-sm mb-3">
-                Restez informé des dernières actualités juridiques
+                {t('footer.newsletter_desc')}
               </p>
               <div className="flex space-x-2">
                 <input
                   type="email"
-                  placeholder="Votre email"
+                  placeholder={t('footer.newsletter_placeholder')}
                   className="flex-1 px-3 py-2 bg-secondary-800 border border-secondary-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
                 <button className="px-4 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg text-sm font-medium transition-colors">
-                  S'abonner
+                  {t('footer.newsletter_btn')}
                 </button>
               </div>
             </div>
@@ -147,11 +148,11 @@ const Footer: React.FC = () => {
             {/* Copyright + Réalisé par */}
             <div className="flex flex-col sm:flex-row items-center gap-2 text-sm">
               <span style={{ color: '#1e293b', fontWeight: 500 }}>
-                © {currentYear} Law Just. Tous droits réservés.
+                © {currentYear} Law Just. {t('footer.copyright')}
               </span>
               <span className="hidden sm:inline" style={{ color: '#94a3b8' }}>•</span>
               <span style={{ color: '#475569' }}>
-                Réalisé par{' '}
+                {t('footer.made_by')}{' '}
                 <a
                   href="https://www.marocgestionentreprendre.com/"
                   target="_blank"
@@ -193,3 +194,4 @@ const Footer: React.FC = () => {
 };
 
 export default Footer;
+

@@ -40,10 +40,12 @@ import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import { VoiceAssistant } from '../components/ui/VoiceAssistant';
 import NotificationBell from '../components/ui/NotificationBell';
+import { useTranslation } from '../i18n';
 
 const DashboardPage: React.FC = () => {
   const { user, profile } = useAuth();
   const { toasts, success, error: toastError, removeToast } = useToast();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('overview');
   const [showWelcome, setShowWelcome] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
@@ -632,7 +634,7 @@ Montant: ${quote.amount} MAD
 Description: ${quote.description || ''}
 Statut: ${quote.status === 'paid' ? 'Payé' : 'En attente'}
 
-Ce document est généré par la plateforme JustLaw.
+Ce document est généré par la plateforme LawJustLaw.
     `;
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -712,26 +714,26 @@ Ce document est généré par la plateforme JustLaw.
   }, [documents, searches]);
 
   const tabs = [
-    { id: 'overview', name: "Vue d'ensemble", icon: BarChart3 },
-    { id: 'appointments', name: 'Rendez-vous', icon: Calendar },
-    { id: 'generator', name: 'Générateur IA', icon: Shield },
-    { id: 'documents', name: 'Mes documents', icon: FileText },
-    { id: 'quotes', name: 'Mes Devis', icon: Receipt },
-    { id: 'chat', name: 'Discussion Avocat', icon: MessageSquare },
-    { id: 'searches', name: 'IA Juridique', icon: Search },
-    { id: 'codes', name: 'Codes de Loi', icon: BookOpen },
-    { id: 'procedures', name: 'Procédures', icon: FileText },
-    { id: 'analyse', name: 'Analyse IA', icon: Shield },
-    { id: 'formations', name: 'Formations', icon: BookOpen },
-    { id: 'avocats', name: 'Annuaire Avocats', icon: Users },
-    { id: 'profile', name: 'Profil', icon: User },
+    { id: 'overview', name: t('dashboard.overview', "Vue d'ensemble"), icon: BarChart3 },
+    { id: 'appointments', name: t('dashboard.appointments', 'Rendez-vous'), icon: Calendar },
+    { id: 'generator', name: t('dashboard.generator_tab', 'Générateur IA'), icon: Shield },
+    { id: 'documents', name: t('dashboard.my_documents', 'Mes documents'), icon: FileText },
+    { id: 'quotes', name: t('dashboard.my_quotes', 'Mes Devis'), icon: Receipt },
+    { id: 'chat', name: t('dashboard.chat_tab', 'Discussion Avocat'), icon: MessageSquare },
+    { id: 'searches', name: t('dashboard.ia_search', 'IA Juridique'), icon: Search },
+    { id: 'codes', name: t('dashboard.law_codes', 'Codes de Loi'), icon: BookOpen },
+    { id: 'procedures', name: t('dashboard.procedures', 'Procédures'), icon: FileText },
+    { id: 'analyse', name: t('dashboard.ai_analysis', 'Analyse IA'), icon: Shield },
+    { id: 'formations', name: t('dashboard.formations', 'Formations'), icon: BookOpen },
+    { id: 'avocats', name: t('dashboard.lawyers_directory', 'Annuaire Avocats'), icon: Users },
+    { id: 'profile', name: t('dashboard.profile', 'Profil'), icon: User },
   ];
 
   const stats = [
-    { label: 'Documents', value: documents.length.toString(), icon: FileText, color: 'text-primary-600' },
-    { label: 'Devis', value: quotes.length.toString(), icon: Receipt, color: 'text-success-600' },
-    { label: 'Rendez-vous', value: appointments.length.toString(), icon: Calendar, color: 'text-warning-600' },
-    { label: 'Discussions', value: chatRooms.length.toString(), icon: MessageSquare, color: 'text-accent-600' },
+    { label: t('dashboard.my_documents', 'Documents'), value: documents.length.toString(), icon: FileText, color: 'text-primary-600' },
+    { label: t('dashboard.my_quotes', 'Devis'), value: quotes.length.toString(), icon: Receipt, color: 'text-success-600' },
+    { label: t('dashboard.appointments', 'Rendez-vous'), value: appointments.length.toString(), icon: Calendar, color: 'text-warning-600' },
+    { label: t('dashboard.messages', 'Discussions'), value: chatRooms.length.toString(), icon: MessageSquare, color: 'text-accent-600' },
   ];
 
   const renderOverview = () => (
@@ -761,7 +763,7 @@ Ce document est généré par la plateforme JustLaw.
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Activité Hebdomadaire</span>
+              <span>{t('dashboard.weekly_activity', 'Activité Hebdomadaire')}</span>
               <TrendingUp className="h-4 w-4 text-primary-600" />
             </CardTitle>
           </CardHeader>
@@ -772,27 +774,27 @@ Ce document est généré par la plateforme JustLaw.
 
         <Card>
           <CardHeader>
-            <CardTitle>Actions Rapides</CardTitle>
+            <CardTitle>{t('dashboard.quick_actions', 'Actions Rapides')}</CardTitle>
             <CardDescription>
-              Gérer vos données personnelles
+              {t('dashboard.manage_data', 'Gérer vos données personnelles')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button variant="outline" className="w-full h-16 justify-start px-6 gap-3" onClick={handleDownloadPersonalData}>
               <Download className="h-5 w-5 text-primary-600" />
               <div className="text-left">
-                <p className="font-bold">Mes Données</p>
-                <p className="text-xs text-secondary-500">Télécharger tout (JSON)</p>
+                <p className="font-bold">{t('dashboard.my_data', 'Mes Données')}</p>
+                <p className="text-xs text-secondary-500">{t('dashboard.download_json', 'Télécharger tout (JSON)')}</p>
               </div>
             </Button>
             <div className="grid grid-cols-2 gap-3">
               <Button variant="ghost" className="h-20 flex-col space-y-1 text-xs" onClick={() => setActiveTab('generator')}>
                 <Plus className="h-5 w-5 mb-1" />
-                <span>Générer</span>
+                <span>{t('dashboard.generate', 'Générer')}</span>
               </Button>
               <Button variant="ghost" className="h-20 flex-col space-y-1 text-xs" onClick={() => setActiveTab('searches')}>
                 <Search className="h-5 w-5 mb-1" />
-                <span>Recherche</span>
+                <span>{t('common.search', 'Recherche')}</span>
               </Button>
             </div>
           </CardContent>
@@ -801,24 +803,24 @@ Ce document est généré par la plateforme JustLaw.
 
       <Card>
         <CardHeader>
-          <CardTitle>Actions rapides</CardTitle>
+          <CardTitle>{t('dashboard.quick_actions', 'Actions rapides')}</CardTitle>
           <CardDescription>
-            Accédez à vos outils juridiques favoris
+            {t('dashboard.access_tools', 'Accédez à vos outils juridiques favoris')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button variant="outline" className="h-20 flex-col space-y-2" onClick={() => setActiveTab('generator')}>
               <Plus className="h-6 w-6" />
-              <span>Générer un Document</span>
+              <span>{t('dashboard.generate_doc', 'Générer un Document')}</span>
             </Button>
             <Button variant="outline" className="h-20 flex-col space-y-2" onClick={() => setActiveTab('searches')}>
               <Search className="h-6 w-6" />
-              <span>Recherche IA</span>
+              <span>{t('dashboard.ia_search', 'Recherche IA')}</span>
             </Button>
             <Button variant="outline" className="h-20 flex-col space-y-2" onClick={() => setActiveTab('chat')}>
               <MessageSquare className="h-6 w-6" />
-              <span>Discussion Avocat</span>
+              <span>{t('dashboard.chat_tab', 'Discussion Avocat')}</span>
             </Button>
           </div>
         </CardContent>
@@ -840,47 +842,47 @@ Ce document est généré par la plateforme JustLaw.
       <div className="space-y-6">
         <div className="flex justify-between items-center flex-wrap gap-4">
           <div>
-            <h2 className="text-2xl font-semibold text-secondary-900">Coffre-fort Numérique (Mes Documents)</h2>
-            <p className="text-sm text-secondary-500 mt-1">Espace sécurisé de stockage de vos pièces justificatives et documents légaux.</p>
+            <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.digital_safe', 'Coffre-fort Numérique (Mes Documents)')}</h2>
+            <p className="text-sm text-secondary-500 mt-1">{t('dashboard.safe_desc', 'Espace sécurisé de stockage de vos pièces justificatives et documents légaux.')}</p>
           </div>
           <Button onClick={() => setActiveTab('generator')}>
             <Plus className="h-4 w-4 mr-2" />
-            Nouveau document IA
+            {t('dashboard.new_ia_doc', 'Nouveau document IA')}
           </Button>
         </div>
 
         {/* Upload form */}
         <Card className="bg-primary-50/10 border border-primary-100">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-primary-900">Ajouter un document au coffre-fort</CardTitle>
-            <CardDescription>Vos documents sont protégés par chiffrement et la sécurité au niveau des lignes (RLS).</CardDescription>
+            <CardTitle className="text-base font-semibold text-primary-900">{t('dashboard.add_to_safe', 'Ajouter un document au coffre-fort')}</CardTitle>
+            <CardDescription>{t('dashboard.safe_security', 'Vos documents sont protégés par chiffrement et la sécurité au niveau des lignes (RLS).')}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUploadDocument} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
               <div>
-                <label className="block text-xs font-semibold text-secondary-600 mb-1">Nom du document</label>
+                <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.doc_name', 'Nom du document')}</label>
                 <Input 
                   value={uploadDocName} 
                   onChange={e => setUploadDocName(e.target.value)} 
-                  placeholder="Ex: CNI Recto Verso, Contrat de Bail..." 
+                  placeholder={t('dashboard.doc_name_placeholder', 'Ex: CNI Recto Verso, Contrat de Bail...')} 
                   required 
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-secondary-600 mb-1">Classification / Type</label>
+                <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.doc_type', 'Classification / Type')}</label>
                 <select 
                   className="w-full flex h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" 
                   value={uploadDocType} 
                   onChange={e => setUploadDocType(e.target.value)}
                 >
-                  <option value="identity">🪪 Pièce d'identité</option>
-                  <option value="license">📜 Licence / Diplôme</option>
-                  <option value="legal_template">📝 Modèle de document</option>
-                  <option value="client_document">📁 Pièce de dossier / Justificatif</option>
+                  <option value="identity">{t('dashboard.doc_identity', "🪪 Pièce d'identité")}</option>
+                  <option value="license">{t('dashboard.doc_license', '📜 Licence / Diplôme')}</option>
+                  <option value="legal_template">{t('dashboard.doc_template', '📝 Modèle de document')}</option>
+                  <option value="client_document">{t('dashboard.doc_client', '📁 Pièce de dossier / Justificatif')}</option>
                 </select>
               </div>
               <Button type="submit" disabled={isUploading} className="w-full">
-                {isUploading ? 'Enregistrement...' : 'Enregistrer dans le coffre-fort'}
+                {isUploading ? t('common.loading', 'Enregistrement...') : t('dashboard.save_to_safe', 'Enregistrer dans le coffre-fort')}
               </Button>
             </form>
           </CardContent>
@@ -955,18 +957,18 @@ Ce document est généré par la plateforme JustLaw.
 
   const renderAppointments = () => {
     const statusLabels: Record<string, { text: string; color: string }> = {
-      pending: { text: "En attente", color: "bg-yellow-100 text-yellow-700" },
-      confirmed: { text: "Confirmé", color: "bg-green-100 text-green-700" },
-      cancelled: { text: "Annulé", color: "bg-red-100 text-red-700" },
-      completed: { text: "Terminé", color: "bg-primary-100 text-primary-700" }
+      pending: { text: t('dashboard.status_pending', 'En attente'), color: "bg-yellow-100 text-yellow-700" },
+      confirmed: { text: t('dashboard.status_confirmed', 'Confirmé'), color: "bg-green-100 text-green-700" },
+      cancelled: { text: t('dashboard.status_cancelled', 'Annulé'), color: "bg-red-100 text-red-700" },
+      completed: { text: t('dashboard.status_completed', 'Terminé'), color: "bg-primary-100 text-primary-700" }
     };
 
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center flex-wrap gap-4">
           <div>
-            <h2 className="text-2xl font-semibold text-secondary-900">Mes Rendez-vous</h2>
-            <p className="text-sm text-secondary-500 mt-1">Planifiez des téléconsultations et suivez vos échanges avec les avocats de la plateforme.</p>
+            <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.my_appointments', 'Mes Rendez-vous')}</h2>
+            <p className="text-sm text-secondary-500 mt-1">{t('dashboard.appointments_desc', 'Planifiez des téléconsultations et suivez vos échanges avec les avocats de la plateforme.')}</p>
           </div>
         </div>
 
@@ -974,20 +976,20 @@ Ce document est généré par la plateforme JustLaw.
           {/* Reservation Form */}
           <Card className="lg:col-span-1 border border-secondary-200">
             <CardHeader>
-              <CardTitle className="text-base font-semibold">Réserver une consultation</CardTitle>
-              <CardDescription>Choisissez un avocat vérifié et planifiez votre créneau d'assistance.</CardDescription>
+              <CardTitle className="text-base font-semibold">{t('dashboard.book_consultation', 'Réserver une consultation')}</CardTitle>
+              <CardDescription>{t('dashboard.book_desc', "Choisissez un avocat vérifié et planifiez votre créneau d'assistance.")}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleBookAppointment} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-secondary-600 mb-1">Avocat disponible</label>
+                  <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.available_lawyer', 'Avocat disponible')}</label>
                   <select
                     className="w-full flex h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                     value={selectedLawyerForRDV}
                     onChange={e => setSelectedLawyerForRDV(e.target.value)}
                     required
                   >
-                    <option value="">Sélectionnez un avocat...</option>
+                    <option value="">{t('dashboard.select_lawyer', 'Sélectionnez un avocat...')}</option>
                     {availableLawyers.map(l => (
                       <option key={l.id} value={l.id}>
                         Me. {l.first_name} {l.last_name} ({l.specialty || 'Généraliste'}) - {l.city}
@@ -997,7 +999,7 @@ Ce document est généré par la plateforme JustLaw.
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-xs font-semibold text-secondary-600 mb-1">Date</label>
+                    <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.date', 'Date')}</label>
                     <Input 
                       type="date" 
                       value={rdvDate} 
@@ -1007,7 +1009,7 @@ Ce document est généré par la plateforme JustLaw.
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-secondary-600 mb-1">Heure</label>
+                    <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.time', 'Heure')}</label>
                     <Input 
                       type="time" 
                       value={rdvTime} 
@@ -1017,17 +1019,17 @@ Ce document est généré par la plateforme JustLaw.
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-secondary-600 mb-1">Description / Notes préliminaires</label>
+                  <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.notes', 'Description / Notes préliminaires')}</label>
                   <textarea
                     value={rdvNotes}
                     onChange={e => setRdvNotes(e.target.value)}
-                    placeholder="Expliquez brièvement votre dossier ou vos questions..."
+                    placeholder={t('dashboard.notes_placeholder', 'Expliquez brièvement votre dossier ou vos questions...')}
                     rows={4}
                     className="w-full rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
                 <Button type="submit" disabled={isBooking} className="w-full">
-                  {isBooking ? 'Enregistrement...' : 'Prendre rendez-vous'}
+                  {isBooking ? t('common.loading', 'Enregistrement...') : t('dashboard.book_appointment', 'Prendre rendez-vous')}
                 </Button>
               </form>
             </CardContent>
@@ -1035,7 +1037,7 @@ Ce document est généré par la plateforme JustLaw.
 
           {/* Appointments List */}
           <div className="lg:col-span-2 space-y-4">
-            <h3 className="font-semibold text-secondary-800">Mes consultations planifiées</h3>
+            <h3 className="font-semibold text-secondary-800">{t('dashboard.planned_consultations', 'Mes consultations planifiées')}</h3>
             <div className="space-y-4">
               {appointments.map((appt) => {
                 const label = statusLabels[appt.status] || { text: appt.status, color: "bg-secondary-100 text-secondary-600" };
@@ -1079,7 +1081,7 @@ Ce document est généré par la plateforme JustLaw.
                               className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 mt-2"
                               onClick={() => handleCancelAppointment(appt.id)}
                             >
-                              Annuler RDV
+                              {t('dashboard.cancel_rdv', 'Annuler RDV')}
                             </Button>
                           )}
                         </div>
@@ -1092,7 +1094,7 @@ Ce document est généré par la plateforme JustLaw.
               {appointments.length === 0 && (
                 <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-secondary-200 text-secondary-400">
                   <Calendar className="h-10 w-10 mx-auto mb-2 text-secondary-200" />
-                  Aucune consultation planifiée pour le moment.
+                  {t('dashboard.no_appointments', 'Aucune consultation planifiée pour le moment.')}
                 </div>
               )}
             </div>
@@ -1109,10 +1111,10 @@ Ce document est généré par la plateforme JustLaw.
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-2">
-              Bonjour, {profile?.first_name || 'Utilisateur'}
+              {t('dashboard.hello', 'Bonjour')}, {profile?.first_name || t('dashboard.user', 'Utilisateur')}
             </h1>
             <p className="text-secondary-600">
-              Bienvenue sur votre portail juridique intelligent
+              {t('dashboard.welcome_portal', 'Bienvenue sur votre portail juridique intelligent')}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -1139,7 +1141,7 @@ Ce document est généré par la plateforme JustLaw.
               }}
             >
               <LogOut className="h-4 w-4 mr-2" />
-              Déconnexion
+              {t('nav.logout', 'Déconnexion')}
             </Button>
           </div>
         </div>
@@ -1180,13 +1182,13 @@ Ce document est généré par la plateforme JustLaw.
                 {activeTab === 'appointments' && renderAppointments()}
                 {activeTab === 'generator' && (
                   <div className="space-y-4 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">Générateur de Documents Juridiques</h2>
+                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.doc_generator_title', 'Générateur de Documents Juridiques')}</h2>
                     <DocumentGenerator skipAuthCheck />
                   </div>
                 )}
                 {activeTab === 'quotes' && (
                   <div className="space-y-6 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">Mes Devis & Honoraires</h2>
+                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.quotes_title', 'Mes Devis & Honoraires')}</h2>
                     <div className="grid gap-4">
                       {quotes.map((q) => (
                         <Card key={q.id}>
@@ -1205,7 +1207,7 @@ Ce document est généré par la plateforme JustLaw.
                               <div className="flex items-center space-x-2 flex-wrap gap-2">
                                 <Button variant="outline" size="sm" onClick={() => downloadQuotePDF(q)}>
                                   <Download className="h-4 w-4 mr-1" />
-                                  Télécharger
+                                  {t('common.download', 'Télécharger')}
                                 </Button>
                                 {q.status === 'pending' ? (
                                   <Button
@@ -1216,19 +1218,19 @@ Ce document est généré par la plateforme JustLaw.
                                     {payingQuoteId === q.id ? (
                                       <span className="flex items-center gap-2">
                                         <RefreshCw className="h-4 w-4 animate-spin" />
-                                        Redirection...
+                                        {t('dashboard.redirecting', 'Redirection...')}
                                       </span>
                                     ) : (
-                                      `Payer ${q.amount} MAD`
+                                      `${t('dashboard.pay', 'Payer')} ${q.amount} MAD`
                                     )}
                                   </Button>
                                 ) : q.status === 'paid' ? (
                                   <span className="px-4 py-2 bg-green-50 text-green-700 rounded-lg font-bold flex items-center gap-1">
-                                    ✅ Payé
+                                    ✅ {t('dashboard.status_paid', 'Payé')}
                                   </span>
                                 ) : (
                                   <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold">
-                                    Commission payée
+                                    {t('dashboard.commission_paid', 'Commission payée')}
                                   </span>
                                 )}
                               </div>
@@ -1236,39 +1238,39 @@ Ce document est généré par la plateforme JustLaw.
                           </CardContent>
                         </Card>
                       ))}
-                      {quotes.length === 0 && <div className="text-center py-12 bg-white rounded-xl text-secondary-400">Aucun devis reçu.</div>}
+                      {quotes.length === 0 && <div className="text-center py-12 bg-white rounded-xl text-secondary-400">{t('dashboard.no_quotes', 'Aucun devis reçu.')}</div>}
                     </div>
                   </div>
                 )}
                 {activeTab === 'documents' && renderDocuments()}
                 {activeTab === 'searches' && (
                   <div className="space-y-4 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">IA Juridique — Recherche de Droit</h2>
+                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.ia_legal_search', 'IA Juridique — Recherche de Droit')}</h2>
                     <SearchPage skipAuthCheck />
                   </div>
                 )}
                 {activeTab === 'codes' && (
                   <div className="space-y-4 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">Codes de Loi</h2>
+                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.law_codes', 'Codes de Loi')}</h2>
                     <LawCodes />
                   </div>
                 )}
                 {activeTab === 'procedures' && (
                   <div className="space-y-4 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">Bibliothèque des Procédures</h2>
+                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.procedures_library', 'Bibliothèque des Procédures')}</h2>
                     <ProcedureLibrary />
                   </div>
                 )}
                 {activeTab === 'analyse' && (
                   <div className="space-y-4 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">Analyse de Contrats & Codes (IA)</h2>
+                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.ia_analysis', 'Analyse de Contrats & Codes (IA)')}</h2>
                     <CodeAnalysis />
                   </div>
                 )}
                 {activeTab === 'formations' && (
                   <div className="space-y-6 animate-fade-in">
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                      <h2 className="text-2xl font-semibold text-secondary-900">Formations et Espace Académique</h2>
+                      <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.formations_academic', 'Formations et Espace Académique')}</h2>
                       
                       <div className="flex bg-secondary-100 p-1 rounded-xl self-start">
                         <button
@@ -1277,7 +1279,7 @@ Ce document est généré par la plateforme JustLaw.
                             classroomsSubTab === 'virtual' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
                           }`}
                         >
-                          Salles de Classe Virtuelles
+                          {t('dashboard.virtual_classrooms', 'Salles de Classe Virtuelles')}
                         </button>
                         <button
                           onClick={() => setClassroomsSubTab('static')}
@@ -1285,7 +1287,7 @@ Ce document est généré par la plateforme JustLaw.
                             classroomsSubTab === 'static' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
                           }`}
                         >
-                          Guides de Formation
+                          {t('dashboard.training_guides', 'Guides de Formation')}
                         </button>
                       </div>
                     </div>
@@ -1440,67 +1442,67 @@ Ce document est généré par la plateforme JustLaw.
 
                 {activeTab === 'profile' && (
                   <div className="space-y-6 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">Mon Profil</h2>
+                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.profile', 'Mon Profil')}</h2>
                     <form onSubmit={handleSaveProfile} className="space-y-6">
                       <Card>
                         <CardHeader>
-                          <CardTitle>Informations Personnelles</CardTitle>
-                          <CardDescription>Mettez à jour vos coordonnées pour faciliter vos échanges.</CardDescription>
+                          <CardTitle>{t('dashboard.personal_info', 'Informations Personnelles')}</CardTitle>
+                          <CardDescription>{t('dashboard.update_info', 'Mettez à jour vos coordonnées pour faciliter vos échanges.')}</CardDescription>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium mb-1">Prénom</label>
+                            <label className="block text-sm font-medium mb-1">{t('register.first_name', 'Prénom')}</label>
                             <Input value={profileForm.first_name} onChange={e => setProfileForm(p => ({...p, first_name: e.target.value}))} />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-1">Nom</label>
+                            <label className="block text-sm font-medium mb-1">{t('register.last_name', 'Nom')}</label>
                             <Input value={profileForm.last_name} onChange={e => setProfileForm(p => ({...p, last_name: e.target.value}))} />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-1">Téléphone</label>
+                            <label className="block text-sm font-medium mb-1">{t('dashboard.phone', 'Téléphone')}</label>
                             <Input value={profileForm.phone} onChange={e => setProfileForm(p => ({...p, phone: e.target.value}))} />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-1">Ville</label>
+                            <label className="block text-sm font-medium mb-1">{t('dashboard.city', 'Ville')}</label>
                             <Input value={profileForm.city} onChange={e => setProfileForm(p => ({...p, city: e.target.value}))} placeholder="Casablanca" />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-1">Email</label>
+                            <label className="block text-sm font-medium mb-1">{t('dashboard.email', 'Email')}</label>
                             <Input value={user?.email || ''} disabled className="bg-secondary-50" />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-1">Code Postal</label>
+                            <label className="block text-sm font-medium mb-1">{t('dashboard.postal_code', 'Code Postal')}</label>
                             <Input value={profileForm.postal_code} onChange={e => setProfileForm(p => ({...p, postal_code: e.target.value}))} />
                           </div>
                           <div className="md:col-span-2">
-                            <label className="block text-sm font-medium mb-1">Date de naissance</label>
+                            <label className="block text-sm font-medium mb-1">{t('dashboard.birth_date', 'Date de naissance')}</label>
                             <Input type="date" value={profileForm.birth_date} onChange={e => setProfileForm(p => ({...p, birth_date: e.target.value}))} />
                           </div>
                         </CardContent>
                       </Card>
-                      <Button type="submit" className="w-full h-12 text-base font-bold">Enregistrer le profil</Button>
+                      <Button type="submit" className="w-full h-12 text-base font-bold">{t('dashboard.save_profile', 'Enregistrer le profil')}</Button>
                     </form>
                   </div>
                 )}
               {activeTab === 'avocats' && (
                 <div className="space-y-6 animate-fade-in">
-                  <h2 className="text-2xl font-semibold text-secondary-900">Annuaire des Avocats</h2>
+                  <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.lawyers_directory', 'Annuaire des Avocats')}</h2>
 
                   {(!(profile as any)?.city || !(profile as any)?.postal_code) ? (
                     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-2xl flex items-center justify-between text-yellow-800 text-sm">
                       <div className="flex items-center gap-2">
                         <span>⚠️</span>
-                        <span>Complétez votre profil avec votre ville et votre code postal pour filtrer automatiquement les avocats près de chez vous.</span>
+                        <span>{t('dashboard.complete_profile_hint', 'Complétez votre profil avec votre ville et votre code postal pour filtrer automatiquement les avocats près de chez vous.')}</span>
                       </div>
                       <Button variant="ghost" size="sm" onClick={() => setActiveTab('profile')} className="text-xs text-yellow-900 hover:bg-yellow-100 font-semibold">
-                        Compléter mon profil
+                        {t('dashboard.complete_profile', 'Compléter mon profil')}
                       </Button>
                     </div>
                   ) : (
                     <div className="p-4 bg-primary-50 border border-primary-100 rounded-2xl text-primary-800 text-xs flex justify-between items-center">
-                      <span>📍 Recherche restreinte automatiquement à votre secteur : <strong>{(profile as any).city} ({(profile as any).postal_code.substring(0, 2)})</strong>.</span>
+                      <span>📍 {t('dashboard.location_filtered', 'Recherche restreinte automatiquement à votre secteur')} : <strong>{(profile as any).city} ({(profile as any).postal_code.substring(0, 2)})</strong>.</span>
                       <Button variant="ghost" size="sm" onClick={() => setActiveTab('profile')} className="text-xs text-primary-900 hover:bg-primary-100 font-semibold">
-                        Modifier
+                        {t('common.edit', 'Modifier')}
                       </Button>
                     </div>
                   )}
@@ -1664,7 +1666,7 @@ Ce document est généré par la plateforme JustLaw.
                                   {bar && (
                                     <p className="text-xs text-secondary-500 mt-1 flex items-center gap-1">
                                       <span className="text-sm">🏛️</span>
-                                      <span>Barreau de {bar}</span>
+                                      <span>{t('dashboard.bar_of', 'Barreau de')} {bar}</span>
                                     </p>
                                   )}
                                   {lawyer.bio && <p className="text-xs text-secondary-600 mt-2 line-clamp-2">{lawyer.bio}</p>}
@@ -1676,7 +1678,7 @@ Ce document est généré par la plateforme JustLaw.
                                   onClick={() => contactLawyer(lawyer.id, `Me. ${lawyer.first_name} ${lawyer.last_name}`)}
                                 >
                                   <MessageSquare className="h-4 w-4 mr-2" />
-                                  Contacter
+                                  {t('lawyers.contact_btn', 'Contacter')}
                                 </Button>
                                 <Button
                                   variant="outline"
@@ -1687,7 +1689,7 @@ Ce document est généré par la plateforme JustLaw.
                                   }}
                                 >
                                   <Calendar className="h-4 w-4 mr-2" />
-                                  Réserver RDV
+                                  {t('lawyers.book_appointment', 'Réserver RDV')}
                                 </Button>
                               </div>
                             </CardContent>
@@ -1736,7 +1738,7 @@ Ce document est généré par la plateforme JustLaw.
               {activeTab === 'chat' && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <Card className="lg:col-span-1">
-                    <CardHeader><CardTitle>Mes Avocats</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>{t('dashboard.my_lawyers', 'Mes Avocats')}</CardTitle></CardHeader>
                     <CardContent className="p-0">
                       <div className="divide-y text-sm">
                         {chatRooms.map(room => (
@@ -1746,10 +1748,10 @@ Ce document est généré par la plateforme JustLaw.
                             className={`w-full p-4 text-left hover:bg-secondary-50 ${activeRoom?.id === room.id ? 'bg-primary-50 border-l-4 border-primary-600' : ''}`}
                           >
                             <p className="font-bold">Me {room.profiles?.first_name} {room.profiles?.last_name}</p>
-                            <p className="text-xs text-secondary-500">Avocat spécialisé</p>
+                            <p className="text-xs text-secondary-500">{t('dashboard.specialized_lawyer', 'Avocat spécialisé')}</p>
                           </button>
                         ))}
-                        {chatRooms.length === 0 && <div className="p-8 text-center text-secondary-400">Aucune discussion active.</div>}
+                        {chatRooms.length === 0 && <div className="p-8 text-center text-secondary-400">{t('dashboard.no_active_chats', 'Aucune discussion active.')}</div>}
                       </div>
                     </CardContent>
                   </Card>
@@ -1762,7 +1764,7 @@ Ce document est généré par la plateforme JustLaw.
                       />
                     ) : (
                       <Card className="h-[500px] flex items-center justify-center text-secondary-400">
-                        <p>Sélectionnez un avocat pour discuter</p>
+                        <p>{t('dashboard.select_lawyer_to_chat', 'Sélectionnez un avocat pour discuter')}</p>
                       </Card>
                     )}
                   </div>
@@ -1777,18 +1779,18 @@ Ce document est généré par la plateforme JustLaw.
       <Modal
         isOpen={showWelcome}
         onClose={() => setShowWelcome(false)}
-        title="Bienvenue sur JustLaw"
+        title={t('dashboard.welcome_modal_title', 'Bienvenue sur LawJustLaw')}
       >
         <div className="text-center py-6">
           <div className="mx-auto h-16 w-16 bg-success-100 rounded-full flex items-center justify-center mb-4">
             <User className="h-8 w-8 text-success-600" />
           </div>
-          <h3 className="text-2xl font-bold text-secondary-900 mb-2">Bienvenue {profile?.first_name} !</h3>
+          <h3 className="text-2xl font-bold text-secondary-900 mb-2">{t('dashboard.welcome', 'Bienvenue')} {profile?.first_name} !</h3>
           <p className="text-secondary-600 mb-6">
-            Votre espace personnel est ouvert. Accédez à vos documents juridiques, consultez l'assistance ou contactez votre avocat à tout moment.
+            {t('dashboard.welcome_modal_desc', "Votre espace personnel est ouvert. Accédez à vos documents juridiques, consultez l'assistance ou contactez votre avocat à tout moment.")}
           </p>
           <Button className="w-full" onClick={() => setShowWelcome(false)}>
-            Découvrir mon espace
+            {t('dashboard.discover_space', 'Découvrir mon espace')}
           </Button>
         </div>
       </Modal>
@@ -1803,7 +1805,7 @@ Ce document est généré par la plateforme JustLaw.
             {selectedIADoc?.metadata?.content}
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-secondary-100">
-            <Button variant="outline" onClick={() => setSelectedIADoc(null)}>Fermer</Button>
+            <Button variant="outline" onClick={() => setSelectedIADoc(null)}>{t('common.close', 'Fermer')}</Button>
             <Button onClick={() => {
               const printWindow = window.open('', '_blank');
               if (printWindow) {
@@ -1928,7 +1930,7 @@ Ce document est généré par la plateforme JustLaw.
 
               <div className="flex justify-end gap-3 pt-4 border-t border-secondary-100">
                 <Button variant="outline" onClick={() => setSelectedFormation(null)}>
-                  Fermer
+                  {t('common.close', 'Fermer')}
                 </Button>
                 {formationViewMode === 'start' && (
                   <Button
@@ -1940,11 +1942,11 @@ Ce document est généré par la plateforme JustLaw.
                         setCompletedFormations(newCompleted);
                         localStorage.setItem('completedFormations', JSON.stringify(newCompleted));
                       }
-                      success("Module Terminé 🎓", `Félicitations, vous avez validé le module "${selectedFormation.title}" !`);
+                      success(t('dashboard.module_completed', 'Module Terminé 🎓'), `${t('dashboard.congrats', 'Félicitations, vous avez validé le module')} "${selectedFormation.title}" !`);
                       setSelectedFormation(null);
                     }}
                   >
-                    Valider le module
+                    {t('dashboard.validate_module', 'Valider le module')}
                   </Button>
                 )}
               </div>

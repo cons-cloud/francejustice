@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Calendar, Tag, ChevronRight, Newspaper, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '../i18n';
+import { useNavigate } from 'react-router-dom';
 
 interface LegalNews {
     id: string;
@@ -15,6 +17,8 @@ interface LegalNews {
 }
 
 const News: React.FC = () => {
+    const { t, i18n } = useTranslation();
+    const navigate = useNavigate();
     const [news, setNews] = useState<LegalNews[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -44,12 +48,12 @@ const News: React.FC = () => {
         <div className="min-h-screen bg-gray-50 pt-24 pb-12">
             <div className="container">
                 <div className="flex items-center gap-4 mb-8">
-                    <a href="/" className="p-2 hover:bg-white rounded-lg transition-colors">
+                    <button onClick={() => navigate('/')} className="p-2 hover:bg-white rounded-lg transition-colors">
                         <ArrowLeft className="h-6 w-6 text-gray-600" />
-                    </a>
+                    </button>
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Actualités Juridiques</h1>
-                        <p className="text-gray-600">Restez informé des dernières évolutions légales au Maroc et en France.</p>
+                        <h1 className="text-3xl font-bold text-gray-900">{t('news.title')}</h1>
+                        <p className="text-gray-600">{t('news.subtitle', 'Restez informé des dernières évolutions légales au Maroc et en France.')}</p>
                     </div>
                 </div>
 
@@ -79,16 +83,16 @@ const News: React.FC = () => {
                             <div className="p-6 flex-1 flex flex-col">
                                 <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                                     <Calendar className="h-4 w-4" />
-                                    <span>{new Date(item.published_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                                    <span>{new Date(item.published_at).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                 </div>
                                 <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">{item.title}</h2>
                                 <p className="text-gray-600 text-sm mb-6 line-clamp-3">
                                     {item.summary}
                                 </p>
                                 <div className="mt-auto flex items-center justify-between">
-                                    <span className="text-xs font-medium text-gray-400">Par {item.author}</span>
+                                    <span className="text-xs font-medium text-gray-400">{t('news.by', 'Par')} {item.author}</span>
                                     <button className="flex items-center gap-2 text-primary-600 font-bold hover:gap-3 transition-all text-sm">
-                                        Lire la suite
+                                        {t('news.read_more')}
                                         <ChevronRight className="h-4 w-4" />
                                     </button>
                                 </div>
@@ -100,7 +104,7 @@ const News: React.FC = () => {
                 {news.length === 0 && (
                     <div className="text-center py-20">
                         <Newspaper className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">Aucune actualité pour le moment.</p>
+                        <p className="text-gray-500">{t('news.no_results', 'Aucune actualité pour le moment.')}</p>
                     </div>
                 )}
             </div>

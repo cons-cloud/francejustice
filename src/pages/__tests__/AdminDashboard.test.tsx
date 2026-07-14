@@ -5,12 +5,12 @@ import AdminDashboard from '../AdminDashboard';
 // Mock useAuth hook for Admin
 vi.mock('../../hooks/useAuth', () => ({
   useAuth: () => ({
-    user: { id: 'test-admin-id', email: 'justlaw@gmail.com' },
+    user: { id: 'test-admin-id', email: 'lawjustlaw@gmail.com' },
     session: {},
     loading: false,
     signOut: vi.fn(),
     role: 'admin',
-    profile: { first_name: 'Admin', last_name: 'LawJust', is_verified: true },
+    profile: { first_name: 'Admin', last_name: 'LawJustLaw', is_verified: true },
   }),
 }));
 

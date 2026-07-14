@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from '../i18n';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -15,6 +16,7 @@ type View = 'login' | 'forgot' | 'forgot_sent';
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { role } = useAuth();
+  const { t } = useTranslation();
 
   // Login form state
   const [email, setEmail] = useState('');
@@ -38,9 +40,9 @@ const LoginPage: React.FC = () => {
 
     if (error) {
       if (error.message.includes('Email not confirmed')) {
-        setError('Veuillez vérifier votre boîte email et cliquer sur le lien de confirmation avant de vous connecter.');
+        setError(t('login.error_email_not_confirmed', 'Veuillez vérifier votre boîte email et cliquer sur le lien de confirmation avant de vous connecter.'));
       } else if (error.message.includes('Invalid login credentials')) {
-        setError('Email ou mot de passe incorrect.');
+        setError(t('login.error_invalid'));
       } else {
         setError(error.message);
       }
@@ -88,12 +90,12 @@ const LoginPage: React.FC = () => {
                 <CheckCircle2 className="h-8 w-8 text-green-600" />
               </div>
               <CardTitle className="text-2xl font-bold text-secondary-900 mb-2">
-                Email envoyé !
+                {t('reset_password.email_sent_title', 'Email envoyé !')}
               </CardTitle>
               <p className="text-secondary-600 text-sm mb-6">
-                Un lien de réinitialisation a été envoyé à{' '}
-                <span className="font-semibold text-primary-600">{resetEmail}</span>.
-                Vérifiez votre boîte de réception (et vos spams).
+                {t('reset_password.email_sent_desc', 'Un lien de réinitialisation a été envoyé à')}{' '}
+                <span className="font-semibold text-primary-600">{resetEmail}</span>.{' '}
+                {t('reset_password.check_inbox', 'Vérifiez votre boîte de réception (et vos spams).')}
               </p>
               <Button
                 type="button"
@@ -105,7 +107,7 @@ const LoginPage: React.FC = () => {
                 }}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Retour à la connexion
+                {t('reset_password.back_login')}
               </Button>
             </CardContent>
           </Card>
@@ -124,7 +126,7 @@ const LoginPage: React.FC = () => {
           className="absolute top-8 left-8 flex items-center text-secondary-600 hover:text-primary-600 font-medium transition-colors group"
         >
           <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
-          Retour à la connexion
+          {t('reset_password.back_login')}
         </button>
 
         <div className="max-w-md w-full">
@@ -134,10 +136,10 @@ const LoginPage: React.FC = () => {
                 <KeyRound className="h-6 w-6 text-amber-600" />
               </div>
               <CardTitle className="text-2xl font-bold text-secondary-900">
-                Mot de passe oublié
+                {t('login.forgot')}
               </CardTitle>
               <CardDescription>
-                Entrez votre email pour recevoir un lien de réinitialisation.
+                {t('reset_password.subtitle')}
               </CardDescription>
             </CardHeader>
 
@@ -155,15 +157,15 @@ const LoginPage: React.FC = () => {
                   <Input
                     type="email"
                     required
-                    placeholder="Votre adresse email"
+                    placeholder={t('login.email_placeholder', 'votre@email.com')}
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    className="!pl-14"
+                    className="pl-14!"
                   />
                 </div>
 
                 <Button type="submit" className="w-full" disabled={resetLoading}>
-                  {resetLoading ? 'Envoi en cours...' : 'Envoyer le lien de réinitialisation'}
+                  {resetLoading ? t('common.loading') : t('reset_password.submit')}
                 </Button>
               </form>
             </CardContent>
@@ -181,7 +183,7 @@ const LoginPage: React.FC = () => {
         className="absolute top-8 left-8 flex items-center text-secondary-600 hover:text-primary-600 font-medium transition-colors group"
       >
         <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
-        Retour à l'accueil
+        {t('login.back_home')}
       </Link>
 
       <div className="max-w-md w-full space-y-8">
@@ -191,10 +193,10 @@ const LoginPage: React.FC = () => {
               <LogIn className="h-6 w-6 text-primary-600" />
             </div>
             <CardTitle className="text-3xl font-extrabold text-secondary-900">
-              Bienvenue sur Just-Law
+              {t('login.welcome', 'Bienvenue sur Just-Law')}
             </CardTitle>
             <CardDescription>
-              Connectez-vous à votre espace juridique sécurisé
+              {t('login.subtitle')}
             </CardDescription>
           </CardHeader>
 
@@ -212,10 +214,10 @@ const LoginPage: React.FC = () => {
                   <Input
                     type="email"
                     required
-                    placeholder="Adresse email"
+                    placeholder={t('login.email_placeholder', 'votre@email.com')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="!pl-14"
+                    className="pl-14!"
                   />
                 </div>
                 <div className="relative">
@@ -223,10 +225,10 @@ const LoginPage: React.FC = () => {
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     required
-                    placeholder="Mot de passe"
+                    placeholder={t('login.password_placeholder', '••••••••')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="!pl-14 !pr-12"
+                    className="pl-14! pr-12!"
                   />
                   <button
                     type="button"
@@ -245,14 +247,14 @@ const LoginPage: React.FC = () => {
                     onClick={() => { setView('forgot'); setResetEmail(email); }}
                     className="font-medium text-primary-600 hover:text-primary-500 transition-colors"
                   >
-                    Mot de passe oublié ?
+                    {t('login.forgot')}
                   </button>
                 </div>
               </div>
 
               <div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Connexion...' : 'Se connecter'}
+                  {loading ? t('login.loading') : t('login.submit')}
                 </Button>
               </div>
 
@@ -261,7 +263,7 @@ const LoginPage: React.FC = () => {
                   <div className="w-full border-t border-secondary-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-secondary-500">Pas encore de compte ?</span>
+                  <span className="px-2 bg-white text-secondary-500">{t('login.no_account')}</span>
                 </div>
               </div>
 
@@ -273,7 +275,7 @@ const LoginPage: React.FC = () => {
                   className="flex items-center justify-center"
                 >
                   <UserIcon className="h-4 w-4 mr-2" />
-                  Citoyen
+                  {t('login.citizen', 'Citoyen')}
                 </Button>
                 <Button
                   type="button"
@@ -282,7 +284,7 @@ const LoginPage: React.FC = () => {
                   className="flex items-center justify-center"
                 >
                   <ShieldCheck className="h-4 w-4 mr-2" />
-                  Avocat
+                  {t('login.lawyer', 'Avocat')}
                 </Button>
               </div>
             </form>

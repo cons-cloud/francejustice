@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { chatWithAI } from '../../lib/gemini';
 import { Button } from './Button';
+import { useTranslation } from '../../i18n';
 
 // Web Speech APIs wrappers
 const SpeechRecognition = typeof window !== 'undefined' 
@@ -40,6 +41,7 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
   stateContext = {},
   variant = 'fixed'
 }) => {
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -89,6 +91,20 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
   const audioContextRef = useRef<AudioContext | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const mapLangToSpeech = (lang: string): string => {
+    switch (lang) {
+      case 'ar': return 'ar-MA';
+      case 'en': return 'en-US';
+      case 'es': return 'es-ES';
+      case 'ru': return 'ru-RU';
+      case 'tr': return 'tr-TR';
+      case 'ku': return 'ku-TR';
+      case 'fr':
+      default:
+        return 'fr-FR';
+    }
+  };
+
   // Initialize Speech Recognition
   useEffect(() => {
     if (SpeechRecognition) {
@@ -96,12 +112,12 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
       const rec = new SpeechRecognition();
       rec.continuous = false;
       rec.interimResults = false;
-      rec.lang = 'fr-FR';
+      rec.lang = mapLangToSpeech(i18n.language);
 
       rec.onstart = () => {
         setIsListening(true);
         setErrorMsg('');
-        setTranscript('Écoute en cours...');
+        setTranscript(t('voice.listening', 'Écoute en cours...'));
         playChime(440, 'sine', 0.08); // Friendly "start" chime
       };
 
@@ -109,11 +125,11 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
         console.error('Speech Recognition Error:', e);
         setIsListening(false);
         if (e.error === 'no-speech') {
-          setErrorMsg("Aucune parole n'a été détectée.");
+          setErrorMsg(t('voice.no_speech', "Aucune parole n'a été détectée."));
         } else if (e.error === 'not-allowed') {
-          setErrorMsg("Permission d'accès au micro refusée.");
+          setErrorMsg(t('voice.not_allowed', "Permission d'accès au micro refusée."));
         } else {
-          setErrorMsg("Erreur lors de l'écoute.");
+          setErrorMsg(t('voice.error', "Erreur lors de l'écoute."));
         }
       };
 
@@ -129,7 +145,8 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
 
       recognitionRef.current = rec;
     }
-  }, [mode, activeTab, stateContext]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, activeTab, stateContext, i18n.language, t]);
 
   // Handle auto-scroll in responses
   useEffect(() => {
@@ -139,13 +156,14 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
   }, [response, transcript, errorMsg]);
 
   // Synthesis voices setup
-  const getFrenchVoice = (): SpeechSynthesisVoice | null => {
+  const getVoiceForLang = (lang: string): SpeechSynthesisVoice | null => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return null;
     const voices = window.speechSynthesis.getVoices();
-    // Prefer Google French, Apple Thomas/Aurelie, or any fr-FR/fr voice
-    return voices.find(v => v.lang.startsWith('fr-FR') && v.name.includes('Google')) ||
-           voices.find(v => v.lang.startsWith('fr-FR')) ||
-           voices.find(v => v.lang.startsWith('fr')) ||
+    const targetLang = mapLangToSpeech(lang);
+    const prefix = targetLang.split('-')[0];
+    return voices.find(v => v.lang.toLowerCase() === targetLang.toLowerCase() && v.name.includes('Google')) ||
+           voices.find(v => v.lang.toLowerCase() === targetLang.toLowerCase()) ||
+           voices.find(v => v.lang.toLowerCase().startsWith(prefix.toLowerCase())) ||
            null;
   };
 
@@ -191,19 +209,19 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
     stopSpeaking();
 
     // Strip HTML and special markdown format for speech narration
-    let cleanSpeechText = text
+    const cleanSpeechText = text
       .replace(/```[^`]*```/g, '') // Remove JSON/code action blocks
-      .replace(/[*#`_\-]/g, '') // Remove markdown formatting
+      .replace(/[*#`_-]/g, '') // Remove markdown formatting
       .replace(/\[\d+\]/g, '') // Remove references
       .trim();
 
     if (!cleanSpeechText) return;
 
     const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
-    utterance.lang = 'fr-FR';
-    const frVoice = getFrenchVoice();
-    if (frVoice) {
-      utterance.voice = frVoice;
+    utterance.lang = mapLangToSpeech(i18n.language);
+    const activeVoice = getVoiceForLang(i18n.language);
+    if (activeVoice) {
+      utterance.voice = activeVoice;
     }
     utterance.rate = 1.05; // Slightly faster to be responsive
     utterance.pitch = 1.0;

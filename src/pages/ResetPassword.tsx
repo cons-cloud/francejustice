@@ -5,9 +5,11 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { supabase } from '../lib/supabase';
 import { KeyRound, Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useTranslation } from '../i18n';
 
 const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -16,8 +18,6 @@ const ResetPasswordPage: React.FC = () => {
   const [done, setDone] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
 
-  // Supabase envoie le token dans l'URL sous la forme #access_token=...&type=recovery
-  // onAuthStateChange l'intercepte automatiquement et ouvre une session temporaire.
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
@@ -32,11 +32,11 @@ const ResetPasswordPage: React.FC = () => {
     setError(null);
 
     if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères.');
+      setError(t('reset_password.error_length', 'Le mot de passe doit contenir au moins 8 caractères.'));
       return;
     }
     if (password !== confirm) {
-      setError('Les deux mots de passe ne correspondent pas.');
+      setError(t('reset_password.error_match', 'Les deux mots de passe ne correspondent pas.'));
       return;
     }
 
@@ -48,7 +48,6 @@ const ResetPasswordPage: React.FC = () => {
       setError(error.message);
     } else {
       setDone(true);
-      // Déconnecter et rediriger après 3 s pour forcer une reconnexion propre
       setTimeout(async () => {
         await supabase.auth.signOut();
         navigate('/login');
@@ -56,7 +55,7 @@ const ResetPasswordPage: React.FC = () => {
     }
   };
 
-  // ── Succès ────────────────────────────────────────────────────────────────
+  // ── Success ────────────────────────────────────────────────────────────────
   if (done) {
     return (
       <div className="min-h-screen bg-secondary-50 flex items-center justify-center px-4">
@@ -67,10 +66,10 @@ const ResetPasswordPage: React.FC = () => {
                 <CheckCircle2 className="h-8 w-8 text-green-600" />
               </div>
               <CardTitle className="text-2xl font-bold text-secondary-900 mb-2">
-                Mot de passe mis à jour !
+                {t('reset_password.success_title', 'Mot de passe mis à jour !')}
               </CardTitle>
               <p className="text-secondary-500 text-sm">
-                Vous allez être redirigé vers la page de connexion dans quelques secondes…
+                {t('reset_password.success_desc_redirect', 'Vous allez être redirigé vers la page de connexion dans quelques secondes…')}
               </p>
             </CardContent>
           </Card>
@@ -79,7 +78,7 @@ const ResetPasswordPage: React.FC = () => {
     );
   }
 
-  // ── Attente de la session Supabase ─────────────────────────────────────────
+  // ── Waiting for Supabase Session ─────────────────────────────────────────
   if (!sessionReady) {
     return (
       <div className="min-h-screen bg-secondary-50 flex items-center justify-center px-4">
@@ -90,13 +89,13 @@ const ResetPasswordPage: React.FC = () => {
                 <AlertCircle className="h-6 w-6 text-amber-600" />
               </div>
               <CardTitle className="text-xl font-bold text-secondary-900 mb-2">
-                Vérification du lien…
+                {t('reset_password.checking_link', 'Vérification du lien…')}
               </CardTitle>
               <p className="text-secondary-500 text-sm mb-4">
-                Si ce message persiste, votre lien de réinitialisation est peut-être expiré.
+                {t('reset_password.expired_hint', 'Si ce message persiste, votre lien de réinitialisation est peut-être expiré.')}
               </p>
               <Button variant="outline" onClick={() => navigate('/login')}>
-                Retour à la connexion
+                {t('reset_password.back_login')}
               </Button>
             </CardContent>
           </Card>
@@ -105,7 +104,7 @@ const ResetPasswordPage: React.FC = () => {
     );
   }
 
-  // ── Formulaire de nouveau mot de passe ────────────────────────────────────
+  // ── Reset Form ────────────────────────────────────
   return (
     <div className="min-h-screen bg-secondary-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
@@ -115,10 +114,10 @@ const ResetPasswordPage: React.FC = () => {
               <KeyRound className="h-6 w-6 text-primary-600" />
             </div>
             <CardTitle className="text-2xl font-bold text-secondary-900">
-              Nouveau mot de passe
+              {t('reset_password.new_password')}
             </CardTitle>
             <CardDescription>
-              Choisissez un mot de passe sécurisé d'au moins 8 caractères.
+              {t('reset_password.choose_secure', "Choisissez un mot de passe sécurisé d'au moins 8 caractères.")}
             </CardDescription>
           </CardHeader>
 
@@ -130,16 +129,16 @@ const ResetPasswordPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Nouveau mot de passe */}
+              {/* New Password */}
               <div className="relative">
                 <Lock className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  placeholder="Nouveau mot de passe"
+                  placeholder={t('reset_password.new_password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="!pl-14 !pr-12"
+                  className="pl-14! pr-12!"
                 />
                 <button
                   type="button"
@@ -150,20 +149,20 @@ const ResetPasswordPage: React.FC = () => {
                 </button>
               </div>
 
-              {/* Confirmation */}
+              {/* Confirm Password */}
               <div className="relative">
                 <Lock className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  placeholder="Confirmer le mot de passe"
+                  placeholder={t('reset_password.confirm')}
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
-                  className="!pl-14"
+                  className="pl-14!"
                 />
               </div>
 
-              {/* Indicateur de force */}
+              {/* Password strength indicator */}
               {password.length > 0 && (
                 <div className="space-y-1">
                   <div className="flex gap-1">
@@ -182,13 +181,16 @@ const ResetPasswordPage: React.FC = () => {
                     ))}
                   </div>
                   <p className="text-xs text-secondary-400">
-                    {password.length < 6 ? 'Trop court' : password.length < 8 ? 'Faible' : password.length < 12 ? 'Moyen' : 'Fort'}
+                    {password.length < 6 ? t('reset_password.strength_too_short', 'Trop court') : 
+                     password.length < 8 ? t('reset_password.strength_weak', 'Faible') : 
+                     password.length < 12 ? t('reset_password.strength_medium', 'Moyen') : 
+                     t('reset_password.strength_strong', 'Fort')}
                   </p>
                 </div>
               )}
 
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Mise à jour…' : 'Mettre à jour le mot de passe'}
+                {loading ? t('common.loading') : t('reset_password.update')}
               </Button>
             </form>
           </CardContent>

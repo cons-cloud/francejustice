@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Library, Download, Search, Globe, Filter, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '../i18n';
 
 interface LegalDoc {
     id: string;
@@ -14,6 +15,7 @@ interface LegalDoc {
 }
 
 const Database: React.FC = () => {
+    const { t } = useTranslation();
     const [docs, setDocs] = useState<LegalDoc[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -53,10 +55,9 @@ const Database: React.FC = () => {
             <div className="container">
                 <div className="bg-primary-600 rounded-3xl p-8 md:p-12 text-white mb-12 shadow-lg relative overflow-hidden">
                     <div className="relative z-10">
-                        <h1 className="text-4xl font-bold mb-4">Bibliothèque Juridique</h1>
+                        <h1 className="text-4xl font-bold mb-4">{t('database.title', 'Bibliothèque Juridique')}</h1>
                         <p className="text-primary-100 max-w-2xl text-lg">
-                            Accédez à une vaste collection de codes, dahirs, décrets et textes de loi 
-                            officiels du Maroc et de la France.
+                            {t('database.subtitle', 'Accédez à une vaste collection de codes, dahirs, décrets et textes de loi officiels.')}
                         </p>
                     </div>
                     <Library className="absolute right-[-20px] bottom-[-20px] h-64 w-64 text-primary-500/20" />
@@ -67,7 +68,7 @@ const Database: React.FC = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <input 
                             type="text" 
-                            placeholder="Rechercher un texte (Ex: Code Civil, Travail...)"
+                            placeholder={t('database.search_placeholder', 'Rechercher un texte (Ex: Code Civil, Travail...)')}
                             className="w-full pl-10 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -81,9 +82,9 @@ const Database: React.FC = () => {
                                 value={filterCountry}
                                 onChange={(e) => setFilterCountry(e.target.value)}
                             >
-                                <option value="Tous">Tous les pays</option>
-                                <option value="Maroc">Maroc</option>
-                                <option value="France">France</option>
+                                <option value="Tous">{t('database.all_countries', 'Tous les pays')}</option>
+                                <option value="Maroc">{t('database.morocco', 'Maroc')}</option>
+                                <option value="France">{t('database.france', 'France')}</option>
                             </select>
                         </div>
                         <button className="bg-gray-50 p-3 rounded-xl hover:bg-gray-100 transition-colors">
@@ -121,7 +122,7 @@ const Database: React.FC = () => {
                             </div>
                             <button className="flex items-center gap-2 bg-primary-50 text-primary-600 px-4 py-2 rounded-xl font-bold hover:bg-primary-600 hover:text-white transition-all">
                                 <Download className="h-4 w-4" />
-                                <span className="hidden sm:inline">Télécharger</span>
+                                <span className="hidden sm:inline">{t('common.download')}</span>
                             </button>
                         </motion.div>
                     ))}
@@ -130,7 +131,7 @@ const Database: React.FC = () => {
                 {filteredDocs.length === 0 && (
                     <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-100">
                         <Search className="h-16 w-16 text-gray-200 mx-auto mb-4" />
-                        <p className="text-gray-500">Aucun document trouvé pour cette recherche.</p>
+                        <p className="text-gray-500">{t('database.no_results', 'Aucun document trouvé pour cette recherche.')}</p>
                     </div>
                 )}
             </div>

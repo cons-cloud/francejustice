@@ -48,10 +48,12 @@ import { VoiceAssistant } from "../components/ui/VoiceAssistant"
 import NotificationBell from '../components/ui/NotificationBell';
 import { cn } from "../lib/utils";
 import { createCheckoutSession } from "../lib/api";
+import { useTranslation } from '../i18n';
 
 const DashboardLawyer: React.FC = () => {
   const { user, profile } = useAuth()
   const { success, error: toastError } = useToast()
+  const { t } = useTranslation()
   const [payingCommissionId, setPayingCommissionId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("overview")
   const [showWelcome, setShowWelcome] = useState(false)
@@ -1040,27 +1042,27 @@ const DashboardLawyer: React.FC = () => {
   }
 
   const tabs = [
-    { id: "overview", name: "Vue d'ensemble", icon: BarChart3 },
-    { id: "appointments", name: "Rendez-vous", icon: Calendar },
-    { id: "cases", name: "Dossiers", icon: FileText },
-    { id: "quotes", name: "Gestion Devis", icon: Receipt },
-    { id: "messages", name: "Messages IA", icon: MessageSquare },
-    { id: "searches", name: "IA Juridique", icon: Search },
-    { id: "avocats", name: "Réseau Avocats", icon: Globe },
-    { id: "codes", name: "Codes de Loi", icon: BookOpen },
-    { id: "procedures", name: "Procédures", icon: FileText },
-    { id: "analyse", name: "Analyse IA", icon: Shield },
-    { id: "formations", name: "Formations", icon: BookOpen },
-    { id: "outils", name: "Outils Avocats", icon: PenTool },
-    { id: "assistance", name: "Assistance", icon: HelpCircle },
-    { id: "profil", name: "Mon Profil", icon: Users }
+    { id: "overview", name: t('dashboard.overview', "Vue d'ensemble"), icon: BarChart3 },
+    { id: "appointments", name: t('dashboard.appointments', "Rendez-vous"), icon: Calendar },
+    { id: "cases", name: t('lawyer_dashboard.my_cases', "Dossiers"), icon: FileText },
+    { id: "quotes", name: t('lawyer_dashboard.quote_request', "Gestion Devis"), icon: Receipt },
+    { id: "messages", name: t('dashboard.messages', "Messages IA"), icon: MessageSquare },
+    { id: "searches", name: t('dashboard.ia_search', "IA Juridique"), icon: Search },
+    { id: "avocats", name: t('lawyer_dashboard.lawyer_network', "Réseau Avocats"), icon: Globe },
+    { id: "codes", name: t('dashboard.law_codes', "Codes de Loi"), icon: BookOpen },
+    { id: "procedures", name: t('dashboard.procedures', "Procédures"), icon: FileText },
+    { id: "analyse", name: t('dashboard.ai_analysis', "Analyse IA"), icon: Shield },
+    { id: "formations", name: t('dashboard.formations', "Formations"), icon: BookOpen },
+    { id: "outils", name: t('lawyer_dashboard.assistant_ai', "Outils Avocats"), icon: PenTool },
+    { id: "assistance", name: t('lawyer_dashboard.assistance', "Assistance"), icon: HelpCircle },
+    { id: "profil", name: t('lawyer_dashboard.profile_title', "Mon Profil"), icon: Users }
   ]
 
   const stats = [
-    { label: "Clients Actifs", value: Array.from(new Set(cases.map(c => c.owner_id))).length.toString(), icon: Users },
-    { label: "Dossiers", value: cases.length.toString(), icon: FileText },
-    { label: "Rendez-vous", value: appointments.length.toString(), icon: Calendar },
-    { label: "Verification", value: profile?.is_verified ? "Vérifié" : "En attente", icon: Shield }
+    { label: t('lawyer_dashboard.pending_clients', "Clients Actifs"), value: Array.from(new Set(cases.map(c => c.owner_id))).length.toString(), icon: Users },
+    { label: t('lawyer_dashboard.my_cases', "Dossiers"), value: cases.length.toString(), icon: FileText },
+    { label: t('dashboard.appointments', "Rendez-vous"), value: appointments.length.toString(), icon: Calendar },
+    { label: t('lawyer_dashboard.verification', "Verification"), value: profile?.is_verified ? t('lawyers.verified', "Vérifié") : t('dashboard.status_pending', "En attente"), icon: Shield }
   ]
 
   const renderOverview = () => (
@@ -1088,8 +1090,8 @@ const DashboardLawyer: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className={cn('flex', 'justify-between', 'items-center')}>
-              <span>Prochains Rendez-vous</span>
-              <Button variant="ghost" size="sm" onClick={() => setActiveTab('appointments')}>Voir tout</Button>
+              <span>{t('dashboard.planned_consultations', 'Prochains Rendez-vous')}</span>
+              <Button variant="ghost" size="sm" onClick={() => setActiveTab('appointments')}>{t('common.view', 'Voir tout')}</Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">

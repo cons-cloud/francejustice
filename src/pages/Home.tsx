@@ -7,14 +7,16 @@ import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import AnimatedCounter from '../components/ui/AnimatedCounter';
 import heroBg from '../assets/images/3.jpg';
+import { useTranslation } from '../i18n';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [stats, setStats] = useState([
-    { number: '1,500+', label: 'Articles de loi' },
-    { number: '0+', label: 'Utilisateurs' },
-    { number: '0+', label: 'Avocats' },
-    { number: '0+', label: 'Documents' },
+    { number: '1,500+', label: 'home.stats_articles' },
+    { number: '0+', label: 'home.stats_users' },
+    { number: '0+', label: 'home.stats_lawyers' },
+    { number: '0+', label: 'home.stats_documents' },
   ]);
   const [activeFormations, setActiveFormations] = useState<any[]>([]);
 
@@ -42,10 +44,10 @@ const Home: React.FC = () => {
       const { count: docsCount } = await supabase.from('documents_just').select('*', { count: 'exact', head: true });
       
       setStats([
-        { number: '1,500+', label: 'Articles de loi' },
-        { number: `${usersCount || 0}+`, label: 'Utilisateurs' },
-        { number: `${lawyersCount || 0}+`, label: 'Avocats' },
-        { number: `${docsCount || 0}+`, label: 'Documents' },
+        { number: '1,500+', label: 'home.stats_articles' },
+        { number: `${usersCount || 0}+`, label: 'home.stats_users' },
+        { number: `${lawyersCount || 0}+`, label: 'home.stats_lawyers' },
+        { number: `${docsCount || 0}+`, label: 'home.stats_documents' },
       ]);
     } catch (e) {
       console.error(e);
@@ -55,29 +57,29 @@ const Home: React.FC = () => {
   const features = [
     {
       icon: Search,
-      title: 'Recherche IA',
-      description: 'Recherche intelligente dans la jurisprudence et les textes de loi avec explications simplifiées.',
+      title: t('home.feature_ai_title'),
+      description: t('home.feature_ai_desc'),
       color: 'text-primary-600',
       bgColor: 'bg-primary-50',
     },
     {
       icon: Scale,
-      title: 'Base de données',
-      description: 'Accès complet aux codes juridiques et à la jurisprudence récente.',
+      title: t('home.feature_db_title'),
+      description: t('home.feature_db_desc'),
       color: 'text-success-600',
       bgColor: 'bg-success-50',
     },
     {
       icon: BookOpen,
-      title: 'Formations',
-      description: 'Guides pratiques pour comprendre vos droits et vous former.',
+      title: t('home.feature_training_title'),
+      description: t('home.feature_training_desc'),
       color: 'text-accent-600',
       bgColor: 'bg-accent-50',
     },
     {
       icon: Shield,
-      title: 'Générateur de plaintes',
-      description: 'Génération automatique de documents juridiques personnalisés.',
+      title: t('home.feature_gen_title'),
+      description: t('home.feature_gen_desc'),
       color: 'text-warning-600',
       bgColor: 'bg-warning-50',
     },
@@ -86,20 +88,20 @@ const Home: React.FC = () => {
   const testimonials = [
     {
       name: 'Marie Dubois',
-      role: 'Victime de harcèlement',
-      content: 'Just-Law m\'a aidée à comprendre mes droits et à déposer ma plainte facilement.',
+      role: t('home.testimonial_1_role', 'Victime de harcèlement'),
+      content: t('home.testimonial_1_content', "Just-Law m'a aidée à comprendre mes droits et à déposer ma plainte facilement."),
       rating: 5,
     },
     {
       name: 'Jean Martin',
-      role: 'Avocat',
-      content: 'Une plateforme innovante qui améliore la productivité juridique.',
+      role: t('home.testimonial_2_role', 'Avocat'),
+      content: t('home.testimonial_2_content', 'Une plateforme innovante qui améliore la productivité juridique.'),
       rating: 5,
     },
     {
       name: 'Sophie Laurent',
-      role: 'Étudiante en droit',
-      content: 'L’outil IA est excellent pour comprendre les textes complexes.',
+      role: t('home.testimonial_3_role', 'Étudiante en droit'),
+      content: t('home.testimonial_3_content', 'L’outil IA est excellent pour comprendre les textes complexes.'),
       rating: 5,
     },
   ];
@@ -147,12 +149,11 @@ const Home: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <h1 className="text-4xl md:text-7xl font-extrabold text-white mb-6 tracking-tight leading-none text-balance">
-              Votre <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-indigo-400">partenaire juridique</span>
+              {t('home.hero_title')} <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-400 to-indigo-400">{t('home.hero_title_highlight')}</span>
             </h1>
 
             <p className="text-lg md:text-2xl text-secondary-200 mb-10 leading-relaxed max-w-3xl mx-auto font-medium">
-              Accédez facilement au droit grâce à notre intelligence artificielle,
-              générez vos documents juridiques et trouvez un avocat en quelques clics.
+              {t('home.hero_subtitle')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
@@ -161,7 +162,7 @@ const Home: React.FC = () => {
                 className="text-lg px-10 py-7 rounded-2xl bg-primary-600 hover:bg-primary-500 shadow-xl shadow-primary-600/30 transition-all hover:scale-105 active:scale-95"
                 onClick={() => navigate('/login')}
               >
-                Démarrez votre session
+                {t('home.hero_start')}
                 <ArrowRight className="ml-2 h-6 w-6" />
               </Button>
 
@@ -171,7 +172,7 @@ const Home: React.FC = () => {
                 className="text-lg px-10 py-7 rounded-2xl border-white/30 text-white hover:bg-white hover:text-black backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
                 onClick={() => navigate('/services')}
               >
-                Nos services
+                {t('home.hero_services')}
               </Button>
             </div>
           </motion.div>
@@ -193,7 +194,7 @@ const Home: React.FC = () => {
                 <div className="text-3xl md:text-5xl font-black text-primary-600 mb-3 tracking-tighter group-hover:scale-110 transition-transform duration-300">
                   <AnimatedCounter value={stat.number} />
                 </div>
-                <div className="text-secondary-500 font-bold uppercase tracking-widest text-xs">{stat.label}</div>
+                <div className="text-secondary-500 font-bold uppercase tracking-widest text-xs">{t(stat.label)}</div>
                 <div className="mt-4 h-1.5 w-12 bg-primary-100 mx-auto rounded-full group-hover:w-20 transition-all duration-300" />
               </motion.div>
             ))}
@@ -216,10 +217,10 @@ const Home: React.FC = () => {
             className="flex flex-col items-center justify-center text-center mb-24"
           >
             <h2 className="text-3xl md:text-5xl font-black text-secondary-900 mb-6 tracking-tight">
-              Nos services innovants
+              {t('home.features_title')}
             </h2>
             <p className="text-xl text-secondary-600 max-w-2xl mx-auto text-center">
-              Une technologie de pointe pour un accès démocratique au droit français.
+              {t('home.features_subtitle')}
             </p>
           </motion.div>
 
@@ -242,7 +243,7 @@ const Home: React.FC = () => {
                   <CardContent className="relative z-10">
                     <CardDescription className="text-base leading-relaxed text-secondary-600">{feature.description}</CardDescription>
                   </CardContent>
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-primary-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Card>
               </motion.div>
             ))}
@@ -261,10 +262,10 @@ const Home: React.FC = () => {
               className="flex flex-col items-center justify-center text-center mb-16"
             >
               <h2 className="text-3xl md:text-5xl font-black text-secondary-900 mb-6 tracking-tight">
-                Catalogue de Formations
+                {t('home.formations_title')}
               </h2>
               <p className="text-xl text-secondary-600 max-w-2xl mx-auto">
-                Apprenez vos droits grâce à nos guides exclusifs préparés par des experts.
+                {t('home.formations_subtitle')}
               </p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -275,9 +276,9 @@ const Home: React.FC = () => {
                     <CardTitle className="text-xl font-bold">{f.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="pt-6">
-                    <p className="text-secondary-600 font-medium mb-6">Durée: {f.duration} • {f.level}</p>
+                    <p className="text-secondary-600 font-medium mb-6">{t('home.formations_duration')}: {f.duration} • {f.level}</p>
                     <Button variant="outline" className="w-full group" onClick={() => navigate('/login')}>
-                      Accéder au cours
+                      {t('home.formations_access')}
                       <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </CardContent>
@@ -297,7 +298,7 @@ const Home: React.FC = () => {
             viewport={{ once: true }}
             className="text-3xl md:text-5xl font-black text-center mb-20 tracking-tight"
           >
-            La confiance de nos utilisateurs
+            {t('home.testimonials_title')}
           </motion.h2>
 
           <motion.div 
@@ -337,7 +338,7 @@ const Home: React.FC = () => {
       {/* CTA FINAL */}
       <section className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-primary-600" />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-indigo-800" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary-600 to-indigo-800" />
         
         <div className="container px-4 relative z-10 text-center">
           <motion.div
@@ -347,10 +348,10 @@ const Home: React.FC = () => {
             className="flex flex-col items-center justify-center"
           >
             <h2 className="text-3xl md:text-6xl font-black text-white mb-8 tracking-tight text-center">
-              Prêt à simplifier votre accès au droit ?
+              {t('home.cta_title')}
             </h2>
             <p className="text-xl md:text-2xl text-primary-100 mb-12 max-w-3xl mx-auto font-medium text-center">
-              Rejoignez Just-Law aujourd'hui et bénéficiez d'une assistance juridique 100% intelligente.
+              {t('home.cta_subtitle')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -360,7 +361,7 @@ const Home: React.FC = () => {
                 className="text-lg px-12 py-8 rounded-2xl bg-white text-primary-700 hover:bg-primary-50 shadow-2xl scale-110"
                 onClick={() => navigate('/register')}
               >
-                Commencer gratuitement
+                {t('home.cta_btn')}
                 <ArrowRight className="ml-2 h-6 w-6" />
               </Button>
             </div>

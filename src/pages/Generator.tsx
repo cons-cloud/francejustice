@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
+import { useTranslation } from '../i18n';
 
 interface GeneratorProps {
   skipAuthCheck?: boolean;
@@ -17,6 +18,7 @@ interface GeneratorProps {
 
 export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = false }) => {
   const { user, profile } = useAuth();
+  const { t } = useTranslation();
   const { toasts, success, error, removeToast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -95,7 +97,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
       
       const content = await generateLegalDocument(formData.documentType, details);
       setGeneratedContent(content);
-      success('Généré', 'Votre document a été généré par l\'IA.');
+      success(t('generator.generated_title', 'Généré'), t('generator.generated_desc', 'Votre document a été généré par l\'IA.'));
       setCurrentStep(6); // Step for result
 
       // Save to Supabase
@@ -112,25 +114,25 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         if (saveError) console.error('Error saving document:', saveError);
       }
     } catch (e: any) {
-      error('Erreur', e.message || 'La génération a échoué.');
+      error(t('common.error'), e.message || t('generator.failed', 'La génération a échoué.'));
     } finally {
       setIsGenerating(false);
     }
   };
 
   const documentTypes = [
-    { id: 'plainte-simple', title: 'Plainte simple', description: 'Déposer une plainte pour un délit ou un crime', icon: FileText },
-    { id: 'pre-plainte', title: 'Pré-plainte en ligne', description: 'Démarche préalable avant dépôt de plainte', icon: FileText },
-    { id: 'main-courante', title: 'Main courante', description: 'Consigner des faits sans porter plainte', icon: FileText },
-    { id: 'recours-gracieux', title: 'Recours gracieux', description: 'Demande d\'annulation ou de modification d\'une décision', icon: FileText },
+    { id: 'plainte-simple', title: t('generator.type_plainte', 'Plainte simple'), description: t('generator.type_plainte_desc', 'Déposer une plainte pour un délit ou un crime'), icon: FileText },
+    { id: 'pre-plainte', title: t('generator.type_preplainte', 'Pré-plainte en ligne'), description: t('generator.type_preplainte_desc', 'Démarche préalable avant dépôt de plainte'), icon: FileText },
+    { id: 'main-courante', title: t('generator.type_maincourante', 'Main courante'), description: t('generator.type_maincourante_desc', 'Consigner des faits sans porter plainte'), icon: FileText },
+    { id: 'recours-gracieux', title: t('generator.type_recours', 'Recours gracieux'), description: t('generator.type_recours_desc', "Demande d'annulation ou de modification d'une décision"), icon: FileText },
   ];
 
   const steps = [
-    { number: 1, title: 'Type de document', description: 'Choisissez le type' },
-    { number: 2, title: 'Vos informations', description: 'Renseignez vos coordonnées' },
-    { number: 3, title: 'L\'incident', description: 'Décrivez les faits' },
-    { number: 4, title: 'Détails juridiques', description: 'Précisez les aspects' },
-    { number: 5, title: 'Finalisation', description: 'Vérifiez et générez' },
+    { number: 1, title: t('generator.step1_title', 'Type de document'), description: t('generator.step1_desc', 'Choisissez le type') },
+    { number: 2, title: t('generator.step2_title', 'Vos informations'), description: t('generator.step2_desc', 'Renseignez vos coordonnées') },
+    { number: 3, title: t('generator.step3_title', "L'incident"), description: t('generator.step3_desc', 'Décrivez les faits') },
+    { number: 4, title: t('generator.step4_title', 'Détails juridiques'), description: t('generator.step4_desc', 'Précisez les aspects') },
+    { number: 5, title: t('generator.step5_title', 'Finalisation'), description: t('generator.step5_desc', 'Vérifiez et générez') },
   ];
 
   const renderStepContent = () => {
@@ -139,7 +141,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         return (
           <div className="space-y-6">
             <h3 className="text-2xl font-semibold text-secondary-900 mb-6">
-              Quel type de document souhaitez-vous générer ?
+              {t('generator.select_doc_type', 'Quel type de document souhaitez-vous générer ?')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {documentTypes.map((type) => {
@@ -150,8 +152,8 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
                     hover
                     className={`cursor-pointer transition-all duration-200 ${
                       formData.documentType === type.id
-                        ? '!border-2 !border-primary-500 !bg-primary-50/50 scale-[1.02] shadow-md'
-                        : '!border-2 !border-transparent hover:!border-secondary-200'
+                        ? 'border-2! border-primary-500! bg-primary-50/50! scale-[1.02] shadow-md'
+                        : 'border-2! border-transparent! hover:border-secondary-200!'
                     }`}
                     onClick={() => handleInputChange('documentType', type.id)}
                   >
@@ -181,47 +183,47 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         return (
           <div className="space-y-6">
             <h3 className="text-2xl font-semibold text-secondary-900 mb-6">
-              Vos informations personnelles
+              {t('generator.personal_info', 'Vos informations personnelles')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
-                label="Prénom"
+                label={t('register.first_name')}
                 value={formData.firstName}
                 onChange={(e) => handleInputChange('firstName', e.target.value)}
                 required
               />
               <Input
-                label="Nom"
+                label={t('register.last_name')}
                 value={formData.lastName}
                 onChange={(e) => handleInputChange('lastName', e.target.value)}
                 required
               />
               <Input
-                label="Email"
+                label={t('register.email')}
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 required
               />
               <Input
-                label="Téléphone"
+                label={t('register.phone')}
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
               />
               <div className="md:col-span-2">
                 <Input
-                  label="Adresse"
+                  label={t('dashboard.address')}
                   value={formData.address}
                   onChange={(e) => handleInputChange('address', e.target.value)}
                 />
               </div>
               <Input
-                label="Ville"
+                label={t('generator.city_label', 'Ville')}
                 value={formData.city}
                 onChange={(e) => handleInputChange('city', e.target.value)}
               />
               <Input
-                label="Code postal"
+                label={t('generator.postal_code_label', 'Code postal')}
                 value={formData.postalCode}
                 onChange={(e) => handleInputChange('postalCode', e.target.value)}
               />
@@ -233,33 +235,33 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         return (
           <div className="space-y-6">
             <h3 className="text-2xl font-semibold text-secondary-900 mb-6">
-              Décrivez l'incident
+              {t('generator.describe_incident', "Décrivez l'incident")}
             </h3>
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Input
-                  label="Date de l'incident"
+                  label={t('generator.incident_date', "Date de l'incident")}
                   type="date"
                   value={formData.incidentDate}
                   onChange={(e) => handleInputChange('incidentDate', e.target.value)}
                 />
                 <Input
-                  label="Lieu de l'incident"
+                  label={t('generator.incident_location', "Lieu de l'incident")}
                   value={formData.incidentLocation}
                   onChange={(e) => handleInputChange('incidentLocation', e.target.value)}
                 />
               </div>
               <Textarea
-                label="Description détaillée des faits"
-                placeholder="Décrivez précisément ce qui s'est passé, les circonstances, les personnes impliquées..."
+                label={t('generator.facts_desc', 'Description détaillée des faits')}
+                placeholder={t('generator.facts_placeholder', "Décrivez précisément ce qui s'est passé, les circonstances, les personnes impliquées...")}
                 value={formData.incidentDescription}
                 onChange={(e) => handleInputChange('incidentDescription', e.target.value)}
                 rows={6}
                 required
               />
               <Textarea
-                label="Témoins (si applicable)"
-                placeholder="Nom, coordonnées et témoignage des témoins..."
+                label={t('generator.witnesses_label', 'Témoins (si applicable)')}
+                placeholder={t('generator.witnesses_placeholder', 'Nom, coordonnées et témoignage des témoins...')}
                 value={formData.witnesses}
                 onChange={(e) => handleInputChange('witnesses', e.target.value)}
                 rows={3}
@@ -272,26 +274,26 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         return (
           <div className="space-y-6">
             <h3 className="text-2xl font-semibold text-secondary-900 mb-6">
-              Détails juridiques
+              {t('generator.legal_details', 'Détails juridiques')}
             </h3>
             <div className="space-y-6">
               <Textarea
-                label="Base juridique"
-                placeholder="Articles de loi applicables, textes de référence..."
+                label={t('generator.legal_basis_label', 'Base juridique')}
+                placeholder={t('generator.legal_basis_placeholder', 'Articles de loi applicables, textes de référence...')}
                 value={formData.legalBasis}
                 onChange={(e) => handleInputChange('legalBasis', e.target.value)}
                 rows={4}
               />
               <Textarea
-                label="Actions demandées"
-                placeholder="Que souhaitez-vous obtenir ? (poursuites, dommages-intérêts, etc.)"
+                label={t('generator.actions_label', 'Actions demandées')}
+                placeholder={t('generator.actions_placeholder', 'Que souhaitez-vous obtenir ? (poursuites, dommages-intérêts, etc.)')}
                 value={formData.requestedActions}
                 onChange={(e) => handleInputChange('requestedActions', e.target.value)}
                 rows={4}
               />
               <Textarea
-                label="Preuves et éléments"
-                placeholder="Documents, photos, témoignages, éléments de preuve..."
+                label={t('generator.evidence_label', 'Preuves et éléments')}
+                placeholder={t('generator.evidence_placeholder', 'Documents, photos, témoignages, éléments de preuve...')}
                 value={formData.evidence}
                 onChange={(e) => handleInputChange('evidence', e.target.value)}
                 rows={4}
@@ -304,37 +306,37 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         return (
           <div className="space-y-6">
             <h3 className="text-2xl font-semibold text-secondary-900 mb-6">
-              Vérification et finalisation
+              {t('generator.final_verify', 'Vérification et finalisation')}
             </h3>
             <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-success-600 mr-2" />
-                    Récapitulatif
+                    {t('generator.summary_label', 'Récapitulatif')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <strong>Type de document :</strong> {documentTypes.find(t => t.id === formData.documentType)?.title}
+                      <strong>{t('generator.doc_type_bold', 'Type de document :')}</strong> {documentTypes.find(t => t.id === formData.documentType)?.title}
                     </div>
                     <div>
-                      <strong>Nom :</strong> {formData.firstName} {formData.lastName}
+                      <strong>{t('generator.name_bold', 'Nom :')}</strong> {formData.firstName} {formData.lastName}
                     </div>
                     <div>
-                      <strong>Email :</strong> {formData.email}
+                      <strong>{t('generator.email_bold', 'Email :')}</strong> {formData.email}
                     </div>
                     <div>
-                      <strong>Date de l'incident :</strong> {formData.incidentDate}
+                      <strong>{t('generator.date_bold', "Date de l'incident :")}</strong> {formData.incidentDate}
                     </div>
                   </div>
                 </CardContent>
               </Card>
               
               <Textarea
-                label="Informations complémentaires"
-                placeholder="Toute information supplémentaire que vous souhaitez ajouter..."
+                label={t('generator.additional_info_label', 'Informations complémentaires')}
+                placeholder={t('generator.additional_info_placeholder', 'Toute information supplémentaire que vous souhaitez ajouter...')}
                 value={formData.additionalInfo}
                 onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
                 rows={4}
@@ -344,10 +346,9 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
                 <div className="flex items-start">
                   <AlertCircle className="h-5 w-5 text-warning-600 mr-3 mt-0.5" />
                   <div>
-                    <h4 className="font-semibold text-warning-800 mb-2">Important</h4>
+                    <h4 className="font-semibold text-warning-800 mb-2">{t('search.warning_title')}</h4>
                     <p className="text-warning-700 text-sm">
-                      Vérifiez attentivement toutes les informations avant de générer le document. 
-                      Une fois généré, vous pourrez le télécharger et l'imprimer.
+                      {t('generator.warning_desc', "Vérifiez attentivement toutes les informations avant de générer le document. Une fois généré, vous pourrez le télécharger et l'imprimer.")}
                     </p>
                   </div>
                 </div>
@@ -359,21 +360,22 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
       case 6:
         return (
           <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-secondary-900 mb-6">Votre document est prêt !</h3>
+            <h3 className="text-2xl font-semibold text-secondary-900 mb-6">{t('generator.ready', 'Votre document est prêt !')}</h3>
             <div className="p-6 bg-white border border-secondary-200 rounded-lg shadow-inner min-h-[400px] whitespace-pre-wrap font-serif text-secondary-800">
               {generatedContent}
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setCurrentStep(5)}>Modifier</Button>
-              <Button onClick={() => window.print()}><Download className="h-4 w-4 mr-2" />Télécharger (PDF)</Button>
+              <Button variant="outline" onClick={() => setCurrentStep(5)}>{t('common.edit')}</Button>
+              <Button onClick={() => window.print()}><Download className="h-4 w-4 mr-2" />{t('common.download')} (PDF)</Button>
             </div>
           </div>
         );
+      default:
+        return null;
     }
   };
 
   if (skipAuthCheck) {
-    // Inline rendering for Dashboard (no full-page wrapper, no auth modal)
     return (
       <div className="space-y-6">
         {/* Progress Steps */}
@@ -418,18 +420,18 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         <div className="flex justify-between">
           <Button variant="outline" onClick={prevStep} disabled={currentStep === 1} className="flex items-center">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Précédent
+            {t('common.previous')}
           </Button>
           {currentStep < 5 ? (
             <Button onClick={nextStep} disabled={isNextDisabled()} className="flex items-center">
-              Suivant
+              {t('common.next')}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           ) : (
             <div className="flex space-x-4">
               <Button onClick={handleGenerate} disabled={isGenerating}>
                 <Download className="h-4 w-4 mr-2" />
-                {isGenerating ? 'Génération...' : 'Générer le document'}
+                {isGenerating ? t('generator.generating', 'Génération...') : t('generator.generate')}
               </Button>
             </div>
           )}
@@ -445,10 +447,10 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">
-            Générateur de documents juridiques
+            {t('generator.title')}
           </h1>
           <p className="text-xl text-secondary-600 max-w-3xl">
-            Créez facilement vos documents juridiques personnalisés en quelques étapes simples.
+            {t('generator.subtitle')}
           </p>
         </div>
 
@@ -504,23 +506,23 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
             className="flex items-center"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Précédent
+            {t('common.previous')}
           </Button>
           
           {currentStep < 5 ? (
             <Button onClick={nextStep} disabled={isNextDisabled()} className="flex items-center">
-              Suivant
+              {t('common.next')}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           ) : (
             <div className="flex space-x-4">
               <Button variant="outline" className="flex items-center">
                 <Save className="h-4 w-4 mr-2" />
-                Sauvegarder
+                {t('common.save')}
               </Button>
               <Button onClick={handleGenerate} disabled={isGenerating}>
                 <Download className="h-4 w-4 mr-2" />
-                {isGenerating ? 'Génération...' : 'Générer le document'}
+                {isGenerating ? t('generator.generating', 'Génération...') : t('generator.generate')}
               </Button>
             </div>
           )}

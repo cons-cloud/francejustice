@@ -7,6 +7,7 @@ import { chatWithAI } from '../lib/gemini';
 import { AuthModal } from '../components/ui/AuthModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { useTranslation } from '../i18n';
 
 interface SearchPageProps {
   skipAuthCheck?: boolean;
@@ -14,6 +15,7 @@ interface SearchPageProps {
 
 const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [aiExplanation, setAiExplanation] = useState<string | null>(null);
@@ -70,12 +72,12 @@ Réponds de manière structurée et complète.`;
             <form onSubmit={handleSubmit} className="flex gap-4">
               <Input
                 className="pl-12 h-12 text-base flex-1"
-                placeholder="Ex: licenciement, pension alimentaire, héritage..."
+                placeholder={t('search.placeholder_example', 'Ex: licenciement, pension alimentaire, héritage...')}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
               <Button type="submit" className="h-12 px-6 font-bold" disabled={loading}>
-                {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : 'Rechercher'}
+                {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : t('search.btn')}
               </Button>
             </form>
           </div>
@@ -84,7 +86,7 @@ Réponds de manière structurée et complète.`;
         {loading && (
           <div className="text-center py-12">
             <RefreshCw className="h-10 w-10 animate-spin text-primary-600 mx-auto mb-4" />
-            <p className="text-secondary-600">L'IA analyse les textes de loi...</p>
+            <p className="text-secondary-600">{t('search.loading_desc', "L'IA analyse les textes de loi...")}</p>
           </div>
         )}
 
@@ -93,7 +95,7 @@ Réponds de manière structurée et complète.`;
             <CardHeader className="bg-primary-50">
               <CardTitle className="flex items-center gap-2 text-primary-900">
                 <Scale className="h-6 w-6" />
-                Analyse Juridique par l'IA
+                {t('search.analysis_title', "Analyse Juridique par l'IA")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 prose prose-slate max-w-none">
@@ -108,8 +110,8 @@ Réponds de manière structurée et complète.`;
           <Card>
             <CardContent className="p-8 text-center text-secondary-400">
               <Scale className="h-12 w-12 mx-auto mb-4 text-primary-200" />
-              <p className="text-lg font-medium">Posez votre question juridique</p>
-              <p className="text-sm mt-1">Jurisprudence, codes, conseils — notre IA vous répond instantanément</p>
+              <p className="text-lg font-medium">{t('search.ask_prompt', 'Posez votre question juridique')}</p>
+              <p className="text-sm mt-1">{t('search.ask_prompt_desc', 'Jurisprudence, codes, conseils — notre IA vous répond instantanément')}</p>
             </CardContent>
           </Card>
         )}
@@ -117,13 +119,19 @@ Réponds de manière structurée et complète.`;
     );
   }
 
+  const features = [
+    { title: t('search.feat_jurisprudence', 'Jurisprudence'), desc: t('search.feat_jurisprudence_desc', 'Décisions des tribunaux français'), icon: Scale },
+    { title: t('search.feat_codes', 'Codes & Dahirs'), desc: t('search.feat_codes_desc', 'Base complète des textes législatifs'), icon: ExternalLink },
+    { title: t('search.feat_advice', 'Conseils IA'), desc: t('search.feat_advice_desc', 'Explications simplifiées du droit'), icon: Search }
+  ];
+
   return (
     <div className="min-h-screen bg-secondary-50">
       <div className="bg-primary-900 text-white py-16">
         <div className="container text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Recherche IA — Droit en Temps Réel</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t('search.hero_title', 'Recherche IA — Droit en Temps Réel')}</h1>
           <p className="text-xl text-primary-200 max-w-2xl mx-auto">
-            Accédez instantanément à la jurisprudence et aux textes de loi grâce à notre IA connectée à Internet en temps réel.
+            {t('search.hero_subtitle', 'Accédez instantanément à la jurisprudence et aux textes de loi grâce à notre IA connectée à Internet en temps réel.')}
           </p>
         </div>
       </div>
@@ -136,13 +144,13 @@ Réponds de manière structurée et complète.`;
                 <Search className="absolute left-4 top-3.5 h-5 w-5 text-secondary-400" />
                 <Input
                   className="pl-12 h-14 text-lg"
-                  placeholder="Ex: Code du travail licenciement, pension alimentaire droit français..."
+                  placeholder={t('search.placeholder_example_long', 'Ex: Code du travail licenciement, pension alimentaire droit français...')}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
               </div>
               <Button type="submit" size="lg" className="h-14 px-8 font-bold" disabled={loading}>
-                {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : 'Rechercher'}
+                {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : t('search.btn')}
               </Button>
             </form>
           </CardContent>
@@ -151,7 +159,7 @@ Réponds de manière structurée et complète.`;
         {loading && (
           <div className="mt-12 text-center py-20">
             <RefreshCw className="h-12 w-12 animate-spin text-primary-600 mx-auto mb-4" />
-            <p className="text-xl text-secondary-600">L'IA analyse les textes de loi français...</p>
+            <p className="text-xl text-secondary-600">{t('search.loading_desc_long', "L'IA analyse les textes de loi français...")}</p>
           </div>
         )}
 
@@ -161,7 +169,7 @@ Réponds de manière structurée et complète.`;
               <CardHeader className="bg-primary-50">
                 <CardTitle className="flex items-center gap-2 text-primary-900">
                   <Scale className="h-6 w-6" />
-                  Analyse Juridique par l'IA
+                  {t('search.analysis_title', "Analyse Juridique par l'IA")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8 prose prose-slate max-w-none">
@@ -174,9 +182,7 @@ Réponds de manière structurée et complète.`;
             <div className="bg-warning-50 border border-warning-200 rounded-2xl p-6 flex items-start gap-4">
               <AlertCircle className="h-6 w-6 text-warning-600 mt-1 shrink-0" />
               <p className="text-warning-800">
-                <strong>Attention:</strong> Cette analyse est générée par IA et fournie à titre informatif uniquement. 
-                Elle ne remplace pas l'avis d'un avocat inscrit au barreau. Pour une assistance personnalisée, 
-                nous vous recommandons de consulter un professionnel.
+                <strong>{t('search.warning_title', 'Attention:')}</strong> {t('search.warning_desc', "Cette analyse est générée par IA et fournie à titre informatif uniquement. Elle ne remplace pas l'avis d'un avocat inscrit au barreau. Pour une assistance personnalisée, nous vous recommandons de consulter un professionnel.")}
               </p>
             </div>
           </div>
@@ -184,11 +190,7 @@ Réponds de manière structurée et complète.`;
 
         {!loading && !aiExplanation && (
           <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 pb-20">
-            {[
-              { title: "Jurisprudence", desc: "Décisions des tribunaux français", icon: Scale },
-              { title: "Codes & Dahirs", desc: "Base complète des textes législatifs", icon: ExternalLink },
-              { title: "Conseils IA", desc: "Explications simplifiées du droit", icon: Search }
-            ].map((item, i) => (
+            {features.map((item, i) => (
               <div key={i} className="text-center p-8 bg-white rounded-3xl border border-secondary-100 hover:shadow-xl transition-all group">
                 <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-600 group-hover:text-white transition-colors">
                   <item.icon className="h-8 w-8" />

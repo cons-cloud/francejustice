@@ -13,6 +13,7 @@ import { exportToCSV, exportToJSON } from '../lib/exportUtils';
 import { regions } from '../components/features/FranceMap';
 import { useAuth } from '../hooks/useAuth';
 import NotificationBell from '../components/ui/NotificationBell';
+import { useTranslation } from '../i18n';
 
 interface UserProfile {
   id: string;
@@ -42,6 +43,7 @@ interface UserProfile {
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { toasts, success, error: toastError, removeToast } = useToast();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments' | 'classrooms'>('overview');
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [classrooms, setClassrooms] = useState<any[]>([]);
@@ -525,11 +527,11 @@ const AdminDashboard: React.FC = () => {
   ];
 
   const systemStats = [
-    { label: 'Utilisateurs', value: users.filter(u => u.role === 'user').length.toString(), icon: Users },
-    { label: 'Avocats', value: users.filter(u => u.role === 'lawyer').length.toString(), icon: Shield },
-    { label: 'Documents', value: allDocuments.length.toString(), icon: FileText },
-    { label: 'Commissions', value: `${quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD`, icon: CreditCard },
-    { label: 'Santé Système', value: '100%', icon: Database },
+    { label: t('admin_dashboard.users', 'Utilisateurs'), value: users.filter(u => u.role === 'user').length.toString(), icon: Users },
+    { label: t('admin_dashboard.lawyers', 'Avocats'), value: users.filter(u => u.role === 'lawyer').length.toString(), icon: Shield },
+    { label: t('admin_dashboard.all_documents', 'Documents'), value: allDocuments.length.toString(), icon: FileText },
+    { label: t('admin_dashboard.platform_revenue', 'Commissions'), value: `${quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD`, icon: CreditCard },
+    { label: t('admin_dashboard.system_health', 'Santé Système'), value: '100%', icon: Database },
   ];
 
   return (
@@ -537,14 +539,14 @@ const AdminDashboard: React.FC = () => {
       <div className="container py-8 px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-secondary-900 mb-2">Espace Administration</h1>
-            <p className="text-secondary-600">Gestion centrale des comptes, avocats et messages</p>
+            <h1 className="text-3xl font-bold text-secondary-900 mb-2">{t('admin_dashboard.title', 'Espace Administration')}</h1>
+            <p className="text-secondary-600">{t('admin_dashboard.subtitle', 'Gestion centrale des comptes, avocats et messages')}</p>
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell userId={user?.id ?? null} />
             <Button onClick={() => { fetchUsers(); fetchMessages(); }} variant="outline" size="sm" className="hidden sm:flex">
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Actualiser
+              {t('common.refresh', 'Actualiser')}
             </Button>
             <Button
               variant="outline"
@@ -556,7 +558,7 @@ const AdminDashboard: React.FC = () => {
               }}
             >
               <LogOut className="h-4 w-4 mr-2" />
-              Déconnexion
+              {t('nav.logout', 'Déconnexion')}
             </Button>
           </div>
         </div>
@@ -565,21 +567,22 @@ const AdminDashboard: React.FC = () => {
           <aside className="lg:col-span-1 order-2 lg:order-1">
             <Card className="sticky top-6 overflow-hidden">
               <CardContent className="p-2 sm:p-4 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible no-scrollbar pb-2 lg:pb-0">
-                {[
-                  { id: 'overview', name: "Vue d'ensemble", icon: BarChart3 },
-                  { id: 'appointments', name: "Rendez-vous", icon: RefreshCw },
-                  { id: 'users', name: "Utilisateurs", icon: Users },
-                  { id: 'lawyers', name: "Approbations", icon: Shield },
-                  { id: 'documents', name: "Documents", icon: FileText },
-                  { id: 'messages', name: "Messages", icon: Mail },
-                  { id: 'system', name: "Système", icon: Database },
-                  { id: 'settings', name: "Paramètres Globaux", icon: Settings },
-                  { id: 'assistance', name: "Assistance", icon: HelpCircle },
-                  { id: 'outils', name: "Outils Avocats", icon: PenTool },
-                  { id: 'formations', name: "Formations", icon: BookOpen },
-                  { id: 'classrooms', name: "Visioconférences", icon: Video },
-                  { id: 'payments', name: "Paiements", icon: CreditCard },
-                  { id: 'monitoring', name: "LIVE Monitoring", icon: RefreshCw },
+                {
+                  [
+                  { id: 'overview', name: t('dashboard.overview', "Vue d'ensemble"), icon: BarChart3 },
+                  { id: 'appointments', name: t('dashboard.appointments', "Rendez-vous"), icon: RefreshCw },
+                  { id: 'users', name: t('admin_dashboard.users', "Utilisateurs"), icon: Users },
+                  { id: 'lawyers', name: t('admin_dashboard.verifications', "Approbations"), icon: Shield },
+                  { id: 'documents', name: t('admin_dashboard.all_documents', "Documents"), icon: FileText },
+                  { id: 'messages', name: t('dashboard.messages', "Messages"), icon: Mail },
+                  { id: 'system', name: t('admin_dashboard.system', "Système"), icon: Database },
+                  { id: 'settings', name: t('admin_dashboard.settings', "Paramètres Globaux"), icon: Settings },
+                  { id: 'assistance', name: t('admin_dashboard.assistance', "Assistance"), icon: HelpCircle },
+                  { id: 'outils', name: t('admin_dashboard.lawyer_tools', "Outils Avocats"), icon: PenTool },
+                  { id: 'formations', name: t('dashboard.formations', "Formations"), icon: BookOpen },
+                  { id: 'classrooms', name: t('admin_dashboard.videoconferences', "Visioconférences"), icon: Video },
+                  { id: 'payments', name: t('admin_dashboard.platform_revenue', "Paiements"), icon: CreditCard },
+                  { id: 'monitoring', name: t('admin_dashboard.live_monitoring', "LIVE Monitoring"), icon: RefreshCw },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -622,8 +625,8 @@ const AdminDashboard: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <Card className="lg:col-span-2">
                     <CardHeader>
-                      <CardTitle>Activité de la plateforme</CardTitle>
-                      <CardDescription>Évolution des inscriptions et activités</CardDescription>
+                      <CardTitle>{t('admin_dashboard.platform_activity', 'Activité de la plateforme')}</CardTitle>
+                      <CardDescription>{t('admin_dashboard.activity_desc', 'Évolution des inscriptions et activités')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <AdvancedAreaChart data={chartData} />
@@ -631,7 +634,7 @@ const AdminDashboard: React.FC = () => {
                   </Card>
                   <Card>
                     <CardHeader>
-                      <CardTitle>Distribution des Rôles</CardTitle>
+                      <CardTitle>{t('admin_dashboard.role_distribution', 'Distribution des Rôles')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <SimplePieChart data={roleDistribution} height={250} />

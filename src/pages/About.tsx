@@ -1,48 +1,38 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
-import { Users, Scale, Shield, Star, MessageSquare } from 'lucide-react';
+import { Users, Scale, Shield, MessageSquare } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from '../i18n';
 
 const About: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const team = [
     {
-      name: 'Me. Alice Dupont',
-      role: 'Fondatrice & Avocate',
-      description: 'Expertise en droit du travail et assistance aux particuliers.',
+      name: 'Imam Coban',
+      role: t('about.team_role_founder', 'Fondateur'),
+      description: t('about.team_desc_founder', 'Expertise en droit du travail et assistance aux particuliers.'),
       icon: Users
-    },
-    {
-      name: 'Me. Julien Martin',
-      role: 'Responsable Juridique',
-      description: 'Spécialiste en droit civil et procédure légale.',
-      icon: Shield
-    },
-    {
-      name: 'Sophie Laurent',
-      role: 'Lead Développeuse',
-      description: 'Création d’outils IA pour simplifier l’accès au droit.',
-      icon: Star
     }
   ];
 
   const whyChooseUs = [
     {
-      title: 'Accessibilité',
-      description: 'Accédez à l’information juridique 24/7.',
+      title: t('about.why_accessibility', 'Accessibilité'),
+      description: t('about.why_accessibility_desc', 'Accédez à l\'information juridique 24/7.'),
       icon: Scale
     },
     {
-      title: 'Efficacité',
-      description: 'Gagnez du temps avec nos outils IA.',
+      title: t('about.why_efficiency', 'Efficacité'),
+      description: t('about.why_efficiency_desc', 'Gagnez du temps avec nos outils IA.'),
       icon: Shield
     },
     {
-      title: 'Satisfaction',
-      description: 'Support réactif et personnalisé.',
+      title: t('about.why_satisfaction', 'Satisfaction'),
+      description: t('about.why_satisfaction_desc', 'Support réactif et personnalisé.'),
       icon: MessageSquare
     }
   ];
@@ -77,16 +67,15 @@ const About: React.FC = () => {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-4xl md:text-6xl font-black mb-8 text-secondary-900 tracking-tight leading-tight">
-              À propos de <span className="text-primary-600">Just-Law</span>
+              {t('about.title')} <span className="text-primary-600">Just-Law</span>
             </h1>
 
             <p className="text-xl text-secondary-600 mb-10 leading-relaxed font-medium">
-              Notre mission est de rendre le droit accessible à tous grâce à 
-              l’intelligence artificielle et des services juridiques simplifiés en France.
+              {t('about.mission')}
             </p>
 
             <Button size="lg" className="px-10 py-7 rounded-2xl shadow-xl shadow-primary-600/20" onClick={() => navigate('/services')}>
-              Découvrir nos services
+              {t('about.discover_services', 'Découvrir nos services')}
             </Button>
           </motion.div>
 
@@ -119,12 +108,12 @@ const About: React.FC = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-5xl font-black mb-8 tracking-tight">Notre mission</h2>
+            <h2 className="text-3xl md:text-5xl font-black mb-8 tracking-tight">{t('about.subtitle')}</h2>
             <p className="text-xl text-primary-100 mb-6 font-medium leading-relaxed">
-              Simplifier l’accès aux services juridiques et rendre le droit compréhensible pour chaque citoyen.
+              {t('about.mission_detail', 'Simplifier l\'accès aux services juridiques et rendre le droit compréhensible pour chaque citoyen.')}
             </p>
             <p className="text-lg text-secondary-300">
-              Nous combinons expertise juridique de haut niveau et technologie d'intelligence artificielle pour une expérience fluide, sécurisée et efficace au service de la justice.
+              {t('about.mission_detail2', 'Nous combinons expertise juridique de haut niveau et technologie d\'intelligence artificielle pour une expérience fluide, sécurisée et efficace au service de la justice.')}
             </p>
           </motion.div>
         </div>
@@ -139,7 +128,7 @@ const About: React.FC = () => {
             viewport={{ once: true }}
             className="text-3xl md:text-5xl font-black text-center mb-20 tracking-tight"
           >
-            Notre équipe
+            {t('about.team_title')}
           </motion.h2>
 
           <motion.div 
@@ -147,12 +136,12 @@ const About: React.FC = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid md:grid-cols-3 gap-10"
+            className="flex justify-center"
           >
             {team.map((member, i) => {
               const Icon = member.icon;
               return (
-                <motion.div key={i} variants={itemVariants}>
+                <motion.div key={i} variants={itemVariants} className="w-full max-w-md">
                   <Card className="h-full border-none shadow-sm hover:shadow-2xl transition-all duration-500 rounded-3xl group overflow-hidden bg-secondary-50/50">
                     <CardHeader className="text-center pt-10">
                       <div className="w-20 h-20 mx-auto mb-6 bg-white shadow-lg rounded-2xl flex items-center justify-center group-hover:bg-primary-600 transition-colors duration-300">
@@ -183,7 +172,7 @@ const About: React.FC = () => {
             viewport={{ once: true }}
             className="text-3xl md:text-5xl font-black mb-20 tracking-tight"
           >
-            Pourquoi nous choisir ?
+            {t('about.why_title', 'Pourquoi nous choisir ?')}
           </motion.h2>
 
           <motion.div 
@@ -220,7 +209,7 @@ const About: React.FC = () => {
       {/* CTA */}
       <section className="py-32 relative overflow-hidden">
         <div className="absolute inset-0 bg-primary-600" />
-        <div className="absolute inset-0 bg-gradient-to-tr from-primary-700 to-indigo-900" />
+        <div className="absolute inset-0 bg-linear-to-tr from-primary-700 to-indigo-900" />
         
         <div className="container relative z-10 text-center px-4">
           <motion.div
@@ -230,11 +219,11 @@ const About: React.FC = () => {
             className="flex flex-col items-center justify-center"
           >
             <h2 className="text-3xl md:text-6xl font-black text-white mb-10 tracking-tight text-center">
-              Prêt à rejoindre l'aventure ?
+              {t('about.cta_title', 'Prêt à rejoindre l\'aventure ?')}
             </h2>
 
             <p className="text-xl text-primary-100 mb-12 max-w-2xl mx-auto font-medium text-center">
-              Rejoignez une plateforme juridique moderne qui met la technologie au service de l'humain.
+              {t('about.cta_subtitle', 'Rejoignez une plateforme juridique moderne qui met la technologie au service de l\'humain.')}
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-6">
@@ -242,7 +231,7 @@ const About: React.FC = () => {
                 className="text-lg px-12 py-8 rounded-2xl bg-white text-primary-700 hover:bg-primary-50 shadow-2xl transition-transform hover:scale-105" 
                 onClick={() => navigate('/register')}
               >
-                Créer un compte
+                {t('about.cta_register', 'Créer un compte')}
               </Button>
 
               <Button 
@@ -250,7 +239,7 @@ const About: React.FC = () => {
                 className="text-lg px-12 py-8 rounded-2xl border-white text-white hover:bg-white hover:text-primary-700 transition-transform hover:scale-105"
                 onClick={() => navigate('/register/lawyer')}
               >
-                Espace avocat
+                {t('about.cta_lawyer', 'Espace avocat')}
               </Button>
             </div>
           </motion.div>
