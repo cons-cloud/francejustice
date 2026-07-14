@@ -20,15 +20,12 @@ class SupabaseJWTAuthentication(authentication.BaseAuthentication):
         token = auth_header.split(' ', 1)[1].strip()
 
         try:
-            # Decode WITHOUT signature verification (safe for trusted internal network).
-            # To enable full verification in production, replace with:
-            #   payload = jwt.decode(token, settings.SUPABASE_JWT_SECRET,
-            #                        algorithms=["HS256"],
-            #                        options={"verify_aud": False})
+            # Decode WITH signature verification using the jwt secret.
             payload = jwt.decode(
                 token,
-                options={"verify_signature": False},
-                algorithms=["HS256", "RS256"],
+                settings.SUPABASE_JWT_SECRET,
+                algorithms=["HS256"],
+                options={"verify_aud": False}
             )
 
             supabase_user_id = payload.get('sub')

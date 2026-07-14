@@ -1,6 +1,6 @@
 {
   "seo": {
-    "title": "LawJustLaw | AI Legal Platform — Lawyers, Documents & Assistance",
+    "title": "LawJust | AI Legal Platform — Lawyers, Documents & Assistance",
     "description": "Generate your legal documents, find a lawyer in real-time, and get 24/7 AI legal assistance in Morocco, France, and worldwide."
   },
   "nav": {
@@ -101,7 +101,7 @@
   },
   "register": {
     "title": "Create an account",
-    "subtitle": "Join the LawJustLaw community",
+    "subtitle": "Join the LawJust community",
     "first_name": "First name",
     "last_name": "Last name",
     "email": "Email",
@@ -116,7 +116,7 @@
     "close": "Close"
   },
   "about": {
-    "title": "About LawJustLaw",
+    "title": "About LawJust",
     "subtitle": "Our mission",
     "mission": "Democratizing access to law for everyone.",
     "vision_title": "Our vision",
@@ -310,7 +310,7 @@
     "user": "User",
     "hello": "Hello",
     "welcome_portal": "Welcome to your intelligent legal portal",
-    "welcome_modal_title": "Welcome to LawJustLaw",
+    "welcome_modal_title": "Welcome to LawJust",
     "welcome_modal_desc": "Your personal space is open. Access your legal documents, consult assistance or contact your lawyer at any time.",
     "discover_space": "Discover my space",
     "quick_actions": "Quick actions",

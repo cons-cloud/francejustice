@@ -1,6 +1,6 @@
 {
   "seo": {
-    "title": "LawJustLaw | Plateforme Juridique IA — Avocats, Documents & Assistance",
+    "title": "LawJust | Plateforme Juridique IA — Avocats, Documents & Assistance",
     "description": "Générez vos documents juridiques, trouvez un avocat en temps réel et obtenez une assistance IA 24/7 au Maroc, en France et partout dans le monde."
   },
   "nav": {
@@ -101,7 +101,7 @@
   },
   "register": {
     "title": "Créer un compte",
-    "subtitle": "Rejoignez la communauté LawJustLaw",
+    "subtitle": "Rejoignez la communauté LawJust",
     "first_name": "Prénom",
     "last_name": "Nom",
     "email": "Email",
@@ -116,7 +116,7 @@
     "close": "Fermer"
   },
   "about": {
-    "title": "À propos de LawJustLaw",
+    "title": "À propos de LawJust",
     "subtitle": "Notre mission",
     "mission": "Notre mission est de rendre le droit accessible à tous grâce à l'intelligence artificielle et des services juridiques simplifiés.",
     "vision_title": "Notre vision",
@@ -377,7 +377,7 @@
     "user": "Utilisateur",
     "hello": "Bonjour",
     "welcome_portal": "Bienvenue sur votre portail juridique intelligent",
-    "welcome_modal_title": "Bienvenue sur LawJustLaw",
+    "welcome_modal_title": "Bienvenue sur LawJust",
     "welcome_modal_desc": "Votre espace personnel est ouvert. Accédez à vos documents juridiques, consultez l'assistance ou contactez votre avocat à tout moment.",
     "discover_space": "Découvrir mon espace",
     "quick_actions": "Actions rapides",

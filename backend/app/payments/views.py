@@ -98,38 +98,70 @@ def create_checkout_session(request):
     Creates a Stripe Checkout Session for:
     1. Citizen paying a lawyer (Quote) using lawyer's own Stripe keys
     2. Lawyer paying the 20% platform commission using admin's keys
+
+    SECURITY: The amount is ALWAYS read from the database (quotes_just),
+    never from the client-provided request body. This prevents price
+    parameter tampering (an attacker sending amount=1 to pay less).
     """
     try:
         quote_id = request.data.get('quote_id')
         payment_type = request.data.get('type')   # 'quote_payment' or 'commission_payment'
-        amount = int(request.data.get('amount'))   # Amount in cents
+
+        if not quote_id or not payment_type:
+            return Response({'error': 'quote_id and type are required.'}, status=400)
+
+        if payment_type not in ('quote_payment', 'commission_payment'):
+            return Response({'error': 'Invalid payment type.'}, status=400)
 
         stripe_key = settings.STRIPE_API_KEY
 
+        # ── Fetch the authoritative amount + Stripe key from the database ──────
+        # The client-provided `amount` is intentionally ignored to prevent
+        # price parameter tampering.
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT q.amount, q.commission_amount, q.status, "
+                "       p.stripe_secret_key "
+                "FROM quotes_just q "
+                "JOIN profiles_just p ON q.lawyer_id = p.id "
+                "WHERE q.id = %s",
+                [quote_id],
+            )
+            row = cursor.fetchone()
+
+        if not row:
+            return Response({'error': 'Devis introuvable.'}, status=404)
+
+        db_amount, db_commission, quote_status, lawyer_stripe_key = row
+
+        # Block payment if the quote is already settled
+        if quote_status in ('paid', 'commissioned'):
+            return Response({'error': 'Ce devis a déjà été payé.'}, status=400)
+
+        # Pick the correct amount column and Stripe key based on payment type
         if payment_type == 'quote_payment':
+            # Convert MAD to centimes (× 100) server-side
+            amount_cents = int(db_amount * 100)
+            if lawyer_stripe_key:
+                stripe_key = lawyer_stripe_key.strip()
             success_url = request.build_absolute_uri(
                 f'/dashboard/user?payment=success&quote_id={quote_id}'
             )
             cancel_url = request.build_absolute_uri(
                 f'/dashboard/user?payment=cancel&quote_id={quote_id}'
             )
-
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    "SELECT p.stripe_secret_key FROM quotes_just q "
-                    "JOIN profiles_just p ON q.lawyer_id = p.id WHERE q.id = %s",
-                    [quote_id],
-                )
-                row = cursor.fetchone()
-                if row and row[0]:
-                    stripe_key = row[0].strip()
         else:
+            # commission_payment — lawyer pays the platform (20%)
+            amount_cents = int(db_commission * 100)
             success_url = request.build_absolute_uri(
                 f'/dashboard/lawyer?payment=success&quote_id={quote_id}'
             )
             cancel_url = request.build_absolute_uri(
                 f'/dashboard/lawyer?payment=cancel&quote_id={quote_id}'
             )
+
+        if amount_cents <= 0:
+            return Response({'error': 'Montant invalide (≤ 0).'}, status=400)
 
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -143,7 +175,7 @@ def create_checkout_session(request):
                             else "Commission Plateforme (20%)"
                         ),
                     },
-                    'unit_amount': amount,
+                    'unit_amount': amount_cents,   # always from DB, never from client
                 },
                 'quantity': 1,
             }],

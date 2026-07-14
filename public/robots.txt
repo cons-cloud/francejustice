@@ -8,5 +8,5 @@ Disallow: /dashboard/*
 Disallow: /reset-password
 
 # Host & Sitemap
-Host: https://lawjustlaw.com
-Sitemap: https://lawjustlaw.com/sitemap.xml
+Host: https://lawjust.org
+Sitemap: https://lawjust.org/sitemap.xml

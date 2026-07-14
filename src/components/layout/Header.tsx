@@ -71,7 +71,7 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
             <Scale className="h-6 w-6 text-primary-600" />
             <div className="flex items-center">
-              <span className="text-xl font-bold text-primary-600 tracking-tight">LawJustLaw</span>
+              <span className="text-xl font-bold text-primary-600 tracking-tight">LawJust</span>
             </div>
           </div>
 

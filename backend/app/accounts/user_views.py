@@ -3,9 +3,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.conf import settings
 from supabase import create_client, Client
+from .permissions import IsSupabaseAdmin
 
 @api_view(['POST'])
-@permission_classes([AllowAny])  # Note: Add security in production
+@permission_classes([IsSupabaseAdmin])
 def create_user_admin(request):
     """
     Endpoint for admins to create users via Supabase Admin API.
@@ -64,7 +65,7 @@ def create_user_admin(request):
         return Response({"status": "error", "message": f"Erreur serveur interne: {str(e)}"}, status=400)
 
 @api_view(['DELETE'])
-@permission_classes([AllowAny])
+@permission_classes([IsSupabaseAdmin])
 def delete_user_admin(request, user_id):
     supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
     try:
@@ -81,7 +82,7 @@ def delete_user_admin(request, user_id):
         return Response({"status": "error", "message": str(e)}, status=400)
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsSupabaseAdmin])
 def suspend_user(request, user_id):
     supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
     try:
@@ -93,7 +94,7 @@ def suspend_user(request, user_id):
         return Response({"status": "error", "message": str(e)}, status=400)
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsSupabaseAdmin])
 def activate_user(request, user_id):
     supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
     try:
@@ -105,7 +106,7 @@ def activate_user(request, user_id):
         return Response({"status": "error", "message": str(e)}, status=400)
 
 @api_view(['PUT'])
-@permission_classes([AllowAny])
+@permission_classes([IsSupabaseAdmin])
 def update_user(request, user_id):
     supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
     try:

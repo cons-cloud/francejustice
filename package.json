@@ -31,10 +31,13 @@
     "@types/papaparse": "^5.5.2",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
+    "i18next": "^23.11.5",
+    "i18next-browser-languagedetector": "^8.0.0",
     "lucide-react": "^0.468.0",
     "papaparse": "^5.5.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-i18next": "^14.1.2",
     "react-router-dom": "^6.30.1",
     "recharts": "^3.8.1",
     "tailwind-merge": "^2.5.4",
@@ -85,5 +88,5 @@
   "bugs": {
     "url": "https://github.com/lawjust/lawjust/issues"
   },
-  "homepage": "https://lawjust.fr"
+  "homepage": "https://lawjust.org"
 }

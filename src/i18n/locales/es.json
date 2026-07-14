@@ -1,6 +1,6 @@
 {
   "seo": {
-    "title": "LawJustLaw | Plataforma Legal de IA — Abogados, Documentos y Asistencia",
+    "title": "LawJust | Plataforma Legal de IA — Abogados, Documentos y Asistencia",
     "description": "Genere sus documentos legales, encuentre un abogado en tiempo real y obtenga asistencia legal de IA 24/7 en Marruecos, Francia y en todo el mundo."
   },
   "nav": {
@@ -101,7 +101,7 @@
   },
   "register": {
     "title": "Crear una cuenta",
-    "subtitle": "Únase a la comunidad LawJustLaw",
+    "subtitle": "Únase a la comunidad LawJust",
     "first_name": "Nombre",
     "last_name": "Apellido",
     "email": "Email",
@@ -116,7 +116,7 @@
     "close": "Cerrar"
   },
   "about": {
-    "title": "Acerca de LawJustLaw",
+    "title": "Acerca de LawJust",
     "subtitle": "Nuestra misión",
     "mission": "Democratizar el acceso al derecho para todos.",
     "vision_title": "Nuestra visión",
@@ -310,7 +310,7 @@
     "user": "Usuario",
     "hello": "Hola",
     "welcome_portal": "Bienvenido a su portal jurídico inteligente",
-    "welcome_modal_title": "Bienvenido a LawJustLaw",
+    "welcome_modal_title": "Bienvenido a LawJust",
     "welcome_modal_desc": "Su espacio personal está abierto. Acceda a sus documentos jurídicos, consulte la asistencia o contacte con su abogado en cualquier momento.",
     "discover_space": "Descubrir mi espacio",
     "quick_actions": "Acciones rápidas",

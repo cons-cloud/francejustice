@@ -141,6 +141,7 @@ STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
 # Supabase
 SUPABASE_URL = env('SUPABASE_URL', default='')
 SUPABASE_SERVICE_KEY = env('SUPABASE_SERVICE_ROLE_KEY', default='')
+SUPABASE_JWT_SECRET = env('SUPABASE_JWT_SECRET', default='')
 GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
 
 # 8x8 JaaS (Jitsi as a Service) — for 2-hour video classrooms
