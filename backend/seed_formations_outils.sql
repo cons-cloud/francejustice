@@ -1,5 +1,5 @@
 -- =============================================================================
--- SEED : Formations & Outils pour la plateforme JustLaw
+-- SEED : Formations & Outils pour la plateforme France Justice
 -- À exécuter dans l'éditeur SQL Supabase :
 -- https://supabase.com/dashboard/project/zchhijltemvrsthdaxex/sql
 -- =============================================================================

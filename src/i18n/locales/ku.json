@@ -1,6 +1,6 @@
 {
   "seo": {
-    "title": "LawJust | Platforma Hiqûqî ya AI — Parêzer, Belge û Alîkarî",
+    "title": "France Justice | Platforma Hiqûqî ya AI — Parêzer, Belge û Alîkarî",
     "description": "Belgeyên xwe yên hiqûqî biafirînin, di dema rast de parêzerek bibînin û li Fas, Fransa û li seranserê cîhanê 24/7 alîkariya hiqûqî ya AI bistînin."
   },
   "nav": {
@@ -97,7 +97,7 @@
   },
   "register": {
     "title": "Hesab Biafirîne",
-    "subtitle": "Tev li civaka LawJust bibin",
+    "subtitle": "Tev li civaka France Justice bibin",
     "first_name": "Nav",
     "last_name": "Paşnav",
     "email": "E-posta",
@@ -112,7 +112,7 @@
     "close": "Bigire"
   },
   "about": {
-    "title": "Der barê LawJust de",
+    "title": "Der barê France Justice de",
     "subtitle": "Misyona me",
     "mission": "Demokratîzekirina gihîştina qanûnê ji bo herkesî.",
     "vision_title": "Vîzyona me",
@@ -306,7 +306,7 @@
     "user": "Bikarhêner",
     "hello": "Silav",
     "welcome_portal": "Bi xêr hatî bo portala xwe ya hiqûqî ya zîrek",
-    "welcome_modal_title": "Bi xêr hatî bo LawJust",
+    "welcome_modal_title": "Bi xêr hatî bo France Justice",
     "welcome_modal_desc": "Cihê we yê kesane vekirî ye. Hûn dikarin her dem bigihîjin belgeyên xwe yên hiqûqî, alîkariyê bixwazin an jî bi parêzerê xwe re têkiliyê deynin.",
     "discover_space": "Cihê min eşkere bike",
     "quick_actions": "Çalakiyên bilez",

@@ -147,8 +147,8 @@ async function seedData() {
   // 1. Authentification admin
   console.log('🔐 Connexion admin...');
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-    email: 'justlaw@gmail.com',
-    password: 'Justlaw1@'
+    email: 'francejustice@gmail.com',
+    password: 'France Justice1@'
   });
 
   if (authError) {

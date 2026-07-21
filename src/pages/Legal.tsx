@@ -25,10 +25,10 @@ const Legal: React.FC = () => {
                                 <h2 className="text-2xl font-bold text-gray-900">{t('legal.notice_title', 'Mentions Légales')}</h2>
                             </div>
                             <div className="prose prose-blue max-w-none text-gray-600 space-y-4">
-                                <p><strong>{t('legal.publisher', 'Éditeur du site :')}</strong> LawJust SAS, société au capital de 50 000 €, dont le siège social est situé au 1275 route de chateau neuf 26320 saint marcelle les valence.</p>
-                                <p><strong>{t('legal.director', 'Directeur de la publication :')}</strong> Administrateur LawJust.</p>
+                                <p><strong>{t('legal.publisher', 'Éditeur du site :')}</strong> France Justice SAS, société au capital de 50 000 €, dont le siège social est situé au 1275 route de chateau neuf 26320 saint marcelle les valence.</p>
+                                <p><strong>{t('legal.director', 'Directeur de la publication :')}</strong> Administrateur France Justice.</p>
                                 <p><strong>{t('legal.hosting', 'Hébergement :')}</strong> Platform.sh / Railway.</p>
-                                <p><strong>{t('legal.contact', 'Contact :')}</strong> contact@lawjust.org | +33607517416</p>
+                                <p><strong>{t('legal.contact', 'Contact :')}</strong> contact@francejustice.org | +33607517416</p>
                             </div>
                         </section>
 
@@ -41,7 +41,7 @@ const Legal: React.FC = () => {
                                 <h2 className="text-2xl font-bold text-gray-900">{t('legal.privacy_title', 'Politique de Confidentialité')}</h2>
                             </div>
                             <div className="prose prose-green max-w-none text-gray-600 space-y-4">
-                                <p>{t('legal.privacy_desc', "LawJust s'engage à protéger vos données personnelles. Nous collectons uniquement les données nécessaires au bon fonctionnement de nos services juridiques.")}</p>
+                                <p>{t('legal.privacy_desc', "France Justice s'engage à protéger vos données personnelles. Nous collectons uniquement les données nécessaires au bon fonctionnement de nos services juridiques.")}</p>
                                 <ul className="list-disc pl-5">
                                     <li>{t('legal.privacy_item1', 'Collecte de données : Nom, prénom, email, spécialité (avocats).')}</li>
                                     <li>{t('legal.privacy_item2', 'Usage : Mise en relation, génération de documents IA.')}</li>
@@ -60,7 +60,7 @@ const Legal: React.FC = () => {
                                 <h2 className="text-2xl font-bold text-gray-900">{t('legal.terms_title', "Conditions Générales d'Utilisation")}</h2>
                             </div>
                             <div className="prose prose-orange max-w-none text-gray-600 space-y-4">
-                                <p>{t('legal.terms_desc1', "L'utilisation de la plateforme LawJust implique l'acceptation intégrale des présentes conditions d'utilisation.")}</p>
+                                <p>{t('legal.terms_desc1', "L'utilisation de la plateforme France Justice implique l'acceptation intégrale des présentes conditions d'utilisation.")}</p>
                                 <p>{t('legal.terms_desc2', "La plateforme fournit des outils d'aide juridique basés sur l'IA, mais ne remplace en aucun cas les conseils directs d'un avocat humain. Les utilisateurs sont encouragés à contacter les avocats vérifiés via notre plateforme.")}</p>
                             </div>
                         </section>

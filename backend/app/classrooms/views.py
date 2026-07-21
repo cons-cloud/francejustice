@@ -32,7 +32,7 @@ def _build_room_name(room_id: str) -> str:
     """
     date_token = datetime.now(timezone.utc).strftime("%Y%m%d")
     prefix = room_id.replace("-", "")[:12]
-    return f"lawjust{prefix}{date_token}"
+    return f"francejustice{prefix}{date_token}"
 
 
 def _generate_jaas_token(

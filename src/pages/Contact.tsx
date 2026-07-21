@@ -92,8 +92,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-secondary-900">{t('contact.email_title')}</h3>
-                    <p className="text-secondary-500">contact@lawjust.org</p>
-                    <p className="text-secondary-500">support@lawjust.org</p>
+                    <p className="text-secondary-500">contact@francejustice.org</p>
+                    <p className="text-secondary-500">support@francejustice.org</p>
                   </div>
                 </div>
               </div>

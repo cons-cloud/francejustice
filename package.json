@@ -83,10 +83,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lawjust/lawjust.git"
+    "url": "https://github.com/francejustice/francejustice.git"
   },
   "bugs": {
-    "url": "https://github.com/lawjust/lawjust/issues"
+    "url": "https://github.com/francejustice/francejustice/issues"
   },
-  "homepage": "https://lawjust.org"
+  "homepage": "https://francejustice.org"
 }

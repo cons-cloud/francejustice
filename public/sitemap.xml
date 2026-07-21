@@ -2,63 +2,63 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <!-- Homepage -->
   <url>
-    <loc>https://lawjust.org/</loc>
+    <loc>https://francejustice.org/</loc>
     <lastmod>2026-07-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://lawjust.org/?lng=fr"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://lawjust.org/?lng=en"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://lawjust.org/?lng=ar"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://lawjust.org/?lng=es"/>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://lawjust.org/?lng=ru"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://lawjust.org/?lng=tr"/>
-    <xhtml:link rel="alternate" hreflang="ku" href="https://lawjust.org/?lng=ku"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://francejustice.org/?lng=fr"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://francejustice.org/?lng=en"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://francejustice.org/?lng=ar"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://francejustice.org/?lng=es"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://francejustice.org/?lng=ru"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://francejustice.org/?lng=tr"/>
+    <xhtml:link rel="alternate" hreflang="ku" href="https://francejustice.org/?lng=ku"/>
   </url>
   <!-- Services -->
   <url>
-    <loc>https://lawjust.org/services</loc>
+    <loc>https://francejustice.org/services</loc>
     <lastmod>2026-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Search -->
   <url>
-    <loc>https://lawjust.org/search</loc>
+    <loc>https://francejustice.org/search</loc>
     <lastmod>2026-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Generator -->
   <url>
-    <loc>https://lawjust.org/generator</loc>
+    <loc>https://francejustice.org/generator</loc>
     <lastmod>2026-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Classrooms -->
   <url>
-    <loc>https://lawjust.org/classrooms</loc>
+    <loc>https://francejustice.org/classrooms</loc>
     <lastmod>2026-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <!-- Lawyers -->
   <url>
-    <loc>https://lawjust.org/lawyers</loc>
+    <loc>https://francejustice.org/lawyers</loc>
     <lastmod>2026-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- About -->
   <url>
-    <loc>https://lawjust.org/about</loc>
+    <loc>https://francejustice.org/about</loc>
     <lastmod>2026-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <!-- Contact -->
   <url>
-    <loc>https://lawjust.org/contact</loc>
+    <loc>https://francejustice.org/contact</loc>
     <lastmod>2026-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

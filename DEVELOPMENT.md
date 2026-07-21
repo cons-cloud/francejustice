@@ -223,7 +223,7 @@ npm run preview
 ### Variables d'Environnement
 ```bash
 # .env.local
-VITE_API_BASE_URL=https://api.lawjust.org
+VITE_API_BASE_URL=https://api.francejustice.org
 VITE_ENABLE_AI_SEARCH=true
 ```
 
@@ -373,9 +373,9 @@ npm run build-storybook
 ## 📞 Support
 
 ### Ressources
-- 📖 Documentation: [docs.lawjust.org]
+- 📖 Documentation: [docs.francejustice.org]
 - 💬 Discord: [Serveur Law Just]
-- 📧 Email: dev@lawjust.org
+- 📧 Email: dev@francejustice.org
 - 🐛 Issues: [GitHub Issues]
 
 ---

@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.legal_news (
     content TEXT,
     category TEXT DEFAULT 'Général', -- Maroc, France, International
     image_url TEXT,
-    author TEXT DEFAULT 'JustLaw Editorial',
+    author TEXT DEFAULT 'France Justice Editorial',
     published_at TIMESTAMPTZ DEFAULT now(),
     created_at TIMESTAMPTZ DEFAULT now()
 );

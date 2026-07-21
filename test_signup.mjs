@@ -67,7 +67,7 @@ async function createProfile(userId, email, role) {
 }
 
 async function run() {
-  await signUpUser('justlaw@gmail.com', 'Justlaw1@', 'admin');
+  await signUpUser('francejustice@gmail.com', 'France Justice1@', 'admin');
   await signUpUser('citizen@test.com', 'Password123!', 'user');
   await signUpUser('lawyer@test.com', 'Password123!', 'lawyer');
   process.exit(0);

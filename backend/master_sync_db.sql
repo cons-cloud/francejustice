@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS public.platform_settings (
     id TEXT PRIMARY KEY DEFAULT 'global',
     maintenance_mode BOOLEAN DEFAULT false,
     commission_rate DECIMAL(5,2) DEFAULT 20.00,
-    welcome_message TEXT DEFAULT 'Bienvenue sur JustLaw',
+    welcome_message TEXT DEFAULT 'Bienvenue sur France Justice',
     updated_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -264,8 +264,8 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- MANUAL FIX FOR ADMIN PROFILE (Run this if the admin is missing)
--- You need to get the UUID from Supabase Auth for justlaw@gmail.com
+-- You need to get the UUID from Supabase Auth for francejustice@gmail.com
 -- INSERT INTO public.profiles (id, email, first_name, last_name, role, is_verified)
--- VALUES ('REPLACE_WITH_UUID', 'justlaw@gmail.com', 'Admin', 'JustLaw', 'admin', true)
+-- VALUES ('REPLACE_WITH_UUID', 'francejustice@gmail.com', 'Admin', 'France Justice', 'admin', true)
 -- ON CONFLICT (email) DO UPDATE SET role = 'admin', is_verified = true;
 

@@ -93,7 +93,7 @@ CELERY_RESULT_BACKEND=redis://redis:6379/2
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 
 # Other
-DEFAULT_FROM_EMAIL=no-reply@lawjust.org
+DEFAULT_FROM_EMAIL=no-reply@francejustice.org
 Installation & démarrage local (sans Docker)
 Créez un environnement virtuel :
 bash

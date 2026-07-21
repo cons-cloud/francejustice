@@ -1,6 +1,6 @@
 {
   "seo": {
-    "title": "LawJust | Yapay Zeka Hukuk Platformu — Avukatlar, Belgeler ve Destek",
+    "title": "France Justice | Yapay Zeka Hukuk Platformu — Avukatlar, Belgeler ve Destek",
     "description": "Hukuki belgelerinizi oluşturun, gerçek zamanlı olarak bir avukat bulun ve Fas, Fransa ve dünya genelinde 7/24 yapay zeka hukuk desteği alın."
   },
   "nav": {
@@ -101,7 +101,7 @@
   },
   "register": {
     "title": "Hesap Oluştur",
-    "subtitle": "LawJust topluluğuna katılın",
+    "subtitle": "France Justice topluluğuna katılın",
     "first_name": "Ad",
     "last_name": "Soyad",
     "email": "E-posta",
@@ -116,7 +116,7 @@
     "close": "Kapat"
   },
   "about": {
-    "title": "LawJust Hakkında",
+    "title": "France Justice Hakkında",
     "subtitle": "Misyonumuz",
     "mission": "Herkes için hukuka erişimi demokratikleştirmek.",
     "vision_title": "Vizyonumuz",
@@ -310,7 +310,7 @@
     "user": "Kullanıcı",
     "hello": "Merhaba",
     "welcome_portal": "Akıllı hukuk portalınıza hoş geldiniz",
-    "welcome_modal_title": "LawJust'a Hoş Geldiniz",
+    "welcome_modal_title": "France Justice'a Hoş Geldiniz",
     "welcome_modal_desc": "Kişisel alanınız kullanıma hazır. Yasal belgelerinize erişebilir, destek alabilir veya istediğiniz zaman avukatınızla iletişime geçebilirsiniz.",
     "discover_space": "Alanımı Keşfet",
     "quick_actions": "Hızlı İşlemler",

@@ -6,10 +6,10 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function testAuth() {
-  console.log('Testing login for justlaw@gmail.com / Justlaw1@');
+  console.log('Testing login for francejustice@gmail.com / France Justice1@');
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: 'justlaw@gmail.com',
-    password: 'Justlaw1@'
+    email: 'francejustice@gmail.com',
+    password: 'France Justice1@'
   });
 
   if (error) {

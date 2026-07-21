@@ -1,5 +1,5 @@
 -- =============================================================================
--- SETUP COMPLET : Tables dynamiques pour JustLaw
+-- SETUP COMPLET : Tables dynamiques pour France Justice
 -- À exécuter dans l'éditeur SQL Supabase :
 -- https://supabase.com/dashboard/project/zchhijltemvrsthdaxex/sql
 -- =============================================================================

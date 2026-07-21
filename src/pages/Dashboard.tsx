@@ -634,7 +634,7 @@ Montant: ${quote.amount} MAD
 Description: ${quote.description || ''}
 Statut: ${quote.status === 'paid' ? 'Payé' : 'En attente'}
 
-Ce document est généré par la plateforme LawJust.
+Ce document est généré par la plateforme France Justice.
     `;
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -1779,7 +1779,7 @@ Ce document est généré par la plateforme LawJust.
       <Modal
         isOpen={showWelcome}
         onClose={() => setShowWelcome(false)}
-        title={t('dashboard.welcome_modal_title', 'Bienvenue sur LawJust')}
+        title={t('dashboard.welcome_modal_title', 'Bienvenue sur France Justice')}
       >
         <div className="text-center py-6">
           <div className="mx-auto h-16 w-16 bg-success-100 rounded-full flex items-center justify-center mb-4">
