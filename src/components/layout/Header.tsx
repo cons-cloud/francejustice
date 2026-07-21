@@ -7,6 +7,32 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
 
+// Banner Images
+import conseilImg from '../../assets/images/conseil.webp';
+import educationImg from '../../assets/images/education.jpg';
+import franceDemocratieImg from '../../assets/images/francedemocratie.webp';
+import interieurImg from '../../assets/images/interieur.webp';
+import justiceImg from '../../assets/images/justice.webp';
+import presidentielleImg from '../../assets/images/présidentielle.webp';
+import superieurImg from '../../assets/images/superieur.png';
+import travailImg from '../../assets/images/travail.png';
+import justeImg from '../../assets/images/juste.webp';
+
+const ministryImages = [
+  { src: educationImg, alt: 'Ministère de l\'Éducation', href: 'https://www.education.gouv.fr/' },
+  { src: travailImg, alt: 'Ministère du Travail', href: 'https://travail-emploi.gouv.fr/' },
+  { src: justeImg, alt: 'Ministère de la Justice', href: 'https://www.justice.fr/' },
+  { src: interieurImg, alt: 'Ministère de l\'Intérieur', href: 'https://www.interieur.gouv.fr/' },
+];
+
+const otherImages = [
+  { src: conseilImg, alt: 'Conseil d\'État', href: 'https://www.conseil-etat.fr/' },
+  { src: superieurImg, alt: 'Conseil Supérieur de la Magistrature', href: 'https://www.conseil-superieur-magistrature.fr/' },
+  { src: justiceImg, alt: 'France Justice', href: 'https://www.info.gouv.fr/actualite/la-justice-et-moi-par-ou-commencer', overlayText: 'France justice' },
+  { src: franceDemocratieImg, alt: 'France Démocratie', href: 'https://www.francedemocratie.com/', overlayText: 'France Démocratie' },
+  { src: presidentielleImg, alt: 'Présidentielle', href: 'https://www.presidentielle2027.org/', overlayText: 'Présidentielle2027' },
+];
+
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAiDropdownOpen, setIsAiDropdownOpen] = useState(false);
@@ -64,7 +90,71 @@ const Header: React.FC = () => {
   const isOutilsActive = ['/services', '/classrooms'].includes(location.pathname);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-secondary-200 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-secondary-200 bg-white shadow-sm flex flex-col">
+      {/* Top Banner with Images (Hidden on mobile, just like reference site d-none d-lg-block) */}
+      <div className="hidden lg:block w-full bg-white border-b border-gray-200 py-2 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="container mx-auto flex justify-between items-center gap-4">
+          
+          {/* Ministries - All the way to the left */}
+          <div className="flex items-center gap-4">
+            {ministryImages.map((img, idx) => (
+              <a 
+                key={`min-${idx}`} 
+                href={img.href} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                title={img.alt}
+                className="relative inline-block transition-transform hover:scale-105"
+                style={{ textDecoration: 'none', color: 'white' }}
+              >
+                <img 
+                  src={img.src} 
+                  alt={img.alt} 
+                  className="h-[80px] w-auto block" 
+                />
+                {img.overlayText && (
+                  <p 
+                    className="absolute bottom-0 left-0 right-0 m-0 text-center text-white font-sans text-sm"
+                    style={{ padding: '10px', background: 'rgba(0, 0, 0, 0.5)' }}
+                  >
+                    {img.overlayText}
+                  </p>
+                )}
+              </a>
+            ))}
+          </div>
+
+          {/* Other Institutions & Campaigns */}
+          <div className="flex items-center gap-4">
+            {otherImages.map((img, idx) => (
+              <a 
+                key={`oth-${idx}`} 
+                href={img.href} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                title={img.alt}
+                className="relative inline-block transition-transform hover:scale-105"
+                style={{ textDecoration: 'none', color: 'white' }}
+              >
+                <img 
+                  src={img.src} 
+                  alt={img.alt} 
+                  className="h-[80px] w-auto block" 
+                />
+                {img.overlayText && (
+                  <p 
+                    className="absolute bottom-0 left-0 right-0 m-0 text-center text-white font-sans text-sm"
+                    style={{ padding: '10px', background: 'rgba(0, 0, 0, 0.5)' }}
+                  >
+                    {img.overlayText}
+                  </p>
+                )}
+              </a>
+            ))}
+          </div>
+
+        </div>
+      </div>
       <div className="container px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}

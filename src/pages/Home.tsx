@@ -129,18 +129,7 @@ const Home: React.FC = () => {
     <div className="min-h-screen overflow-x-hidden">
 
       {/* HERO SECTION */}
-      <section className="relative h-[90vh] flex items-center justify-center">
-        {/* Image */}
-        <motion.div
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.5 }}
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroBg})` }}
-        />
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/60" />
-
+      <section className="relative min-h-[90vh] flex items-center justify-center bg-white pt-20 pb-32">
         {/* Content */}
         <div className="relative z-10 text-center px-6 max-w-4xl">
           <motion.div
@@ -148,18 +137,18 @@ const Home: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h1 className="text-4xl md:text-7xl font-extrabold text-white mb-6 tracking-tight leading-none text-balance">
-              {t('home.hero_title')} <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-400 to-indigo-400">{t('home.hero_title_highlight')}</span>
+            <h1 className="text-4xl md:text-7xl font-extrabold text-secondary-900 mb-6 tracking-tight leading-none text-balance">
+              {t('home.hero_title')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600">{t('home.hero_title_highlight')}</span>
             </h1>
 
-            <p className="text-lg md:text-2xl text-secondary-200 mb-10 leading-relaxed max-w-3xl mx-auto font-medium">
+            <p className="text-lg md:text-2xl text-secondary-600 mb-10 leading-relaxed max-w-3xl mx-auto font-medium">
               {t('home.hero_subtitle')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
               <Button
                 size="lg"
-                className="text-lg px-10 py-7 rounded-2xl bg-primary-600 hover:bg-primary-500 shadow-xl shadow-primary-600/30 transition-all hover:scale-105 active:scale-95"
+                className="text-lg px-10 py-7 rounded-2xl bg-primary-600 hover:bg-primary-700 text-white shadow-xl shadow-primary-600/20 transition-all hover:scale-105 active:scale-95"
                 onClick={() => navigate('/login')}
               >
                 {t('home.hero_start')}
@@ -169,7 +158,7 @@ const Home: React.FC = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="text-lg px-10 py-7 rounded-2xl border-white/30 text-white hover:bg-white hover:text-black backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
+                className="text-lg px-10 py-7 rounded-2xl border-secondary-200 text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900 transition-all hover:scale-105 active:scale-95"
                 onClick={() => navigate('/services')}
               >
                 {t('home.hero_services')}
