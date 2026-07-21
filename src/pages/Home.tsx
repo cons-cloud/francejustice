@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import AnimatedCounter from '../components/ui/AnimatedCounter';
-import heroBg from '../assets/images/3.jpg';
 import { useTranslation } from '../i18n';
 
 const Home: React.FC = () => {
