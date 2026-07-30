@@ -121,10 +121,12 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
   };
 
   const documentTypes = [
-    { id: 'plainte-simple', title: t('generator.type_plainte', 'Plainte simple'), description: t('generator.type_plainte_desc', 'Déposer une plainte pour un délit ou un crime'), icon: FileText },
-    { id: 'pre-plainte', title: t('generator.type_preplainte', 'Pré-plainte en ligne'), description: t('generator.type_preplainte_desc', 'Démarche préalable avant dépôt de plainte'), icon: FileText },
-    { id: 'main-courante', title: t('generator.type_maincourante', 'Main courante'), description: t('generator.type_maincourante_desc', 'Consigner des faits sans porter plainte'), icon: FileText },
-    { id: 'recours-gracieux', title: t('generator.type_recours', 'Recours gracieux'), description: t('generator.type_recours_desc', "Demande d'annulation ou de modification d'une décision"), icon: FileText },
+    { id: 'plainte-simple', title: t('generator.type_plainte', 'Plainte simple'), description: t('generator.type_plainte_desc', 'Déposer une plainte auprès du Procureur de la République'), icon: FileText },
+    { id: 'pre-plainte', title: t('generator.type_preplainte', 'Pré-plainte en ligne'), description: t('generator.type_preplainte_desc', 'Démarche préalable officielle avant convocation'), icon: FileText },
+    { id: 'main-courante', title: t('generator.type_maincourante', 'Main courante'), description: t('generator.type_maincourante_desc', 'Consigner officiellement des faits sans plainte'), icon: FileText },
+    { id: 'recours-gracieux', title: t('generator.type_recours', 'Recours gracieux & Administratif'), description: t('generator.type_recours_desc', "Demande d'annulation ou de révision d'une décision"), icon: FileText },
+    { id: 'contrat-prestation', title: 'Contrat de Prestation / Convention', description: "Rédaction d'un accord commercial ou convention d'honoraires", icon: FileText },
+    { id: 'conclusions-anonymisees', title: 'Conclusions & Actes Judiciaires Anonymisés', description: 'Trame de conclusions avec occultation RGPD automatique des données', icon: FileText },
   ];
 
   const steps = [
@@ -146,27 +148,32 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {documentTypes.map((type) => {
                 const Icon = type.icon;
+                const isSelected = formData.documentType === type.id;
                 return (
                   <Card
                     key={type.id}
-                    hover
-                    className={`cursor-pointer transition-all duration-200 ${
-                      formData.documentType === type.id
-                        ? 'border-2! border-primary-500! bg-primary-50/50! scale-[1.02] shadow-md'
-                        : 'border-2! border-transparent! hover:border-secondary-200!'
+                    className={`relative cursor-pointer transition-all duration-300 rounded-2xl p-1 ${
+                      isSelected
+                        ? 'border-2 border-indigo-600 bg-indigo-50/90 dark:bg-indigo-950/50 ring-2 ring-indigo-500/40 shadow-xl shadow-indigo-500/10 scale-[1.02]'
+                        : 'border border-slate-200 hover:border-indigo-300 hover:bg-slate-50/80 opacity-80 hover:opacity-100'
                     }`}
                     onClick={() => handleInputChange('documentType', type.id)}
                   >
+                    {isSelected && (
+                      <div className="absolute top-3 right-3 bg-indigo-600 text-white rounded-full p-1 shadow-md">
+                        <CheckCircle className="h-5 w-5 fill-white text-indigo-600" />
+                      </div>
+                    )}
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
-                        <div className="p-3 bg-primary-100 rounded-lg">
-                          <Icon className="h-6 w-6 text-primary-600" />
+                        <div className={`p-3 rounded-xl transition-colors ${isSelected ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-600'}`}>
+                          <Icon className="h-6 w-6" />
                         </div>
-                        <div>
-                          <h4 className="text-lg font-semibold text-secondary-900 mb-2">
+                        <div className="pr-6">
+                          <h4 className={`text-lg font-bold mb-1 ${isSelected ? 'text-indigo-950 dark:text-white' : 'text-slate-900'}`}>
                             {type.title}
                           </h4>
-                          <p className="text-secondary-600">
+                          <p className={`text-sm leading-relaxed ${isSelected ? 'text-indigo-900/80 dark:text-slate-200 font-medium' : 'text-slate-600'}`}>
                             {type.description}
                           </p>
                         </div>

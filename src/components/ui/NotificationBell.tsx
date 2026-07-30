@@ -3,7 +3,7 @@ import { Bell, X, Check, CheckCheck, FileText, Calendar, CreditCard, MessageSqua
 import { useNotifications, type Notification } from '../../hooks/useNotifications';
 
 interface NotificationBellProps {
-  userId: string | null;
+  userId?: string | null;
 }
 
 // ── Icon per notification type ─────────────────────────────────────────────
@@ -39,7 +39,7 @@ const timeAgo = (date: string): string => {
 };
 
 const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(userId);
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(userId || null);
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 

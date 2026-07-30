@@ -13,7 +13,11 @@ import { exportToCSV, exportToJSON } from '../lib/exportUtils';
 import { regions } from '../components/features/FranceMap';
 import { useAuth } from '../hooks/useAuth';
 import NotificationBell from '../components/ui/NotificationBell';
+import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import { useTranslation } from '../i18n';
+import { AnnualPlanning } from '../components/features/AnnualPlanning';
+import { ScientificReviews } from '../components/features/ScientificReviews';
+import { Calendar } from 'lucide-react';
 
 interface UserProfile {
   id: string;
@@ -291,6 +295,64 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleAddClassroomByAdmin = () => {
+    openModal("Créer une Visioconférence (Admin)", [
+      { name: 'title', label: "Titre de la session" },
+      { name: 'description', label: "Description" },
+      { name: 'type', label: "Type (direct / video / differe)" },
+      { name: 'scheduled_at', label: "Date et heure (YYYY-MM-DDTHH:MM)", type: 'datetime-local' },
+      { name: 'duration_minutes', label: "Durée (minutes)", type: 'number' },
+      { name: 'max_members', label: "Max participants", type: 'number' },
+      { name: 'video_url', label: "URL Vidéo (YouTube / Vimeo / MP4)" },
+    ], async (vals) => {
+      if (!vals.title) return;
+      const scheduledDate = vals.scheduled_at ? new Date(vals.scheduled_at) : null;
+      const dateStr = scheduledDate ? scheduledDate.toISOString().split('T')[0] : null;
+      const timeStr = scheduledDate ? scheduledDate.toTimeString().slice(0, 5) : null;
+      const { error } = await supabase.from('classrooms_just').insert([{
+        title: vals.title,
+        description: vals.description || '',
+        type: vals.type || 'direct',
+        scheduled_at: vals.scheduled_at || null,
+        date: dateStr,
+        time: timeStr,
+        duration_minutes: parseInt(vals.duration_minutes) || 60,
+        max_members: parseInt(vals.max_members) || 100,
+        video_url: vals.video_url || '',
+        lawyer_id: user?.id,
+        is_active: true
+      }]);
+      if (error) toastError("Erreur", error.message);
+      else { success("Visio créée", "La visioconférence a été créée par l'administrateur."); fetchClassrooms(); }
+    });
+  };
+
+  const handleEditClassroomByAdmin = (room: any) => {
+    openModal("Modifier la Visioconférence", [
+      { name: 'title', label: "Titre", defaultValue: room.title || '' },
+      { name: 'description', label: "Description", defaultValue: room.description || '' },
+      { name: 'video_url', label: "URL Vidéo", defaultValue: room.video_url || '' },
+    ], async (vals) => {
+      const updates: any = {};
+      if (vals.title) updates.title = vals.title;
+      if (vals.description !== undefined) updates.description = vals.description;
+      if (vals.video_url !== undefined) updates.video_url = vals.video_url;
+      const { error } = await supabase.from('classrooms_just').update(updates).eq('id', room.id);
+      if (error) toastError("Erreur", error.message);
+      else { success("Visio modifiée", "La visioconférence a été mise à jour."); fetchClassrooms(); }
+    });
+  };
+
+  const handleToggleClassroomByAdmin = async (id: string, isActive: boolean) => {
+    const { error } = await supabase.from('classrooms_just').update({ is_active: !isActive }).eq('id', id);
+    if (!error) {
+      success(isActive ? "Suspendue" : "Activée", `La visioconférence a été ${isActive ? 'suspendue' : 'activée'}.`);
+      fetchClassrooms();
+    } else {
+      toastError("Erreur", error.message);
+    }
+  };
+
   const fetchSettings = async () => {
     const { data } = await supabase.from('platform_settings_just').select('*').eq('id', 'global').maybeSingle();
     if (data) setSettings(data);
@@ -542,7 +604,8 @@ const AdminDashboard: React.FC = () => {
             <h1 className="text-3xl font-bold text-secondary-900 mb-2">{t('admin_dashboard.title', 'Espace Administration')}</h1>
             <p className="text-secondary-600">{t('admin_dashboard.subtitle', 'Gestion centrale des comptes, avocats et messages')}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <LiveSyncBadge status="connected" showText={true} />
             <NotificationBell userId={user?.id ?? null} />
             <Button onClick={() => { fetchUsers(); fetchMessages(); }} variant="outline" size="sm" className="hidden sm:flex">
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -581,6 +644,8 @@ const AdminDashboard: React.FC = () => {
                   { id: 'outils', name: t('admin_dashboard.lawyer_tools', "Outils Avocats"), icon: PenTool },
                   { id: 'formations', name: t('dashboard.formations', "Formations"), icon: BookOpen },
                   { id: 'classrooms', name: t('admin_dashboard.videoconferences', "Visioconférences"), icon: Video },
+                  { id: 'planning', name: 'Planning Annuel', icon: Calendar },
+                  { id: 'reviews', name: 'Revues Scientifiques', icon: BookOpen },
                   { id: 'payments', name: t('admin_dashboard.platform_revenue', "Paiements"), icon: CreditCard },
                   { id: 'monitoring', name: t('admin_dashboard.live_monitoring', "LIVE Monitoring"), icon: RefreshCw },
                 ].map((tab) => (
@@ -1384,6 +1449,9 @@ const AdminDashboard: React.FC = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-semibold text-secondary-900">Gestion des Visioconférences</h2>
+                  <Button onClick={handleAddClassroomByAdmin}>
+                    <Plus className="h-4 w-4 mr-2" /> Créer une visio (Admin)
+                  </Button>
                 </div>
                 <Card>
                   <CardContent className="p-0">
@@ -1396,6 +1464,7 @@ const AdminDashboard: React.FC = () => {
                             <th className="px-6 py-4">Type</th>
                             <th className="px-6 py-4">Avocat</th>
                             <th className="px-6 py-4">Date / Heure</th>
+                            <th className="px-6 py-4">Statut</th>
                             <th className="px-6 py-4">Actions</th>
                           </tr>
                         </thead>
@@ -1414,26 +1483,53 @@ const AdminDashboard: React.FC = () => {
                                 </span>
                               </td>
                               <td className="px-6 py-4 text-secondary-700">
-                                {room.lawyer ? `Me ${room.lawyer.first_name} ${room.lawyer.last_name}` : 'Avocat inconnu'}
+                                {room.lawyer ? `Me ${room.lawyer.first_name} ${room.lawyer.last_name}` : 'Avocat / Admin'}
                               </td>
                               <td className="px-6 py-4 text-secondary-500">
                                 {room.scheduled_at ? new Date(room.scheduled_at).toLocaleString('fr-FR') : 'Non planifié'}
                               </td>
                               <td className="px-6 py-4">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                  onClick={() => handleDeleteClassroomByAdmin(room.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                                  room.is_active !== false ? 'bg-success-100 text-success-700' : 'bg-warning-100 text-warning-700'
+                                }`}>
+                                  {room.is_active !== false ? 'Actif' : 'Suspendu'}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs"
+                                    onClick={() => handleToggleClassroomByAdmin(room.id, room.is_active !== false)}
+                                    title={room.is_active !== false ? 'Suspendre' : 'Activer'}
+                                  >
+                                    {room.is_active !== false ? '⏸️ Suspendre' : '✅ Activer'}
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleEditClassroomByAdmin(room)}
+                                    title="Modifier"
+                                  >
+                                    <Edit className="h-4 w-4 text-secondary-600" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                    onClick={() => handleDeleteClassroomByAdmin(room.id)}
+                                    title="Supprimer"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </td>
                             </tr>
                           ))}
                           {classrooms.length === 0 && (
                             <tr>
-                              <td colSpan={6} className="px-6 py-8 text-center text-secondary-400 italic">
+                              <td colSpan={7} className="px-6 py-8 text-center text-secondary-400 italic">
                                 Aucune visioconférence active.
                               </td>
                             </tr>
@@ -1443,6 +1539,47 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
+              </div>
+            )}
+
+            {activeTab === 'planning' && (
+              <div className="space-y-6">
+                <AnnualPlanning mode="admin" onAddEventClick={handleAddClassroomByAdmin} />
+              </div>
+            )}
+
+            {activeTab === 'reviews' && (
+              <div className="space-y-6">
+                <ScientificReviews 
+                  mode="admin" 
+                  onPublishClick={() => {
+                    openModal("Publier une Revue Scientifique (Admin)", [
+                      { name: 'title', label: "Titre de la publication" },
+                      { name: 'abstract', label: "Résumé académique" },
+                      { name: 'discipline', label: "Discipline" },
+                      { name: 'region', label: "Région (France / Union Européenne / International)" },
+                      { name: 'journal_name', label: "Revue scientifique d'origine" },
+                      { name: 'author_name', label: "Nom de l'auteur / Chercheur" },
+                      { name: 'content', label: "Texte intégral" },
+                    ], async (vals) => {
+                      if (!vals.title || !vals.content) return;
+                      const { error } = await supabase.from('scientific_reviews_just').insert([{
+                        title: vals.title,
+                        abstract: vals.abstract || '',
+                        discipline: vals.discipline || 'Droit Numérique & IA',
+                        region: vals.region || 'France',
+                        journal_name: vals.journal_name || 'Journal Officiel des Sciences Juridiques',
+                        author_name: vals.author_name || 'Administration France Justice',
+                        content: vals.content,
+                        published_year: new Date().getFullYear(),
+                        is_verified: true,
+                        is_auto_scraped: false
+                      }]);
+                      if (error) toastError("Erreur", error.message);
+                      else success("Revue Publiée", "La publication scientifique a été ajoutée avec succès par l'administrateur.");
+                    });
+                  }} 
+                />
               </div>
             )}
           </main>

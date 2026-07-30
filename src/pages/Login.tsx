@@ -31,25 +31,85 @@ const LoginPage: React.FC = () => {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent, customEmail?: string, customPass?: string) => {
+    if (e) e.preventDefault();
+    const loginEmail = customEmail || email;
+    const loginPassword = customPass || password;
+
+    if (customEmail) setEmail(customEmail);
+    if (customPass) setPassword(customPass);
+
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: signInErr } = await supabase.auth.signInWithPassword({ 
+      email: loginEmail, 
+      password: loginPassword 
+    });
 
-    if (error) {
-      if (error.message.includes('Email not confirmed')) {
+    if (signInErr) {
+      // Auto-provision default demo accounts if not yet registered in Supabase Auth
+      const demoAccounts: Record<string, { role: string; firstName: string; lastName: string }> = {
+        'etudjust@gmail.com': { role: 'student', firstName: 'Jean', lastName: 'Dupont (Étudiant)' },
+        'profjust@gmail.com': { role: 'professor', firstName: 'Prof. Laurent', lastName: 'Moreau' },
+        'doctjust@gmail.com': { role: 'doctorate', firstName: 'Dr. Sophie', lastName: 'Bernard' },
+        'avocat@gmail.com': { role: 'lawyer', firstName: 'Me. Alexandre', lastName: 'Lefebvre' },
+        'just@gmail.com': { role: 'user', firstName: 'Marc', lastName: 'Dubois (Citoyen)' },
+        'user@gmail.com': { role: 'user', firstName: 'Marc', lastName: 'Dubois' },
+        'justlaw@gmail.com': { role: 'admin', firstName: 'Admin', lastName: 'JustLaw' },
+        'francejustice@gmail.com': { role: 'admin', firstName: 'Admin', lastName: 'FranceJustice' }
+      };
+
+      const demoInfo = demoAccounts[loginEmail.toLowerCase()];
+      if (demoInfo) {
+        try {
+          const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+            email: loginEmail,
+            password: loginPassword,
+            options: {
+              data: {
+                first_name: demoInfo.firstName,
+                last_name: demoInfo.lastName,
+                role: demoInfo.role
+              }
+            }
+          });
+
+          if (!signUpErr && signUpData.user) {
+            await supabase.from('profiles_just').upsert([{
+              id: signUpData.user.id,
+              first_name: demoInfo.firstName,
+              last_name: demoInfo.lastName,
+              email: loginEmail,
+              role: demoInfo.role,
+              is_verified: true
+            }]);
+
+            const { error: retryErr } = await supabase.auth.signInWithPassword({
+              email: loginEmail,
+              password: loginPassword
+            });
+
+            if (!retryErr) {
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (e) {
+          console.error("Demo registration error:", e);
+        }
+      }
+
+      if (signInErr.message.includes('Email not confirmed')) {
         setError(t('login.error_email_not_confirmed', 'Veuillez vérifier votre boîte email et cliquer sur le lien de confirmation avant de vous connecter.'));
-      } else if (error.message.includes('Invalid login credentials')) {
-        setError(t('login.error_invalid'));
+      } else if (signInErr.message.includes('Invalid login credentials')) {
+        setError(t('login.error_invalid', 'Identifiants invalides.'));
       } else {
-        setError(error.message);
+        setError(signInErr.message);
       }
       setLoading(false);
       return;
     }
-    // AuthProvider will detect session change and navigate
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -73,9 +133,15 @@ const LoginPage: React.FC = () => {
   // Auto-redirect if already logged in and role is known
   React.useEffect(() => {
     if (role) {
-      if (role === 'admin') navigate('/dashboard/admin');
-      else if (role === 'lawyer') navigate('/dashboard/lawyer');
-      else navigate('/dashboard/user');
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirect = searchParams.get('redirect');
+      if (redirect) {
+        navigate(redirect);
+      } else {
+        if (role === 'admin') navigate('/dashboard/admin');
+        else if (role === 'lawyer') navigate('/dashboard/lawyer');
+        else navigate('/dashboard/user');
+      }
     }
   }, [role, navigate]);
 
@@ -256,6 +322,57 @@ const LoginPage: React.FC = () => {
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? t('login.loading') : t('login.submit')}
                 </Button>
+              </div>
+
+              {/* Quick Demo Login Badges */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 mt-4">
+                <p className="text-[11px] font-black text-slate-700 uppercase tracking-wider text-center">
+                  🔑 Connexion Rapide 1-Clic par Profil :
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleLogin(undefined, 'etudjust@gmail.com', 'Etudjust1@')}
+                    className="p-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl text-[11px] font-bold text-indigo-900 transition-all text-left flex items-center justify-between"
+                  >
+                    <span>🎓 Étudiant</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleLogin(undefined, 'profjust@gmail.com', 'Profjust1@')}
+                    className="p-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-[11px] font-bold text-blue-900 transition-all text-left flex items-center justify-between"
+                  >
+                    <span>👨‍🏫 Professeur</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleLogin(undefined, 'doctjust@gmail.com', 'Doctjust1@')}
+                    className="p-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl text-[11px] font-bold text-purple-900 transition-all text-left flex items-center justify-between"
+                  >
+                    <span>🔬 Doctorant</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleLogin(undefined, 'avocat@gmail.com', 'Avocat123!')}
+                    className="p-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-[11px] font-bold text-amber-900 transition-all text-left flex items-center justify-between"
+                  >
+                    <span>⚖️ Avocat</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleLogin(undefined, 'just@gmail.com', 'Just1@')}
+                    className="p-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[11px] font-bold text-emerald-900 transition-all text-left flex items-center justify-between"
+                  >
+                    <span>👤 Citoyen</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleLogin(undefined, 'justlaw@gmail.com', 'Just1@')}
+                    className="p-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-[11px] font-bold text-rose-900 transition-all text-left flex items-center justify-between"
+                  >
+                    <span>👑 Admin</span>
+                  </button>
+                </div>
               </div>
 
               <div className="relative my-6">

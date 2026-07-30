@@ -1,12 +1,37 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for France Justice — AI & Search Engine Optimization (SEO / GEO)
 User-agent: *
 Allow: /
 
-# Protect secure dashboard directories from being indexed by search engine bots
-Disallow: /dashboard/
-Disallow: /dashboard/*
-Disallow: /reset-password
+# Dedicated AI Engine Crawlers (ChatGPT, Gemini, Claude, Perplexity, DeepSeek, Mistral)
+User-agent: GPTBot
+Allow: /
 
-# Host & Sitemap
-Host: https://francejustice.org
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: DeepSeekBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: FacebookExternalHit
+Allow: /
+
+# Sitemap Location
 Sitemap: https://francejustice.org/sitemap.xml

@@ -32,6 +32,9 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
     country: 'France',
     postalCode: '',
     birthDate: '',
+    role: 'user',
+    university: '',
+    specialty: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,7 +67,9 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
             country: form.country,
             postal_code: form.postalCode,
             birth_date: form.birthDate,
-            role: 'user'
+            university: form.university,
+            specialty: form.specialty,
+            role: form.role
           }
         }
       });
@@ -72,6 +77,20 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
       if (authError) throw authError;
 
       if (authData.user) {
+        // Upsert into profiles_just
+        await supabase.from('profiles_just').upsert([{
+          id: authData.user.id,
+          first_name: form.firstName,
+          last_name: form.lastName,
+          role: form.role,
+          email: form.email,
+          city: form.city,
+          country: form.country,
+          postal_code: form.postalCode,
+          university: form.university,
+          specialty: form.specialty,
+          is_verified: form.role === 'user' || form.role === 'student'
+        }]);
         setShowSuccessModal(true);
       }
     } catch (err: any) {
@@ -105,10 +124,46 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-md font-medium">
                 <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Type de compte :</label>
+              <select
+                value={form.role}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+              >
+                <option value="user">👤 Citoyen / Particulier</option>
+                <option value="student">🎓 Étudiant en Droit</option>
+                <option value="professor">👨‍🏫 Professeur de Droit</option>
+                <option value="doctorate">🔬 Doctorant / Enseignant-Chercheur</option>
+                <option value="lawyer">⚖️ Avocat au Barreau</option>
+              </select>
+            </div>
+
+            {(form.role === 'student' || form.role === 'professor' || form.role === 'doctorate') && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100">
+                <div>
+                  <label className="text-[11px] font-bold text-indigo-900">Université / Établissement :</label>
+                  <Input
+                    placeholder="ex: Université Paris 1 Panthéon-Sorbonne"
+                    value={form.university}
+                    onChange={(e) => setForm({ ...form, university: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-indigo-900">Spécialité / Discipline :</label>
+                  <Input
+                    placeholder="ex: Droit Privé / Droit Numérique & IA"
+                    value={form.specialty}
+                    onChange={(e) => setForm({ ...form, specialty: e.target.value })}
+                  />
+                </div>
               </div>
             )}
 
@@ -239,7 +294,10 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
               <button
                 type="button"
                 className="text-primary-600 font-semibold hover:underline"
-                onClick={() => navigate('/login')}
+                onClick={() => {
+                  const redirect = new URLSearchParams(window.location.search).get('redirect');
+                  navigate(`/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`);
+                }}
               >
                 Se connecter
               </button>
@@ -252,7 +310,8 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
         onClose={() => {
           setShowSuccessModal(false);
           if (onClose) onClose();
-          navigate('/login');
+          const redirect = new URLSearchParams(window.location.search).get('redirect');
+          navigate(`/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`);
         }}
         title="Inscription réussie"
       >
@@ -267,7 +326,8 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
           <Button className="w-full" onClick={() => {
             setShowSuccessModal(false);
             if (onClose) onClose();
-            navigate('/login');
+            const redirect = new URLSearchParams(window.location.search).get('redirect');
+            navigate(`/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`);
           }}>
             Aller à la connexion
           </Button>

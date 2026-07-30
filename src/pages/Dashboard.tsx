@@ -16,15 +16,19 @@ import {
   BookOpen,
   Users,
   Eye,
-  MapPin,
-  Video,
-  Clock
+  MapPin, 
+  Video, 
+  Clock, 
+  Calendar as CalendarIcon 
 } from 'lucide-react';
+import { AnnualPlanning } from '../components/features/AnnualPlanning';
+import { ScientificReviews } from '../components/features/ScientificReviews';
 import LawCodes from '../components/features/LawCodes';
 import ProcedureLibrary from '../components/features/ProcedureLibrary';
 import CodeAnalysis from '../components/features/CodeAnalysis';
 import { FranceMap, regions } from '../components/features/FranceMap';
 import { AdvancedAreaChart } from '../components/features/StatsCharts';
+import { StripePaymentModal } from '../components/ui/StripePaymentModal';
 import { exportToJSON } from '../lib/exportUtils';
 import { createCheckoutSession } from '../lib/api';
 import { Button } from '../components/ui/Button';
@@ -39,7 +43,10 @@ import SearchPage from './Search';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import { VoiceAssistant } from '../components/ui/VoiceAssistant';
+import { Sparkles } from 'lucide-react';
+import AssistantPage from './Assistant';
 import NotificationBell from '../components/ui/NotificationBell';
+import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import { useTranslation } from '../i18n';
 
 const DashboardPage: React.FC = () => {
@@ -307,10 +314,15 @@ const DashboardPage: React.FC = () => {
     }
   }, [availableLawyers]);
 
-  // Feedback visuel après retour de Stripe Checkout
+  // Feedback visuel après retour de Stripe Checkout & Sélection dynamique d'onglet
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const payment = params.get('payment');
+    const tab = params.get('tab');
+
+    if (tab) {
+      setActiveTab(tab);
+    }
 
     if (payment === 'success') {
       // Le webhook Stripe (Django) a déjà mis à jour quotes_just.status
@@ -468,7 +480,7 @@ const DashboardPage: React.FC = () => {
     const { data } = await supabase
       .from('profiles_just')
       .select('*, lawyers:lawyers_just(bar_association)')
-      .eq('role', 'lawyer')
+      .in('role', ['lawyer', 'professor', 'doctorate'])
       .eq('is_verified', true)
       .order('first_name');
     if (data) setAvailableLawyers(data);
@@ -665,6 +677,7 @@ Ce document est généré par la plateforme France Justice.
   };
 
   const [payingQuoteId, setPayingQuoteId] = React.useState<string | null>(null);
+  const [selectedPaymentQuote, setSelectedPaymentQuote] = React.useState<any | null>(null);
 
   const handlePayQuote = async (quote: any) => {
     setPayingQuoteId(quote.id);
@@ -672,11 +685,8 @@ Ce document est généré par la plateforme France Justice.
       const url = await createCheckoutSession(quote.id, 'quote_payment', quote.amount);
       window.location.href = url;
     } catch (err: any) {
-      console.error('Stripe checkout error:', err);
-      toastError(
-        'Erreur de paiement',
-        err?.message || 'Impossible de créer la session de paiement. Vérifiez que le backend Django est lancé.'
-      );
+      console.warn('Stripe backend unavailable, launching Stripe Payment Modal directly:', err);
+      setSelectedPaymentQuote(quote);
     } finally {
       setPayingQuoteId(null);
     }
@@ -713,9 +723,19 @@ Ce document est généré par la plateforme France Justice.
     return weeks;
   }, [documents, searches]);
 
+  // URL tab selection
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab');
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, []);
+
   const tabs = [
     { id: 'overview', name: t('dashboard.overview', "Vue d'ensemble"), icon: BarChart3 },
     { id: 'appointments', name: t('dashboard.appointments', 'Rendez-vous'), icon: Calendar },
+    { id: 'assistant', name: t('nav.genia', 'Assistant IA'), icon: Sparkles },
     { id: 'generator', name: t('dashboard.generator_tab', 'Générateur IA'), icon: Shield },
     { id: 'documents', name: t('dashboard.my_documents', 'Mes documents'), icon: FileText },
     { id: 'quotes', name: t('dashboard.my_quotes', 'Mes Devis'), icon: Receipt },
@@ -725,6 +745,8 @@ Ce document est généré par la plateforme France Justice.
     { id: 'procedures', name: t('dashboard.procedures', 'Procédures'), icon: FileText },
     { id: 'analyse', name: t('dashboard.ai_analysis', 'Analyse IA'), icon: Shield },
     { id: 'formations', name: t('dashboard.formations', 'Formations'), icon: BookOpen },
+    { id: 'planning', name: 'Planning Annuel', icon: Calendar },
+    { id: 'reviews', name: 'Revues Scientifiques', icon: BookOpen },
     { id: 'avocats', name: t('dashboard.lawyers_directory', 'Annuaire Avocats'), icon: Users },
     { id: 'profile', name: t('dashboard.profile', 'Profil'), icon: User },
   ];
@@ -1110,14 +1132,34 @@ Ce document est généré par la plateforme France Justice.
       <div className="container py-8">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-2">
-              {t('dashboard.hello', 'Bonjour')}, {profile?.first_name || t('dashboard.user', 'Utilisateur')}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-2">
+                {t('dashboard.hello', 'Bonjour')}, {profile?.first_name || t('dashboard.user', 'Utilisateur')}
+              </h1>
+              {role === 'student' && (
+                <span className="bg-blue-100 text-blue-800 text-xs font-black px-3 py-1 rounded-full border border-blue-200">
+                  🎓 Étudiant en Droit
+                </span>
+              )}
+              {role === 'professor' && (
+                <span className="bg-amber-100 text-amber-800 text-xs font-black px-3 py-1 rounded-full border border-amber-200">
+                  👨‍🏫 Professeur de Droit
+                </span>
+              )}
+              {role === 'doctorate' && (
+                <span className="bg-teal-100 text-teal-800 text-xs font-black px-3 py-1 rounded-full border border-teal-200">
+                  🔬 Doctorant / Chercheur
+                </span>
+              )}
+            </div>
             <p className="text-secondary-600">
-              {t('dashboard.welcome_portal', 'Bienvenue sur votre portail juridique intelligent')}
+              {role === 'student' 
+                ? 'Accédez à vos cours, masterclasses, discussions avec les avocats & professeurs et outils IA'
+                : t('dashboard.welcome_portal', 'Bienvenue sur votre portail juridique intelligent')}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <LiveSyncBadge status="connected" showText={true} />
             <NotificationBell userId={user?.id ?? null} />
             <VoiceAssistant
               mode="citizen"
@@ -1242,6 +1284,11 @@ Ce document est généré par la plateforme France Justice.
                     </div>
                   </div>
                 )}
+                {activeTab === 'assistant' && (
+                  <div className="space-y-4 animate-fade-in">
+                    <AssistantPage embedded={true} />
+                  </div>
+                )}
                 {activeTab === 'documents' && renderDocuments()}
                 {activeTab === 'searches' && (
                   <div className="space-y-4 animate-fade-in">
@@ -1293,11 +1340,44 @@ Ce document est généré par la plateforme France Justice.
                     </div>
 
                     {classroomsSubTab === 'virtual' ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="space-y-6">
+                        {/* Status filter pills */}
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            { id: 'all', label: 'Toutes' },
+                            { id: 'upcoming', label: '📅 À venir' },
+                            { id: 'live', label: '🔴 En cours' },
+                            { id: 'finished', label: '✅ Terminées' },
+                          ].map((f) => (
+                            <button
+                              key={f.id}
+                              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-primary-300 transition-all"
+                            >
+                              {f.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {classrooms.map((room) => {
                           const isRegistered = registrations.includes(room.id);
+                          // Determine session status
+                          const now = new Date();
+                          let sessionStatus: 'upcoming' | 'live' | 'finished' = 'upcoming';
+                          if (room.date && room.time) {
+                            try {
+                              const [y, m, d] = room.date.split('-');
+                              const [hh, mm] = room.time.split(':');
+                              const start = new Date(Number(y), Number(m) - 1, Number(d), Number(hh), Number(mm));
+                              const end = new Date(start.getTime() + (room.duration_minutes || 120) * 60000);
+                              if (now > end) sessionStatus = 'finished';
+                              else if (now >= start && now <= end) sessionStatus = 'live';
+                            } catch {}
+                          }
+                          const isSuspended = room.is_active === false;
+                          
                           return (
-                            <Card key={room.id} className="overflow-hidden hover:shadow-md transition-all border-secondary-100 bg-white flex flex-col h-full">
+                            <Card key={room.id} className={`overflow-hidden hover:shadow-md transition-all border-secondary-100 bg-white flex flex-col h-full ${isSuspended ? 'opacity-60' : ''}`}>
                               <div className={`p-3 text-white font-bold flex justify-between items-center bg-gradient-to-r ${
                                 room.type === 'direct' 
                                   ? 'from-red-600 to-orange-500' 
@@ -1308,9 +1388,14 @@ Ce document est généré par la plateforme France Justice.
                                 <span className="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">
                                   {room.type === 'direct' ? 'Direct / Conférence' : room.type === 'video' ? 'Salle Vidéo' : 'Différé'}
                                 </span>
-                                <span className="text-[10px] font-semibold bg-white/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                                  <Users className="w-3 h-3" /> Max {room.max_members}
-                                </span>
+                                <div className="flex gap-1.5 items-center">
+                                  {sessionStatus === 'live' && <span className="bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded animate-pulse">🔴 EN DIRECT</span>}
+                                  {sessionStatus === 'finished' && <span className="bg-slate-800/50 text-white text-[9px] font-bold px-2 py-0.5 rounded">✅ Terminée</span>}
+                                  {isSuspended && <span className="bg-amber-500/80 text-white text-[9px] font-bold px-2 py-0.5 rounded">⏸️ Suspendue</span>}
+                                  <span className="text-[10px] font-semibold bg-white/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <Users className="w-3 h-3" /> Max {room.max_members}
+                                  </span>
+                                </div>
                               </div>
                               <CardContent className="p-5 flex flex-col justify-between flex-1 gap-4">
                                 <div className="space-y-2">
@@ -1333,23 +1418,60 @@ Ce document est généré par la plateforme France Justice.
                                     <span>Durée : {room.duration_minutes} min</span>
                                   </div>
                                 </div>
-                                <div className="flex gap-2 pt-2">
-                                  <Button
-                                    variant="primary"
-                                    size="sm"
-                                    className="flex-1 text-xs font-bold"
-                                    onClick={() => startClassroomSimulator(room)}
-                                  >
-                                    <Video className="w-3.5 h-3.5 mr-1" /> Rejoindre
-                                  </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="text-xs"
-                                    onClick={() => handleRegisterClassroom(room)}
-                                  >
-                                    {isRegistered ? 'Désinscrire' : 'S\'inscrire'}
-                                  </Button>
+
+                                {/* Session terminée — Résumé */}
+                                {sessionStatus === 'finished' && (
+                                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 space-y-2">
+                                    <h4 className="text-xs font-bold text-emerald-800">📋 Résumé de la séance</h4>
+                                    <p className="text-[11px] text-emerald-700 leading-relaxed">La séance de formation est terminée. Consultez les détails complets sur la page des formations.</p>
+                                  </div>
+                                )}
+
+                                <div className="flex gap-2 pt-2 flex-wrap">
+                                  {sessionStatus !== 'finished' && !isSuspended ? (
+                                    <>
+                                      <Button
+                                        variant="primary"
+                                        size="sm"
+                                        className={`flex-1 text-xs font-bold ${sessionStatus === 'live' ? 'bg-red-600 hover:bg-red-700' : ''}`}
+                                        onClick={() => startClassroomSimulator(room)}
+                                      >
+                                        <Video className="w-3.5 h-3.5 mr-1" /> {sessionStatus === 'live' ? 'Rejoindre la session 🔴' : 'Rejoindre'}
+                                      </Button>
+                                      {isRegistered ? (
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-xs text-red-500 border-red-200 hover:bg-red-50"
+                                          onClick={() => handleRegisterClassroom(room)}
+                                        >
+                                          Quitter
+                                        </Button>
+                                      ) : (
+                                        <div className="flex gap-1.5">
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-xs text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                                            onClick={() => handleRegisterClassroom(room)}
+                                          >
+                                            ✅ Accepter
+                                          </Button>
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-xs text-slate-400 border-slate-200 hover:bg-slate-50"
+                                          >
+                                            Ignorer
+                                          </Button>
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : sessionStatus === 'finished' ? (
+                                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg w-full text-center">Séance terminée — Résumé disponible</span>
+                                  ) : (
+                                    <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg w-full text-center">Séance suspendue par l'avocat</span>
+                                  )}
                                 </div>
                               </CardContent>
                             </Card>
@@ -1360,6 +1482,7 @@ Ce document est généré par la plateforme France Justice.
                             Aucune salle de classe virtuelle n'est disponible pour le moment.
                           </div>
                         )}
+                        </div>
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1956,6 +2079,16 @@ Ce document est généré par la plateforme France Justice.
       </Modal>
 
 
+      <StripePaymentModal
+        isOpen={!!selectedPaymentQuote}
+        onClose={() => setSelectedPaymentQuote(null)}
+        quote={selectedPaymentQuote}
+        paymentType="quote_payment"
+        onSuccess={() => {
+          fetchUserQuotes();
+          success('Paiement réussi !', 'Votre devis est validé et transmis à votre avocat.');
+        }}
+      />
     </div>
   );
 };

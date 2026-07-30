@@ -35,9 +35,6 @@ const ministryImages: BannerImage[] = [
 const otherImages: BannerImage[] = [
   { src: conseilImg, alt: 'Conseil d\'État', href: 'https://www.conseil-etat.fr/' },
   { src: superieurImg, alt: 'Conseil Supérieur de la Magistrature', href: 'https://www.conseil-superieur-magistrature.fr/' },
-  { src: justiceImg, alt: 'France Justice', href: 'https://www.info.gouv.fr/actualite/la-justice-et-moi-par-ou-commencer', overlayText: 'France justice' },
-  { src: franceDemocratieImg, alt: 'France Démocratie', href: 'https://www.francedemocratie.com/', overlayText: 'France Démocratie' },
-  { src: presidentielleImg, alt: 'Présidentielle', href: 'https://www.presidentielle2027.org/', overlayText: 'Présidentielle2027' },
 ];
 
 const Header: React.FC = () => {
@@ -97,9 +94,9 @@ const Header: React.FC = () => {
   const isOutilsActive = ['/services', '/classrooms'].includes(location.pathname);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-secondary-200 bg-white shadow-sm flex flex-col">
+    <header className="sticky top-0 z-50 w-full border-b border-indigo-900/40 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xl shadow-slate-950/40 flex flex-col transition-all duration-300">
       {/* Top Banner with Images (Hidden on mobile, just like reference site d-none d-lg-block) */}
-      <div className="hidden lg:block w-full bg-white border-b border-gray-200 py-2 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+      <div className="hidden lg:block w-full bg-slate-950/50 backdrop-blur-md border-b border-indigo-900/30 py-2">
         <div className="container mx-auto flex justify-between items-center gap-4">
           
           {/* Ministries - All the way to the left */}
@@ -111,19 +108,15 @@ const Header: React.FC = () => {
                 target="_blank" 
                 rel="noopener noreferrer"
                 title={img.alt}
-                className="relative inline-block transition-transform hover:scale-105"
-                style={{ textDecoration: 'none', color: 'white' }}
+                className="relative inline-flex items-center justify-center p-1 rounded-lg bg-white/90 hover:bg-white transition-all duration-300 hover:scale-105 shadow-xs group overflow-hidden"
               >
                 <img 
                   src={img.src} 
                   alt={img.alt} 
-                  className="h-[80px] w-auto block" 
+                  className="h-14 w-auto block object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300" 
                 />
                 {img.overlayText && (
-                  <p 
-                    className="absolute bottom-0 left-0 right-0 m-0 text-center text-white font-sans text-sm"
-                    style={{ padding: '10px', background: 'rgba(0, 0, 0, 0.5)' }}
-                  >
+                  <p className="absolute bottom-0 left-0 right-0 m-0 text-center text-white font-sans text-[10px] font-bold py-0.5 bg-slate-950/80 backdrop-blur-xs tracking-tight rounded-b-md">
                     {img.overlayText}
                   </p>
                 )}
@@ -140,19 +133,15 @@ const Header: React.FC = () => {
                 target="_blank" 
                 rel="noopener noreferrer"
                 title={img.alt}
-                className="relative inline-block transition-transform hover:scale-105"
-                style={{ textDecoration: 'none', color: 'white' }}
+                className="relative inline-flex items-center justify-center p-1 rounded-lg bg-white/90 hover:bg-white transition-all duration-300 hover:scale-105 shadow-xs group overflow-hidden"
               >
                 <img 
                   src={img.src} 
                   alt={img.alt} 
-                  className="h-[80px] w-auto block" 
+                  className="h-14 w-auto block object-contain opacity-95 group-hover:opacity-100 transition-opacity duration-300" 
                 />
                 {img.overlayText && (
-                  <p 
-                    className="absolute bottom-0 left-0 right-0 m-0 text-center text-white font-sans text-sm"
-                    style={{ padding: '10px', background: 'rgba(0, 0, 0, 0.5)' }}
-                  >
+                  <p className="absolute bottom-0 left-0 right-0 m-0 text-center text-white font-sans text-[10px] font-bold py-0.5 bg-slate-950/80 backdrop-blur-xs tracking-tight rounded-b-md">
                     {img.overlayText}
                   </p>
                 )}
@@ -166,9 +155,9 @@ const Header: React.FC = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
-            <Scale className="h-6 w-6 text-primary-600" />
+            <Scale className="h-6 w-6 text-primary-400" />
             <div className="flex items-center">
-              <span className="text-xl font-bold text-primary-600 tracking-tight">France Justice</span>
+              <span className="text-xl font-bold text-white tracking-tight">France Justice</span>
             </div>
           </div>
 
@@ -180,9 +169,9 @@ const Header: React.FC = () => {
                 <a
                   key={item.name}
                   href={item.href}
-                  className={`nav-link font-medium transition-colors ${isActive
-                    ? 'text-primary-600 border-b-2 border-primary-600 pb-1'
-                    : 'text-secondary-600 hover:text-primary-600'
+                  className={`font-medium transition-colors text-sm ${isActive
+                    ? 'text-primary-400 border-b-2 border-primary-400 pb-1'
+                    : 'text-slate-300 hover:text-white'
                     }`}
                 >
                   {item.name}
@@ -194,10 +183,10 @@ const Header: React.FC = () => {
             <div ref={dropdownRef} className="relative">
               <button
                 onClick={() => setIsAiDropdownOpen((v) => !v)}
-                className={`flex items-center gap-1.5 font-medium transition-colors focus:outline-none ${
+                className={`flex items-center gap-1.5 font-medium transition-colors text-sm focus:outline-none ${
                   isAiActive
-                    ? 'text-primary-600 border-b-2 border-primary-600 pb-1'
-                    : 'text-secondary-600 hover:text-primary-600'
+                    ? 'text-primary-400 border-b-2 border-primary-400 pb-1'
+                    : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <Cpu className="h-4 w-4" />
@@ -216,12 +205,12 @@ const Header: React.FC = () => {
                 }`}
               >
                 {/* Arrow */}
-                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-secondary-200 rotate-45" />
+                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-l border-t border-indigo-800 rotate-45" />
 
-                <div className="relative bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                <div className="relative bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-indigo-800/50 overflow-hidden text-white">
                   {/* Header gradient band */}
-                  <div className="px-4 py-2.5 bg-linear-to-r from-primary-600 to-violet-600">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/80">
+                  <div className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-violet-600">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/90">
                       {t('nav.ai_full')}
                     </p>
                   </div>
@@ -239,22 +228,22 @@ const Header: React.FC = () => {
                         }}
                         className={`flex items-start gap-3 px-4 py-3.5 group transition-colors ${
                           isActive
-                            ? 'bg-primary-50'
-                            : 'hover:bg-slate-50'
+                            ? 'bg-primary-900/40 text-primary-300'
+                            : 'hover:bg-slate-800/60 text-slate-200'
                         }`}
                       >
                         <span className={`mt-0.5 shrink-0 p-1.5 rounded-lg ${
                           isActive
-                            ? 'bg-primary-100 text-primary-600'
-                            : 'bg-secondary-100 text-secondary-500 group-hover:bg-primary-100 group-hover:text-primary-600'
+                            ? 'bg-primary-500/20 text-primary-400'
+                            : 'bg-slate-800 text-slate-400 group-hover:bg-primary-500/20 group-hover:text-primary-400'
                         } transition-colors`}>
                           <item.icon className="h-4 w-4" />
                         </span>
                         <div>
-                          <p className={`text-sm font-semibold ${isActive ? 'text-primary-700' : 'text-secondary-800 group-hover:text-primary-700'}`}>
+                          <p className={`text-sm font-semibold ${isActive ? 'text-primary-300' : 'text-slate-100 group-hover:text-primary-400'}`}>
                             {item.name}
                           </p>
-                          <p className="text-xs text-secondary-400 mt-0.5">{item.desc}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">{item.desc}</p>
                         </div>
                       </a>
                     );
@@ -267,10 +256,10 @@ const Header: React.FC = () => {
             <div ref={outilsDropdownRef} className="relative">
               <button
                 onClick={() => setIsOutilsDropdownOpen((v) => !v)}
-                className={`flex items-center gap-1.5 font-medium transition-colors focus:outline-none ${
+                className={`flex items-center gap-1.5 font-medium transition-colors text-sm focus:outline-none ${
                   isOutilsActive
-                    ? 'text-primary-600 border-b-2 border-primary-600 pb-1'
-                    : 'text-secondary-600 hover:text-primary-600'
+                    ? 'text-primary-400 border-b-2 border-primary-400 pb-1'
+                    : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <Wrench className="h-4 w-4" />
@@ -289,12 +278,12 @@ const Header: React.FC = () => {
                 }`}
               >
                 {/* Arrow */}
-                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-secondary-200 rotate-45" />
+                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-l border-t border-indigo-800 rotate-45" />
 
-                <div className="relative bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                <div className="relative bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-indigo-800/50 overflow-hidden text-white">
                   {/* Header gradient band */}
-                  <div className="px-4 py-2.5 bg-linear-to-r from-primary-600 to-violet-600">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/80">
+                  <div className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-violet-600">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/90">
                       {t('nav.outils', 'Outils')}
                     </p>
                   </div>
@@ -312,22 +301,22 @@ const Header: React.FC = () => {
                         }}
                         className={`flex items-start gap-3 px-4 py-3.5 group transition-colors ${
                           isActive
-                            ? 'bg-primary-50'
-                            : 'hover:bg-slate-50'
+                            ? 'bg-primary-900/40 text-primary-300'
+                            : 'hover:bg-slate-800/60 text-slate-200'
                         }`}
                       >
                         <span className={`mt-0.5 shrink-0 p-1.5 rounded-lg ${
                           isActive
-                            ? 'bg-primary-100 text-primary-600'
-                            : 'bg-secondary-100 text-secondary-500 group-hover:bg-primary-100 group-hover:text-primary-600'
+                            ? 'bg-primary-500/20 text-primary-400'
+                            : 'bg-slate-800 text-slate-400 group-hover:bg-primary-500/20 group-hover:text-primary-400'
                         } transition-colors`}>
                           <item.icon className="h-4 w-4" />
                         </span>
                         <div>
-                          <p className={`text-sm font-semibold ${isActive ? 'text-primary-700' : 'text-secondary-800 group-hover:text-primary-700'}`}>
+                          <p className={`text-sm font-semibold ${isActive ? 'text-primary-300' : 'text-slate-100 group-hover:text-primary-400'}`}>
                             {item.name}
                           </p>
-                          <p className="text-xs text-secondary-400 mt-0.5">{item.desc}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">{item.desc}</p>
                         </div>
                       </a>
                     );
@@ -342,9 +331,9 @@ const Header: React.FC = () => {
                 <a
                   key={item.name}
                   href={item.href}
-                  className={`nav-link font-medium transition-colors ${isActive
-                    ? 'text-primary-600 border-b-2 border-primary-600 pb-1'
-                    : 'text-secondary-600 hover:text-primary-600'
+                  className={`font-medium transition-colors text-sm ${isActive
+                    ? 'text-primary-400 border-b-2 border-primary-400 pb-1'
+                    : 'text-slate-300 hover:text-white'
                     }`}
                 >
                   {item.name}
@@ -354,24 +343,35 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Actions Desktop */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-3">
             <LanguageSwitcher />
             {user ? (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
                 <Button
                   variant="ghost"
                   size="sm"
+                  className="rounded-full hover:bg-primary-50 hover:text-primary-600 font-semibold"
                   onClick={() => navigate(role === 'admin' ? '/dashboard/admin' : role === 'lawyer' ? '/dashboard/lawyer' : '/dashboard/user')}
                 >
-                  <UserIcon className="h-4 w-4 mr-2" />
+                  <UserIcon className="h-4 w-4 mr-2 text-primary-600" />
                   {t('nav.dashboard')}
                 </Button>
-                <Button variant="outline" size="sm" onClick={signOut}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-full border-secondary-300 hover:bg-secondary-100 font-medium"
+                  onClick={signOut}
+                >
                   {t('nav.logout')}
                 </Button>
               </div>
             ) : (
-              <Button variant="primary" size="sm" onClick={() => navigate('/login')}>
+              <Button 
+                variant="primary" 
+                size="sm" 
+                className="rounded-full shadow-md shadow-primary-500/20 hover:shadow-lg hover:shadow-primary-500/30 transition-all"
+                onClick={() => navigate('/login')}
+              >
                 <UserIcon className="h-4 w-4 mr-2" />
                 {t('nav.login')}
               </Button>

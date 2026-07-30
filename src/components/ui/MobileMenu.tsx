@@ -48,7 +48,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
       <div className="absolute inset-0 bg-secondary-900/60 backdrop-blur-sm" onClick={onClose} />
       
       {/* Menu Panel */}
-      <div className={`absolute inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`absolute inset-y-0 right-0 w-full max-w-sm bg-white/90 backdrop-blur-2xl border-l border-white/40 shadow-2xl transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-6 border-b">
             <span className="text-xl font-bold text-primary-600">{t('nav.menu')}</span>

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Textarea } from '../components/ui/Textarea';
@@ -11,14 +12,16 @@ import { chatWithAI } from '../lib/gemini';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { useTranslation } from '../i18n';
+import { generatePDF } from '../lib/pdfUtils';
 
 type ChatMessage = { id: string; role: 'user' | 'assistant' | 'system'; content: string; ts: number };
 
 const AUTOSAVE_KEY = 'assistant_chat_draft_v1';
 
-const AssistantPage: React.FC = () => {
+const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { toasts, success, error, removeToast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -48,23 +51,63 @@ const AssistantPage: React.FC = () => {
     t('assistant.guide_step4', 'Ajoutez toute contrainte de délai connue (prescription).'),
   ];
 
-  // Load draft
+  // Fetch conversations from Supabase and subscribe Realtime
+  const fetchSupabaseConversations = async () => {
+    if (!user) return;
+    try {
+      const { data } = await supabase
+        .from('ai_conversations_just')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (data && data.length > 0 && Array.isArray(data[0].messages)) {
+        setMessages(data[0].messages);
+      }
+    } catch (e) {
+      console.error("Erreur chargement Supabase conversations:", e);
+    }
+  };
+
+  // Load draft & Supabase conversation & process pending prompt
   useEffect(() => {
     const draft = localStorage.getItem(AUTOSAVE_KEY);
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
-        if (Array.isArray(parsed)) setMessages(parsed);
+        if (Array.isArray(parsed) && parsed.length > 0) setMessages(parsed);
       } catch {}
     }
-  }, []);
 
-  // Autosave every 2 minutes
+    if (user) {
+      fetchSupabaseConversations();
+
+      const aiSub = supabase
+        .channel('ai-realtime-sub')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'ai_conversations_just', filter: `user_id=eq.${user.id}` }, () => {
+          fetchSupabaseConversations();
+        })
+        .subscribe();
+
+      // Check pending prompt after auth
+      const pendingPrompt = sessionStorage.getItem('pending_assistant_prompt');
+      if (pendingPrompt) {
+        sessionStorage.removeItem('pending_assistant_prompt');
+        executePrompt(pendingPrompt);
+      }
+
+      return () => {
+        supabase.removeChannel(aiSub);
+      };
+    }
+  }, [user]);
+
+  // Autosave draft
   useEffect(() => {
-    const t = setInterval(() => {
+    if (messages.length > 0) {
       localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(messages));
-    }, 120000);
-    return () => clearInterval(t);
+    }
   }, [messages]);
 
   const appendMessage = (role: ChatMessage['role'], content: string) => {
@@ -73,23 +116,58 @@ const AssistantPage: React.FC = () => {
     return msg;
   };
 
+  const executePrompt = async (promptText: string) => {
+    setIsSending(true);
+    const newUserMsg = appendMessage('user', promptText);
+
+    try {
+      const history = messages.map(m => ({
+        role: m.role === 'user' ? 'user' as const : 'model' as const,
+        parts: [{ text: m.content }]
+      }));
+
+      const res = await chatWithAI(promptText, history);
+      const reply = typeof res === 'string' ? res : res.text;
+      const assistantMsg: ChatMessage = { id: Math.random().toString(36).slice(2), role: 'assistant', content: reply, ts: Date.now() };
+      
+      const updatedMessages = [...messages, newUserMsg, assistantMsg];
+      setMessages(updatedMessages);
+
+      if (user) {
+        await supabase
+          .from('ai_conversations_just')
+          .insert([
+            {
+              user_id: user.id,
+              title: promptText.slice(0, 40) || t('assistant.new_chat', 'Nouvelle conversation'),
+              messages: updatedMessages
+            }
+          ]);
+      }
+    } catch (e: any) {
+      error(t('common.error'), e.message || t('assistant.failed', 'Le traitement a échoué.'));
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   const onSend = async () => {
     if (!input.trim() && !upload) return;
+
+    const userMessage = input.trim();
+    setInput('');
+    if (upload) setUpload(null);
+
     if (!user) {
+      sessionStorage.setItem('pending_assistant_prompt', userMessage);
       setShowAuthModal(true);
       return;
     }
-    setIsSending(true);
-    const userMessage = input.trim();
-    const u = upload;
-    if (u) setUpload(null);
 
-    const newUserMsg = appendMessage('user', userMessage || (u ? `[Fichier: ${u.name}]` : ''));
-    setInput('');
+    setIsSending(true);
+    const newUserMsg = appendMessage('user', userMessage || (upload ? `[Fichier: ${upload.name}]` : ''));
 
     try {
-      // Map history to Gemini format
       const history = messages.map(m => ({
         role: m.role === 'user' ? 'user' as const : 'model' as const,
         parts: [{ text: m.content }]
@@ -97,20 +175,26 @@ const AssistantPage: React.FC = () => {
 
       const res = await chatWithAI(userMessage, history);
       const reply = typeof res === 'string' ? res : res.text;
-      appendMessage('assistant', reply);
+      const assistantMsg: ChatMessage = { id: Math.random().toString(36).slice(2), role: 'assistant', content: reply, ts: Date.now() };
 
-      // Save to Supabase
-      if (user) {
-        const { error: saveError } = await supabase
-          .from('ai_conversations_just')
-          .insert([
-            {
-              user_id: user.id,
-              title: messages[0]?.content.slice(0, 40) || t('assistant.new_chat', 'Nouvelle conversation'),
-              messages: [...messages, newUserMsg, { role: 'assistant', content: reply, ts: Date.now() }]
-            }
-          ]);
-        if (saveError) console.error('Erreur sauvegarde IA:', saveError);
+      const updated = [...messages, newUserMsg, assistantMsg];
+      setMessages(updated);
+
+      // Save to Supabase Realtime Table
+      const { error: saveError } = await supabase
+        .from('ai_conversations_just')
+        .insert([
+          {
+            user_id: user.id,
+            title: userMessage.slice(0, 40) || t('assistant.new_chat', 'Nouvelle conversation'),
+            messages: updated
+          }
+        ]);
+      if (saveError) console.error('Erreur sauvegarde IA:', saveError);
+
+      // If not already embedded in dashboard, navigate directly to dashboard assistant tab!
+      if (!embedded) {
+        navigate('/dashboard/user?tab=assistant');
       }
     } catch (e: any) {
       error(t('common.error'), e.message || t('assistant.failed', 'Le traitement a échoué.'));
@@ -136,14 +220,16 @@ const AssistantPage: React.FC = () => {
     }
   };
 
-  const exportConversation = (format: 'txt' | 'json') => {
-    const filename = `conversation_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.${format}`;
-    const data = format === 'json' ? JSON.stringify(messages, null, 2) : messages.map(m => `[${m.role}] ${m.content}`).join('\n\n');
-    const blob = new Blob([data], { type: format === 'json' ? 'application/json' : 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
+  const exportConversationPDF = () => {
+    const fullText = messages
+      .map(m => `[${m.role === 'user' ? 'UTILISATEUR' : 'ASSISTANT IA EXPERT'}]\n${m.content}`)
+      .join('\n\n' + '='.repeat(40) + '\n\n');
+
+    generatePDF(fullText, {
+      title: 'Compte-Rendu de Consultation — Assistant IA Juridique',
+      subtitle: 'France Justice — Assistance Intelligente 100% Direct',
+      filename: `consultation_assistant_ia_${new Date().toISOString().slice(0,10)}`
+    });
   };
 
   return (
@@ -156,8 +242,10 @@ const AssistantPage: React.FC = () => {
             <CardHeader className="flex-col items-center gap-2">
               <CardTitle className="text-center">{t('assistant.card_title', 'Assistant IA Expert — Connecté à Internet en temps réel')}</CardTitle>
               <div className="flex items-center gap-2 justify-center">
-                <Button variant="outline" size="sm" onClick={() => exportConversation('txt')}><Download className="h-4 w-4 mr-2" />{t('assistant.export_txt', 'Export TXT')}</Button>
-                <Button variant="outline" size="sm" onClick={() => exportConversation('json')}>{t('assistant.export_json', 'Export JSON')}</Button>
+                <Button variant="outline" size="sm" onClick={exportConversationPDF}>
+                  <Download className="h-4 w-4 mr-2" />
+                  {t('assistant.export_pdf', 'Exporter en PDF')}
+                </Button>
               </div>
             </CardHeader>
             <CardContent>

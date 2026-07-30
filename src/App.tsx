@@ -5,6 +5,8 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import CookieConsent from './components/ui/CookieConsent';
+import SEOManager from './components/ui/SEOManager';
+import FloatingChatBot from './components/ui/FloatingChatBot';
 
 // ─── Lazy-loaded pages (code-split per route) ────────────────────────────────
 // Each page is loaded only when the user navigates to that route.
@@ -45,12 +47,20 @@ function PageLoader() {
   );
 }
 
-function RequireRole({ role, children }: { role: 'user' | 'admin' | 'lawyer'; children: React.ReactNode }) {
+function RequireRole({ allowedRoles, children }: { allowedRoles: string[]; children: React.ReactNode }) {
   const { role: current, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) return null;
-  if (!current) return <Navigate to="/login" replace />;
-  if (current !== role) return <Navigate to={current === 'admin' ? '/dashboard/admin' : current === 'lawyer' ? '/dashboard/lawyer' : '/dashboard/user'} replace />;
+  if (!current) {
+    const destination = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/login?redirect=${destination}`} replace />;
+  }
+  if (!allowedRoles.includes(current)) {
+    if (current === 'admin') return <Navigate to="/dashboard/admin" replace />;
+    if (['lawyer', 'professor', 'doctorate'].includes(current)) return <Navigate to="/dashboard/lawyer" replace />;
+    return <Navigate to="/dashboard/user" replace />;
+  }
   return <>{children}</>;
 }
 
@@ -76,6 +86,7 @@ function AppContent() {
             <Route path="/classrooms"      element={<ClassroomsPage />} />
             <Route path="/about"           element={<AboutPage />} />
             <Route path="/guide"           element={<GuidePratique />} />
+            <Route path="/guides"          element={<GuidePratique />} />
             <Route path="/faq"             element={<FAQ />} />
             <Route path="/news"            element={<News />} />
             <Route path="/legal"           element={<Legal />} />
@@ -90,7 +101,7 @@ function AppContent() {
             <Route
               path="/dashboard/lawyer"
               element={
-                <RequireRole role="lawyer">
+                <RequireRole allowedRoles={['lawyer', 'professor', 'doctorate']}>
                   <DashboardLawyer />
                 </RequireRole>
               }
@@ -98,7 +109,7 @@ function AppContent() {
             <Route
               path="/dashboard/user"
               element={
-                <RequireRole role="user">
+                <RequireRole allowedRoles={['user', 'student']}>
                   <DashboardPage />
                 </RequireRole>
               }
@@ -106,7 +117,7 @@ function AppContent() {
             <Route
               path="/dashboard/admin"
               element={
-                <RequireRole role="admin">
+                <RequireRole allowedRoles={['admin']}>
                   <AdminDashboard />
                 </RequireRole>
               }
@@ -118,6 +129,8 @@ function AppContent() {
       </main>
       {!hideLayout && <Footer />}
       <CookieConsent />
+      <SEOManager />
+      <FloatingChatBot />
     </div>
   );
 }

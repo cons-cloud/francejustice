@@ -33,6 +33,7 @@ import ProcedureLibrary from '../components/features/ProcedureLibrary';
 import CodeAnalysis from '../components/features/CodeAnalysis';
 import SearchPage from './Search';
 import { exportToCSV } from "../lib/exportUtils"
+import { StripePaymentModal } from '../components/ui/StripePaymentModal';
 import { Chat } from "../components/features/Chat"
 import { FranceMap, regions } from "../components/features/FranceMap"
 import JitsiMeeting from "../components/features/JitsiMeeting"
@@ -42,10 +43,13 @@ import { Button } from "../components/ui/Button"
 import { supabase } from "../lib/supabase"
 import { useAuth } from "../hooks/useAuth"
 import { useToast } from "../hooks/useToast"
+import { AnnualPlanning } from "../components/features/AnnualPlanning"
+import { ScientificReviews } from "../components/features/ScientificReviews"
 import Modal from "../components/ui/Modal"
 import { Input } from "../components/ui/Input"
 import { VoiceAssistant } from "../components/ui/VoiceAssistant"
 import NotificationBell from '../components/ui/NotificationBell';
+import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import { cn } from "../lib/utils";
 import { createCheckoutSession } from "../lib/api";
 import { useTranslation } from '../i18n';
@@ -415,6 +419,14 @@ const DashboardLawyer: React.FC = () => {
   }, [profile])
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, []);
+
+  useEffect(() => {
     if (user) {
       fetchLawyerData()
       
@@ -646,17 +658,25 @@ const DashboardLawyer: React.FC = () => {
     e.preventDefault();
     if (!user) return;
     try {
+      // Extract date and time from scheduled_at for Classrooms.tsx compatibility
+      const scheduledDate = newClassroom.scheduled_at ? new Date(newClassroom.scheduled_at) : null;
+      const dateStr = scheduledDate ? scheduledDate.toISOString().split('T')[0] : null;
+      const timeStr = scheduledDate ? scheduledDate.toTimeString().slice(0, 5) : null;
+
       const { error } = await supabase
         .from('classrooms_just')
         .insert([{
           ...newClassroom,
-          lawyer_id: user.id
+          lawyer_id: user.id,
+          date: dateStr,
+          time: timeStr,
+          is_active: true
         }]);
 
       if (error) {
         toastError('Erreur', 'Impossible de créer la visioconférence : ' + error.message);
       } else {
-        success('Succès 🎉', 'La visioconférence a été programmée en temps réel !');
+        success('Succès \uD83C\uDF89', 'La visioconférence a été programmée en temps réel !');
         setCreateClassroomOpen(false);
         setNewClassroom({
           title: '',
@@ -668,6 +688,41 @@ const DashboardLawyer: React.FC = () => {
           video_url: '',
           meeting_link: ''
         });
+        fetchClassrooms();
+      }
+    } catch (err: any) {
+      toastError('Erreur', err.message);
+    }
+  };
+
+  const handleToggleClassroomActive = async (id: string, currentActive: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('classrooms_just')
+        .update({ is_active: !currentActive })
+        .eq('id', id);
+      if (error) {
+        toastError('Erreur', error.message);
+      } else {
+        success(currentActive ? 'Suspendue' : 'Activée', `La visioconférence a été ${currentActive ? 'suspendue' : 'activée'} avec succès.`);
+        fetchClassrooms();
+      }
+    } catch (err: any) {
+      toastError('Erreur', err.message);
+    }
+  };
+
+  const handleDeleteClassroomVideo = async (id: string) => {
+    if (!window.confirm("Supprimer la vidéo associée \u00e0 cette formation ?")) return;
+    try {
+      const { error } = await supabase
+        .from('classrooms_just')
+        .update({ video_url: '' })
+        .eq('id', id);
+      if (error) {
+        toastError('Erreur', error.message);
+      } else {
+        success('Vidéo supprimée', 'La vidéo a été retirée de la formation.');
         fetchClassrooms();
       }
     } catch (err: any) {
@@ -687,6 +742,24 @@ const DashboardLawyer: React.FC = () => {
         toastError('Erreur', 'Impossible de supprimer la visioconférence : ' + error.message);
       } else {
         success('Supprimé', 'La visioconférence a été supprimée avec succès.');
+        fetchClassrooms();
+      }
+    } catch (err: any) {
+      toastError('Erreur', err.message);
+    }
+  };
+
+  const updateClassroomVideo = async (id: string, url: string) => {
+    try {
+      const { error } = await supabase
+        .from('classrooms_just')
+        .update({ video_url: url })
+        .eq('id', id);
+
+      if (error) {
+        toastError('Erreur', 'Impossible de mettre à jour la vidéo : ' + error.message);
+      } else {
+        success('Succès 🎉', 'La vidéo du cours a été mise à jour en temps réel !');
         fetchClassrooms();
       }
     } catch (err: any) {
@@ -847,7 +920,7 @@ const DashboardLawyer: React.FC = () => {
     const { data } = await supabase
       .from('profiles_just')
       .select('*, lawyers:lawyers_just(bar_association)')
-      .eq('role', 'lawyer')
+      .in('role', ['lawyer', 'professor', 'doctorate'])
       .eq('is_verified', true)
       .order('first_name');
     if (data) setAvailableLawyers(data);
@@ -939,17 +1012,16 @@ const DashboardLawyer: React.FC = () => {
     }
   }
 
+  const [selectedCommissionQuote, setSelectedCommissionQuote] = useState<any | null>(null);
+
   const handlePayCommission = async (quote: any) => {
     setPayingCommissionId(quote.id)
     try {
       const url = await createCheckoutSession(quote.id, 'commission_payment', quote.commission_amount)
       window.location.href = url
     } catch (err: any) {
-      console.error('Stripe commission error:', err)
-      toastError(
-        'Erreur de paiement commission',
-        err?.message || 'Impossible de créer la session Stripe. Vérifiez que le backend Django est lancé sur le port 8000.'
-      )
+      console.warn('Stripe backend unavailable, launching Stripe Payment Modal directly:', err)
+      setSelectedCommissionQuote(quote)
     } finally {
       setPayingCommissionId(null)
     }
@@ -1053,6 +1125,8 @@ const DashboardLawyer: React.FC = () => {
     { id: "procedures", name: t('dashboard.procedures', "Procédures"), icon: FileText },
     { id: "analyse", name: t('dashboard.ai_analysis', "Analyse IA"), icon: Shield },
     { id: "formations", name: t('dashboard.formations', "Formations"), icon: BookOpen },
+    { id: "planning", name: "Planning Annuel", icon: Calendar },
+    { id: "reviews", name: "Revues Scientifiques", icon: BookOpen },
     { id: "outils", name: t('lawyer_dashboard.assistant_ai', "Outils Avocats"), icon: PenTool },
     { id: "assistance", name: t('lawyer_dashboard.assistance', "Assistance"), icon: HelpCircle },
     { id: "profil", name: t('lawyer_dashboard.profile_title', "Mon Profil"), icon: Users }
@@ -1195,7 +1269,8 @@ const DashboardLawyer: React.FC = () => {
             <h1 className={cn('text-3xl', 'font-bold', 'text-secondary-900', 'mb-1')}>Cabinet de {profile?.first_name} {profile?.last_name}</h1>
             <p className="text-secondary-600">Interface de gestion juridique professionnelle</p>
           </div>
-          <div className={cn('flex', 'items-center', 'gap-2')}>
+          <div className={cn('flex', 'items-center', 'gap-3')}>
+            <LiveSyncBadge status="connected" showText={true} />
             <Button onClick={fetchLawyerData} variant="outline" size="sm">
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Sync
@@ -1909,6 +1984,47 @@ const DashboardLawyer: React.FC = () => {
                   </div>
                 )}
 
+                {activeTab === 'planning' && (
+                  <div className="space-y-6 animate-fade-in">
+                    <AnnualPlanning mode="lawyer" onAddEventClick={() => setCreateClassroomOpen(true)} />
+                  </div>
+                )}
+
+                {activeTab === 'reviews' && (
+                  <div className="space-y-6 animate-fade-in">
+                    <ScientificReviews 
+                      mode="lawyer" 
+                      onPublishClick={() => {
+                        openModal("Publier une Revue Scientifique", [
+                          { name: 'title', label: "Titre de l'étude" },
+                          { name: 'abstract', label: "Résumé / Abstract" },
+                          { name: 'discipline', label: "Discipline (ex: Droit Numérique & IA / Droit des Affaires)" },
+                          { name: 'region', label: "Région (France / Union Européenne / International)" },
+                          { name: 'journal_name', label: "Revue / Journal d'Origine" },
+                          { name: 'content', label: "Texte Intégral / Démonstration" },
+                        ], async (vals) => {
+                          if (!vals.title || !vals.content) return;
+                          const { error } = await supabase.from('scientific_reviews_just').insert([{
+                            title: vals.title,
+                            abstract: vals.abstract || '',
+                            discipline: vals.discipline || 'Droit Numérique & IA',
+                            region: vals.region || 'France',
+                            journal_name: vals.journal_name || 'Revue Avocats France Justice',
+                            content: vals.content,
+                            author_name: `Me ${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Avocat Partenaire',
+                            author_title: 'Avocat au Barreau',
+                            published_year: new Date().getFullYear(),
+                            is_verified: true,
+                            is_auto_scraped: false
+                          }]);
+                          if (error) toastError("Erreur", error.message);
+                          else success("Revue Publiée", "Votre étude scientifique a été publiée avec succès.");
+                        });
+                      }} 
+                    />
+                  </div>
+                )}
+
                 {activeTab === 'formations' && (
                   <div className={cn('space-y-6', 'animate-fade-in')}>
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
@@ -1990,24 +2106,65 @@ const DashboardLawyer: React.FC = () => {
                                       <span>Inscrits : {room.registered_count} / {room.max_members}</span>
                                     </div>
                                   </div>
-                                  <div className="flex gap-2 pt-2">
+                                  <div className="flex gap-2 flex-wrap pt-2">
                                     <Button
                                       variant="primary"
                                       size="sm"
                                       className={`flex-1 text-xs font-bold ${room.is_live ? 'bg-red-600 hover:bg-red-700' : ''}`}
                                       onClick={() => joinMeeting(room)}
+                                      disabled={room.is_active === false}
                                     >
-                                      <Video className="w-3.5 h-3.5 mr-1" /> {room.is_live ? "Rejoindre (Session en cours 🔴)" : "Rejoindre la visio"}
+                                      <Video className="w-3.5 h-3.5 mr-1" /> {room.is_live ? "Rejoindre (Session en cours \uD83D\uDD34)" : "Rejoindre la visio"}
                                     </Button>
                                     {isMyRoom && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="text-red-500 hover:text-red-700 border-red-200 hover:bg-red-50 px-2"
-                                        onClick={() => handleDeleteClassroom(room.id)}
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </Button>
+                                      <div className="flex gap-1.5 flex-wrap w-full">
+                                        <Button
+                                          type="button"
+                                          variant="outline"
+                                          size="sm"
+                                          className={`text-xs font-bold flex-1 ${room.is_active === false ? 'border-emerald-300 text-emerald-600 hover:bg-emerald-50' : 'border-amber-300 text-amber-600 hover:bg-amber-50'}`}
+                                          onClick={() => handleToggleClassroomActive(room.id, room.is_active !== false)}
+                                          title={room.is_active === false ? 'Activer' : 'Suspendre'}
+                                        >
+                                          {room.is_active === false ? '\u2705 Activer' : '\u23F8\uFE0F Suspendre'}
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-indigo-600 hover:text-indigo-800 border-indigo-200 hover:bg-indigo-50 px-2.5 flex items-center gap-1"
+                                          onClick={() => {
+                                            const url = prompt("Entrez l'URL YouTube, Vimeo ou MP4 de formation :", room.video_url || "");
+                                            if (url !== null) {
+                                              updateClassroomVideo(room.id, url);
+                                            }
+                                          }}
+                                          title="Associer / Modifier la vid\u00e9o"
+                                        >
+                                          <Video className="w-3.5 h-3.5" />
+                                          <span className="text-[10px] font-extrabold uppercase">Vid\u00e9o</span>
+                                        </Button>
+                                        {room.video_url && (
+                                          <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-orange-500 hover:text-orange-700 border-orange-200 hover:bg-orange-50 px-2"
+                                            onClick={() => handleDeleteClassroomVideo(room.id)}
+                                            title="Supprimer la vid\u00e9o"
+                                          >
+                                            <Eye className="w-3.5 h-3.5" />
+                                          </Button>
+                                        )}
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-red-500 hover:text-red-700 border-red-200 hover:bg-red-50 px-2"
+                                          onClick={() => handleDeleteClassroom(room.id)}
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                      </div>
                                     )}
                                   </div>
                                 </CardContent>
@@ -2173,6 +2330,17 @@ const DashboardLawyer: React.FC = () => {
                               className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
                             />
                           </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-secondary-700 mb-1">Lien de la Vidéo de Cours (YouTube / Vimeo / MP4)</label>
+                          <input
+                            type="url"
+                            placeholder="Ex: https://www.youtube.com/watch?v=..."
+                            value={newClassroom.video_url}
+                            onChange={e => setNewClassroom(prev => ({ ...prev, video_url: e.target.value }))}
+                            className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                          />
                         </div>
 
                         <div className="flex gap-3 pt-4 border-t border-secondary-100">
@@ -3134,6 +3302,16 @@ const DashboardLawyer: React.FC = () => {
           );
         })()}
       </Modal>
+      <StripePaymentModal
+        isOpen={!!selectedCommissionQuote}
+        onClose={() => setSelectedCommissionQuote(null)}
+        quote={selectedCommissionQuote}
+        paymentType="commission_payment"
+        onSuccess={() => {
+          fetchQuotes();
+          success('Commission réglée !', 'Votre dossier et accès messagerie sont débloqués.');
+        }}
+      />
     </div>
   )
 }

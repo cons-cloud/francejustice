@@ -144,10 +144,12 @@ const GeniaLAvocat: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight"
+                className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight"
               >
-                {t('genia.hero_title_left', "Décuplez la puissance de votre cabinet avec")}{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-indigo-300">
+                <span className="text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.4)]">
+                  {t('genia.hero_title_left', "Décuplez la puissance de votre cabinet avec")}
+                </span>{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-300 drop-shadow-[0_4px_25px_rgba(252,211,77,0.4)]">
                   {t('genia.title', 'GénIA-L Avocat')}
                 </span>
               </motion.h1>

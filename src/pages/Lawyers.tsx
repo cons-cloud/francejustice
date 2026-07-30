@@ -10,6 +10,7 @@ import { useTranslation } from '../i18n';
 
 interface LawyerProfile {
   id: string;
+  role?: string;
   first_name: string;
   last_name: string;
   email?: string;
@@ -21,6 +22,7 @@ interface LawyerProfile {
   office_phone?: string;
   avatar_url?: string;
   is_available?: boolean;
+  university?: string;
   lawyers?: {
     bar_association?: string;
   } | {
@@ -34,6 +36,7 @@ const LawyersPage: React.FC = () => {
   const [lawyers, setLawyers] = useState<LawyerProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<'all' | 'lawyer' | 'professor' | 'doctorate'>('all');
   
   // Geographical Filters State
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
@@ -70,7 +73,7 @@ const LawyersPage: React.FC = () => {
     const { data, error } = await supabase
       .from('profiles_just')
       .select('*, lawyers:lawyers_just(bar_association)')
-      .eq('role', 'lawyer')
+      .in('role', ['lawyer', 'professor', 'doctorate'])
       .eq('is_verified', true)
       .range(from, to);
     
@@ -137,8 +140,11 @@ const LawyersPage: React.FC = () => {
 
   // Filter lawyers by search text and dropdown selections
   const filteredLawyers = lawyers.filter(l => {
+    if (roleFilter !== 'all' && l.role !== roleFilter) return false;
+
     const matchesSearch = `${l.first_name} ${l.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (l.specialty || '').toLowerCase().includes(searchTerm.toLowerCase());
+      (l.specialty || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (l.university || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     if (!matchesSearch) return false;
 
@@ -168,14 +174,57 @@ const LawyersPage: React.FC = () => {
             {t('lawyers.hero_subtitle', 'Notre annuaire regroupe uniquement des professionnels du droit français rigoureusement vérifiés par notre équipe.')}
           </p>
           
-          <div className="max-w-2xl mx-auto relative">
+          <div className="max-w-2xl mx-auto relative mb-6">
             <Search className="absolute left-4 top-3.5 h-6 w-6 text-secondary-400" />
             <Input 
               className="pl-12 h-14 text-lg text-secondary-900 shadow-xl"
-              placeholder={t('lawyers.search_placeholder')}
+              placeholder="Rechercher par nom, université, barreau ou spécialité..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto">
+            <button
+              onClick={() => setRoleFilter('all')}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                roleFilter === 'all' 
+                  ? 'bg-white text-slate-900 shadow-md font-bold' 
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              Tous les Intervenants ({lawyers.length})
+            </button>
+            <button
+              onClick={() => setRoleFilter('lawyer')}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                roleFilter === 'lawyer' 
+                  ? 'bg-purple-500 text-white shadow-md' 
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              ⚖️ Avocats au Barreau ({lawyers.filter(l => l.role === 'lawyer').length})
+            </button>
+            <button
+              onClick={() => setRoleFilter('professor')}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                roleFilter === 'professor' 
+                  ? 'bg-amber-500 text-white shadow-md' 
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              👨‍🏫 Professeurs de Droit ({lawyers.filter(l => l.role === 'professor').length})
+            </button>
+            <button
+              onClick={() => setRoleFilter('doctorate')}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                roleFilter === 'doctorate' 
+                  ? 'bg-teal-500 text-white shadow-md' 
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              🔬 Doctorants & Chercheurs ({lawyers.filter(l => l.role === 'doctorate').length})
+            </button>
           </div>
         </div>
       </div>
@@ -275,10 +324,13 @@ const LawyersPage: React.FC = () => {
 
               return (
                 <Card key={lawyer.id} hover className="border-none shadow-sm hover:shadow-xl transition-all overflow-hidden group">
-                  <div className="h-4 bg-primary-600"></div>
+                  <div className={`h-4 ${
+                    lawyer.role === 'professor' ? 'bg-amber-500' :
+                    lawyer.role === 'doctorate' ? 'bg-teal-500' : 'bg-primary-600'
+                  }`}></div>
                   <CardContent className="p-8">
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center font-bold text-2xl uppercase overflow-hidden">
+                      <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center font-bold text-2xl uppercase overflow-hidden ring-2 ring-primary-100">
                         {lawyer.avatar_url ? (
                           <img src={lawyer.avatar_url} alt="" className="w-full h-full object-cover" />
                         ) : (
@@ -287,15 +339,33 @@ const LawyersPage: React.FC = () => {
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-secondary-900 flex items-center gap-2">
-                          Me. {lawyer.first_name} {lawyer.last_name}
+                          {lawyer.role === 'professor' ? `Prof. ${lawyer.first_name} ${lawyer.last_name}` :
+                           lawyer.role === 'doctorate' ? `Dr. ${lawyer.first_name} ${lawyer.last_name}` :
+                           `Me. ${lawyer.first_name} ${lawyer.last_name}`}
                           <CheckCircle className="h-5 w-5 text-success-500" />
                         </h3>
-                        <p className="text-primary-600 font-semibold">{lawyer.specialty || t('lawyers.default_title', 'Avocat au barreau')}</p>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold mt-1 inline-block ${
-                          lawyer.is_available !== false ? 'bg-success-100 text-success-700' : 'bg-secondary-100 text-secondary-500'
-                        }`}>
-                          {lawyer.is_available !== false ? t('lawyers.available', 'Disponible') : t('lawyers.unavailable', 'Indisponible')}
-                        </span>
+                        <p className="text-primary-600 font-semibold text-xs">
+                          {lawyer.specialty || (
+                            lawyer.role === 'professor' ? 'Professeur de Droit & Formateur' :
+                            lawyer.role === 'doctorate' ? 'Doctorant / Chercheur en Droit' :
+                            'Avocat au barreau'
+                          )}
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-black ${
+                            lawyer.role === 'professor' ? 'bg-amber-100 text-amber-800' :
+                            lawyer.role === 'doctorate' ? 'bg-teal-100 text-teal-800' :
+                            'bg-purple-100 text-purple-800'
+                          }`}>
+                            {lawyer.role === 'professor' ? 'Professeur' :
+                             lawyer.role === 'doctorate' ? 'Doctorant' : 'Avocat'}
+                          </span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold inline-block ${
+                            lawyer.is_available !== false ? 'bg-success-100 text-success-700' : 'bg-secondary-100 text-secondary-500'
+                          }`}>
+                            {lawyer.is_available !== false ? t('lawyers.available', 'Disponible') : t('lawyers.unavailable', 'Indisponible')}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -308,14 +378,21 @@ const LawyersPage: React.FC = () => {
                         </span>
                       </div>
                       
+                      {lawyer.university && (
+                        <div className="flex items-center text-secondary-600 gap-3 text-xs font-medium">
+                          <span className="text-secondary-400">🎓</span>
+                          <span>{lawyer.university}</span>
+                        </div>
+                      )}
+
                       {bar && (
-                        <div className="flex items-center text-secondary-600 gap-3">
+                        <div className="flex items-center text-secondary-600 gap-3 text-xs">
                           <span className="text-secondary-400">🏛️</span>
                           <span>{t('lawyers.barreau_of', 'Barreau de')} {bar}</span>
                         </div>
                       )}
 
-                      <div className="flex items-center text-secondary-600 gap-3">
+                      <div className="flex items-center text-secondary-600 gap-3 text-xs">
                         <Mail className="h-5 w-5 text-secondary-400" />
                         <span>{lawyer.email}</span>
                       </div>

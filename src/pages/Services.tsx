@@ -35,9 +35,12 @@ const Services: React.FC = () => {
         setServices(data);
       } else {
         setServices([
-          { title: t('services.ai_search_title', 'Recherche IA juridique'), description: t('services.ai_search_desc', 'Analyse automatique des lois, jurisprudences et précédents.'), icon_name: 'Search', path: '/assistant' },
-          { title: t('services.generator_title', 'Générateur de documents'), description: t('services.generator_desc', 'Création de plaintes, contrats et recours.'), icon_name: 'Shield', path: '/generator' },
-          { title: t('services.formations_title', 'Formation & ressources'), description: t('services.formations_desc', 'Guides pratiques pour comprendre vos droits.'), icon_name: 'MessageSquare', path: '/search' }
+          { title: t('services.ai_search_title', 'Assistant IA GÉNIA-L'), description: 'Analyse automatique des lois, jurisprudences et précédents en temps réel.', icon_name: 'Search', path: '/genia-l' },
+          { title: t('services.generator_title', 'Générateur de Documents'), description: 'Création de plaintes, contrats, recours et actes juridiques anonymisés.', icon_name: 'Shield', path: '/generator' },
+          { title: t('services.formations_title', 'Visioconférences & Salles de Classe'), description: 'Cours en direct et masterclasses enregistrées jusqu’à +2h et >100 participants.', icon_name: 'MessageSquare', path: '/classrooms' },
+          { title: 'Annuaire Avocats, Profs & Doctorants', description: 'Consultez les profils vérifiés des avocats, enseignants et chercheurs.', icon_name: 'Users', path: '/lawyers' },
+          { title: 'Revues Scientifiques & Actualités', description: 'Flux d’actualités et revues de recherche juridique téléchargeables en PDF.', icon_name: 'Scale', path: '/news' },
+          { title: 'Planning Annuel des Formations', description: 'Agenda national interactif des formations et webinaires de l’année.', icon_name: 'MessageSquare', path: '/classrooms' }
         ]);
       }
     } catch (error) {

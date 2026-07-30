@@ -10,8 +10,8 @@
     "ai_full": "Intelligence Artificielle",
     "genia": "GénIA-L Avocat",
     "genia_desc": "Assistant IA spécialisé droit",
-    "generator": "Générateur",
-    "generator_desc": "Documents juridiques automatiques",
+    "generator": "Déposer une plainte",
+    "generator_desc": "Déposez votre plainte facilement en ligne",
     "classrooms": "Espace Formation",
     "lawyers": "Avocats",
     "about": "À propos",
@@ -37,7 +37,7 @@
     "links": {
       "ai_search": "Recherche juridique IA",
       "database": "Base de données légale",
-      "generator_link": "Générateur de plaintes",
+      "generator_link": "Déposer une plainte",
       "formations": "Formations et ressources",
       "news": "Actualités juridiques",
       "guides": "Guides pratiques",
@@ -67,7 +67,7 @@
     "feature_db_desc": "Accès complet aux codes juridiques et à la jurisprudence récente.",
     "feature_training_title": "Formations",
     "feature_training_desc": "Guides pratiques pour comprendre vos droits et vous former.",
-    "feature_gen_title": "Générateur de plaintes",
+    "feature_gen_title": "Déposer une plainte",
     "feature_gen_desc": "Génération automatique de documents juridiques personnalisés.",
     "formations_title": "Catalogue de Formations",
     "formations_subtitle": "Apprenez vos droits grâce à nos guides exclusifs préparés par des experts.",
@@ -172,7 +172,7 @@
     "phone_title": "Téléphone",
     "email_title": "Email",
     "address_title": "Adresse",
-    "hours": "Lundi - Vendredi, 9h - 18h"
+    "hours": "ouvert tous les jours 24h/24"
   },
   "faq": {
     "title": "Questions fréquentes",

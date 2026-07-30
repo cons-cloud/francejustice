@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Scale, ExternalLink, RefreshCw, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Scale, ExternalLink, RefreshCw, AlertCircle, ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
@@ -14,12 +15,34 @@ interface SearchPageProps {
 }
 
 const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [aiExplanation, setAiExplanation] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const features = [
+    { 
+      title: t('search.feat_jurisprudence', 'Jurisprudence'), 
+      desc: t('search.feat_jurisprudence_desc', 'Décisions des tribunaux français'), 
+      icon: Scale,
+      path: '/database?category=Jurisprudence %26 Arrêts'
+    },
+    { 
+      title: t('search.feat_codes', 'Codes & Dahirs'), 
+      desc: t('search.feat_codes_desc', 'Base complète des textes législatifs'), 
+      icon: ExternalLink,
+      path: '/database?category=Codes %26 Lois'
+    },
+    { 
+      title: t('search.feat_advice', 'Conseils IA'), 
+      desc: t('search.feat_advice_desc', 'Explications simplifiées du droit'), 
+      icon: Search,
+      path: '/assistant'
+    }
+  ];
   
   const performSearch = async (q: string) => {
     setLoading(true);
@@ -119,12 +142,6 @@ Réponds de manière structurée et complète.`;
     );
   }
 
-  const features = [
-    { title: t('search.feat_jurisprudence', 'Jurisprudence'), desc: t('search.feat_jurisprudence_desc', 'Décisions des tribunaux français'), icon: Scale },
-    { title: t('search.feat_codes', 'Codes & Dahirs'), desc: t('search.feat_codes_desc', 'Base complète des textes législatifs'), icon: ExternalLink },
-    { title: t('search.feat_advice', 'Conseils IA'), desc: t('search.feat_advice_desc', 'Explications simplifiées du droit'), icon: Search }
-  ];
-
   return (
     <div className="min-h-screen bg-secondary-50">
       <div className="bg-primary-900 text-white py-16">
@@ -191,12 +208,27 @@ Réponds de manière structurée et complète.`;
         {!loading && !aiExplanation && (
           <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 pb-20">
             {features.map((item, i) => (
-              <div key={i} className="text-center p-8 bg-white rounded-3xl border border-secondary-100 hover:shadow-xl transition-all group">
-                <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-600 group-hover:text-white transition-colors">
+              <div 
+                key={i} 
+                onClick={() => navigate(item.path)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(item.path);
+                  }
+                }}
+                className="text-center p-8 bg-white rounded-3xl border border-secondary-100 shadow-sm hover:shadow-2xl hover:border-primary-300 transition-all duration-300 group cursor-pointer hover:-translate-y-1.5 flex flex-col items-center select-none"
+              >
+                <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300 shadow-inner group-hover:scale-110">
                   <item.icon className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold text-secondary-900 mb-2">{item.title}</h3>
-                <p className="text-secondary-600">{item.desc}</p>
+                <h3 className="text-xl font-bold text-secondary-900 mb-2 group-hover:text-primary-700 transition-colors flex items-center gap-1.5">
+                  {item.title}
+                  <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-primary-600" />
+                </h3>
+                <p className="text-secondary-600 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>

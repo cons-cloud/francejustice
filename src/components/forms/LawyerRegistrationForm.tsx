@@ -324,7 +324,10 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
               <button
                 type="button"
                 className="text-primary-600 font-semibold hover:underline"
-                onClick={() => navigate('/login')}
+                onClick={() => {
+                  const redirect = new URLSearchParams(window.location.search).get('redirect');
+                  navigate(`/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`);
+                }}
               >
                 Se connecter
               </button>
@@ -338,7 +341,8 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
         onClose={() => {
           setShowSuccessModal(false);
           if (onClose) onClose();
-          navigate('/login');
+          const redirect = new URLSearchParams(window.location.search).get('redirect');
+          navigate(`/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`);
         }}
         title="Candidature Envoyée"
       >
@@ -353,7 +357,8 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
           <Button className="w-full" onClick={() => {
             setShowSuccessModal(false);
             if (onClose) onClose();
-            navigate('/login');
+            const redirect = new URLSearchParams(window.location.search).get('redirect');
+            navigate(`/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`);
           }}>
             Retourner à l'accueil
           </Button>
