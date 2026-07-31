@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   MessageSquare, X, Send, Sparkles, Scale, Mic, MicOff, Volume2, VolumeX, 
   Copy, Check, Maximize2, Minimize2, ExternalLink, RefreshCw, User, ShieldCheck, 
-  BookOpen, Video, FileText, ArrowRight, CornerDownLeft
+  Video, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -22,7 +22,7 @@ interface Message {
 
 export const FloatingChatBot: React.FC = () => {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user: _user, profile } = useAuth();
   
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -114,7 +114,7 @@ export const FloatingChatBot: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await smartGlobalLegalAssistantQuery(promptToSend, profile?.role || 'public');
+      const response = await smartGlobalLegalAssistantQuery(promptToSend, (profile as any)?.role || 'public');
       
       const assistantMsg: Message = {
         id: `assistant-${Date.now()}`,

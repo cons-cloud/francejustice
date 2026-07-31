@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { 
-  BookOpen, Globe, Search, RefreshCw, Sparkles, Download, 
-  Plus, Filter, FileText, CheckCircle2, Shield, Calendar, Users, ExternalLink
+  BookOpen, Search, RefreshCw, Sparkles, Download, 
+  Plus, Users
 } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import { useAuth } from '../../hooks/useAuth';
 import { generatePDF } from '../../lib/pdfUtils';
 
 export interface ScientificReview {
@@ -103,7 +101,6 @@ export const ScientificReviews: React.FC<ScientificReviewsProps> = ({
   mode = 'public',
   onPublishClick
 }) => {
-  const { user } = useAuth();
   const [reviews, setReviews] = useState<ScientificReview[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -188,15 +185,11 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
   });
 
   const downloadReviewPDF = (rev: ScientificReview) => {
-    generatePDF({
+    generatePDF(rev.content || rev.abstract, {
       title: rev.title,
       subtitle: `Publication scientifique — ${rev.journal_name} (${rev.published_year})`,
       author: rev.author_name,
-      date: new Date().toLocaleDateString('fr-FR'),
-      sections: [
-        { title: "Méta-données & Résumé Académique", content: `Auteur : ${rev.author_name} (${rev.author_title || ''})\nRevue : ${rev.journal_name}\nDiscipline : ${rev.discipline}\nDOI/ISSN : ${rev.doi_or_issn || 'Non spécifié'}\n\nRésumé :\n${rev.abstract}` },
-        { title: "Texte Intégral & Démonstration Scientifique", content: rev.content }
-      ]
+      year: rev.published_year
     });
   };
 

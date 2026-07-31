@@ -1,11 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  FileText, Shield, Scale, AlertTriangle, Search, ChevronRight, 
-  Download, Sparkles, BookOpen, Clock, CheckCircle2, ArrowRight, 
-  ExternalLink, Building2, Home, Users, Briefcase, FileCheck, X
+  FileText, Scale, AlertTriangle, Search, ChevronRight, 
+  Download, Sparkles, BookOpen, Clock, CheckCircle2, 
+  FileCheck, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslation } from '../i18n';
 import { useNavigate } from 'react-router-dom';
 import { generatePDF } from '../lib/pdfUtils';
 
@@ -321,7 +320,6 @@ const GUIDES_DATABASE: LegalGuideItem[] = [
 ];
 
 const GuidePratique: React.FC = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');

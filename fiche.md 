@@ -1,0 +1,493 @@
+builder
+RUN npm run build
+15s
+> law_just@1.0.0 build
+> tsc -b && vite build
+src/components/features/AnnualPlanning.tsx(2,27): error TS6133: 'Video' is declared but its value is never read.
+
+src/components/features/AnnualPlanning.tsx(38,9): error TS6133: 'user' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(4,13): error TS6133: 'Globe' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,9): error TS6133: 'Filter' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,17): error TS6133: 'FileText' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,27): error TS6133: 'CheckCircle2' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,41): error TS6133: 'Shield' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,49): error TS6133: 'Calendar' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,66): error TS6133: 'ExternalLink' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(9,1): error TS6133: 'Input' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(106,9): error TS6133: 'user' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(191,5): error TS2554: Expected 2 arguments, but got 1.
+
+src/components/layout/Header.tsx(13,1): error TS6133: 'franceDemocratieImg' is declared but its value is never read.
+
+src/components/layout/Header.tsx(15,1): error TS6133: 'justiceImg' is declared but its value is never read.
+
+src/components/layout/Header.tsx(16,1): error TS6133: 'presidentielleImg' is declared but its value is never read.
+
+src/components/ui/FloatingChatBot.tsx(5,3): error TS6133: 'BookOpen' is declared but its value is never read.
+
+src/components/ui/FloatingChatBot.tsx(5,20): error TS6133: 'FileText' is declared but its value is never read.
+
+src/components/ui/FloatingChatBot.tsx(5,42): error TS6133: 'CornerDownLeft' is declared but its value is never read.
+
+src/components/ui/FloatingChatBot.tsx(25,11): error TS6133: 'user' is declared but its value is never read.
+
+src/components/ui/FloatingChatBot.tsx(117,84): error TS2339: Property 'role' does not exist on type '{ first_name: string; last_name: string; avatar_url?: string | undefined; is_verified?: boolean | undefined; phone?: string | undefined; city?: string | undefined; postal_code?: string | undefined; ... 7 more ...; stripe_secret_key?: string | undefined; }'.
+
+src/lib/gemini.ts(203,74): error TS6133: 'roleContext' is declared but its value is never read.
+
+src/pages/AdminDashboard.tsx(1545,14): error TS2367: This comparison appears to be unintentional because the types '"appointments" | "documents" | "outils" | "formations" | "assistance" | "messages" | "overview" | "system" | "classrooms" | "lawyers" | "users" | "settings" | "payments" | "monitoring"' and '"planning"' have no overlap.
+
+src/pages/AdminDashboard.tsx(1551,14): error TS2367: This comparison appears to be unintentional because the types '"appointments" | "documents" | "outils" | "formations" | "assistance" | "messages" | "overview" | "system" | "classrooms" | "lawyers" | "users" | "settings" | "payments" | "monitoring"' and '"reviews"' have no overlap.
+
+src/pages/Classrooms.tsx(7,32): error TS6133: 'FileText' is declared but its value is never read.
+
+src/pages/Dashboard.tsx(22,15): error TS6133: 'CalendarIcon' is declared but its value is never read.
+
+src/pages/Dashboard.tsx(24,1): error TS6133: 'AnnualPlanning' is declared but its value is never read.
+
+src/pages/Dashboard.tsx(25,1): error TS6133: 'ScientificReviews' is declared but its value is never read.
+
+src/pages/Dashboard.tsx(1139,16): error TS2304: Cannot find name 'role'.
+
+src/pages/Dashboard.tsx(1144,16): error TS2304: Cannot find name 'role'.
+
+src/pages/Dashboard.tsx(1149,16): error TS2304: Cannot find name 'role'.
+
+src/pages/Dashboard.tsx(1156,16): error TS2304: Cannot find name 'role'.
+
+src/pages/Dashboard.tsx(2088,11): error TS2552: Cannot find name 'fetchUserQuotes'. Did you mean 'fetchQuotes'?
+
+src/pages/DashboardLawyer.tsx(1998,25): error TS2304: Cannot find name 'openModal'.
+
+src/pages/DashboardLawyer.tsx(2005,35): error TS7006: Parameter 'vals' implicitly has an 'any' type.
+
+src/pages/GuidePratique.tsx(3,13): error TS6133: 'Shield' is declared but its value is never read.
+
+src/pages/GuidePratique.tsx(4,54): error TS6133: 'ArrowRight' is declared but its value is never read.
+
+src/pages/GuidePratique.tsx(5,3): error TS6133: 'ExternalLink' is declared but its value is never read.
+
+src/pages/GuidePratique.tsx(5,17): error TS6133: 'Building2' is declared but its value is never read.
+
+src/pages/GuidePratique.tsx(5,28): error TS6133: 'Home' is declared but its value is never read.
+
+src/pages/GuidePratique.tsx(5,34): error TS6133: 'Users' is declared but its value is never read.
+
+src/pages/GuidePratique.tsx(5,41): error TS6133: 'Briefcase' is declared but its value is never read.
+
+src/pages/GuidePratique.tsx(324,9): error TS6133: 't' is declared but its value is never read.
+
+src/pages/Home.tsx(3,3): error TS6133: 'Search' is declared but its value is never read.
+
+src/pages/Home.tsx(3,38): error TS6133: 'Star' is declared but its value is never read.
+
+src/pages/Home.tsx(4,50): error TS6133: 'Globe' is declared but its value is never read.
+
+src/pages/Home.tsx(4,57): error TS6133: 'RefreshCw' is declared but its value is never read.
+
+src/pages/Home.tsx(4,81): error TS6133: 'MessageSquare' is declared but its value is never read.
+
+src/pages/Home.tsx(7,1): error TS6192: All imports in import declaration are unused.
+
+src/pages/Home.tsx(18,9): error TS6133: 'user' is declared but its value is never read.
+
+src/pages/Home.tsx(240,39): error TS2322: Type '{ hidden: { opacity: number; y: number; }; visible: { opacity: number; y: number; transition: { duration: number; ease: string; }; }; }' is not assignable to type 'Variants'.
+
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: string; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ duration: number; ease: string; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: string; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'string' is not assignable to type 'Easing | Easing[] | undefined'.
+src/pages/Legal.tsx(2,70): error TS6133: 'Calendar' is declared but its value is never read.
+
+src/pages/News.tsx(253,11): error TS6133: 't' is declared but its value is never read.
+
+src/pages/News.tsx(256,10): error TS6133: 'loading' is declared but its value is never read.
+
+src/pages/News.tsx(256,19): error TS6133: 'setLoading' is declared but its value is never read.
+
+src/pages/News.tsx(265,10): error TS6133: 'livePulse' is declared but its value is never read.
+
+src/pages/News.tsx(265,21): error TS6133: 'setLivePulse' is declared but its value is never read.
+
+src/pages/News.tsx(270,10): error TS6133: 'liveLogMessage' is declared but its value is never read.
+
+src/components/features/AnnualPlanning.tsx(2,27): error TS6133: 'Video' is declared but its value is never read.
+
+src/components/features/AnnualPlanning.tsx(38,9): error TS6133: 'user' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(4,13): error TS6133: 'Globe' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,9): error TS6133: 'Filter' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,17): error TS6133: 'FileText' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,27): error TS6133: 'CheckCircle2' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,41): error TS6133: 'Shield' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,49): error TS6133: 'Calendar' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(5,66): error TS6133: 'ExternalLink' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(9,1): error TS6133: 'Input' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(106,9): error TS6133: 'user' is declared but its value is never read.
+
+src/components/features/ScientificReviews.tsx(191,5): error TS2554: Expected 2 arguments, but got 1.
+
+src/lib/gemini.ts(203,74): error TS6133: 'roleContext' is declared but its value is never read.
+
+src/pages/AdminDashboard.tsx(1545,14): error TS2367: This comparison appears to be unintentional because the types '"system" | "overview" | "users" | "lawyers" | "documents" | "messages" | "settings" | "assistance" | "outils" | "formations" | "payments" | "monitoring" | "appointments" | "classrooms"' and '"planning"' have no overlap.
+
+src/pages/AdminDashboard.tsx(1551,14): error TS2367: This comparison appears to be unintentional because the types '"system" | "overview" | "users" | "lawyers" | "documents" | "messages" | "settings" | "assistance" | "outils" | "formations" | "payments" | "monitoring" | "appointments" | "classrooms"' and '"reviews"' have no overlap.
+
+src/pages/Dashboard.tsx(22,15): error TS6133: 'CalendarIcon' is declared but its value is never read.
+
+src/pages/Dashboard.tsx(24,1): error TS6133: 'AnnualPlanning' is declared but its value is never read.
+
+src/pages/Dashboard.tsx(25,1): error TS6133: 'ScientificReviews' is declared but its value is never read.
+
+src/pages/Dashboard.tsx(1139,16): error TS2304: Cannot find name 'role'.
+
+src/pages/Dashboard.tsx(1144,16): error TS2304: Cannot find name 'role'.
+
+src/pages/Dashboard.tsx(1149,16): error TS2304: Cannot find name 'role'.
+
+src/pages/Dashboard.tsx(1156,16): error TS2304: Cannot find name 'role'.
+
+src/pages/Dashboard.tsx(2088,11): error TS2552: Cannot find name 'fetchUserQuotes'. Did you mean 'fetchQuotes'?
+
+src/pages/DashboardLawyer.tsx(1998,25): error TS2304: Cannot find name 'openModal'.
+
+src/pages/DashboardLawyer.tsx(2005,35): error TS7006: Parameter 'vals' implicitly has an 'any' type.
+
+
+stage-1
+COPY backend/requirements.txt .
+133ms
+
+stage-1
+RUN pip install --no-cache-dir -r requirements.txt
+11s
+Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Downloading amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting annotated-types==0.7.0 (from -r requirements.txt (line 2))
+  Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+Collecting anyio==4.13.0 (from -r requirements.txt (line 3))
+  Downloading anyio-4.13.0-py3-none-any.whl.metadata (4.5 kB)
+Collecting asgiref==3.11.1 (from -r requirements.txt (line 4))
+  Downloading asgiref-3.11.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting billiard==4.2.4 (from -r requirements.txt (line 5))
+  Downloading billiard-4.2.4-py3-none-any.whl.metadata (4.8 kB)
+Collecting cachetools==6.2.6 (from -r requirements.txt (line 6))
+  Downloading cachetools-6.2.6-py3-none-any.whl.metadata (5.6 kB)
+Collecting celery==5.6.3 (from -r requirements.txt (line 7))
+  Downloading celery-5.6.3-py3-none-any.whl.metadata (23 kB)
+Collecting certifi==2026.4.22 (from -r requirements.txt (line 8))
+  Downloading certifi-2026.4.22-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==2.0.0 (from -r requirements.txt (line 9))
+  Downloading cffi-2.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB)
+Collecting charset-normalizer==3.4.7 (from -r requirements.txt (line 10))
+  Downloading charset_normalizer-3.4.7-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+Collecting click==8.3.3 (from -r requirements.txt (line 11))
+  Downloading click-8.3.3-py3-none-any.whl.metadata (2.6 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 12))
+  Downloading click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1.2 (from -r requirements.txt (line 13))
+  Downloading click_plugins-1.1.1.2-py2.py3-none-any.whl.metadata (6.5 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 14))
+  Downloading click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting cryptography==47.0.0 (from -r requirements.txt (line 15))
+  Downloading cryptography-47.0.0-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.5 kB)
+Collecting deprecation==2.1.0 (from -r requirements.txt (line 16))
+  Downloading deprecation-2.1.0-py2.py3-none-any.whl.metadata (4.6 kB)
+Collecting dj-database-url==3.1.2 (from -r requirements.txt (line 17))
+  Downloading dj_database_url-3.1.2-py3-none-any.whl.metadata (13 kB)
+Collecting Django==6.0.4 (from -r requirements.txt (line 18))
+  Downloading django-6.0.4-py3-none-any.whl.metadata (3.9 kB)
+Collecting django-cors-headers==4.9.0 (from -r requirements.txt (line 19))
+  Downloading django_cors_headers-4.9.0-py3-none-any.whl.metadata (16 kB)
+Collecting django-environ==0.13.0 (from -r requirements.txt (line 20))
+  Downloading django_environ-0.13.0-py3-none-any.whl.metadata (13 kB)
+Collecting django-ratelimit==4.1.0 (from -r requirements.txt (line 21))
+  Downloading django_ratelimit-4.1.0-py2.py3-none-any.whl.metadata (2.3 kB)
+Collecting djangorestframework==3.17.1 (from -r requirements.txt (line 22))
+  Downloading djangorestframework-3.17.1-py3-none-any.whl.metadata (7.9 kB)
+Collecting fsspec==2026.3.0 (from -r requirements.txt (line 23))
+  Downloading fsspec-2026.3.0-py3-none-any.whl.metadata (10 kB)
+Collecting google-ai-generativelanguage==0.6.15 (from -r requirements.txt (line 24))
+  Downloading google_ai_generativelanguage-0.6.15-py3-none-any.whl.metadata (5.7 kB)
+Collecting google-api-core==2.30.3 (from -r requirements.txt (line 25))
+  Downloading google_api_core-2.30.3-py3-none-any.whl.metadata (3.1 kB)
+Collecting google-api-python-client==2.194.0 (from -r requirements.txt (line 26))
+  Downloading google_api_python_client-2.194.0-py3-none-any.whl.metadata (7.0 kB)
+Collecting google-auth==2.49.2 (from -r requirements.txt (line 27))
+  Downloading google_auth-2.49.2-py3-none-any.whl.metadata (6.2 kB)
+Collecting google-auth-httplib2==0.3.1 (from -r requirements.txt (line 28))
+  Downloading google_auth_httplib2-0.3.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting google-generativeai==0.8.6 (from -r requirements.txt (line 29))
+  Downloading google_generativeai-0.8.6-py3-none-any.whl.metadata (3.9 kB)
+Collecting googleapis-common-protos==1.74.0 (from -r requirements.txt (line 30))
+  Downloading googleapis_common_protos-1.74.0-py3-none-any.whl.metadata (9.2 kB)
+Collecting grpcio==1.80.0 (from -r requirements.txt (line 31))
+  Downloading grpcio-1.80.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.8 kB)
+Collecting grpcio-status==1.71.2 (from -r requirements.txt (line 32))
+  Downloading grpcio_status-1.71.2-py3-none-any.whl.metadata (1.1 kB)
+Collecting gunicorn==25.3.0 (from -r requirements.txt (line 33))
+  Downloading gunicorn-25.3.0-py3-none-any.whl.metadata (5.5 kB)
+Collecting h11==0.16.0 (from -r requirements.txt (line 34))
+  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting h2==4.3.0 (from -r requirements.txt (line 35))
+  Downloading h2-4.3.0-py3-none-any.whl.metadata (5.1 kB)
+Collecting hpack==4.1.0 (from -r requirements.txt (line 36))
+  Downloading hpack-4.1.0-py3-none-any.whl.metadata (4.6 kB)
+Collecting httpcore==1.0.9 (from -r requirements.txt (line 37))
+  Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Collecting httplib2==0.31.2 (from -r requirements.txt (line 38))
+  Downloading httplib2-0.31.2-py3-none-any.whl.metadata (2.2 kB)
+Collecting httpx==0.28.1 (from -r requirements.txt (line 39))
+  Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+Collecting hyperframe==6.1.0 (from -r requirements.txt (line 40))
+  Downloading hyperframe-6.1.0-py3-none-any.whl.metadata (4.3 kB)
+Collecting idna==3.13 (from -r requirements.txt (line 41))
+  Downloading idna-3.13-py3-none-any.whl.metadata (8.0 kB)
+Collecting iniconfig==2.3.0 (from -r requirements.txt (line 42))
+  Downloading iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting kombu==5.6.2 (from -r requirements.txt (line 43))
+  Downloading kombu-5.6.2-py3-none-any.whl.metadata (3.5 kB)
+Collecting markdown-it-py==4.0.0 (from -r requirements.txt (line 44))
+  Downloading markdown_it_py-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+Collecting mdurl==0.1.2 (from -r requirements.txt (line 45))
+  Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Collecting mmh3==5.2.1 (from -r requirements.txt (line 46))
+  Downloading mmh3-5.2.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (14 kB)
+Collecting multidict==6.7.1 (from -r requirements.txt (line 47))
+  Downloading multidict-6.7.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.3 kB)
+Collecting packaging==26.2 (from -r requirements.txt (line 48))
+  Downloading packaging-26.2-py3-none-any.whl.metadata (3.5 kB)
+Collecting pluggy==1.6.0 (from -r requirements.txt (line 49))
+  Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+Collecting postgrest==2.29.0 (from -r requirements.txt (line 50))
+  Downloading postgrest-2.29.0-py3-none-any.whl.metadata (3.4 kB)
+Collecting prompt_toolkit==3.0.52 (from -r requirements.txt (line 51))
+  Downloading prompt_toolkit-3.0.52-py3-none-any.whl.metadata (6.4 kB)
+Collecting propcache==0.4.1 (from -r requirements.txt (line 52))
+  Downloading propcache-0.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (13 kB)
+Collecting proto-plus==1.27.2 (from -r requirements.txt (line 53))
+  Downloading proto_plus-1.27.2-py3-none-any.whl.metadata (2.2 kB)
+Collecting protobuf==5.29.6 (from -r requirements.txt (line 54))
+  Downloading protobuf-5.29.6-cp38-abi3-manylinux2014_x86_64.whl.metadata (592 bytes)
+Collecting psycopg2-binary==2.9.12 (from -r requirements.txt (line 55))
+  Downloading psycopg2_binary-2.9.12-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Collecting pyasn1==0.6.3 (from -r requirements.txt (line 56))
+  Downloading pyasn1-0.6.3-py3-none-any.whl.metadata (8.4 kB)
+Collecting pyasn1_modules==0.4.2 (from -r requirements.txt (line 57))
+  Downloading pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)
+Collecting pycparser==3.0 (from -r requirements.txt (line 58))
+  Downloading pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+Collecting pydantic==2.13.3 (from -r requirements.txt (line 59))
+  Downloading pydantic-2.13.3-py3-none-any.whl.metadata (108 kB)
+Collecting pydantic_core==2.46.3 (from -r requirements.txt (line 60))
+  Downloading pydantic_core-2.46.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+Collecting Pygments==2.20.0 (from -r requirements.txt (line 61))
+  Downloading pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting pyiceberg==0.11.1 (from -r requirements.txt (line 62))
+  Downloading pyiceberg-0.11.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (4.8 kB)
+Collecting PyJWT==2.12.1 (from -r requirements.txt (line 63))
+  Downloading pyjwt-2.12.1-py3-none-any.whl.metadata (4.1 kB)
+Collecting pyparsing==3.3.2 (from -r requirements.txt (line 64))
+  Downloading pyparsing-3.3.2-py3-none-any.whl.metadata (5.8 kB)
+Collecting pyroaring==1.1.0 (from -r requirements.txt (line 65))
+  Downloading pyroaring-1.1.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (11 kB)
+Collecting pytest==9.0.3 (from -r requirements.txt (line 66))
+  Downloading pytest-9.0.3-py3-none-any.whl.metadata (7.6 kB)
+Collecting pytest-django==4.12.0 (from -r requirements.txt (line 67))
+  Downloading pytest_django-4.12.0-py3-none-any.whl.metadata (8.0 kB)
+Collecting python-dateutil==2.9.0.post0 (from -r requirements.txt (line 68))
+  Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting python-dotenv==1.2.2 (from -r requirements.txt (line 69))
+  Downloading python_dotenv-1.2.2-py3-none-any.whl.metadata (27 kB)
+Collecting realtime==2.29.0 (from -r requirements.txt (line 70))
+  Downloading realtime-2.29.0-py3-none-any.whl.metadata (7.0 kB)
+Collecting redis==7.4.0 (from -r requirements.txt (line 71))
+  Downloading redis-7.4.0-py3-none-any.whl.metadata (12 kB)
+Collecting requests==2.33.1 (from -r requirements.txt (line 72))
+  Downloading requests-2.33.1-py3-none-any.whl.metadata (4.8 kB)
+Collecting rich==14.3.4 (from -r requirements.txt (line 73))
+  Downloading rich-14.3.4-py3-none-any.whl.metadata (18 kB)
+Collecting six==1.17.0 (from -r requirements.txt (line 74))
+  Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Collecting sqlparse==0.5.5 (from -r requirements.txt (line 75))
+  Downloading sqlparse-0.5.5-py3-none-any.whl.metadata (4.7 kB)
+Collecting storage3==2.29.0 (from -r requirements.txt (line 76))
+  Downloading storage3-2.29.0-py3-none-any.whl.metadata (2.1 kB)
+Collecting StrEnum==0.4.15 (from -r requirements.txt (line 77))
+  Downloading StrEnum-0.4.15-py3-none-any.whl.metadata (5.3 kB)
+Collecting strictyaml==1.7.3 (from -r requirements.txt (line 78))
+  Downloading strictyaml-1.7.3-py3-none-any.whl.metadata (11 kB)
+Collecting stripe==15.1.0 (from -r requirements.txt (line 79))
+  Downloading stripe-15.1.0-py3-none-any.whl.metadata (18 kB)
+Collecting supabase==2.29.0 (from -r requirements.txt (line 80))
+  Downloading supabase-2.29.0-py3-none-any.whl.metadata (4.6 kB)
+Collecting supabase-auth==2.29.0 (from -r requirements.txt (line 81))
+  Downloading supabase_auth-2.29.0-py3-none-any.whl.metadata (6.4 kB)
+Collecting supabase-functions==2.29.0 (from -r requirements.txt (line 82))
+  Downloading supabase_functions-2.29.0-py3-none-any.whl.metadata (2.4 kB)
+Collecting tenacity==9.1.4 (from -r requirements.txt (line 83))
+  Downloading tenacity-9.1.4-py3-none-any.whl.metadata (1.2 kB)
+Collecting tqdm==4.67.3 (from -r requirements.txt (line 84))
+  Downloading tqdm-4.67.3-py3-none-any.whl.metadata (57 kB)
+Collecting typing-inspection==0.4.2 (from -r requirements.txt (line 85))
+  Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
+Collecting typing_extensions==4.15.0 (from -r requirements.txt (line 86))
+  Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting tzdata==2026.2 (from -r requirements.txt (line 87))
+  Downloading tzdata-2026.2-py2.py3-none-any.whl.metadata (1.4 kB)
+Collecting tzlocal==5.3.1 (from -r requirements.txt (line 88))
+  Downloading tzlocal-5.3.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting uritemplate==4.2.0 (from -r requirements.txt (line 89))
+  Downloading uritemplate-4.2.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting urllib3==2.6.3 (from -r requirements.txt (line 90))
+  Downloading urllib3-2.6.3-py3-none-any.whl.metadata (6.9 kB)
+Collecting uvicorn==0.46.0 (from -r requirements.txt (line 91))
+  Downloading uvicorn-0.46.0-py3-none-any.whl.metadata (6.7 kB)
+Collecting vine==5.1.0 (from -r requirements.txt (line 92))
+  Downloading vine-5.1.0-py3-none-any.whl.metadata (2.7 kB)
+Collecting wcwidth==0.6.0 (from -r requirements.txt (line 93))
+  Downloading wcwidth-0.6.0-py3-none-any.whl.metadata (30 kB)
+Collecting websockets==15.0.1 (from -r requirements.txt (line 94))
+  Downloading websockets-15.0.1-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.8 kB)
+Collecting whitenoise==6.12.0 (from -r requirements.txt (line 95))
+  Downloading whitenoise-6.12.0-py3-none-any.whl.metadata (3.7 kB)
+Collecting yarl==1.23.0 (from -r requirements.txt (line 96))
+  Downloading yarl-1.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (79 kB)
+Collecting zstandard==0.25.0 (from -r requirements.txt (line 97))
+  Downloading zstandard-0.25.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.3 kB)
+Downloading amqp-5.3.1-py3-none-any.whl (50 kB)
+Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Downloading anyio-4.13.0-py3-none-any.whl (114 kB)
+Downloading asgiref-3.11.1-py3-none-any.whl (24 kB)
+Downloading billiard-4.2.4-py3-none-any.whl (87 kB)
+Downloading cachetools-6.2.6-py3-none-any.whl (11 kB)
+Downloading celery-5.6.3-py3-none-any.whl (451 kB)
+Downloading certifi-2026.4.22-py3-none-any.whl (135 kB)
+Downloading cffi-2.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (219 kB)
+Downloading charset_normalizer-3.4.7-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (216 kB)
+Downloading click-8.3.3-py3-none-any.whl (110 kB)
+Downloading click_didyoumean-0.3.1-py3-none-any.whl (3.6 kB)
+Downloading click_plugins-1.1.1.2-py2.py3-none-any.whl (11 kB)
+Downloading click_repl-0.3.0-py3-none-any.whl (10 kB)
+Downloading cryptography-47.0.0-cp311-abi3-manylinux_2_34_x86_64.whl (4.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 659.3 MB/s eta 0:00:00
+Downloading deprecation-2.1.0-py2.py3-none-any.whl (11 kB)
+Downloading dj_database_url-3.1.2-py3-none-any.whl (9.0 kB)
+Downloading django-6.0.4-py3-none-any.whl (8.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.4/8.4 MB 471.8 MB/s eta 0:00:00
+Downloading django_cors_headers-4.9.0-py3-none-any.whl (12 kB)
+Downloading django_environ-0.13.0-py3-none-any.whl (20 kB)
+Downloading django_ratelimit-4.1.0-py2.py3-none-any.whl (11 kB)
+Downloading djangorestframework-3.17.1-py3-none-any.whl (898 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 898.8/898.8 kB 566.5 MB/s eta 0:00:00
+Downloading fsspec-2026.3.0-py3-none-any.whl (202 kB)
+Downloading google_ai_generativelanguage-0.6.15-py3-none-any.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 762.8 MB/s eta 0:00:00
+Downloading google_api_core-2.30.3-py3-none-any.whl (173 kB)
+Downloading google_api_python_client-2.194.0-py3-none-any.whl (15.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 15.0/15.0 MB 553.9 MB/s eta 0:00:00
+Downloading google_auth-2.49.2-py3-none-any.whl (240 kB)
+Downloading google_auth_httplib2-0.3.1-py3-none-any.whl (9.5 kB)
+Downloading google_generativeai-0.8.6-py3-none-any.whl (155 kB)
+Downloading googleapis_common_protos-1.74.0-py3-none-any.whl (300 kB)
+Downloading grpcio-1.80.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (6.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.8/6.8 MB 455.1 MB/s eta 0:00:00
+Downloading grpcio_status-1.71.2-py3-none-any.whl (14 kB)
+Downloading gunicorn-25.3.0-py3-none-any.whl (208 kB)
+Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Downloading h2-4.3.0-py3-none-any.whl (61 kB)
+Downloading hpack-4.1.0-py3-none-any.whl (34 kB)
+Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+Downloading httplib2-0.31.2-py3-none-any.whl (91 kB)
+Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+Downloading hyperframe-6.1.0-py3-none-any.whl (13 kB)
+Downloading idna-3.13-py3-none-any.whl (68 kB)
+Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+Downloading kombu-5.6.2-py3-none-any.whl (214 kB)
+Downloading markdown_it_py-4.0.0-py3-none-any.whl (87 kB)
+Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Downloading mmh3-5.2.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (103 kB)
+Downloading multidict-6.7.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (256 kB)
+Downloading packaging-26.2-py3-none-any.whl (100 kB)
+Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+Downloading postgrest-2.29.0-py3-none-any.whl (22 kB)
+Downloading prompt_toolkit-3.0.52-py3-none-any.whl (391 kB)
+Downloading propcache-0.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (221 kB)
+Downloading proto_plus-1.27.2-py3-none-any.whl (50 kB)
+Downloading protobuf-5.29.6-cp38-abi3-manylinux2014_x86_64.whl (320 kB)
+Downloading psycopg2_binary-2.9.12-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 1.0 GB/s eta 0:00:00
+Downloading pyasn1-0.6.3-py3-none-any.whl (83 kB)
+Downloading pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+Downloading pydantic-2.13.3-py3-none-any.whl (471 kB)
+Downloading pydantic_core-2.46.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 845.0 MB/s eta 0:00:00
+Downloading pygments-2.20.0-py3-none-any.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 1.1 GB/s eta 0:00:00
+Downloading pyiceberg-0.11.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (730 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 730.3/730.3 kB 1.0 GB/s eta 0:00:00
+Downloading pyjwt-2.12.1-py3-none-any.whl (29 kB)
+Downloading pyparsing-3.3.2-py3-none-any.whl (122 kB)
+Downloading pyroaring-1.1.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (2.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 524.0 MB/s eta 0:00:00
+Downloading pytest-9.0.3-py3-none-any.whl (375 kB)
+Downloading pytest_django-4.12.0-py3-none-any.whl (26 kB)
+Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Downloading python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+Downloading realtime-2.29.0-py3-none-any.whl (22 kB)
+Downloading redis-7.4.0-py3-none-any.whl (409 kB)
+Downloading requests-2.33.1-py3-none-any.whl (64 kB)
+Downloading rich-14.3.4-py3-none-any.whl (310 kB)
+Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Downloading sqlparse-0.5.5-py3-none-any.whl (46 kB)
+Downloading storage3-2.29.0-py3-none-any.whl (28 kB)
+Downloading StrEnum-0.4.15-py3-none-any.whl (8.9 kB)
+Downloading strictyaml-1.7.3-py3-none-any.whl (123 kB)
+Downloading stripe-15.1.0-py3-none-any.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 808.9 MB/s eta 0:00:00
+Downloading supabase-2.29.0-py3-none-any.whl (16 kB)
+Downloading supabase_auth-2.29.0-py3-none-any.whl (48 kB)
+Downloading supabase_functions-2.29.0-py3-none-any.whl (8.8 kB)
+Downloading tenacity-9.1.4-py3-none-any.whl (28 kB)
+Downloading tqdm-4.67.3-py3-none-any.whl (78 kB)
+Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+Downloading tzdata-2026.2-py2.py3-none-any.whl (349 kB)
+Downloading tzlocal-5.3.1-py3-none-any.whl (18 kB)
+Downloading uritemplate-4.2.0-py3-none-any.whl (11 kB)
+Downloading urllib3-2.6.3-py3-none-any.whl (131 kB)
+Downloading uvicorn-0.46.0-py3-none-any.whl (70 kB)
+Downloading vine-5.1.0-py3-none-any.whl (9.6 kB)
+Downloading wcwidth-0.6.0-py3-none-any.whl (94 kB)
+Downloading websockets-15.0.1-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (182 kB)
+Downloading whitenoise-6.12.0-py3-none-any.whl (20 kB)
+Downloading yarl-1.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (100 kB)
+Downloading zstandard-0.25.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.5/5.5 MB 696.2 MB/s eta 0:00:00
+Installing collected packages: StrEnum, pyroaring, zstandard, whitenoise, websockets, wcwidth, vine, urllib3, uritemplate, tzlocal, tzdata, typing_extensions, tqdm, tenacity, sqlparse, six, redis, python-dotenv, pyparsing, PyJWT, Pygments, pycparser, pyasn1, psycopg2-binary, protobuf, propcache, pluggy, packaging, multidict, mmh3, mdurl, iniconfig, idna, hyperframe, hpack, h11, fsspec, django-ratelimit, django-environ, click, charset-normalizer, certifi, cachetools, billiard, asgiref, annotated-types, yarl, uvicorn, typing-inspection, requests, python-dateutil, pytest, pydantic_core, pyasn1_modules, proto-plus, prompt_toolkit, markdown-it-py, httplib2, httpcore, h2, gunicorn, grpcio, googleapis-common-protos, Django, deprecation, click-plugins, click-didyoumean, cffi, anyio, amqp, stripe, strictyaml, rich, pytest-django, pydantic, kombu, httpx, grpcio-status, djangorestframework, django-cors-headers, dj-database-url, cryptography, click-repl, realtime, pyiceberg, google-auth, celery, supabase-functions, supabase-auth, storage3, postgrest, google-auth-httplib2, google-api-core, supabase, google-api-python-client, google-ai-generativelanguage, google-generativeai
+Build Failed: build daemon returned an error < failed to solve: process "/bin/sh -c npm run build" did not complete successfully: exit code: 2 >

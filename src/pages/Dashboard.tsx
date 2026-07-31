@@ -18,11 +18,8 @@ import {
   Eye,
   MapPin, 
   Video, 
-  Clock, 
-  Calendar as CalendarIcon 
+  Clock 
 } from 'lucide-react';
-import { AnnualPlanning } from '../components/features/AnnualPlanning';
-import { ScientificReviews } from '../components/features/ScientificReviews';
 import LawCodes from '../components/features/LawCodes';
 import ProcedureLibrary from '../components/features/ProcedureLibrary';
 import CodeAnalysis from '../components/features/CodeAnalysis';
@@ -1136,24 +1133,24 @@ Ce document est généré par la plateforme France Justice.
               <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-2">
                 {t('dashboard.hello', 'Bonjour')}, {profile?.first_name || t('dashboard.user', 'Utilisateur')}
               </h1>
-              {role === 'student' && (
+              {(profile as any)?.role === 'student' && (
                 <span className="bg-blue-100 text-blue-800 text-xs font-black px-3 py-1 rounded-full border border-blue-200">
                   🎓 Étudiant en Droit
                 </span>
               )}
-              {role === 'professor' && (
+              {(profile as any)?.role === 'professor' && (
                 <span className="bg-amber-100 text-amber-800 text-xs font-black px-3 py-1 rounded-full border border-amber-200">
                   👨‍🏫 Professeur de Droit
                 </span>
               )}
-              {role === 'doctorate' && (
+              {(profile as any)?.role === 'doctorate' && (
                 <span className="bg-teal-100 text-teal-800 text-xs font-black px-3 py-1 rounded-full border border-teal-200">
                   🔬 Doctorant / Chercheur
                 </span>
               )}
             </div>
             <p className="text-secondary-600">
-              {role === 'student' 
+              {(profile as any)?.role === 'student' 
                 ? 'Accédez à vos cours, masterclasses, discussions avec les avocats & professeurs et outils IA'
                 : t('dashboard.welcome_portal', 'Bienvenue sur votre portail juridique intelligent')}
             </p>
@@ -2085,7 +2082,7 @@ Ce document est généré par la plateforme France Justice.
         quote={selectedPaymentQuote}
         paymentType="quote_payment"
         onSuccess={() => {
-          fetchUserQuotes();
+          fetchQuotes();
           success('Paiement réussi !', 'Votre devis est validé et transmis à votre avocat.');
         }}
       />

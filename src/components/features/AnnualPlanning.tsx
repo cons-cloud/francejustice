@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, Clock, Video, Users, BookOpen, Newspaper, Sparkles, ChevronLeft, ChevronRight, Plus, Eye } from 'lucide-react';
+import { Calendar, Clock, Users, BookOpen, Newspaper, Sparkles, ChevronLeft, ChevronRight, Plus, Eye } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -35,7 +35,7 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
   onEventClick,
   onAddEventClick
 }) => {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [viewType, setViewType] = useState<'year' | 'month' | 'week'>('month');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'formation' | 'actualite' | 'programme'>('all');
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());

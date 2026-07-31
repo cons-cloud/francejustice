@@ -250,10 +250,9 @@ const categoryStyles: Record<string, { badge: string; border: string; glow: stri
 };
 
 const News: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   
   const [news, setNews] = useState<LegalNews[]>(INITIAL_REALTIME_NEWS);
-  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('Tous');
   const [selectedCountry, setSelectedCountry] = useState<string>('Tous');
   const [selectedMediaType, setSelectedMediaType] = useState<string>('Tous');
@@ -262,7 +261,6 @@ const News: React.FC = () => {
   const [pageTab, setPageTab] = useState<'news' | 'reviews'>('news');
   
   // Real-time live ticker & countdown state
-  const [livePulse, setLivePulse] = useState(true);
   const [countdown, setCountdown] = useState(10);
   const [lastSyncTime, setLastSyncTime] = useState<string>(new Date().toLocaleTimeString('fr-FR'));
   const [isAiSearching, setIsAiSearching] = useState(false);
@@ -468,7 +466,7 @@ INSTRUCTIONS :
         </div>
 
         <div className="truncate text-slate-200 font-medium text-xs flex-1 hidden sm:block">
-          <span className="text-primary-400 font-bold">Dernière info : </span>
+          <span className="text-primary-400 font-bold">{liveLogMessage} — </span>
           {news[0]?.title || 'Chargement des actualités en cours...'}
         </div>
 

@@ -48,7 +48,7 @@ const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { toasts, success, error: toastError, removeToast } = useToast();
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments' | 'classrooms'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments' | 'classrooms' | 'planning' | 'reviews'>('overview');
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [classrooms, setClassrooms] = useState<any[]>([]);
 

@@ -10,10 +10,7 @@ import LanguageSwitcher from '../ui/LanguageSwitcher';
 // Banner Images
 import conseilImg from '../../assets/images/conseil.webp';
 import educationImg from '../../assets/images/education.jpg';
-import franceDemocratieImg from '../../assets/images/francedemocratie.webp';
 import interieurImg from '../../assets/images/interieur.webp';
-import justiceImg from '../../assets/images/justice.webp';
-import presidentielleImg from '../../assets/images/presidentielle.webp';
 import superieurImg from '../../assets/images/superieur.png';
 import travailImg from '../../assets/images/travail.png';
 import justeImg from '../../assets/images/juste.webp';

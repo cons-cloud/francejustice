@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../hooks/useAuth";
 import {
   Video, Users, Search, BookOpen, Clock,
-  Tv, User, Loader2, Download, FileText, CheckCircle2, X, Sparkles
+  Tv, User, Loader2, Download, CheckCircle2, X, Sparkles
 } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Card, CardContent } from "../components/ui/Card";

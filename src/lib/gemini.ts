@@ -270,6 +270,8 @@ export async function smartGlobalLegalAssistantQuery(userPrompt: string, roleCon
 Vous êtes l'Assistant IA Officiel en direct de FranceJustice (https://francejustice.org), la première plateforme juridique et base de données IA francophone mondiale.
 Votre rôle est d'apporter une assistance juridique claire, rigoureuse, précise et directement opérationnelle aux citoyens, étudiants, avocats, professeurs et chercheurs.
 
+Profil de l'utilisateur connecté : ${roleContext}
+
 Données en temps réel extraites de la plateforme FranceJustice :
 ${dbContextInfo || "Plateforme FranceJustice connectée en temps réel à 100%."}
 

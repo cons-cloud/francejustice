@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, Scale, Shield, ArrowRight, Star, BookOpen, Video, Calendar, 
-  Users, CheckCircle2, Sparkles, FileText, Lock, Globe, RefreshCw, ChevronDown, MessageSquare
+  Scale, Shield, ArrowRight, BookOpen, Video, Calendar, 
+  Users, CheckCircle2, Sparkles, FileText, Lock, ChevronDown
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedCounter from '../components/ui/AnimatedCounter';
 import { useTranslation } from '../i18n';
-import { useAuth } from '../hooks/useAuth';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user } = useAuth();
 
   const [stats, setStats] = useState([
     { number: '1,500+', label: 'home.stats_articles' },
@@ -61,7 +58,7 @@ const Home: React.FC = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: "easeOut" }
+      transition: { duration: 0.6, ease: 'easeOut' as const }
     }
   };
 

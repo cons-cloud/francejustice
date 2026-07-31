@@ -74,6 +74,22 @@ const DashboardLawyer: React.FC = () => {
   const [ticketSubject, setTicketSubject] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [quoteModalOpen, setQuoteModalOpen] = useState(false)
+  
+  // Generic Modal helper for dynamic forms
+  const [genericModalConfig, setGenericModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    fields: { name: string; label: string; defaultValue?: any }[];
+    onConfirm: (vals: any) => void;
+  }>({ isOpen: false, title: '', fields: [], onConfirm: () => {} });
+  const [genericModalValues, setGenericModalValues] = useState<Record<string, any>>({});
+
+  const openModal = (title: string, fields: any[], onConfirm: (v: any) => void) => {
+    setGenericModalConfig({ isOpen: true, title, fields, onConfirm });
+    const initialVals: Record<string, any> = {};
+    fields.forEach(f => { initialVals[f.name] = f.defaultValue || ''; });
+    setGenericModalValues(initialVals);
+  };
   const [newQuote, setNewQuote] = useState({ client_id: '', amount: '', description: '', case_id: '' })
   const [docModalOpen, setDocModalOpen] = useState(false)
   const [newDoc, setNewDoc] = useState({ name: '', type: 'client_document', client_id: '' })
@@ -3302,6 +3318,49 @@ const DashboardLawyer: React.FC = () => {
           );
         })()}
       </Modal>
+
+      <Modal
+        isOpen={genericModalConfig.isOpen}
+        onClose={() => setGenericModalConfig(prev => ({ ...prev, isOpen: false }))}
+        title={genericModalConfig.title}
+      >
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            genericModalConfig.onConfirm(genericModalValues);
+            setGenericModalConfig(prev => ({ ...prev, isOpen: false }));
+          }}
+          className="space-y-4"
+        >
+          {genericModalConfig.fields.map(f => (
+            <div key={f.name} className="space-y-1">
+              <label className="block text-xs font-semibold text-secondary-700">{f.label}</label>
+              {f.name === 'content' || f.name === 'abstract' ? (
+                <textarea
+                  className="w-full p-2 text-sm border rounded-lg border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  rows={4}
+                  value={genericModalValues[f.name] || ''}
+                  onChange={e => setGenericModalValues(prev => ({ ...prev, [f.name]: e.target.value }))}
+                />
+              ) : (
+                <Input
+                  value={genericModalValues[f.name] || ''}
+                  onChange={e => setGenericModalValues(prev => ({ ...prev, [f.name]: e.target.value }))}
+                />
+              )}
+            </div>
+          ))}
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" type="button" onClick={() => setGenericModalConfig(prev => ({ ...prev, isOpen: false }))}>
+              Annuler
+            </Button>
+            <Button variant="primary" type="submit">
+              Confirmer
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
       <StripePaymentModal
         isOpen={!!selectedCommissionQuote}
         onClose={() => setSelectedCommissionQuote(null)}
@@ -3313,7 +3372,7 @@ const DashboardLawyer: React.FC = () => {
         }}
       />
     </div>
-  )
-}
+  );
+};
 
-export default DashboardLawyer
+export default DashboardLawyer;

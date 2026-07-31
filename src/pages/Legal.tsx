@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, FileText, Lock, Cookie, Scale, MapPin, Mail, Phone, Calendar } from 'lucide-react';
+import { Shield, FileText, Lock, Cookie, Scale, MapPin, Mail, Phone } from 'lucide-react';
 import { useTranslation } from '../i18n';
 
 const Legal: React.FC = () => {
