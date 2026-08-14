@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
+import Modal from '../ui/Modal';
 import { supabase } from '../../lib/supabase';
 import { 
   GraduationCap, 
@@ -46,6 +48,7 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
 }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const handleClose = onClose || (() => navigate('/'));
   
   // Determine role from props or URL path/query
   const queryRole = searchParams.get('role') as AcademicRole | null;
