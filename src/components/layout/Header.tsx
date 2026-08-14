@@ -378,14 +378,13 @@ const Header: React.FC = () => {
           {/* Mobile menu button */}
           <div className="flex lg:hidden items-center gap-2">
             <LanguageSwitcher />
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={() => setIsMenuOpen(true)}
-              className="hover:bg-primary-50 text-secondary-600"
+              aria-label="Ouvrir le menu"
+              className="p-2.5 rounded-xl bg-indigo-900/40 hover:bg-indigo-800/60 border border-indigo-700/50 text-primary-400 hover:text-white transition-all duration-200 shadow-md backdrop-blur-md flex items-center justify-center"
             >
-              <Menu className="h-6 w-6" />
-            </Button>
+              <Menu className="h-6 w-6 text-primary-400" />
+            </button>
           </div>
         </div>
 

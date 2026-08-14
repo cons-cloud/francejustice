@@ -18,6 +18,7 @@ import { useTranslation } from '../i18n';
 import { AnnualPlanning } from '../components/features/AnnualPlanning';
 import { ScientificReviews } from '../components/features/ScientificReviews';
 import { Calendar } from 'lucide-react';
+import { COURS_D_APPEL_LIST } from '../lib/jurisdictions';
 
 interface UserProfile {
   id: string;
@@ -205,7 +206,8 @@ const AdminDashboard: React.FC = () => {
         list.push(lawyerInfo.bar_association.trim());
       }
     });
-    return Array.from(new Set(list)).sort();
+    const caNames = COURS_D_APPEL_LIST.map(ca => ca.name);
+    return Array.from(new Set([...list, ...caNames])).sort();
   }, [users]);
 
   const fetchUsers = async () => {
@@ -221,9 +223,9 @@ const AdminDashboard: React.FC = () => {
   const fetchAllDocuments = async () => {
     const { data } = await supabase
       .from('documents_just')
-      .select('*, profiles:owner_id(first_name, last_name)')
+      .select('*, profiles:user_id(first_name, last_name, email)')
       .order('created_at', { ascending: false })
-      .limit(50);
+      .limit(100);
     if (data) setAllDocuments(data);
   };
 
@@ -597,32 +599,55 @@ const AdminDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-secondary-50">
-      <div className="container py-8 px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-secondary-900 mb-2">{t('admin_dashboard.title', 'Espace Administration')}</h1>
-            <p className="text-secondary-600">{t('admin_dashboard.subtitle', 'Gestion centrale des comptes, avocats et messages')}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <LiveSyncBadge status="connected" showText={true} />
-            <NotificationBell userId={user?.id ?? null} />
-            <Button onClick={() => { fetchUsers(); fetchMessages(); }} variant="outline" size="sm" className="hidden sm:flex">
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              {t('common.refresh', 'Actualiser')}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="hidden sm:flex text-danger-600 hover:text-danger-700 hover:bg-danger-50 border-danger-200 hover:border-danger-300"
-              onClick={async () => {
-                await supabase.auth.signOut();
-                window.location.href = '/login';
-              }}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              {t('nav.logout', 'Déconnexion')}
-            </Button>
+    <div className="min-h-screen bg-slate-50/70 dark:bg-slate-950 pt-20 pb-16">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Modern Hero Glassmorphism Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-950 to-indigo-950 p-6 sm:p-8 text-white shadow-2xl mb-8 border border-slate-800">
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-amber-500/20 text-amber-300 border border-amber-400/30 backdrop-blur-md">
+                  <Shield className="h-3.5 w-3.5 text-amber-400" />
+                  Administration Centrale
+                </span>
+                <span className="bg-white/10 text-slate-200 text-xs font-bold px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                  Ressort National & Européen
+                </span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+                {t('admin_dashboard.title', 'Espace Administration France Justice')}
+              </h1>
+
+              <p className="text-slate-300 text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
+                Supervision globale de la plateforme, gestion des utilisateurs, validation des avocats & enseignants, contrôle des documents PDF et visioconférences.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 backdrop-blur-md bg-white/5 p-3 rounded-2xl border border-white/10">
+              <LiveSyncBadge status="connected" showText={true} />
+              <NotificationBell userId={user?.id ?? null} />
+              <Button onClick={() => { fetchUsers(); fetchMessages(); }} variant="outline" size="sm" className="hidden sm:flex bg-white/10 text-white hover:bg-white/20 border-white/20 rounded-xl">
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                {t('common.refresh', 'Actualiser')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="hidden sm:flex text-red-300 hover:text-white bg-red-500/10 hover:bg-red-600/80 border-red-400/30 rounded-xl"
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  window.location.href = '/login';
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                {t('nav.logout', 'Déconnexion')}
+              </Button>
+            </div>
           </div>
         </div>
 

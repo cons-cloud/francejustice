@@ -38,7 +38,7 @@ describe('DashboardLawyer', () => {
     // Side navigation checks
     expect(screen.getByText("Vue d'ensemble")).toBeInTheDocument();
     expect(screen.getAllByText('Rendez-vous')[0]).toBeInTheDocument();
-    expect(screen.getAllByText('Dossiers')[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Dossiers/i)[0]).toBeInTheDocument();
   });
 
   it('allows switching to Rendez-vous and managing them', async () => {
@@ -60,7 +60,7 @@ describe('DashboardLawyer', () => {
       render(<DashboardLawyer />);
     });
     
-    const dossiersTab = screen.getAllByText('Dossiers')[0];
+    const dossiersTab = screen.getAllByText(/Dossiers/i)[0];
     await act(async () => {
       fireEvent.click(dossiersTab);
     });

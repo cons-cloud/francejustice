@@ -12,6 +12,7 @@ import JitsiMeeting from "../components/features/JitsiMeeting";
 import { useTranslation } from "../i18n";
 import { generatePDF } from "../lib/pdfUtils";
 import { AnnualPlanning } from "../components/features/AnnualPlanning";
+import { filterActiveSessions } from "../lib/classroomUtils";
 
 interface CurriculumSection {
   title: string;
@@ -480,10 +481,11 @@ const ClassroomsPage: React.FC = () => {
         }
       });
 
-      setClassrooms(Array.from(uniqueMap.values()));
+      const activeRooms = filterActiveSessions(Array.from(uniqueMap.values()));
+      setClassrooms(activeRooms);
     } catch (e) {
       console.error("fetchData error:", e);
-      setClassrooms(INITIAL_FORMATIONS);
+      setClassrooms(filterActiveSessions(INITIAL_FORMATIONS));
     } finally {
       setLoading(false);
     }
@@ -496,7 +498,16 @@ const ClassroomsPage: React.FC = () => {
       .on("postgres_changes", { event: "*", schema: "public", table: "classrooms_just" }, fetchData)
       .on("postgres_changes", { event: "*", schema: "public", table: "classroom_registrations_just" }, fetchData)
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+
+    // Ticker every 30 seconds to automatically remove past visio sessions in real-time
+    const timer = setInterval(() => {
+      setClassrooms(prev => filterActiveSessions(prev));
+    }, 30000);
+
+    return () => { 
+      supabase.removeChannel(ch);
+      clearInterval(timer);
+    };
   }, [user, fetchData]);
 
   const joinMeeting = async (classroom: Classroom) => {

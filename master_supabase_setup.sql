@@ -66,6 +66,29 @@ CREATE TABLE IF NOT EXISTS public.lawyers_just (
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 
+-- Academic Profiles Details (Étudiant, Professeur, Doctorant)
+CREATE TABLE IF NOT EXISTS public.academic_profiles_just (
+    id UUID PRIMARY KEY REFERENCES public.profiles_just(id) ON DELETE CASCADE,
+    role TEXT NOT NULL, -- 'student', 'professor', 'doctorate'
+    university TEXT,
+    study_level TEXT,
+    specialty TEXT,
+    student_id_number TEXT,
+    academic_title TEXT,
+    cnu_number TEXT,
+    thesis_topic TEXT,
+    thesis_director TEXT,
+    thesis_year TEXT,
+    id_document_url TEXT,
+    diploma_url TEXT,
+    dossier_url TEXT,
+    cv_url TEXT,
+    motivation_letter_url TEXT,
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+
+
 -- Documents Vault (Coffre-fort documents)
 CREATE TABLE IF NOT EXISTS public.documents (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -196,9 +219,14 @@ CREATE TABLE IF NOT EXISTS public.legal_news_just (
 CREATE TABLE IF NOT EXISTS public.formations_just (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     title TEXT NOT NULL,
+    description TEXT,
     duration TEXT,
     level TEXT DEFAULT 'Débutant',
     category TEXT,
+    pdf_url TEXT,
+    author_id UUID REFERENCES public.profiles_just(id) ON DELETE SET NULL,
+    author_name TEXT,
+    author_role TEXT,
     status TEXT DEFAULT 'Publié',
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
@@ -322,7 +350,7 @@ DO $$
 DECLARE
     t text;
     tables_list text[] := ARRAY[
-        'profiles_just', 'lawyers_just', 'documents_just', 'quotes_just',
+        'profiles_just', 'lawyers_just', 'academic_profiles_just', 'documents_just', 'quotes_just',
         'appointments_just', 'chat_rooms_just', 'chat_messages_just',
         'search_history_just', 'ai_conversations_just', 'legal_news_just',
         'formations_just', 'outils_just', 'classrooms_just',
@@ -346,7 +374,7 @@ DO $$
 DECLARE
     t text;
     tables_list text[] := ARRAY[
-        'profiles_just', 'lawyers_just', 'documents_just', 'quotes_just',
+        'profiles_just', 'lawyers_just', 'academic_profiles_just', 'documents_just', 'quotes_just',
         'appointments_just', 'chat_rooms_just', 'chat_messages_just',
         'search_history_just', 'ai_conversations_just', 'legal_news_just',
         'formations_just', 'outils_just', 'classrooms_just',

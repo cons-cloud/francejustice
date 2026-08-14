@@ -28,6 +28,7 @@ import { AdvancedAreaChart } from '../components/features/StatsCharts';
 import { StripePaymentModal } from '../components/ui/StripePaymentModal';
 import { exportToJSON } from '../lib/exportUtils';
 import { createCheckoutSession } from '../lib/api';
+import { filterActiveSessions } from '../lib/classroomUtils';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
@@ -378,7 +379,7 @@ const DashboardPage: React.FC = () => {
           lawyer_last_name: profileMap[r.lawyer_id]?.last_name || '',
           registered_count: r.registrations?.[0]?.count || 0
         }));
-        setClassrooms(enriched);
+        setClassrooms(filterActiveSessions(enriched));
       } else {
         setClassrooms([]);
       }
@@ -1124,64 +1125,78 @@ Ce document est généré par la plateforme France Justice.
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="min-h-screen bg-slate-50/70 dark:bg-slate-950 pt-20 pb-16">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-      <div className="container py-8">
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-2">
-                {t('dashboard.hello', 'Bonjour')}, {profile?.first_name || t('dashboard.user', 'Utilisateur')}
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Modern Hero Glassmorphism Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 p-6 sm:p-8 text-white shadow-2xl mb-8 border border-indigo-800/40">
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-indigo-200 border border-white/10 backdrop-blur-md">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                  Espace Officiel
+                </span>
+                {(profile as any)?.role === 'student' && (
+                  <span className="bg-blue-500/20 text-blue-200 text-xs font-extrabold px-3 py-1 rounded-full border border-blue-400/30 backdrop-blur-md">
+                    🎓 Étudiant en Droit
+                  </span>
+                )}
+                {(profile as any)?.role === 'professor' && (
+                  <span className="bg-amber-500/20 text-amber-200 text-xs font-extrabold px-3 py-1 rounded-full border border-amber-400/30 backdrop-blur-md">
+                    👨‍🏫 Professeur de Droit
+                  </span>
+                )}
+                {(profile as any)?.role === 'doctorate' && (
+                  <span className="bg-teal-500/20 text-teal-200 text-xs font-extrabold px-3 py-1 rounded-full border border-teal-400/30 backdrop-blur-md">
+                    🔬 Doctorant / Chercheur
+                  </span>
+                )}
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+                {t('dashboard.hello', 'Bonjour')}, <span className="bg-gradient-to-r from-indigo-200 via-white to-violet-200 bg-clip-text text-transparent">{profile?.first_name || t('dashboard.user', 'Utilisateur')}</span> 👋
               </h1>
-              {(profile as any)?.role === 'student' && (
-                <span className="bg-blue-100 text-blue-800 text-xs font-black px-3 py-1 rounded-full border border-blue-200">
-                  🎓 Étudiant en Droit
-                </span>
-              )}
-              {(profile as any)?.role === 'professor' && (
-                <span className="bg-amber-100 text-amber-800 text-xs font-black px-3 py-1 rounded-full border border-amber-200">
-                  👨‍🏫 Professeur de Droit
-                </span>
-              )}
-              {(profile as any)?.role === 'doctorate' && (
-                <span className="bg-teal-100 text-teal-800 text-xs font-black px-3 py-1 rounded-full border border-teal-200">
-                  🔬 Doctorant / Chercheur
-                </span>
-              )}
+
+              <p className="text-indigo-200/90 text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
+                {(profile as any)?.role === 'student' 
+                  ? 'Consultez vos formations juridiques, téléchargez vos supports de cours au format PDF et échangez avec vos avocats & professeurs.'
+                  : t('dashboard.welcome_portal', 'Bienvenue sur votre portail juridique intelligent France Justice')}
+              </p>
             </div>
-            <p className="text-secondary-600">
-              {(profile as any)?.role === 'student' 
-                ? 'Accédez à vos cours, masterclasses, discussions avec les avocats & professeurs et outils IA'
-                : t('dashboard.welcome_portal', 'Bienvenue sur votre portail juridique intelligent')}
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <LiveSyncBadge status="connected" showText={true} />
-            <NotificationBell userId={user?.id ?? null} />
-            <VoiceAssistant
-              mode="citizen"
-              activeTab={activeTab}
-              onAction={handleVoiceAction}
-              variant="inline"
-              stateContext={{
-                profile,
-                availableLawyers,
-                appointments,
-                documents
-              }}
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-danger-600 hover:text-danger-700 hover:bg-danger-50 border-danger-200 hover:border-danger-300 flex items-center justify-center font-semibold"
-              onClick={async () => {
-                await supabase.auth.signOut();
-                window.location.href = '/login';
-              }}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              {t('nav.logout', 'Déconnexion')}
-            </Button>
+
+            <div className="flex flex-wrap items-center gap-3 backdrop-blur-md bg-white/5 p-3 rounded-2xl border border-white/10">
+              <LiveSyncBadge status="connected" showText={true} />
+              <NotificationBell userId={user?.id ?? null} />
+              <VoiceAssistant
+                mode="citizen"
+                activeTab={activeTab}
+                onAction={handleVoiceAction}
+                variant="inline"
+                stateContext={{
+                  profile,
+                  availableLawyers,
+                  appointments,
+                  documents
+                }}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-red-300 hover:text-white bg-red-500/10 hover:bg-red-600/80 border-red-400/30 flex items-center justify-center font-semibold rounded-xl transition-all shadow-sm"
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  window.location.href = '/login';
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                {t('nav.logout', 'Déconnexion')}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -1517,6 +1532,20 @@ Ce document est généré par la plateforme France Justice.
                                       />
                                     </div>
                                   </div>
+
+                                  {f.pdf_url && (
+                                    <div className="pt-1">
+                                      <a
+                                        href={f.pdf_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-all w-full justify-center"
+                                      >
+                                        <FileText className="h-3.5 w-3.5 mr-1.5 text-indigo-600" />
+                                        📄 Télécharger le support de cours (PDF)
+                                      </a>
+                                    </div>
+                                  )}
 
                                   <div className="flex gap-2 pt-2">
                                     <Button 

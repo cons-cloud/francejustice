@@ -78,10 +78,11 @@ export function runAllAuthTests(): { passed: number; total: number; details: str
   return { passed, total: accounts.length, details };
 }
 
-// Auto-run if executed via CLI/tsx
-if (typeof process !== 'undefined' && process.argv && process.argv[1]?.includes('auth.test')) {
-  console.log('🧪 Executing Unit Tests for Account Creation & Login Redirections...');
-  const res = runAllAuthTests();
-  res.details.forEach(d => console.log(d));
-  console.log(`\n🎉 Résultat Global : ${res.passed}/${res.total} tests réussis à 100% !`);
-}
+import { describe, it, expect } from 'vitest';
+
+describe('Auth & Role Redirections', () => {
+  it('correctly maps roles to expected dashboard paths', () => {
+    const res = runAllAuthTests();
+    expect(res.passed).toBe(res.total);
+  });
+});

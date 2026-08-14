@@ -111,7 +111,25 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useTranslation = () => {
   const context = useContext(I18nContext);
   if (!context) {
-    throw new Error('useTranslation must be used within an I18nProvider');
+    const defaultT = (key: string, defaultValue?: string) => {
+      const keys = key.split('.');
+      let current: any = fr;
+      for (const k of keys) {
+        if (current && typeof current === 'object' && k in current) {
+          current = current[k];
+        } else {
+          return defaultValue || key;
+        }
+      }
+      return typeof current === 'string' ? current : (defaultValue || key);
+    };
+    return {
+      t: defaultT,
+      i18n: {
+        language: 'fr',
+        changeLanguage: () => {},
+      },
+    };
   }
   return {
     t: context.t,

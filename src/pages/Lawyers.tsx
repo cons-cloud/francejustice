@@ -7,6 +7,7 @@ import { Input } from '../components/ui/Input';
 import { supabase } from '../lib/supabase';
 import { FranceMap, regions } from '../components/features/FranceMap';
 import { useTranslation } from '../i18n';
+import { COURS_D_APPEL_LIST } from '../lib/jurisdictions';
 
 interface LawyerProfile {
   id: string;
@@ -108,18 +109,16 @@ const LawyersPage: React.FC = () => {
   }, [lawyers]);
 
   const barreaux = useMemo(() => {
-    return Array.from(
-      new Set(
-        lawyers
-          .map(l => {
-            const bar = Array.isArray(l.lawyers) 
-              ? l.lawyers[0]?.bar_association 
-              : l.lawyers?.bar_association;
-            return bar?.trim();
-          })
-          .filter(Boolean)
-      )
-    ).sort() as string[];
+    const existing = lawyers
+      .map(l => {
+        const bar = Array.isArray(l.lawyers) 
+          ? l.lawyers[0]?.bar_association 
+          : l.lawyers?.bar_association;
+        return bar?.trim();
+      })
+      .filter(Boolean) as string[];
+    const caNames = COURS_D_APPEL_LIST.map(ca => ca.name);
+    return Array.from(new Set([...existing, ...caNames])).sort();
   }, [lawyers]);
 
   // Lawyer counts by region for the map representation

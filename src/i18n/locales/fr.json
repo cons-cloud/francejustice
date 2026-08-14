@@ -75,12 +75,12 @@
     "formations_access": "Accéder au cours",
     "testimonials_title": "La confiance de nos utilisateurs",
     "cta_title": "Prêt à simplifier votre accès au droit ?",
-    "cta_subtitle": "Rejoignez Just-Law aujourd'hui et bénéficiez d'une assistance juridique 100% intelligente.",
+    "cta_subtitle": "Rejoignez France Justice aujourd'hui et bénéficiez d'une assistance juridique 100% intelligente.",
     "cta_btn": "Commencer gratuitement"
   },
   "login": {
     "title": "Connexion",
-    "welcome": "Bienvenue sur Just-Law",
+    "welcome": "Bienvenue sur France Justice",
     "subtitle": "Connectez-vous à votre espace juridique sécurisé",
     "email": "Adresse email",
     "email_placeholder": "votre@email.com",
@@ -530,5 +530,14 @@
   "guide": {
     "title": "Guide Pratique",
     "subtitle": "Tout ce qu'il faut savoir pour défendre vos droits"
+  },
+  "academic": {
+    "student_title": "Inscription Profil Étudiant",
+    "professor_title": "Inscription Profil Enseignant / Professeur",
+    "doctorate_title": "Inscription Profil Doctorant",
+    "upload_pdf": "Téléverser le support de cours (PDF)",
+    "download_pdf": "Télécharger le support PDF",
+    "pdf_attached": "Document PDF joint",
+    "realtime_sync": "Synchronisation Supabase Temps Réel"
   }
 }

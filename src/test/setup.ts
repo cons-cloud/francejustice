@@ -66,6 +66,7 @@ vi.mock('@/lib/supabase', () => {
       update: vi.fn().mockReturnThis(),
       delete: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       single: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockReturnThis(),
@@ -97,6 +98,7 @@ vi.mock('../lib/supabase', () => {
       update: vi.fn().mockReturnThis(),
       delete: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       single: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockReturnThis(),
@@ -127,7 +129,7 @@ const icons = [
   'PenTool', 'Bell', 'ExternalLink', 'CreditCard', 'Settings', 'MessageSquare',
   'Mic', 'MicOff', 'Volume2', 'VolumeX', 'CornerDownLeft', 'Loader2', 'AlertTriangle',
   'Home', 'CheckCircle2', 'Info', 'Save', 'Brain', 'EyeOff', 'FileJson', 'FileSpreadsheet',
-  'Edit', 'UserPlus', 'DollarSign', 'Globe', 'ArrowLeft', 'Eye'
+  'Edit', 'UserPlus', 'DollarSign', 'Globe', 'ArrowLeft', 'Eye', 'Video'
 ];
 
 const mockLucide: Record<string, React.ComponentType<Record<string, unknown>>> = {};

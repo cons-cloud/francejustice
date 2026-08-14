@@ -9,6 +9,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   role: string | null;
   profile: {
+    role?: string;
     first_name: string;
     last_name: string;
     avatar_url?: string;

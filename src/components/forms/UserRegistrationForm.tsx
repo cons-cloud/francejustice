@@ -112,16 +112,48 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
 
       <Card className="w-full max-w-2xl">
         <CardContent className="p-8">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <div className="mx-auto h-12 w-12 bg-primary-100 rounded-full flex items-center justify-center mb-4">
               <UserPlus className="h-6 w-6 text-primary-600" />
             </div>
             <h2 className="text-3xl font-bold text-secondary-900">
-              Créer un compte citoyen
+              Créer un compte France Justice
             </h2>
-            <p className="text-secondary-600 mt-2">
-              Rejoignez Just-Law pour gérer vos démarches juridiques
+            <p className="text-secondary-600 mt-2 text-sm">
+              Rejoignez France Justice pour gérer vos démarches juridiques
             </p>
+
+            {/* Quick Profile Shortcuts */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, role: 'user' })}
+                className={`p-2.5 rounded-xl text-xs font-bold transition-all border text-left ${form.role === 'user' ? 'bg-emerald-50 border-emerald-500 text-emerald-900 ring-2 ring-emerald-400' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`}
+              >
+                👤 Citoyen
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/register/student')}
+                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-indigo-50 border-indigo-200 text-indigo-900 hover:bg-indigo-100"
+              >
+                🎓 Étudiant →
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/register/professor')}
+                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-blue-50 border-blue-200 text-blue-900 hover:bg-blue-100"
+              >
+                👨‍🏫 Professeur →
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/register/doctorate')}
+                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-purple-50 border-purple-200 text-purple-900 hover:bg-purple-100"
+              >
+                🔬 Doctorant →
+              </button>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -135,13 +167,20 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
               <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Type de compte :</label>
               <select
                 value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                onChange={(e) => {
+                  const r = e.target.value;
+                  if (r === 'student') navigate('/register/student');
+                  else if (r === 'professor') navigate('/register/professor');
+                  else if (r === 'doctorate') navigate('/register/doctorate');
+                  else if (r === 'lawyer') navigate('/register/lawyer');
+                  else setForm({ ...form, role: r });
+                }}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
               >
                 <option value="user">👤 Citoyen / Particulier</option>
-                <option value="student">🎓 Étudiant en Droit</option>
-                <option value="professor">👨‍🏫 Professeur de Droit</option>
-                <option value="doctorate">🔬 Doctorant / Enseignant-Chercheur</option>
+                <option value="student">🎓 Étudiant en Droit (Dossier complet 5 pièces)</option>
+                <option value="professor">👨‍🏫 Professeur de Droit (Dossier complet 5 pièces)</option>
+                <option value="doctorate">🔬 Doctorant / Chercheur (Dossier complet 5 pièces)</option>
                 <option value="lawyer">⚖️ Avocat au Barreau</option>
               </select>
             </div>
@@ -319,7 +358,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
           <div className="mx-auto h-16 w-16 bg-success-100 rounded-full flex items-center justify-center mb-4">
             <UserIcon className="h-8 w-8 text-success-600" />
           </div>
-          <h3 className="text-xl font-bold text-secondary-900 mb-2">Bienvenue sur Just-Law !</h3>
+          <h3 className="text-xl font-bold text-secondary-900 mb-2">Bienvenue sur France Justice !</h3>
           <p className="text-secondary-600 mb-6">
             Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter à votre espace personnel.
           </p>

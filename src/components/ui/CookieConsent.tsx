@@ -46,7 +46,7 @@ const CookieConsent: React.FC = () => {
               </div>
               
               <p className="text-secondary-600 leading-relaxed mb-6">
-                Just-Law utilise des cookies pour améliorer votre expérience, analyser le trafic et assurer la sécurité de vos données juridiques. 
+                France Justice utilise des cookies pour améliorer votre expérience, analyser le trafic et assurer la sécurité de vos données juridiques. 
                 En acceptant, vous consentez à notre utilisation des technologies de suivi.
               </p>
 

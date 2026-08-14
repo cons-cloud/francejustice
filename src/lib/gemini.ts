@@ -45,7 +45,7 @@ Votre question nécessite une analyse juridique approfondie que je ne peux pas f
   // -------------------------------------------------------------------------
   // ÉTAPE 2 — Commandes de NAVIGATION (routage local vers les onglets)
   // -------------------------------------------------------------------------
-  let text = "Bonjour ! Je suis l'assistant Law Just de secours. Le serveur d'IA principal est hors ligne ou indisponible pour le moment. Que puis-je faire pour vous aider sur ce tableau de bord ?";
+  let text = "Bonjour ! Je suis l'assistant France Justice de secours. Le serveur d'IA principal est hors ligne ou indisponible pour le moment. Que puis-je faire pour vous aider sur ce tableau de bord ?";
   let action: { type: string; payload: { tab?: string; query?: string; lawyer_id?: string; date?: string; time?: string; notes?: string; title?: string; content?: string } } | null = null;
 
   if (clean.includes('rendez-vous') || clean.includes('rdv') || clean.includes('agenda') || clean.includes('calendrier') || clean.includes('planning') || clean.includes('consultation')) {

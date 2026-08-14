@@ -38,7 +38,7 @@ describe('CitizenDashboard', () => {
     // Check navigation buttons are present
     expect(screen.getByText("Vue d'ensemble")).toBeInTheDocument();
     expect(screen.getAllByText('Rendez-vous')[0]).toBeInTheDocument();
-    expect(screen.getByText('Mes documents')).toBeInTheDocument();
+    expect(screen.getAllByText('Mes documents')[0]).toBeInTheDocument();
     expect(screen.getByText('Annuaire Avocats')).toBeInTheDocument();
   });
 
@@ -64,7 +64,7 @@ describe('CitizenDashboard', () => {
     });
     
     // Switch to documents tab
-    const docsTab = screen.getByText('Mes documents');
+    const docsTab = screen.getAllByText('Mes documents')[0];
     await act(async () => {
       fireEvent.click(docsTab);
     });

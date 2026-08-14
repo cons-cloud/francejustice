@@ -158,10 +158,76 @@ const Legal: React.FC = () => {
                                     <li>**Cookies tiers liés aux paiements** : Notre partenaire Stripe dépose des cookies à des fins de sécurisation et de prévention contre la fraude lors des transactions de devis ou d'abonnements.</li>
                                 </ul>
 
-                                <h3 className="font-bold text-slate-800 text-base mt-4">Gestion et paramétrage :</h3>
+                                 <h3 className="font-bold text-slate-800 text-base mt-4">Gestion et paramétrage :</h3>
                                 <p>
                                     À votre première visite sur France Justice, un bandeau d'information vous permet d'accepter ou de refuser l'utilisation de cookies non indispensables. Vous pouvez configurer ou bloquer ces cookies à tout moment via les options de configuration de votre navigateur Internet.
                                 </p>
+                            </div>
+                        </section>
+
+                        <hr className="border-slate-100" />
+
+                        {/* 5. Charte & Règlement Intérieur - ONG Police Citoyenne Europe */}
+                        <section id="ong-police-citoyenne" className="scroll-mt-24">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
+                                    <Scale className="h-6 w-6" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900">5. Règlement Intérieur & Charte Éthique — ONG Police Citoyenne - Europe</h2>
+                            </div>
+                            <div className="prose prose-emerald max-w-none text-gray-600 space-y-6 text-sm leading-relaxed">
+                                <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-200">
+                                    <h3 className="text-lg font-bold text-emerald-900 mb-2">Préambule : Principes Fondamentaux de Fraternité et d'Égalité</h3>
+                                    <p className="text-emerald-800 italic">
+                                        L'Organisation est guidée par une conviction humaine absolue : l'être humain n'est pleinement accompli que lorsqu'il se rend utile à son frère.
+                                    </p>
+                                    <ul className="list-disc pl-5 mt-3 space-y-1.5 text-emerald-900 font-medium">
+                                        <li><strong>Fraternité Universelle :</strong> Nous sommes tous frères et sœurs au sein d'une même humanité. Aucune distinction de couleur, de race, d'origine, de genre ou de religion ne sera tolérée.</li>
+                                        <li><strong>Liberté et Égalité Judiciaire :</strong> Tous les êtres humains naissent libres et demeurent rigoureusement égaux devant la justice. Aucun titre de noblesse, rang social, mandat politique, fonction administrative ou fortune ne peut permettre d'y déroger.</li>
+                                        <li><strong>Devoir de Redevabilité :</strong> Face à une accusation étayée d'abus de pouvoir, de discrimination ou de manquement grave, la transparence est obligatoire. Toute personne mise en cause, quel que soit son rang, a le devoir strict et absolu de s'expliquer.</li>
+                                    </ul>
+                                </div>
+
+                                <div className="bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 space-y-4">
+                                    <h3 className="text-base font-bold text-amber-400">Article 1 : Le Serment d'Intégrité, de Droiture et d'Égalité Absolue</h3>
+                                    <p className="text-xs text-slate-300 italic">
+                                        Tout membre habilité à mener ou participer à une investigation, un audit ou une expertise prête et signe le serment suivant :
+                                    </p>
+                                    <blockquote className="border-l-4 border-amber-400 pl-4 py-1 text-slate-200 font-serif italic text-sm">
+                                        « Je jure devant mes pairs et les institutions de mener mes missions avec une intégrité absolue, une droiture morale irréprochable et une stricte impartialité. Je m'engage à rechercher la vérité sans préjugé, à traiter de manière égale toute personne impliquée quel que soit son rang, et à respecter le secret professionnel le plus strict. Dans l'exercice de mes fonctions, je reconnais chaque individu comme un citoyen égal devant la loi : du Président de la République à l'ouvrier, aucune distinction sociale, de titre, de fortune ou de fonction ne saurait influencer mon enquête ou altérer ma quête d'équité. »
+                                    </blockquote>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <h3 className="text-base font-bold text-slate-900">Article 2 : Méthodologie, Droits de la Défense et Auditions</h3>
+                                    <ul className="list-disc pl-5 space-y-2">
+                                        <li><strong>Le Droit à l'Explication :</strong> Lorsqu'un individu (ministre, magistrat, policier ou citoyen) fait l'objet d'une enquête, l'Organisation lui adresse une demande d'audition ou un questionnaire précis pour garantir la possibilité de s'expliquer de manière contradictoire.</li>
+                                        <li><strong>La Neutralité Factuelle :</strong> Les rapports s'appuient uniquement sur des preuves matérielles, des témoignages vérifiés et des faits datés.</li>
+                                        <li><strong>La Traçabilité Numérique :</strong> Cryptage et stockage des pièces confidentielles sur des serveurs sécurisés conformes aux règles RGPD.</li>
+                                    </ul>
+
+                                    <h3 className="text-base font-bold text-slate-900">Article 7 : Évolutivité et Révision du Règlement Intérieur</h3>
+                                    <p>
+                                        Afin de toujours coller aux réalités du terrain et de servir strictement l'intérêt supérieur des citoyens, le présent Règlement Intérieur pourra être modifié ou complété à tout moment sans aucune restriction par le Bureau Exécutif ou le Conseil d'administration.
+                                    </p>
+                                </div>
+
+                                <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-200 space-y-3">
+                                    <h3 className="text-base font-bold text-indigo-900">Protocole de Désignation des Délégations Nationales (Article X)</h3>
+                                    <p className="text-indigo-800 text-xs">
+                                        Chaque État membre est placé sous la responsabilité exclusive d'un Délégué National nommé selon un processus rigoureux en 4 étapes (Appel à candidatures & enquête d'intégrité, Grand Oral devant le Bureau Européen, Prestation du Serment National, Décret d'Ouverture pour 3 ans).
+                                    </p>
+                                </div>
+
+                                <div className="bg-amber-50 p-6 rounded-2xl border border-amber-200 space-y-4">
+                                    <h3 className="text-base font-bold text-amber-900">Guide Déontologique de l'Enquêteur Citoyen</h3>
+                                    <div className="space-y-2 text-xs text-amber-950">
+                                        <p><strong>Chapitre 1 — Posture & Éthique :</strong> Impartialité totale, recherche à charge et à décharge, refus des conflits d'intérêts, dignité et courtoisie.</p>
+                                        <p><strong>Chapitre 2 — Méthodologie :</strong> Administration de la preuve factuelle, vérification systématique des sources, respect du délai contradictoire de 15 jours.</p>
+                                        <p><strong>Chapitre 3 — Secret Professionnel :</strong> Confidentialité absolue des pièces transmises, interdiction formelle des fuites dans la presse ou les réseaux sociaux, cryptage RGPD obligatoire.</p>
+                                        <p><strong>Chapitre 4 — Sanctions :</strong> Suspension conservatoire, entretien disciplinaire et exclusion définitive en cas de manquement.</p>
+                                    </div>
+                                </div>
                             </div>
                         </section>
                     </div>

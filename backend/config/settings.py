@@ -151,8 +151,19 @@ JAAS_KEY_ID = env('JAAS_KEY_ID', default='')
 JAAS_PRIVATE_KEY = env('JAAS_PRIVATE_KEY', default='').replace('\\n', '\n')
 
 
-# Celery
+# Celery & Redis Cache
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/1')
+REDIS_URL = env('REDIS_URL', default=CELERY_BROKER_URL)
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': REDIS_URL,
+    } if REDIS_URL and 'redis' in REDIS_URL else {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'france-justice-cache',
+    }
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=['http://localhost:5173'])

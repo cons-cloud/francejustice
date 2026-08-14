@@ -259,7 +259,7 @@ const LoginPage: React.FC = () => {
               <LogIn className="h-6 w-6 text-primary-600" />
             </div>
             <CardTitle className="text-3xl font-extrabold text-secondary-900">
-              {t('login.welcome', 'Bienvenue sur Just-Law')}
+              {t('login.welcome', 'Bienvenue sur France Justice')}
             </CardTitle>
             <CardDescription>
               {t('login.subtitle')}
@@ -365,13 +365,6 @@ const LoginPage: React.FC = () => {
                   >
                     <span>👤 Citoyen</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => handleLogin(undefined, 'justlaw@gmail.com', 'Just1@')}
-                    className="p-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-[11px] font-bold text-rose-900 transition-all text-left flex items-center justify-between"
-                  >
-                    <span>👑 Admin</span>
-                  </button>
                 </div>
               </div>
 
@@ -384,24 +377,48 @@ const LoginPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register')}
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center text-xs"
                 >
-                  <UserIcon className="h-4 w-4 mr-2" />
-                  {t('login.citizen', 'Citoyen')}
+                  <UserIcon className="h-3.5 w-3.5 mr-1" />
+                  Citoyen
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register/lawyer')}
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center text-xs"
                 >
-                  <ShieldCheck className="h-4 w-4 mr-2" />
-                  {t('login.lawyer', 'Avocat')}
+                  <ShieldCheck className="h-3.5 w-3.5 mr-1 text-amber-600" />
+                  Avocat
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/register/student')}
+                  className="flex items-center justify-center text-xs text-indigo-700 bg-indigo-50/50 hover:bg-indigo-100"
+                >
+                  🎓 Étudiant
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/register/professor')}
+                  className="flex items-center justify-center text-xs text-blue-700 bg-blue-50/50 hover:bg-blue-100"
+                >
+                  👨‍🏫 Professeur
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/register/doctorate')}
+                  className="flex items-center justify-center text-xs text-purple-700 bg-purple-50/50 hover:bg-purple-100 sm:col-span-2"
+                >
+                  🔬 Doctorant
                 </Button>
               </div>
             </form>

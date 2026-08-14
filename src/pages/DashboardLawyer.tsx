@@ -637,7 +637,7 @@ const DashboardLawyer: React.FC = () => {
           lawyer_last_name: profileMap[r.lawyer_id]?.last_name || '',
           registered_count: r.registrations?.[0]?.count || 0
         }));
-        setClassrooms(enriched);
+        setClassrooms(filterActiveSessions(enriched));
       } else {
         setClassrooms([]);
       }
@@ -1257,21 +1257,21 @@ const DashboardLawyer: React.FC = () => {
   const unpaidQuotes = quotes.filter(q => q.status === 'paid');
 
   return (
-    <div className={cn('min-h-screen', 'bg-secondary-50')}>
-      <div className={cn('container', 'py-8')}>
+    <div className="min-h-screen bg-slate-50/70 dark:bg-slate-950 pt-20 pb-16">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {unpaidQuotes.length > 0 && (
-          <div className={cn('mb-6', 'p-4.5', 'bg-gradient-to-r', 'from-red-500/10', 'to-pink-500/10', 'border', 'border-red-500/30', 'rounded-2xl', 'flex', 'flex-col', 'sm:flex-row', 'items-start', 'sm:items-center', 'justify-between', 'gap-4', 'animate-pulse')}>
-            <div className={cn('flex', 'items-center', 'gap-3')}>
-              <div className={cn('p-2.5', 'bg-red-500/20', 'rounded-xl', 'flex', 'items-center', 'justify-center', 'text-red-500', 'animate-bounce')}>
-                <AlertTriangle className={cn('h-5', 'w-5')} />
+          <div className="mb-6 p-5 bg-gradient-to-r from-red-500/15 via-rose-500/10 to-amber-500/15 border border-red-500/30 backdrop-blur-xl rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+            <div className="flex items-center gap-3.5">
+              <div className="p-3 bg-red-500/20 rounded-2xl flex items-center justify-center text-red-500 animate-bounce">
+                <AlertTriangle className="h-6 w-6" />
               </div>
               <div>
-                <h4 className={cn('font-bold', 'text-red-700', 'text-sm')}>Action Requise : Commission Plateforme Due ({unpaidQuotes.length})</h4>
-                <p className={cn('text-xs', 'text-secondary-600')}>Vous avez reçu des paiements de clients. Veuillez verser la commission de 20% à l'administration.</p>
+                <h4 className="font-extrabold text-red-700 dark:text-red-300 text-sm">Action Requise : Commission Plateforme Due ({unpaidQuotes.length})</h4>
+                <p className="text-xs text-slate-600 dark:text-slate-300">Vous avez reçu des paiements. Veuillez procéder au versement de la commission de 20% à l'administration.</p>
               </div>
             </div>
-            <div className={cn('flex', 'items-center', 'gap-2')}>
-              <Button size="sm" variant="danger" className={cn('text-xs', 'bg-red-600', 'hover:bg-red-700', 'text-white', 'font-medium', 'shadow-sm', 'transition-all')} onClick={() => {
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="danger" className="text-xs bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition-all" onClick={() => {
                 setPaymentAlarmQuote(unpaidQuotes[0]);
                 playAlarmSound();
               }}>
@@ -1280,17 +1280,48 @@ const DashboardLawyer: React.FC = () => {
             </div>
           </div>
         )}
-        <div className={cn('mb-8', 'flex', 'flex-col', 'sm:flex-row', 'sm:items-center', 'justify-between', 'gap-4')}>
-          <div>
-            <h1 className={cn('text-3xl', 'font-bold', 'text-secondary-900', 'mb-1')}>Cabinet de {profile?.first_name} {profile?.last_name}</h1>
-            <p className="text-secondary-600">Interface de gestion juridique professionnelle</p>
-          </div>
-          <div className={cn('flex', 'items-center', 'gap-3')}>
-            <LiveSyncBadge status="connected" showText={true} />
-            <Button onClick={fetchLawyerData} variant="outline" size="sm">
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Sync
-            </Button>
+
+        {/* Modern Hero Glassmorphism Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 sm:p-8 text-white shadow-2xl mb-8 border border-indigo-800/40">
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className={`px-3.5 py-1 rounded-full text-xs font-extrabold backdrop-blur-md shadow-sm border ${
+                  profile?.role === 'professor' 
+                    ? 'bg-blue-500/20 text-blue-200 border-blue-400/30' 
+                    : profile?.role === 'doctorate' 
+                    ? 'bg-purple-500/20 text-purple-200 border-purple-400/30' 
+                    : 'bg-amber-500/20 text-amber-200 border-amber-400/30'
+                }`}>
+                  {profile?.role === 'professor' ? '👨‍🏫 Professeur de Droit' : profile?.role === 'doctorate' ? '🔬 Doctorant & Chercheur' : '⚖️ Avocat au Barreau'}
+                </span>
+                {profile?.bar_number && (
+                  <span className="bg-white/10 text-indigo-200 text-xs font-bold px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                    Toque N° {profile.bar_number}
+                  </span>
+                )}
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+                {profile?.role === 'professor' && `Espace Enseignant — Prof. ${profile?.first_name} ${profile?.last_name}`}
+                {profile?.role === 'doctorate' && `Espace Recherche — ${profile?.first_name} ${profile?.last_name}`}
+                {(!profile?.role || profile?.role === 'lawyer' || profile?.role === 'admin') && `Cabinet de Maître ${profile?.first_name} ${profile?.last_name}`}
+              </h1>
+
+              <p className="text-indigo-200/90 text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
+                {profile?.role === 'professor' ? 'Gestion de vos cours universaitaires, visioconférences HD et dépôts de devoirs' : profile?.role === 'doctorate' ? 'Gestion de vos thèses, séminaires de recherche et publications scientifiques' : 'Portail professionnel de gestion juridique, devis et visioconférences'}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 backdrop-blur-md bg-white/5 p-3 rounded-2xl border border-white/10">
+              <LiveSyncBadge status="connected" showText={true} />
+              <Button onClick={fetchLawyerData} variant="outline" size="sm" className="bg-white/10 text-white hover:bg-white/20 border-white/20 rounded-xl">
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Sync
+              </Button>
             <NotificationBell userId={user?.id ?? null} />
             <VoiceAssistant
               mode="lawyer"
@@ -1318,6 +1349,7 @@ const DashboardLawyer: React.FC = () => {
             </Button>
           </div>
         </div>
+      </div>
 
         <div className={cn('grid', 'grid-cols-1', 'lg:grid-cols-4', 'gap-8')}>
           <aside className={cn('lg:col-span-1', 'order-2', 'lg:order-1')}>

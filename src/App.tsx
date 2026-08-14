@@ -26,6 +26,7 @@ const ServicesPage         = lazy(() => import('./pages/Services'));
 const AboutPage            = lazy(() => import('./pages/About'));
 const RegistrationForm     = lazy(() => import('./components/forms/UserRegistrationForm'));
 const LawyerRegistrationForm = lazy(() => import('./components/forms/LawyerRegistrationForm'));
+const AcademicRegistrationForm = lazy(() => import('./components/forms/AcademicRegistrationForm'));
 const GuidePratique        = lazy(() => import('./pages/GuidePratique'));
 const FAQ                  = lazy(() => import('./pages/FAQ'));
 const News                 = lazy(() => import('./pages/News'));
@@ -66,7 +67,7 @@ function RequireRole({ allowedRoles, children }: { allowedRoles: string[]; child
 
 function AppContent() {
   const { pathname } = useLocation();
-  const isAuthPage = ['/login', '/register', '/register/lawyer', '/reset-password'].includes(pathname);
+  const isAuthPage = ['/login', '/register', '/register/lawyer', '/register/student', '/register/professor', '/register/doctorate', '/register/etudiant', '/register/professeur', '/register/doctorat', '/reset-password'].includes(pathname);
   const isDashboardPage = pathname.startsWith('/dashboard');
   const hideLayout = isAuthPage || isDashboardPage;
 
@@ -98,6 +99,12 @@ function AppContent() {
             <Route path="/lawyers"         element={<LawyersPage />} />
             <Route path="/register"        element={<RegistrationForm onClose={() => {}} />} />
             <Route path="/register/lawyer" element={<LawyerRegistrationForm onClose={() => {}} />} />
+            <Route path="/register/student" element={<AcademicRegistrationForm defaultRole="student" />} />
+            <Route path="/register/etudiant" element={<AcademicRegistrationForm defaultRole="student" />} />
+            <Route path="/register/professor" element={<AcademicRegistrationForm defaultRole="professor" />} />
+            <Route path="/register/professeur" element={<AcademicRegistrationForm defaultRole="professor" />} />
+            <Route path="/register/doctorate" element={<AcademicRegistrationForm defaultRole="doctorate" />} />
+            <Route path="/register/doctorat" element={<AcademicRegistrationForm defaultRole="doctorate" />} />
             <Route
               path="/dashboard/lawyer"
               element={

@@ -17,7 +17,7 @@ describe('LawyersPage', () => {
 
     // Champ de recherche
     expect(
-      screen.getByPlaceholderText('Rechercher par nom ou spécialité...')
+      screen.getByPlaceholderText(/Rechercher par nom/i)
     ).toBeInTheDocument();
   });
 
@@ -54,7 +54,7 @@ describe('LawyersPage', () => {
 
     // Le mock Supabase retourne data:[] — la liste est vide
     // Le composant affiche l'état vide "Aucun avocat trouvé"
-    expect(screen.getByText('Aucun avocat trouvé')).toBeInTheDocument();
+    expect(screen.getByText(/Aucun avocat trouvé/i)).toBeInTheDocument();
     expect(
       screen.getByText('Essayez de modifier vos critères de recherche.')
     ).toBeInTheDocument();
