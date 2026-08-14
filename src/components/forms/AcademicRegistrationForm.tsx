@@ -48,6 +48,14 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
 }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/');
+    }
+  };
   
   // Determine role from props or URL path/query
   const queryRole = searchParams.get('role') as AcademicRole | null;
@@ -318,7 +326,7 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
         <div className="flex items-center justify-between mb-2">
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={handleClose}
             className="inline-flex items-center text-slate-400 hover:text-white transition-colors text-sm font-semibold gap-2"
           >
             <ArrowLeft className="w-4 h-4" /> Retour à l'accueil
