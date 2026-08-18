@@ -45,32 +45,32 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
   return (
     <div className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-secondary-900/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" onClick={onClose} />
       
       {/* Menu Panel */}
-      <div className={`absolute inset-y-0 right-0 w-full max-w-sm bg-white/90 backdrop-blur-2xl border-l border-white/40 shadow-2xl transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`absolute inset-y-0 right-0 w-full max-w-sm bg-slate-900/95 backdrop-blur-2xl border-l border-indigo-800/50 shadow-2xl transition-transform duration-300 transform text-white ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-6 border-b">
-            <span className="text-xl font-bold text-primary-600">{t('nav.menu')}</span>
-            <Button variant="ghost" size="sm" onClick={onClose} className="rounded-full p-2 h-10 w-10">
+          <div className="flex items-center justify-between p-6 border-b border-indigo-900/40">
+            <span className="text-xl font-bold text-white tracking-tight">{t('nav.menu')}</span>
+            <Button variant="ghost" size="sm" onClick={onClose} className="rounded-full p-2 h-10 w-10 text-slate-300 hover:text-white hover:bg-slate-800/80">
               <X className="h-6 w-6" />
             </Button>
           </div>
 
-          <nav className="flex-1 overflow-y-auto p-6 space-y-2">
+          <nav className="flex-1 overflow-y-auto p-6 space-y-3">
             {navItemsBefore.map((item) => {
               const isActive = location.pathname === item.href;
               return (
                 <button
                   key={item.name}
                   onClick={() => { navigate(item.href); onClose(); }}
-                  className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all font-medium ${
+                  className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all font-medium cursor-pointer ${
                     isActive
-                      ? 'bg-primary-50 text-primary-600'
-                      : 'text-secondary-600 hover:bg-secondary-50 hover:text-primary-600'
+                      ? 'bg-primary-900/50 text-primary-300 border border-primary-500/30'
+                      : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className="h-5 w-5 text-primary-400" />
                   <span>{item.name}</span>
                 </button>
               );
@@ -78,26 +78,26 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
 
             {/* ── Outils Group ─────────────────────────────────────────── */}
             <div className={`rounded-xl border transition-colors overflow-hidden ${
-              isOutilsActive ? 'border-primary-200 bg-primary-50/40' : 'border-secondary-100'
+              isOutilsActive ? 'border-primary-500/40 bg-primary-900/30' : 'border-slate-800 bg-slate-800/30'
             }`}>
               {/* Toggle button */}
               <button
                 onClick={() => setOutilsExpanded((v) => !v)}
-                className={`w-full flex items-center justify-between px-4 py-3.5 font-semibold transition-colors ${
-                  isOutilsActive ? 'text-primary-700' : 'text-secondary-700 hover:text-primary-600'
+                className={`w-full flex items-center justify-between px-4 py-3.5 font-semibold transition-colors cursor-pointer ${
+                  isOutilsActive ? 'text-primary-300' : 'text-slate-200 hover:text-white'
                 }`}
               >
                 <span className="flex items-center gap-3">
-                  <span className={`p-1 rounded-lg ${isOutilsActive ? 'bg-primary-100 text-primary-600' : 'bg-linear-to-br from-primary-100 to-violet-100 text-primary-600'}`}>
+                  <span className="p-1.5 rounded-lg bg-slate-800 text-primary-400 border border-slate-700/50">
                     <Wrench className="h-4 w-4" />
                   </span>
                   <span>{t('nav.outils', 'Outils')}</span>
                 </span>
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${outilsExpanded || isOutilsActive ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${outilsExpanded || isOutilsActive ? 'rotate-180 text-white' : ''}`} />
               </button>
 
               {/* Sub items */}
-              <div className={`transition-all duration-200 overflow-hidden ${outilsExpanded || isOutilsActive ? 'max-h-40' : 'max-h-0'}`}>
+              <div className={`transition-all duration-200 overflow-hidden ${outilsExpanded || isOutilsActive ? 'max-h-48' : 'max-h-0'}`}>
                 <div className="px-3 pb-3 space-y-1">
                   {outilsItems.map((item) => {
                     const isActive = location.pathname === item.href;
@@ -105,16 +105,16 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
                       <button
                         key={item.name}
                         onClick={() => { navigate(item.href); onClose(); }}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all cursor-pointer ${
                           isActive
-                            ? 'bg-primary-100 text-primary-700 font-semibold'
-                            : 'text-secondary-600 hover:bg-white hover:text-primary-600'
+                            ? 'bg-primary-900/60 text-primary-300 font-semibold border border-primary-500/30'
+                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                         }`}
                       >
-                        <item.icon className="h-4 w-4 shrink-0" />
+                        <item.icon className="h-4 w-4 shrink-0 text-primary-400" />
                         <div className="text-left">
                           <div className="font-medium">{item.name}</div>
-                          <div className="text-xs text-secondary-400">{item.desc}</div>
+                          <div className="text-xs text-slate-400">{item.desc}</div>
                         </div>
                       </button>
                     );
@@ -125,26 +125,26 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
 
             {/* ── IA Group (after Services) ────────────────────────────── */}
             <div className={`rounded-xl border transition-colors overflow-hidden ${
-              isAiActive ? 'border-primary-200 bg-primary-50/40' : 'border-secondary-100'
+              isAiActive ? 'border-primary-500/40 bg-primary-900/30' : 'border-slate-800 bg-slate-800/30'
             }`}>
               {/* Toggle button */}
               <button
                 onClick={() => setAiExpanded((v) => !v)}
-                className={`w-full flex items-center justify-between px-4 py-3.5 font-semibold transition-colors ${
-                  isAiActive ? 'text-primary-700' : 'text-secondary-700 hover:text-primary-600'
+                className={`w-full flex items-center justify-between px-4 py-3.5 font-semibold transition-colors cursor-pointer ${
+                  isAiActive ? 'text-primary-300' : 'text-slate-200 hover:text-white'
                 }`}
               >
                 <span className="flex items-center gap-3">
-                  <span className={`p-1 rounded-lg ${isAiActive ? 'bg-primary-100 text-primary-600' : 'bg-linear-to-br from-primary-100 to-violet-100 text-primary-600'}`}>
+                  <span className="p-1.5 rounded-lg bg-slate-800 text-primary-400 border border-slate-700/50">
                     <Cpu className="h-4 w-4" />
                   </span>
                   <span>{t('nav.ai_full')}</span>
                 </span>
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${aiExpanded || isAiActive ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${aiExpanded || isAiActive ? 'rotate-180 text-white' : ''}`} />
               </button>
 
               {/* Sub items */}
-              <div className={`transition-all duration-200 overflow-hidden ${aiExpanded || isAiActive ? 'max-h-40' : 'max-h-0'}`}>
+              <div className={`transition-all duration-200 overflow-hidden ${aiExpanded || isAiActive ? 'max-h-48' : 'max-h-0'}`}>
                 <div className="px-3 pb-3 space-y-1">
                   {aiItems.map((item) => {
                     const isActive = location.pathname === item.href;
@@ -152,16 +152,16 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
                       <button
                         key={item.name}
                         onClick={() => { navigate(item.href); onClose(); }}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all cursor-pointer ${
                           isActive
-                            ? 'bg-primary-100 text-primary-700 font-semibold'
-                            : 'text-secondary-600 hover:bg-white hover:text-primary-600'
+                            ? 'bg-primary-900/60 text-primary-300 font-semibold border border-primary-500/30'
+                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                         }`}
                       >
-                        <item.icon className="h-4 w-4 shrink-0" />
+                        <item.icon className="h-4 w-4 shrink-0 text-primary-400" />
                         <div className="text-left">
                           <div className="font-medium">{item.name}</div>
-                          <div className="text-xs text-secondary-400">{item.desc}</div>
+                          <div className="text-xs text-slate-400">{item.desc}</div>
                         </div>
                       </button>
                     );
@@ -176,24 +176,24 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
                 <button
                   key={item.name}
                   onClick={() => { navigate(item.href); onClose(); }}
-                  className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all font-medium ${
+                  className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all font-medium cursor-pointer ${
                     isActive
-                      ? 'bg-primary-50 text-primary-600'
-                      : 'text-secondary-600 hover:bg-secondary-50 hover:text-primary-600'
+                      ? 'bg-primary-900/50 text-primary-300 border border-primary-500/30'
+                      : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className="h-5 w-5 text-primary-400" />
                   <span>{item.name}</span>
                 </button>
               );
             })}
           </nav>
 
-          <div className="p-6 border-t bg-secondary-50 space-y-4">
+          <div className="p-6 border-t border-indigo-900/40 bg-slate-950/80 space-y-4">
             {user ? (
               <>
                 <Button
-                  className="w-full justify-start rounded-xl py-6"
+                  className="w-full justify-start rounded-xl py-6 bg-primary-600 hover:bg-primary-500 text-white font-semibold shadow-lg shadow-primary-600/20"
                   onClick={() => {
                     navigate(role === 'admin' ? '/dashboard/admin' : role === 'lawyer' ? '/dashboard/lawyer' : '/dashboard/user');
                     onClose();
@@ -204,7 +204,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full rounded-xl py-6 border-secondary-200"
+                  className="w-full rounded-xl py-6 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
                   onClick={() => { signOut(); onClose(); }}
                 >
                   <LogOut className="mr-3 h-5 w-5" />
@@ -213,7 +213,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, user, role, na
               </>
             ) : (
               <Button
-                className="w-full rounded-xl py-6 text-lg font-bold shadow-lg shadow-primary-500/20"
+                className="w-full rounded-xl py-6 text-lg font-bold bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white shadow-lg shadow-primary-500/30"
                 onClick={() => { navigate('/login'); onClose(); }}
               >
                 <UserIcon className="mr-3 h-5 w-5" />

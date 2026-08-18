@@ -121,7 +121,9 @@
     "mission": "Democratizar el acceso al derecho para todos.",
     "vision_title": "Nuestra visión",
     "values_title": "Nuestros valores",
-    "team_title": "Nuestro equipo"
+    "team_title": "Nuestro equipo",
+    "team_role_founder": "Fundador y Doctor en Derecho",
+    "team_desc_founder": "Doctor en Derecho, Fundador de FranceJustice, experto en asistencia jurídica para ciudadanos y abogados."
   },
   "services": {
     "title": "Nuestros Servicios",

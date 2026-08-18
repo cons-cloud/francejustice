@@ -1125,7 +1125,7 @@ Ce document est généré par la plateforme France Justice.
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/70 dark:bg-slate-950 pt-20 pb-16">
+    <div className="min-h-screen bg-slate-950 text-slate-100 pt-20 pb-16">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -1202,7 +1202,7 @@ Ce document est généré par la plateforme France Justice.
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <aside className="lg:col-span-1 order-2 lg:order-1">
-            <Card className="sticky top-6">
+            <Card className="sticky top-6 bg-slate-900/90 border-slate-800">
               <CardContent className="p-4 sm:p-6">
                 <nav className="flex flex-wrap lg:flex-col gap-2 pb-2 lg:pb-0 lg:space-y-2">
                   {tabs.map((tab) => {
@@ -1211,13 +1211,13 @@ Ce document est généré par la plateforme France Justice.
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex-shrink-0 lg:w-full flex items-center space-x-3 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-left transition-all duration-200 text-sm sm:text-base ${
+                        className={`flex-shrink-0 lg:w-full flex items-center space-x-3 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-left transition-all duration-200 text-sm sm:text-base cursor-pointer ${
                           activeTab === tab.id
-                            ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                            : 'text-secondary-600 hover:bg-secondary-100 hover:text-primary-600'
+                            ? 'bg-primary-600 text-white font-semibold shadow-lg shadow-primary-500/30'
+                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                         }`}
                       >
-                        <Icon className="h-5 w-5" />
+                        <Icon className="h-5 w-5 text-primary-400" />
                         <span className="font-medium whitespace-nowrap">{tab.name}</span>
                       </button>
                     );

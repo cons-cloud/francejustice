@@ -595,11 +595,10 @@ const AdminDashboard: React.FC = () => {
     { label: t('admin_dashboard.lawyers', 'Avocats'), value: users.filter(u => u.role === 'lawyer').length.toString(), icon: Shield },
     { label: t('admin_dashboard.all_documents', 'Documents'), value: allDocuments.length.toString(), icon: FileText },
     { label: t('admin_dashboard.platform_revenue', 'Commissions'), value: `${quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD`, icon: CreditCard },
-    { label: t('admin_dashboard.system_health', 'Santé Système'), value: '100%', icon: Database },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50/70 dark:bg-slate-950 pt-20 pb-16">
+    <div className="min-h-screen bg-slate-950 text-slate-100 pt-20 pb-16">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Modern Hero Glassmorphism Header */}
@@ -653,7 +652,7 @@ const AdminDashboard: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <aside className="lg:col-span-1 order-2 lg:order-1">
-            <Card className="sticky top-6 overflow-hidden">
+            <Card className="sticky top-6 overflow-hidden bg-slate-900/90 border-slate-800">
               <CardContent className="p-2 sm:p-4 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible no-scrollbar pb-2 lg:pb-0">
                 {
                   [
@@ -677,13 +676,13 @@ const AdminDashboard: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex-shrink-0 lg:w-full flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 ${
+                    className={`flex-shrink-0 lg:w-full flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
                       activeTab === tab.id 
-                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30' 
-                        : 'text-secondary-700 hover:bg-secondary-100 hover:text-primary-600'
+                        ? 'bg-primary-600 text-white font-semibold shadow-lg shadow-primary-500/30' 
+                        : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                     }`}
                   >
-                    <tab.icon className="h-4 w-4 mr-3" />
+                    <tab.icon className="h-4 w-4 mr-3 text-primary-400" />
                     <span className="font-medium whitespace-nowrap">{tab.name}</span>
                   </button>
                 ))}

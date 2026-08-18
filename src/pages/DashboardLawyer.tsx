@@ -1258,7 +1258,7 @@ const DashboardLawyer: React.FC = () => {
   const unpaidQuotes = quotes.filter(q => q.status === 'paid');
 
   return (
-    <div className="min-h-screen bg-slate-50/70 dark:bg-slate-950 pt-20 pb-16">
+    <div className="min-h-screen bg-slate-950 text-slate-100 pt-20 pb-16">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {unpaidQuotes.length > 0 && (
           <div className="mb-6 p-5 bg-gradient-to-r from-red-500/15 via-rose-500/10 to-amber-500/15 border border-red-500/30 backdrop-blur-xl rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
@@ -1339,7 +1339,7 @@ const DashboardLawyer: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              className={cn('text-danger-600', 'hover:text-danger-700', 'hover:bg-danger-50', 'border-danger-200', 'hover:border-danger-300', 'flex', 'items-center', 'justify-center', 'font-semibold')}
+              className={cn('text-red-300', 'hover:text-white', 'bg-red-500/10', 'hover:bg-red-600/80', 'border-red-400/30', 'flex', 'items-center', 'justify-center', 'font-semibold', 'rounded-xl', 'transition-all')}
               onClick={async () => {
                 await supabase.auth.signOut();
                 window.location.href = '/login';
@@ -1354,19 +1354,19 @@ const DashboardLawyer: React.FC = () => {
 
         <div className={cn('grid', 'grid-cols-1', 'lg:grid-cols-4', 'gap-8')}>
           <aside className={cn('lg:col-span-1', 'order-2', 'lg:order-1')}>
-            <Card className={cn('sticky', 'top-6', 'overflow-hidden')}>
+            <Card className={cn('sticky', 'top-6', 'overflow-hidden', 'bg-slate-900/90', 'border-slate-800')}>
               <CardContent className={cn('p-2', 'sm:p-4', 'flex', 'flex-wrap', 'lg:flex-col', 'gap-2', 'pb-2', 'lg:pb-0', 'lg:space-y-2')}>
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                    className={`flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
                       activeTab === tab.id
-                        ? "bg-primary-600 text-white shadow-lg shadow-primary-500/30"
-                        : "text-secondary-600 hover:bg-secondary-100"
+                        ? "bg-primary-600 text-white font-semibold shadow-lg shadow-primary-500/30"
+                        : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
                     }`}
                   >
-                    <tab.icon className={cn('h-5', 'w-5')} />
+                    <tab.icon className={cn('h-5', 'w-5', 'text-primary-400')} />
                     <span className={cn('font-medium', 'whitespace-nowrap')}>{tab.name}</span>
                   </button>
                 ))}

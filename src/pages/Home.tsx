@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Scale, Shield, ArrowRight, BookOpen, Video, Calendar, 
-  Users, CheckCircle2, Sparkles, FileText, Lock, ChevronDown
+  Users, CheckCircle2, Sparkles, FileText, Lock, ChevronDown,
+  MapPin, Clock, ExternalLink, Gavel, AlertTriangle, UserCheck
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +10,170 @@ import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedCounter from '../components/ui/AnimatedCounter';
 import { useTranslation } from '../i18n';
+import { HeroPappersSearch } from '../components/features/HeroPappersSearch';
+
+// Fallback datasets for immediate vibrant render if database is initializing
+const defaultLawyers = [
+  {
+    id: 'lawyer-1',
+    first_name: 'Sarah',
+    last_name: 'El Amrani',
+    specialty: 'Droit des Affaires & Numérique',
+    city: 'Paris & Casablanca',
+    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
+    is_available: true,
+    university: 'Barreau de Paris'
+  },
+  {
+    id: 'lawyer-2',
+    first_name: 'Alexandre',
+    last_name: 'Dubois',
+    specialty: 'Droit du Travail & Prud\'hommes',
+    city: 'Lyon',
+    avatar_url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80',
+    is_available: true,
+    university: 'Barreau de Lyon'
+  },
+  {
+    id: 'lawyer-3',
+    first_name: 'Myriam',
+    last_name: 'Benjelloun',
+    specialty: 'Droit de la Famille & Patrimoine',
+    city: 'Marseille & Rabat',
+    avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80',
+    is_available: true,
+    university: 'Barreau de Marseille'
+  },
+  {
+    id: 'lawyer-4',
+    first_name: 'Thomas',
+    last_name: 'Moreau',
+    specialty: 'Droit Pénal & Cybercriminalité',
+    city: 'Bordeaux',
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+    is_available: true,
+    university: 'Barreau de Bordeaux'
+  }
+];
+
+const defaultClassrooms = [
+  {
+    id: 'class-1',
+    title: 'Masterclass : AI Act & Conformité Légale des Algorithmes',
+    category: 'Droit Numérique',
+    lawyer_first_name: 'Sarah',
+    lawyer_last_name: 'El Amrani',
+    duration_minutes: 120,
+    type: 'direct',
+    date: 'En Direct',
+    description: 'Analyse approfondie du règlement européen sur l\'IA et les obligations d\'audit des entreprises.'
+  },
+  {
+    id: 'class-2',
+    title: 'Contentieux Prud\'homal : Congés Payés & Arrêts Maladie',
+    category: 'Droit du Travail',
+    lawyer_first_name: 'Alexandre',
+    lawyer_last_name: 'Dubois',
+    duration_minutes: 90,
+    type: 'differe',
+    date: 'Disponible en Replay',
+    description: 'Nouvelle jurisprudence 2026 sur la mise en conformité de la durée du travail et des indemnités.'
+  },
+  {
+    id: 'class-3',
+    title: 'Stratégie de Rédaction des Contrats Internationaux',
+    category: 'Droit des Affaires',
+    lawyer_first_name: 'Myriam',
+    lawyer_last_name: 'Benjelloun',
+    duration_minutes: 105,
+    type: 'direct',
+    date: 'Séance Planifiée',
+    description: 'Rédiger des clauses d\'arbitrage, de loi applicable et de limitation de responsabilité sans faille.'
+  },
+  {
+    id: 'class-4',
+    title: 'Procédure d\'Urgence & Référés devant le Tribunal',
+    category: 'Procédure Civile',
+    lawyer_first_name: 'Thomas',
+    lawyer_last_name: 'Moreau',
+    duration_minutes: 120,
+    type: 'video',
+    date: 'Enregistrement HD',
+    description: 'Comment engager un référé heure à heure ou conservatoire pour faire cesser un dommage imminent.'
+  }
+];
+
+const genAiModules = [
+  {
+    id: 'genai-chat',
+    title: 'GÉNIA-L Chat Jurisprudentiel 24/7',
+    badge: 'IA Directe',
+    icon: Sparkles,
+    gradient: 'from-amber-500 via-orange-500 to-amber-600',
+    description: 'Posez n\'importe quelle question juridique en langage naturel. GÉNIA-L répond instantanément en citant les textes officiels du Code Civil, Pénal et du Travail.',
+    actionText: 'Discuter avec GÉNIA-L',
+    link: '/genia-l'
+  },
+  {
+    id: 'genai-doc',
+    title: 'Générateur Automatique d\'Actes & Contrats',
+    badge: 'Génération PDF',
+    icon: FileText,
+    gradient: 'from-indigo-600 via-purple-600 to-pink-600',
+    description: 'Créez vos courriers juridiques, mises en demeure, statuts ou contrats d\'embauche sur-mesure avec mise en page officielle téléchargeable en PDF.',
+    actionText: 'Générer un Document',
+    link: '/generator'
+  },
+  {
+    id: 'genai-analysis',
+    title: 'Analyseur de Clauses & Vices Contractuels',
+    badge: 'Audit IA',
+    icon: Shield,
+    gradient: 'from-emerald-600 via-teal-600 to-cyan-600',
+    description: 'Soumettez un contrat en PDF ou image. L\'IA repère immédiatement les clauses abusives, les pièges juridiques et émet des recommandations stratégiques.',
+    actionText: 'Consulter la Base IA',
+    link: '/database'
+  }
+];
+
+const complaintTypes = [
+  {
+    id: 'plainte-escroquerie',
+    title: 'Plainte pour Escroquerie / Fraude Numérique',
+    category: 'Droit Pénal',
+    badge: 'Procédure Urgente',
+    icon: AlertTriangle,
+    desc: 'Usurpation d\'identité, arnaque bancaire en ligne, hameçonnage ou vol. Constitution automatique du dossier de plainte au Procureur.',
+    docType: 'plainte_escroquerie'
+  },
+  {
+    id: 'plainte-harcelement',
+    title: 'Plainte pour Harcèlement ou Diffamation',
+    category: 'Atteinte aux Personnes',
+    badge: 'Prioritaire',
+    icon: Shield,
+    desc: 'Cyberharcèlement, diffamation publique, menace ou injure. Génération du modèle de dépôt de plainte pénale officiel.',
+    docType: 'plainte_harcelement'
+  },
+  {
+    id: 'plainte-travail',
+    title: 'Signalement & Saisine Prud\'homale',
+    category: 'Droit du Travail',
+    badge: 'Litige Salarié / Employeur',
+    icon: Gavel,
+    desc: 'Licenciement abusif, non-paiement des heures supplémentaires ou harcèlement au travail. Préparation de la requête aux Prud\'hommes.',
+    docType: 'saisine_prudhommes'
+  },
+  {
+    id: 'plainte-locatif',
+    title: 'Mise en Demeure & Litige Locatif',
+    category: 'Droit Immobilier',
+    badge: 'Recours Amiable',
+    icon: FileText,
+    desc: 'Non-restitution du dépôt de garantie, logement insalubre ou loyers impayés. Génération de sommation légale avec accusé de réception.',
+    docType: 'mise_en_demeure'
+  }
+];
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -21,11 +186,15 @@ const Home: React.FC = () => {
     { number: '0+', label: 'home.stats_documents' },
   ]);
 
+  const [featuredLawyers, setFeaturedLawyers] = useState<any[]>(defaultLawyers);
+  const [featuredClassrooms, setFeaturedClassrooms] = useState<any[]>(defaultClassrooms);
+
   const [activeTabEcosystem, setActiveTabEcosystem] = useState<'citizen' | 'student' | 'professor' | 'doctorate' | 'lawyer'>('citizen');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   useEffect(() => {
     fetchStats();
+    fetchHomeDynamicData();
   }, []);
 
   const fetchStats = async () => {
@@ -42,6 +211,34 @@ const Home: React.FC = () => {
       ]);
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const fetchHomeDynamicData = async () => {
+    try {
+      // 1. Fetch Lawyers from Supabase
+      const { data: dbLawyers } = await supabase
+        .from('profiles_just')
+        .select('*')
+        .eq('role', 'lawyer')
+        .limit(4);
+
+      if (dbLawyers && dbLawyers.length > 0) {
+        setFeaturedLawyers(dbLawyers);
+      }
+
+      // 2. Fetch Classrooms / Formations from Supabase
+      const { data: dbClassrooms } = await supabase
+        .from('classrooms_just')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+      if (dbClassrooms && dbClassrooms.length > 0) {
+        setFeaturedClassrooms(dbClassrooms);
+      }
+    } catch (err) {
+      console.error('Error fetching home dynamic data:', err);
     }
   };
 
@@ -155,14 +352,14 @@ const Home: React.FC = () => {
         <div className="absolute top-10 left-10 w-[450px] h-[450px] bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* Content */}
-        <div className="relative z-10 text-center px-6 max-w-6xl mx-auto space-y-8">
+        <div className="relative z-10 text-center px-3 sm:px-6 max-w-6xl mx-auto space-y-6 sm:space-y-8 w-full">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-xs sm:text-sm font-bold text-amber-300 backdrop-blur-md shadow-lg"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 border border-white/20 text-[11px] sm:text-sm font-bold text-amber-300 backdrop-blur-md shadow-lg max-w-full text-balance"
           >
-            <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0 animate-spin" />
             <span>Plateforme Nationale 100% Synchronisée en Temps Réel • Visioconférences & IA 2026</span>
           </motion.div>
 
@@ -170,9 +367,9 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-tight text-balance"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-balance font-sans"
           >
-            La Justice Numérique de Demain, <br />
+            La Justice Numérique de Demain, <br className="hidden sm:inline" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-300 drop-shadow-[0_4px_25px_rgba(252,211,77,0.4)]">
               Accessible à Tous les Citoyens & Avocats
             </span>
@@ -182,7 +379,7 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-base sm:text-xl md:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed font-medium"
+            className="text-sm sm:text-lg md:text-xl text-slate-300 max-w-4xl mx-auto leading-relaxed font-medium px-2"
           >
             Assistant IA Génia 2026, Visioconférences sécurisées en direct, Salles de classe virtuelles, Planning Annuel national, et Centre d'Études Doctrinales & Revues Scientifiques en temps réel.
           </motion.p>
@@ -191,11 +388,11 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-wrap gap-4 justify-center items-center pt-4"
+            className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center items-center pt-2 sm:pt-4 w-full"
           >
             <Button
               size="lg"
-              className="text-base sm:text-lg px-8 py-6 rounded-2xl bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white shadow-2xl shadow-primary-500/40 transition-all hover:scale-105 active:scale-95 font-black"
+              className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white shadow-2xl shadow-primary-500/40 transition-all hover:scale-105 active:scale-95 font-black justify-center"
               onClick={() => navigate('/register')}
             >
               Créer mon Compte Citoyen
@@ -205,7 +402,7 @@ const Home: React.FC = () => {
             <Button
               variant="outline"
               size="lg"
-              className="text-base sm:text-lg px-8 py-6 rounded-2xl border-emerald-400/40 text-emerald-300 bg-emerald-950/30 hover:bg-emerald-900/50 backdrop-blur-md transition-all hover:scale-105 active:scale-95 font-bold"
+              className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl border-emerald-400/40 text-emerald-300 bg-emerald-950/30 hover:bg-emerald-900/50 backdrop-blur-md transition-all hover:scale-105 active:scale-95 font-bold justify-center"
               onClick={() => navigate('/login')}
             >
               Espace Avocat au Barreau
@@ -214,11 +411,20 @@ const Home: React.FC = () => {
             <Button
               variant="ghost"
               size="lg"
-              className="text-base sm:text-lg px-6 py-6 rounded-2xl text-cyan-300 hover:bg-white/10 font-semibold"
+              className="w-full sm:w-auto text-sm sm:text-lg px-5 sm:px-6 py-4 sm:py-6 rounded-2xl text-cyan-300 hover:bg-white/10 font-semibold justify-center"
               onClick={() => navigate('/classrooms')}
             >
-              <Video className="w-5 h-5 mr-2 text-cyan-400" /> Salles de Classe & Visio en Direct
+              <Video className="w-5 h-5 mr-2 text-cyan-400 shrink-0" /> Salles de Classe & Visio en Direct
             </Button>
+          </motion.div>
+
+          {/* Pappers Justice Inspired Search Engine */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+          >
+            <HeroPappersSearch />
           </motion.div>
         </div>
       </section>
@@ -242,6 +448,275 @@ const Home: React.FC = () => {
               </motion.div>
             ))}
           </motion.div>
+        </div>
+      </section>
+
+      {/* ── SECTION 1: NOS FORMATIONS JURIDIQUES & SALLES DE CLASSE EN DIRECT ── */}
+      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+        <div className="container px-4 mx-auto max-w-7xl relative z-10 space-y-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-800 pb-6">
+            <div className="space-y-3 max-w-2xl">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-4 py-1.5 rounded-full border border-cyan-500/20 inline-flex items-center gap-1.5">
+                <BookOpen className="w-4 h-4 text-cyan-400" /> Formations Juridiques Inscrites
+              </span>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight">
+                Les Formations & Salles de Classe Virtuelles
+              </h2>
+              <p className="text-sm md:text-base text-slate-300">
+                Suivez en direct ou en replay les masterclasses dispensées par les avocats au barreau, professeurs de droit et juristes experts.
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate('/classrooms')}
+              className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-lg shadow-cyan-600/20"
+            >
+              Voir Toutes les Formations ({featuredClassrooms.length}+)
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredClassrooms.map((cls) => (
+              <div 
+                key={cls.id} 
+                className="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:border-cyan-500/50 hover:shadow-2xl transition-all duration-300 group"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-lg border border-cyan-800/40">
+                      {cls.category || 'Formation Juridique'}
+                    </span>
+                    <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                      <Video className="w-3 h-3 text-emerald-400" /> {cls.type === 'direct' ? 'Live HD' : 'Replay'}
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
+                    {cls.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed">
+                    {cls.description || 'Formation complète sur les textes de loi et la jurisprudence récente.'}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-slate-700/60 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-slate-400">
+                    <span className="flex items-center gap-1 font-semibold text-slate-200">
+                      <UserCheck className="w-3.5 h-3.5 text-cyan-400" /> 
+                      {cls.lawyer_first_name ? `Me ${cls.lawyer_first_name} ${cls.lawyer_last_name}` : 'Professeur de Droit'}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-slate-400" /> {cls.duration_minutes || 90} min
+                    </span>
+                  </div>
+
+                  <Button 
+                    onClick={() => navigate('/classrooms')}
+                    className="w-full bg-slate-700 hover:bg-cyan-600 text-white font-bold py-2.5 text-xs rounded-xl transition-all"
+                  >
+                    Accéder à la Salle de Classe
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 2: LES AVOCATS & JURISTES DISPONIBLES ── */}
+      <section className="py-20 bg-white relative">
+        <div className="container px-4 mx-auto max-w-7xl space-y-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-6">
+            <div className="space-y-3 max-w-2xl">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-700 bg-indigo-100 px-4 py-1.5 rounded-full border border-indigo-200 inline-flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-indigo-600" /> Annuaire Officiel des Barreaux
+              </span>
+              <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+                Les Avocats & Juristes inscrits sur la Plateforme
+              </h2>
+              <p className="text-sm md:text-base text-slate-600">
+                Consultez les profils certifiés des avocats au barreau, vérifiez leurs spécialités et réservez votre consultation en visioconférence direct.
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate('/lawyers')}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-lg shadow-indigo-600/20"
+            >
+              Découvrir Tous les Avocats
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredLawyers.map((lawyer) => (
+              <div 
+                key={lawyer.id}
+                className="bg-slate-50 border border-slate-200 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:shadow-2xl hover:border-indigo-400 transition-all duration-300 group"
+              >
+                <div className="space-y-4 text-center">
+                  <div className="relative inline-block mx-auto">
+                    <img 
+                      src={lawyer.avatar_url || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80'} 
+                      alt={`Me ${lawyer.first_name} ${lawyer.last_name}`} 
+                      className="w-20 h-20 rounded-2xl object-cover shadow-md mx-auto border-2 border-indigo-500/30 group-hover:scale-105 transition-transform"
+                    />
+                    <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full" title="Disponible pour rendez-vous" />
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                      Me {lawyer.first_name} {lawyer.last_name}
+                    </h3>
+                    <p className="text-xs font-semibold text-indigo-600 mt-1">
+                      {lawyer.specialty || lawyer.specialties?.[0] || 'Droit Général & Contentieux'}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-1 text-xs text-slate-500 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                    <span>{lawyer.city || lawyer.university || 'Barreau de France'}</span>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-200/80 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-xl">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Profil Certifié
+                    </span>
+                    <span>Visio 2h+</span>
+                  </div>
+                  <Button 
+                    onClick={() => navigate('/lawyers')}
+                    className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-2.5 text-xs rounded-xl transition-all shadow-sm"
+                  >
+                    Consulter le Profil
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 3: LES MODULES DE L'ASSISTANT IA GÉNIA-L ── */}
+      <section className="py-20 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white relative overflow-hidden">
+        <div className="container px-4 mx-auto max-w-7xl space-y-12 relative z-10">
+          <div className="text-center max-w-3xl mx-auto space-y-4">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-amber-300 bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/20 inline-flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" /> Intelligence Artificielle Juridique 2026
+            </span>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white">
+              Les Assistants IA GÉNIA-L à votre Service
+            </h2>
+            <p className="text-sm md:text-base text-slate-300">
+              Profitez des technologies d'IA générative les plus avancées pour répondre à vos questions, analyser vos contrats et éditer des actes légaux.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {genAiModules.map((mod) => (
+              <div 
+                key={mod.id}
+                className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 flex flex-col justify-between space-y-6 hover:border-amber-500/50 hover:shadow-2xl transition-all duration-300 group"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${mod.gradient} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                      <mod.icon className="w-7 h-7" />
+                    </div>
+                    <span className="text-xs font-bold text-amber-300 bg-amber-950/60 px-3 py-1 rounded-full border border-amber-500/30">
+                      {mod.badge}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-extrabold text-white group-hover:text-amber-300 transition-colors">
+                    {mod.title}
+                  </h3>
+
+                  <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
+                    {mod.description}
+                  </p>
+                </div>
+
+                <Button
+                  onClick={() => navigate(mod.link)}
+                  className={`w-full bg-gradient-to-r ${mod.gradient} text-white font-extrabold py-3.5 text-xs rounded-xl shadow-xl hover:opacity-90 transition-opacity`}
+                >
+                  {mod.actionText}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 4: LES DÉPÔTS DE PLAINTES & DÉMARCHES D'URGENCE ── */}
+      <section className="py-20 bg-slate-100 relative">
+        <div className="container px-4 mx-auto max-w-7xl space-y-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-300 pb-6">
+            <div className="space-y-3 max-w-2xl">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-red-700 bg-red-100 px-4 py-1.5 rounded-full border border-red-200 inline-flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 text-red-600" /> Dépôt de Plaintes & Mises en Demeure Directes
+              </span>
+              <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+                Les Dépôts de Plaintes & Démarches Juridiques
+              </h2>
+              <p className="text-sm md:text-base text-slate-600">
+                Générez directement le dossier de plainte officielle auprès du Procureur de la République ou la saisine prud'homale en quelques clics.
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate('/generator')}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-lg shadow-red-600/20"
+            >
+              Générer une Plainte en Direct
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {complaintTypes.map((c) => (
+              <div 
+                key={c.id}
+                className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:border-red-400 hover:shadow-xl transition-all duration-300 group"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-3 py-1 rounded-lg border border-red-100">
+                      {c.category}
+                    </span>
+                    <span className="text-[10px] font-extrabold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                      {c.badge}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                      <c.icon className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-red-600 transition-colors leading-snug">
+                      {c.title}
+                    </h3>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {c.desc}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 space-y-2">
+                  <Button 
+                    onClick={() => navigate(`/generator?type=${c.docType}`)}
+                    className="w-full bg-slate-900 hover:bg-red-600 text-white font-bold py-2.5 text-xs rounded-xl transition-all shadow-sm"
+                  >
+                    Démarrer la Plainte
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -498,7 +973,7 @@ const Home: React.FC = () => {
               <div key={idx} className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50">
                 <button
                   onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                  className="w-full p-5 text-left flex justify-between items-center font-bold text-slate-900 text-sm hover:bg-slate-100 transition-colors"
+                  className="w-full p-5 text-left flex justify-between items-center font-bold text-slate-900 text-sm hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   <span>{faq.q}</span>
                   <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${activeFaq === idx ? 'rotate-180 text-indigo-600' : ''}`} />

@@ -167,38 +167,41 @@ a:hover {
 }
 
 /* Secondary Button */
+/* Secondary Button */
 .btn-secondary {
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-900);
-  border: 1px solid var(--color-gray-200);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: var(--color-gray-200);
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   transform: translateY(-1px);
 }
 
 /* Outline Button */
 .btn-outline {
-  background-color: transparent;
-  color: var(--color-primary-600);
-  border: 2px solid var(--color-primary-600);
+  background-color: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  border: 2px solid #6366f1;
 }
 
 .btn-outline:hover:not(:disabled) {
-  background-color: var(--color-primary-50);
+  background-color: rgba(99, 102, 241, 0.25);
+  color: #ffffff;
   transform: translateY(-1px);
 }
 
 /* Ghost Button */
 .btn-ghost {
   background-color: transparent;
-  color: var(--color-gray-600);
+  color: #cbd5e1;
 }
 
 .btn-ghost:hover:not(:disabled) {
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-900);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 /* Success Button */
@@ -236,11 +239,12 @@ a:hover {
    ============================================ */
 
 .card {
-  background-color: #ffffff;
+  background-color: #0f172a;
+  color: #f8fafc;
   border-radius: 1rem;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -257,15 +261,16 @@ a:hover {
 }
 
 .card-hover:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
   transform: translateY(-4px);
-  border-color: var(--color-primary-200);
+  border-color: rgba(99, 102, 241, 0.4);
+  background-color: #1e293b;
 }
 
 /* Card with accent color */
 .card-accent {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(59, 130, 246, 0.02));
-  border-color: var(--color-primary-200);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(59, 130, 246, 0.05));
+  border-color: rgba(99, 102, 241, 0.3);
 }
 
 /* ============================================
@@ -279,9 +284,9 @@ a:hover {
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   line-height: 1.5;
-  color: var(--color-gray-900);
-  background-color: #ffffff;
-  border: 2px solid var(--color-gray-200);
+  color: #f8fafc;
+  background-color: #0f172a;
+  border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.5rem;
   outline: none;
   transition: all 0.2s ease;
@@ -289,18 +294,19 @@ a:hover {
 
 .input::placeholder,
 .textarea::placeholder {
-  color: var(--color-gray-400);
+  color: #94a3b8;
 }
 
 .input:focus,
 .textarea:focus {
   border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  background-color: #1e293b;
 }
 
 .input:disabled,
 .textarea:disabled {
-  background-color: var(--color-gray-50);
+  background-color: #020617;
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -582,3 +588,42 @@ a:hover {
   h3 { font-size: 1.5rem; }
   h4 { font-size: 1.25rem; }
 }
+
+/* ============================================
+   TRANSLATION & GOOGLE TRANSLATE STYLES
+   ============================================ */
+
+.goog-te-gadget,
+.goog-te-gadget-simple,
+.goog-te-combo,
+#google_translate_element {
+  background-color: transparent !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  font-family: inherit !important;
+}
+
+.goog-te-gadget-simple {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  border-radius: 0.75rem !important;
+  padding: 6px 12px !important;
+  color: #f8fafc !important;
+}
+
+.goog-te-gadget-simple span,
+.goog-te-gadget-simple a,
+.goog-te-menu-value span {
+  color: #f8fafc !important;
+  font-weight: 500 !important;
+}
+
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+
+body {
+  top: 0px !important;
+}
+

@@ -121,7 +121,9 @@
     "mission": "Democratizing access to law for everyone.",
     "vision_title": "Our vision",
     "values_title": "Our values",
-    "team_title": "Our team"
+    "team_title": "Our team",
+    "team_role_founder": "Founder & Doctor of Law",
+    "team_desc_founder": "Doctor of Law, Founder of FranceJustice, expert in legal affairs and assistance to citizens and lawyers."
   },
   "services": {
     "title": "Our Services",
@@ -409,9 +411,8 @@
     "verify": "Verify",
     "suspend": "Suspend",
     "activate": "Activate",
-    "delete_user": "Delete",
-    "create_user": "Create user",
-    "statistics": "Statistics",
+    "team_role_founder": "Founder & Doctor of Law",
+    "team_desc_founder": "Doctor of Law, Founder of FranceJustice, expert in legal affairs and assistance to citizens and lawyers.",
     "total_users": "Total users",
     "total_lawyers": "Total lawyers",
     "total_revenue": "Total revenue",

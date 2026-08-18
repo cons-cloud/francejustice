@@ -12,9 +12,9 @@ const About: React.FC = () => {
 
   const team = [
     {
-      name: 'Imam Coban',
-      role: t('about.team_role_founder', 'Fondateur'),
-      description: t('about.team_desc_founder', 'Expertise en droit du travail et assistance aux particuliers.'),
+      name: 'Imam Çoban',
+      role: t('about.team_role_founder', 'Fondateur & Docteur en Droit'),
+      description: t('about.team_desc_founder', 'Docteur en Droit, Fondateur de FranceJustice, expert en droit et assistance aux citoyens et avocats.'),
       icon: Users
     }
   ];
