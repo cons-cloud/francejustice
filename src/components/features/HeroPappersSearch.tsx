@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  Search, Sparkles, SlidersHorizontal, Scale, BookOpen, 
-  Briefcase, FileCheck, ArrowRight, X, Copy, 
-  Check, ChevronDown, Building2
+  Search, Sparkles, SlidersHorizontal, Scale, 
+  FileCheck, ArrowRight, X, Copy, 
+  Check, ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FRENCH_LEGAL_DATABASE, generateDynamicLegalSearch, type LegalResource } from '../../data/frenchLegalDatabase';

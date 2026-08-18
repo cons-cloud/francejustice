@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Scale, Shield, ArrowRight, BookOpen, Video, Calendar, 
   Users, CheckCircle2, Sparkles, FileText, Lock, ChevronDown,
-  MapPin, Clock, ExternalLink, Gavel, AlertTriangle, UserCheck
+  MapPin, Clock, Gavel, AlertTriangle, UserCheck
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
