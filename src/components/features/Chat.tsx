@@ -68,20 +68,20 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, recipientName
   };
 
   return (
-    <div className="flex flex-col h-[500px] bg-white rounded-xl shadow-sm border overflow-hidden">
-      <div className="p-4 border-b bg-secondary-50 flex justify-between items-center">
+    <div className="flex flex-col h-[500px] bg-slate-900 rounded-xl shadow-xl border border-slate-800 overflow-hidden text-slate-100">
+      <div className="p-4 border-b border-slate-800 bg-slate-800 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center">
-            <UserIcon className="h-4 w-4 text-primary-600" />
+          <div className="h-8 w-8 bg-primary-900/60 border border-primary-700/50 rounded-full flex items-center justify-center">
+            <UserIcon className="h-4 w-4 text-primary-400" />
           </div>
-          <span className="font-bold text-secondary-900">{recipientName || 'Discussion'}</span>
+          <span className="font-bold text-white">{recipientName || 'Discussion'}</span>
         </div>
-        {loading && <RefreshCw className="h-4 w-4 animate-spin text-secondary-400" />}
+        {loading && <RefreshCw className="h-4 w-4 animate-spin text-slate-400" />}
       </div>
 
       <div 
         ref={scrollRef}
-        className="flex-1 p-4 overflow-y-auto space-y-4 bg-secondary-50/30"
+        className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-950"
       >
         {messages.map((m) => (
           <div 
@@ -91,24 +91,24 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, recipientName
             <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
               m.sender_id === currentUserId 
                 ? 'bg-primary-600 text-white rounded-tr-none' 
-                : 'bg-white border text-secondary-800 rounded-tl-none shadow-sm'
+                : 'bg-slate-800 border border-slate-700 text-slate-100 rounded-tl-none shadow-sm'
             }`}>
               {m.content}
-              <p className={`text-[10px] mt-1 ${m.sender_id === currentUserId ? 'text-primary-100' : 'text-secondary-400'}`}>
+              <p className={`text-[10px] mt-1 ${m.sender_id === currentUserId ? 'text-primary-100' : 'text-slate-400'}`}>
                 {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
             </div>
           </div>
         ))}
         {messages.length === 0 && !loading && (
-          <div className="h-full flex flex-col items-center justify-center text-secondary-400 space-y-2">
+          <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-2">
             <p className="text-sm italic">Aucun message pour le moment.</p>
           </div>
         )}
       </div>
 
       {!isAdmin && (
-        <form onSubmit={handleSendMessage} className="p-4 border-t bg-white flex gap-2">
+        <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-800 bg-slate-900 flex gap-2">
           <Input 
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}

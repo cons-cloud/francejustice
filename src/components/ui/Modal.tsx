@@ -44,18 +44,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, classNa
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className={cn(
-              "relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col",
+              "relative bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl shadow-2xl shadow-black/80 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col",
               className
             )}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-secondary-100">
-              <h3 className="text-xl font-bold text-secondary-900 leading-none">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900">
+              <h3 className="text-xl font-bold text-white leading-none">
                 {title || 'Information'}
               </h3>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl text-secondary-400 hover:text-secondary-600 hover:bg-secondary-50 transition-all duration-200"
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200"
               >
                 <X className="h-5 w-5" />
               </button>

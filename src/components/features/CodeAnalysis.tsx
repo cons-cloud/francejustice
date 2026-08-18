@@ -336,21 +336,21 @@ const CodeAnalysis: React.FC = () => {
             </div>
 
             <div className="flex items-center my-4">
-              <div className="flex-grow border-t border-slate-200"></div>
-              <span className="px-3 text-sm text-slate-400 font-medium bg-white">OU</span>
-              <div className="flex-grow border-t border-slate-200"></div>
+              <div className="flex-grow border-t border-slate-700"></div>
+              <span className="px-3 text-sm text-slate-300 font-medium bg-slate-900">OU</span>
+              <div className="flex-grow border-t border-slate-700"></div>
             </div>
 
             {/* Text input area */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 block">
+              <label className="text-sm font-semibold text-slate-200 block">
                 Coller le texte du document juridique
               </label>
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Collez ici le texte intégral ou les clauses spécifiques que vous souhaitez faire analyser par notre IA..."
-                className="w-full h-60 p-4 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none font-mono text-sm leading-relaxed"
+                className="w-full h-60 p-4 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none font-mono text-sm leading-relaxed"
                 disabled={isAnalyzing}
               />
             </div>
@@ -433,7 +433,7 @@ const CodeAnalysis: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Score section */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-slate-50 p-6 rounded-xl border border-slate-100">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-slate-800/80 p-6 rounded-xl border border-slate-700">
                 <div className="text-center md:border-r border-slate-200 pb-4 md:pb-0">
                   <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Indice de risque</p>
                   <div className="mt-2 flex items-baseline justify-center">
@@ -462,7 +462,7 @@ const CodeAnalysis: React.FC = () => {
               {/* Specific Indicators */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {result.indicators.map((ind, i) => (
-                  <div key={i} className="border border-slate-100 p-4 rounded-xl bg-white shadow-sm flex flex-col justify-between">
+                  <div key={i} className="border border-slate-700 p-4 rounded-xl bg-slate-800/80 text-slate-100 shadow-sm flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-center mb-1">
                         <span className="font-semibold text-slate-700 text-sm">{ind.title}</span>

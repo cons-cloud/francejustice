@@ -7,7 +7,8 @@ import { Input } from '../components/ui/Input';
 import { supabase } from '../lib/supabase';
 import { FranceMap, regions } from '../components/features/FranceMap';
 import { useTranslation } from '../i18n';
-import { COURS_D_APPEL_LIST } from '../lib/jurisdictions';
+import { COURS_D_APPEL_LIST, getCourDAppelForCity } from '../lib/jurisdictions';
+import { getUnifiedLawyersList, UnifiedLawyer } from '../lib/avocatsDataGouvSync';
 
 interface LawyerProfile {
   id: string;
@@ -66,26 +67,11 @@ const LawyersPage: React.FC = () => {
     };
   }, []);
 
-  const fetchLawyers = async (pageNumber: number, reset: boolean = false) => {
+  const fetchLawyers = async () => {
     setLoading(true);
-    const from = pageNumber * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
-
-    const { data, error } = await supabase
-      .from('profiles_just')
-      .select('*, lawyers:lawyers_just(bar_association)')
-      .in('role', ['lawyer', 'professor', 'doctorate'])
-      .eq('is_verified', true)
-      .range(from, to);
-    
-    if (!error && data) {
-      if (reset) {
-        setLawyers(data);
-      } else {
-        setLawyers(prev => [...prev, ...data]);
-      }
-      setHasMore(data.length === PAGE_SIZE);
-    }
+    const unified = await getUnifiedLawyersList();
+    setLawyers(unified as any);
+    setHasMore(false);
     setLoading(false);
   };
 
@@ -137,6 +123,8 @@ const LawyersPage: React.FC = () => {
     return counts;
   }, [lawyers]);
 
+  const [selectedCourDAppel, setSelectedCourDAppel] = useState<string>('');
+
   // Filter lawyers by search text and dropdown selections
   const filteredLawyers = lawyers.filter(l => {
     if (roleFilter !== 'all' && l.role !== roleFilter) return false;
@@ -161,6 +149,11 @@ const LawyersPage: React.FC = () => {
       if (bar !== selectedBarreau) return false;
     }
 
+    if (selectedCourDAppel) {
+      const ca = getCourDAppelForCity(l.city, l.postal_code);
+      if (ca.name !== selectedCourDAppel) return false;
+    }
+
     return true;
   });
 
@@ -183,12 +176,12 @@ const LawyersPage: React.FC = () => {
             />
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-2 mt-4">
             <button
               onClick={() => setRoleFilter('all')}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
                 roleFilter === 'all' 
-                  ? 'bg-white text-slate-900 shadow-md font-bold' 
+                  ? 'bg-slate-800 text-white shadow-md font-bold border border-slate-700' 
                   : 'bg-white/10 text-white hover:bg-white/20'
               }`}
             >
@@ -239,20 +232,20 @@ const LawyersPage: React.FC = () => {
             />
           </div>
           
-          <div className="bg-white rounded-3xl p-6 border border-secondary-200 shadow-md flex flex-col justify-between space-y-4">
+          <div className="bg-slate-900 rounded-3xl p-6 border border-slate-800 shadow-xl flex flex-col justify-between space-y-4 text-slate-100">
             <div>
-              <h3 className="text-lg font-bold text-secondary-900 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 🏛️ {t('lawyers.location_filters', 'Filtres de Localisation')}
               </h3>
               
               <div className="space-y-4">
                 {/* Region Select */}
                 <div>
-                  <label className="text-xs font-semibold text-secondary-500 block mb-1">{t('lawyers.region', 'Région')}</label>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">{t('lawyers.region', 'Région')}</label>
                   <select
                     value={selectedRegion || ''}
                     onChange={(e) => setSelectedRegion(e.target.value || null)}
-                    className="w-full h-11 px-3 border border-secondary-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                    className="w-full h-11 px-3 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
                   >
                     <option value="">{t('lawyers.all_regions', 'Toutes les régions')}</option>
                     {regions.map(r => (
@@ -263,11 +256,11 @@ const LawyersPage: React.FC = () => {
 
                 {/* Barreau Select */}
                 <div>
-                  <label className="text-xs font-semibold text-secondary-500 block mb-1">{t('lawyers.bar_association', "Barreau d'inscription")}</label>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">{t('lawyers.bar_association', "Barreau d'inscription")}</label>
                   <select
                     value={selectedBarreau}
                     onChange={(e) => setSelectedBarreau(e.target.value)}
-                    className="w-full h-11 px-3 border border-secondary-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                    className="w-full h-11 px-3 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
                   >
                     <option value="">{t('lawyers.all_barreaux', 'Tous les barreaux')}</option>
                     {barreaux.map(b => (
@@ -278,11 +271,11 @@ const LawyersPage: React.FC = () => {
 
                 {/* Ville Select */}
                 <div>
-                  <label className="text-xs font-semibold text-secondary-500 block mb-1">{t('lawyers.city', 'Ville du cabinet')}</label>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">{t('lawyers.city', 'Ville du cabinet')}</label>
                   <select
                     value={selectedCity}
                     onChange={(e) => setSelectedCity(e.target.value)}
-                    className="w-full h-11 px-3 border border-secondary-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                    className="w-full h-11 px-3 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
                   >
                     <option value="">{t('lawyers.all_cities', 'Toutes les villes')}</option>
                     {cities.map(c => (
@@ -290,16 +283,32 @@ const LawyersPage: React.FC = () => {
                     ))}
                   </select>
                 </div>
+
+                {/* Cour d'Appel Select */}
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Cour d'Appel de la ville</label>
+                  <select
+                    value={selectedCourDAppel}
+                    onChange={(e) => setSelectedCourDAppel(e.target.value)}
+                    className="w-full h-11 px-3 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
+                  >
+                    <option value="">Toutes les Cours d'Appel (36)</option>
+                    {COURS_D_APPEL_LIST.filter(c => c.type !== 'CSM').map(ca => (
+                      <option key={ca.id} value={ca.name}>{ca.name} ({ca.ville})</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
-            {(selectedRegion || selectedBarreau || selectedCity) && (
+            {(selectedRegion || selectedBarreau || selectedCity || selectedCourDAppel) && (
               <Button
                 variant="outline"
                 onClick={() => {
                   setSelectedRegion(null);
                   setSelectedBarreau('');
                   setSelectedCity('');
+                  setSelectedCourDAppel('');
                 }}
                 className="w-full"
               >
@@ -390,6 +399,11 @@ const LawyersPage: React.FC = () => {
                           <span>{t('lawyers.barreau_of', 'Barreau de')} {bar}</span>
                         </div>
                       )}
+
+                      <div className="flex items-center text-indigo-700 gap-3 text-xs font-semibold">
+                        <span className="text-indigo-500">⚖️</span>
+                        <span>{getCourDAppelForCity(lawyer.city, lawyer.postal_code).name}</span>
+                      </div>
 
                       <div className="flex items-center text-secondary-600 gap-3 text-xs">
                         <Mail className="h-5 w-5 text-secondary-400" />

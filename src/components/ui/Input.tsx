@@ -12,14 +12,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="space-y-2">
         {label && (
-          <label className="text-sm font-medium text-secondary-700">
+          <label className="text-sm font-semibold text-slate-200">
             {label}
           </label>
         )}
         <input
           type={type}
           className={cn(
-            'input',
+            'input bg-slate-800/80 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-primary-500 focus:ring-primary-500',
             error && 'border-danger-500 focus:ring-danger-500',
             className
           )}
@@ -27,10 +27,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {error && (
-          <p className="text-sm text-danger-600">{error}</p>
+          <p className="text-sm text-danger-400 font-semibold">{error}</p>
         )}
         {helperText && !error && (
-          <p className="text-sm text-secondary-500">{helperText}</p>
+          <p className="text-sm text-slate-400">{helperText}</p>
         )}
       </div>
     );

@@ -277,7 +277,7 @@ export const ProcedureLibrary: React.FC = () => {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all ${
                 isActive
                   ? 'bg-primary-600 text-white border-primary-600 shadow-md'
-                  : 'bg-white text-secondary-600 border-secondary-200 hover:border-primary-300'
+                  : 'bg-slate-800 text-slate-200 border-slate-700 hover:border-primary-400'
               }`}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -289,7 +289,7 @@ export const ProcedureLibrary: React.FC = () => {
 
       {/* Procedure cards */}
       {filtered.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-secondary-200">
+        <div className="text-center py-16 bg-slate-900 text-slate-100 rounded-2xl border border-slate-800">
           <Search className="h-10 w-10 text-secondary-300 mx-auto mb-3" />
           <p className="font-bold text-secondary-700">Aucune procédure trouvée</p>
           <p className="text-sm text-secondary-500">Modifiez votre recherche ou la catégorie.</p>

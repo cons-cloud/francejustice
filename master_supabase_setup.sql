@@ -103,8 +103,10 @@ CREATE TABLE IF NOT EXISTS public.documents (
 
 CREATE TABLE IF NOT EXISTS public.documents_just (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-    title TEXT NOT NULL,
+    owner_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    name TEXT,
+    title TEXT,
     type TEXT DEFAULT 'Document',
     file_url TEXT,
     file_size TEXT,
@@ -249,6 +251,16 @@ CREATE TABLE IF NOT EXISTS public.classrooms_just (
     price DECIMAL(10,2) DEFAULT 0.00,
     max_participants INT DEFAULT 50,
     meeting_link TEXT,
+    type TEXT DEFAULT 'direct',
+    video_url TEXT,
+    scheduled_at TIMESTAMPTZ,
+    duration_minutes INT DEFAULT 60,
+    max_members INT DEFAULT 100,
+    is_active BOOLEAN DEFAULT true,
+    is_live BOOLEAN DEFAULT false,
+    category TEXT,
+    curriculum JSONB DEFAULT '[]'::jsonb,
+    attachments JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 

@@ -369,7 +369,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         return (
           <div className="space-y-6">
             <h3 className="text-2xl font-semibold text-secondary-900 mb-6">{t('generator.ready', 'Votre document est prêt !')}</h3>
-            <div className="p-6 bg-white border border-secondary-200 rounded-lg shadow-inner min-h-[400px] whitespace-pre-wrap font-serif text-secondary-800">
+            <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl min-h-[400px] whitespace-pre-wrap font-serif text-slate-100">
               {generatedContent}
             </div>
             <div className="flex justify-end gap-3">
@@ -450,7 +450,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
   }
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="container py-8">
         {/* Header */}
         <div className="mb-8">

@@ -124,25 +124,25 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-secondary-50 py-12 px-4 relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-slate-100 py-12 px-4 relative">
       <Link 
         to="/" 
-        className="absolute top-8 left-8 flex items-center text-secondary-600 hover:text-primary-600 font-medium transition-colors group"
+        className="absolute top-8 left-8 flex items-center text-slate-400 hover:text-white font-semibold transition-colors group"
       >
         <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
         Retour à l'accueil
       </Link>
 
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl bg-slate-900 border-slate-800 shadow-2xl">
         <CardContent className="p-8">
           <div className="text-center mb-8">
-            <div className="mx-auto h-12 w-12 bg-primary-100 rounded-full flex items-center justify-center mb-4">
-              <ShieldCheck className="h-6 w-6 text-primary-600" />
+            <div className="mx-auto h-12 w-12 bg-primary-900/60 border border-primary-700/50 rounded-full flex items-center justify-center mb-4">
+              <ShieldCheck className="h-6 w-6 text-primary-400" />
             </div>
-            <h2 className="text-3xl font-bold text-secondary-900">
+            <h2 className="text-3xl font-extrabold text-white">
               Inscription Professionnelle
             </h2>
-            <p className="text-secondary-600 mt-2">
+            <p className="text-slate-300 mt-2">
               Rejoignez notre réseau d'avocats certifiés
             </p>
           </div>
@@ -297,7 +297,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <div className="flex text-sm text-secondary-600">
-                    <label className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none">
+                    <label className="relative cursor-pointer bg-slate-800 text-slate-100 rounded-md font-medium text-primary-400 hover:text-primary-300 focus-within:outline-none">
                       <span>Télécharger des fichiers</span>
                       <input 
                         type="file" 

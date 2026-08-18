@@ -266,7 +266,7 @@ export const LawCodes: React.FC = () => {
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all ${
                 isActive
                   ? `${code.bgColor} ${code.color} border-current shadow-md`
-                  : 'bg-white text-secondary-600 border-secondary-200 hover:border-secondary-300'
+                  : 'bg-slate-800 text-slate-200 border-slate-700 hover:border-slate-600'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -301,14 +301,14 @@ export const LawCodes: React.FC = () => {
             {React.createElement(currentCode.icon, { className: `h-8 w-8 ${currentCode.color} flex-shrink-0` })}
             <div>
               <h3 className={`text-lg font-bold ${currentCode.color}`}>{currentCode.name}</h3>
-              <p className="text-sm text-secondary-600">{currentCode.description}</p>
+              <p className="text-sm text-slate-300">{currentCode.description}</p>
             </div>
           </div>
 
           {/* Chapters */}
           <div className="space-y-3">
             {filteredChapters.length === 0 && (
-              <div className="text-center py-16 bg-white rounded-2xl border border-secondary-200">
+              <div className="text-center py-16 bg-slate-900 text-slate-100 rounded-2xl border border-slate-800">
                 <Search className="h-10 w-10 text-secondary-300 mx-auto mb-3" />
                 <p className="font-bold text-secondary-700">Aucun article trouvé</p>
                 <p className="text-sm text-secondary-500">Modifiez votre terme de recherche.</p>

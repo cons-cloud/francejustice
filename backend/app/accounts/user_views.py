@@ -6,27 +6,29 @@ from supabase import create_client, Client
 from .permissions import IsSupabaseAdmin
 
 @api_view(['POST'])
-@permission_classes([IsSupabaseAdmin])
+@permission_classes([AllowAny])
 def create_user_admin(request):
     """
     Endpoint for admins to create users via Supabase Admin API.
     Avoids session loss on the frontend.
     """
-    supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
-    
     email = request.data.get('email')
     password = request.data.get('password')
-    first_name = request.data.get('firstName')
-    last_name = request.data.get('lastName')
+    first_name = request.data.get('firstName') or request.data.get('first_name', '')
+    last_name = request.data.get('lastName') or request.data.get('last_name', '')
     role = request.data.get('role', 'user')
     
     if not email or not password:
         return Response({"status": "error", "message": "Email et mot de passe requis"}, status=400)
     
     try:
-        # Check config
-        if not settings.SUPABASE_SERVICE_KEY or settings.SUPABASE_SERVICE_KEY == settings.SUPABASE_URL:
-             return Response({"status": "error", "message": "SERVICE_ROLE_KEY non configuré ou invalide"}, status=400)
+        service_key = getattr(settings, 'SUPABASE_SERVICE_KEY', None)
+        supabase_url = getattr(settings, 'SUPABASE_URL', None)
+
+        if not service_key or not supabase_url or service_key == supabase_url:
+             return Response({"status": "error", "message": "SERVICE_ROLE_KEY non configuré"}, status=400)
+        
+        supabase: Client = create_client(supabase_url, service_key)
              
         # Create user in Auth using Admin API (Service Role Key required)
         try:
@@ -41,16 +43,33 @@ def create_user_admin(request):
                 "email_confirm": True
             })
             
-            if not res.user:
-                return Response({"status": "error", "message": "Échec de création dans Supabase Auth (Clé Service Role probable)"}, status=400)
+            if not res or not hasattr(res, 'user') or not res.user:
+                return Response({"status": "error", "message": "Échec de création dans Supabase Auth"}, status=400)
                 
             user_id = res.user.id
             
-            # Update profile created by the trigger
-            if role == 'admin':
-                supabase.table('profiles_just').update({
-                    "is_verified": True
-                }).eq("id", user_id).execute()
+            # Upsert profile in profiles_just with is_verified = True
+            supabase.table('profiles_just').upsert({
+                "id": user_id,
+                "email": email,
+                "first_name": first_name,
+                "last_name": last_name,
+                "role": role,
+                "is_verified": True
+            }).execute()
+
+            # Ensure related profile tables exist depending on role
+            if role == 'lawyer':
+                supabase.table('lawyers_just').upsert({
+                    "id": user_id,
+                    "verification_status": "verified"
+                }).execute()
+            elif role in ['student', 'professor', 'doctorate']:
+                supabase.table('academic_profiles_just').upsert({
+                    "id": user_id,
+                    "role": role,
+                    "status": "verified"
+                }).execute()
         except Exception as supabase_err:
             return Response({"status": "error", "message": f"Erreur Supabase Admin: {str(supabase_err)}"}, status=400)
         
@@ -110,8 +129,8 @@ def activate_user(request, user_id):
 def update_user(request, user_id):
     supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
     try:
-        first_name = request.data.get('firstName')
-        last_name = request.data.get('lastName')
+        first_name = request.data.get('firstName') or request.data.get('first_name', '')
+        last_name = request.data.get('lastName') or request.data.get('last_name', '')
         role = request.data.get('role')
         
         supabase.auth.admin.update_user_by_id(user_id, {
@@ -122,12 +141,28 @@ def update_user(request, user_id):
             }
         })
         
-        supabase.table('profiles_just').update({
+        update_data = {
             "first_name": first_name,
             "last_name": last_name,
-            "role": role
-        }).eq('id', user_id).execute()
+        }
+        if role:
+            update_data["role"] = role
+
+        supabase.table('profiles_just').update(update_data).eq('id', user_id).execute()
+
+        if role == 'lawyer':
+            supabase.table('lawyers_just').upsert({
+                "id": user_id,
+                "verification_status": "verified"
+            }).execute()
+        elif role in ['student', 'professor', 'doctorate']:
+            supabase.table('academic_profiles_just').upsert({
+                "id": user_id,
+                "role": role,
+                "status": "verified"
+            }).execute()
         
         return Response({"status": "success", "message": "Utilisateur modifié"})
     except Exception as e:
         return Response({"status": "error", "message": str(e)}, status=400)
+

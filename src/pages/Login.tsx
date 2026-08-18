@@ -145,28 +145,28 @@ const LoginPage: React.FC = () => {
     }
   }, [role, navigate]);
 
-  // ── Forgot-password sent confirmation ──────────────────────────────────────
+  // ── Forgot-password sent ───────────────────────────────────────────────────
   if (view === 'forgot_sent') {
     return (
-      <div className="min-h-screen bg-secondary-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-100">
         <div className="max-w-md w-full">
-          <Card>
+          <Card className="bg-slate-900 border-slate-800">
             <CardContent className="pt-8 pb-8 text-center">
-              <div className="mx-auto h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              <div className="mx-auto h-16 w-16 bg-emerald-950/80 border border-emerald-800 rounded-full flex items-center justify-center mb-4">
+                <CheckCircle2 className="h-8 w-8 text-emerald-400" />
               </div>
-              <CardTitle className="text-2xl font-bold text-secondary-900 mb-2">
+              <CardTitle className="text-2xl font-bold text-white mb-2">
                 {t('reset_password.email_sent_title', 'Email envoyé !')}
               </CardTitle>
-              <p className="text-secondary-600 text-sm mb-6">
+              <p className="text-slate-300 text-sm mb-6">
                 {t('reset_password.email_sent_desc', 'Un lien de réinitialisation a été envoyé à')}{' '}
-                <span className="font-semibold text-primary-600">{resetEmail}</span>.{' '}
+                <span className="font-semibold text-primary-400">{resetEmail}</span>.{' '}
                 {t('reset_password.check_inbox', 'Vérifiez votre boîte de réception (et vos spams).')}
               </p>
               <Button
                 type="button"
                 variant="outline"
-                className="w-full"
+                className="w-full text-slate-200 border-slate-700 hover:bg-slate-800"
                 onClick={() => {
                   setView('login');
                   setResetEmail('');
@@ -185,41 +185,40 @@ const LoginPage: React.FC = () => {
   // ── Forgot-password form ───────────────────────────────────────────────────
   if (view === 'forgot') {
     return (
-      <div className="min-h-screen bg-secondary-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-100">
         <button
           type="button"
           onClick={() => { setView('login'); setResetError(null); }}
-          className="absolute top-8 left-8 flex items-center text-secondary-600 hover:text-primary-600 font-medium transition-colors group"
+          className="absolute top-8 left-8 flex items-center text-slate-400 hover:text-white font-medium transition-colors group"
         >
           <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
           {t('reset_password.back_login')}
         </button>
 
         <div className="max-w-md w-full">
-          <Card>
+          <Card className="bg-slate-900 border-slate-800">
             <CardHeader className="text-center">
-              <div className="mx-auto h-12 w-12 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-                <KeyRound className="h-6 w-6 text-amber-600" />
+              <div className="mx-auto h-12 w-12 bg-primary-900/50 border border-primary-700/50 rounded-full flex items-center justify-center mb-4">
+                <KeyRound className="h-6 w-6 text-primary-400" />
               </div>
-              <CardTitle className="text-2xl font-bold text-secondary-900">
-                {t('login.forgot')}
+              <CardTitle className="text-3xl font-extrabold text-white">
+                {t('reset_password.title', 'Mot de passe oublié ?')}
               </CardTitle>
-              <CardDescription>
-                {t('reset_password.subtitle')}
+              <CardDescription className="text-slate-300">
+                {t('reset_password.desc', 'Entrez votre adresse email pour recevoir un lien de réinitialisation.')}
               </CardDescription>
             </CardHeader>
 
             <CardContent>
-              <form className="mt-4 space-y-4" onSubmit={handleForgotPassword}>
+              <form className="space-y-4" onSubmit={handleForgotPassword}>
                 {resetError && (
-                  <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-md flex items-start gap-2">
-                    <X className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
-                    <p className="text-sm text-red-700">{resetError}</p>
+                  <div className="bg-red-950/80 border-l-4 border-red-500 p-4 rounded-r-md">
+                    <p className="text-sm text-red-200">{resetError}</p>
                   </div>
                 )}
 
                 <div className="relative">
-                  <Mail className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                  <Mail className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                   <Input
                     type="email"
                     required
@@ -230,8 +229,14 @@ const LoginPage: React.FC = () => {
                   />
                 </div>
 
-                <Button type="submit" className="w-full" disabled={resetLoading}>
-                  {resetLoading ? t('common.loading') : t('reset_password.submit')}
+                <Button
+                  type="submit"
+                  disabled={resetLoading}
+                  className="w-full"
+                >
+                  {resetLoading
+                    ? t('common.loading', 'Chargement...')
+                    : t('reset_password.submit', 'Envoyer le lien')}
                 </Button>
               </form>
             </CardContent>
@@ -243,10 +248,10 @@ const LoginPage: React.FC = () => {
 
   // ── Login form (default) ───────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-secondary-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-100">
       <Link
         to="/"
-        className="absolute top-8 left-8 flex items-center text-secondary-600 hover:text-primary-600 font-medium transition-colors group"
+        className="absolute top-8 left-8 flex items-center text-slate-400 hover:text-white font-medium transition-colors group"
       >
         <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
         {t('login.back_home')}

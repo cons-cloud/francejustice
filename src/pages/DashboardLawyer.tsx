@@ -24,7 +24,9 @@ import {
   ArrowLeft,
   Video,
   Clock,
-  Trash2
+  Trash2,
+  Menu,
+  X
 } from "lucide-react"
 
 import { AdvancedAreaChart } from "../components/features/StatsCharts"
@@ -37,6 +39,8 @@ import { StripePaymentModal } from '../components/ui/StripePaymentModal';
 import { Chat } from "../components/features/Chat"
 import { FranceMap, regions } from "../components/features/FranceMap"
 import JitsiMeeting from "../components/features/JitsiMeeting"
+import { COURS_D_APPEL_LIST, getCourDAppelForCity } from "../lib/jurisdictions"
+import { getUnifiedLawyersList } from "../lib/avocatsDataGouvSync"
 
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
 import { Button } from "../components/ui/Button"
@@ -61,6 +65,7 @@ const DashboardLawyer: React.FC = () => {
   const { t } = useTranslation()
   const [payingCommissionId, setPayingCommissionId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("overview")
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showWelcome, setShowWelcome] = useState(false)
   const [appointments, setAppointments] = useState<any[]>([])
   const [cases, setCases] = useState<any[]>([])
@@ -101,6 +106,7 @@ const DashboardLawyer: React.FC = () => {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const [selectedCity, setSelectedCity] = useState<string>('')
   const [selectedBarreau, setSelectedBarreau] = useState<string>('')
+  const [selectedCourDAppel, setSelectedCourDAppel] = useState<string>('')
   const [profileForm, setProfileForm] = useState({
     first_name: '', last_name: '', phone: '', city: '', postal_code: '',
     bio: '', specialty: '', bar_number: '', experience_years: 0, is_available: true,
@@ -109,6 +115,13 @@ const DashboardLawyer: React.FC = () => {
 
   const [selectedClientForCases, setSelectedClientForCases] = useState<string | null>(null)
   const [clientSearchText, setClientSearchText] = useState('')
+
+import {
+  FormationAttachment,
+  convertFileToAttachment,
+  exportAttachmentFile,
+  exportAllAttachments
+} from "../lib/formationAttachmentUtils";
 
   // Salles de classe / Visioconférences
   const [classrooms, setClassrooms] = useState<any[]>([])
@@ -124,7 +137,8 @@ const DashboardLawyer: React.FC = () => {
     duration_minutes: 60,
     max_members: 100,
     video_url: '',
-    meeting_link: ''
+    meeting_link: '',
+    attachments: [] as FormationAttachment[]
   })
 
   // États pour le module Formations
@@ -703,7 +717,8 @@ const DashboardLawyer: React.FC = () => {
           duration_minutes: 60,
           max_members: 100,
           video_url: '',
-          meeting_link: ''
+          meeting_link: '',
+          attachments: []
         });
         fetchClassrooms();
       }
@@ -934,13 +949,8 @@ const DashboardLawyer: React.FC = () => {
   }
 
   const fetchLawyers = async () => {
-    const { data } = await supabase
-      .from('profiles_just')
-      .select('*, lawyers:lawyers_just(bar_association)')
-      .in('role', ['lawyer', 'professor', 'doctorate'])
-      .eq('is_verified', true)
-      .order('first_name');
-    if (data) setAvailableLawyers(data);
+    const unified = await getUnifiedLawyersList();
+    setAvailableLawyers(unified as any);
   };
 
   // Helper to resolve region from postal code
@@ -1352,21 +1362,102 @@ const DashboardLawyer: React.FC = () => {
         </div>
       </div>
 
+        {/* Mobile Hamburger Button for Sidebar (Visible < lg) */}
+        <div className="lg:hidden mb-6">
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="w-full flex items-center justify-between px-4 py-3.5 bg-slate-900 border border-slate-800 rounded-2xl text-white font-extrabold text-sm shadow-xl hover:bg-slate-800 transition-all cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <Menu className="w-5 h-5 text-indigo-400" />
+              <span>Menu Avocat : {tabs.find(t => t.id === activeTab)?.name || "Navigation"}</span>
+            </div>
+            <span className="text-xs bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-full font-bold">
+              Rubriques ☰
+            </span>
+          </button>
+        </div>
+
+        {/* Mobile Sidebar Navigation Drawer Overlay */}
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-50 flex lg:hidden bg-slate-950/80 backdrop-blur-md transition-all">
+            <div className="relative w-4/5 max-w-sm bg-slate-900 text-slate-100 h-full p-6 shadow-2xl border-r border-slate-800 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                  <div className="flex items-center gap-2 font-extrabold text-white text-base">
+                    <Shield className="w-5 h-5 text-indigo-400" />
+                    Cabinet Avocat — Navigation
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <nav className="space-y-2">
+                  {tabs.map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 text-sm font-semibold cursor-pointer ${
+                          isActive
+                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 font-bold'
+                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-indigo-400'}`} />
+                        <span>{tab.name}</span>
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              <div className="pt-6 border-t border-slate-800">
+                <Button
+                  variant="outline"
+                  className="w-full text-red-400 border-red-900/60 hover:bg-red-950 text-xs font-bold"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = '/login';
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" /> Déconnexion
+                </Button>
+              </div>
+            </div>
+
+            {/* Backdrop area to close when clicked outside */}
+            <div className="flex-1 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)} />
+          </div>
+        )}
+
         <div className={cn('grid', 'grid-cols-1', 'lg:grid-cols-4', 'gap-8')}>
-          <aside className={cn('lg:col-span-1', 'order-2', 'lg:order-1')}>
+          <aside className="hidden lg:block lg:col-span-1">
             <Card className={cn('sticky', 'top-6', 'overflow-hidden', 'bg-slate-900/90', 'border-slate-800')}>
-              <CardContent className={cn('p-2', 'sm:p-4', 'flex', 'flex-wrap', 'lg:flex-col', 'gap-2', 'pb-2', 'lg:pb-0', 'lg:space-y-2')}>
+              <CardContent className={cn('p-4', 'flex', 'flex-col', 'space-y-2')}>
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
                       activeTab === tab.id
-                        ? "bg-primary-600 text-white font-semibold shadow-lg shadow-primary-500/30"
+                        ? "bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-500/30"
                         : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
                     }`}
                   >
-                    <tab.icon className={cn('h-5', 'w-5', 'text-primary-400')} />
+                    <tab.icon className={cn('h-5', 'w-5', 'text-indigo-400')} />
                     <span className={cn('font-medium', 'whitespace-nowrap')}>{tab.name}</span>
                   </button>
                 ))}
@@ -1466,7 +1557,7 @@ const DashboardLawyer: React.FC = () => {
                           <input
                             type="text"
                             placeholder="Rechercher un client..."
-                            className={cn('w-full', 'pl-9', 'pr-3', 'py-1.5', 'text-sm', 'rounded-xl', 'border', 'border-secondary-200', 'bg-white', 'focus:outline-none', 'focus:ring-2', 'focus:ring-primary-500')}
+                            className={cn('w-full', 'pl-9', 'pr-3', 'py-1.5', 'text-sm', 'rounded-xl', 'border', 'border-slate-700', 'bg-slate-800', 'text-slate-100', 'focus:outline-none', 'focus:ring-2', 'focus:ring-primary-500')}
                             value={clientSearchText}
                             onChange={(e) => setClientSearchText(e.target.value)}
                           />
@@ -1488,7 +1579,7 @@ const DashboardLawyer: React.FC = () => {
                             <div
                               key={client.id}
                               onClick={() => setSelectedClientForCases(client.id)}
-                              className={cn('group', 'cursor-pointer', 'border', 'border-secondary-100', 'rounded-2xl', 'p-5', 'bg-white', 'hover:border-primary-400', 'hover:shadow-md', 'transition-all', 'duration-200')}
+                              className={cn('group', 'cursor-pointer', 'border', 'border-slate-800', 'rounded-2xl', 'p-5', 'bg-slate-900/90', 'hover:border-primary-400', 'hover:shadow-md', 'transition-all', 'duration-200')}
                             >
                               <div className={cn('flex', 'items-center', 'gap-4', 'mb-4')}>
                                 <div className={cn('h-12', 'w-12', 'rounded-xl', 'bg-gradient-to-br', 'from-primary-50', 'to-primary-100/50', 'text-primary-700', 'flex', 'items-center', 'justify-center', 'font-bold', 'text-lg', 'border', 'border-primary-100/30', 'group-hover:scale-105', 'transition-transform')}>
@@ -1810,23 +1901,25 @@ const DashboardLawyer: React.FC = () => {
                         <FranceMap 
                           selectedRegion={selectedRegion} 
                           onSelectRegion={setSelectedRegion} 
+                          selectedBarreau={selectedBarreau}
+                          onSelectBarreau={(bar) => setSelectedBarreau(bar || '')}
                           lawyerCounts={lawyerCounts} 
                         />
                       </div>
                       
-                      <div className={cn('bg-white', 'rounded-3xl', 'p-5', 'border', 'border-secondary-200', 'shadow-sm', 'flex', 'flex-col', 'justify-between', 'space-y-4')}>
+                      <div className={cn('bg-slate-900', 'rounded-3xl', 'p-5', 'border', 'border-slate-800', 'shadow-xl', 'flex', 'flex-col', 'justify-between', 'space-y-4', 'text-slate-100')}>
                         <div>
-                          <h3 className={cn('font-bold', 'text-secondary-900', 'mb-3', 'flex', 'items-center', 'gap-2')}>
-                            🏛️ Localisation
+                          <h3 className={cn('text-sm', 'font-bold', 'text-white', 'mb-3', 'flex', 'items-center', 'gap-2')}>
+                            🏛️ Filtres de Localisation
                           </h3>
                           
-                          <div className="space-y-3">
+                          <div className={cn('space-y-3')}>
                             <div>
-                              <label className={cn('text-[11px]', 'font-semibold', 'text-secondary-500', 'block', 'mb-1')}>Région</label>
+                              <label className={cn('text-[11px]', 'font-semibold', 'text-slate-300', 'block', 'mb-1')}>Région administrative</label>
                               <select
                                 value={selectedRegion || ''}
                                 onChange={(e) => setSelectedRegion(e.target.value || null)}
-                                className={cn('w-full', 'h-10', 'px-2.5', 'border', 'border-secondary-200', 'rounded-lg', 'text-xs', 'focus:outline-none', 'focus:ring-1', 'focus:ring-primary-500', 'bg-white')}
+                                className={cn('w-full', 'h-10', 'px-2.5', 'border', 'border-slate-700', 'rounded-lg', 'text-xs', 'focus:outline-none', 'focus:ring-1', 'focus:ring-primary-500', 'bg-slate-800', 'text-slate-100')}
                               >
                                 <option value="">Toutes les régions</option>
                                 {regions.map(r => (
@@ -1836,11 +1929,11 @@ const DashboardLawyer: React.FC = () => {
                             </div>
 
                             <div>
-                              <label className={cn('text-[11px]', 'font-semibold', 'text-secondary-500', 'block', 'mb-1')}>Barreau d'inscription</label>
+                              <label className={cn('text-[11px]', 'font-semibold', 'text-slate-300', 'block', 'mb-1')}>Barreau d'inscription</label>
                               <select
                                 value={selectedBarreau}
                                 onChange={(e) => setSelectedBarreau(e.target.value)}
-                                className={cn('w-full', 'h-10', 'px-2.5', 'border', 'border-secondary-200', 'rounded-lg', 'text-xs', 'focus:outline-none', 'focus:ring-1', 'focus:ring-primary-500', 'bg-white')}
+                                className={cn('w-full', 'h-10', 'px-2.5', 'border', 'border-slate-700', 'rounded-lg', 'text-xs', 'focus:outline-none', 'focus:ring-1', 'focus:ring-primary-500', 'bg-slate-800', 'text-slate-100')}
                               >
                                 <option value="">Tous les barreaux</option>
                                 {availableBarreaux.map(b => (
@@ -1850,11 +1943,11 @@ const DashboardLawyer: React.FC = () => {
                             </div>
 
                             <div>
-                              <label className={cn('text-[11px]', 'font-semibold', 'text-secondary-500', 'block', 'mb-1')}>Ville du cabinet</label>
+                              <label className={cn('text-[11px]', 'font-semibold', 'text-slate-300', 'block', 'mb-1')}>Ville du cabinet</label>
                               <select
                                 value={selectedCity}
                                 onChange={(e) => setSelectedCity(e.target.value)}
-                                className={cn('w-full', 'h-10', 'px-2.5', 'border', 'border-secondary-200', 'rounded-lg', 'text-xs', 'focus:outline-none', 'focus:ring-1', 'focus:ring-primary-500', 'bg-white')}
+                                className={cn('w-full', 'h-10', 'px-2.5', 'border', 'border-slate-700', 'rounded-lg', 'text-xs', 'focus:outline-none', 'focus:ring-1', 'focus:ring-primary-500', 'bg-slate-800', 'text-slate-100')}
                               >
                                 <option value="">Toutes les villes</option>
                                 {availableCities.map(c => (
@@ -1862,10 +1955,24 @@ const DashboardLawyer: React.FC = () => {
                                 ))}
                               </select>
                             </div>
+
+                            <div>
+                              <label className={cn('text-[11px]', 'font-semibold', 'text-slate-300', 'block', 'mb-1')}>Cour d'Appel de la ville</label>
+                              <select
+                                value={selectedCourDAppel}
+                                onChange={(e) => setSelectedCourDAppel(e.target.value)}
+                                className={cn('w-full', 'h-10', 'px-2.5', 'border', 'border-slate-700', 'rounded-lg', 'text-xs', 'focus:outline-none', 'focus:ring-1', 'focus:ring-primary-500', 'bg-slate-800', 'text-slate-100')}
+                              >
+                                <option value="">Toutes les Cours d'Appel (36)</option>
+                                {COURS_D_APPEL_LIST.filter(c => c.type !== 'CSM').map(ca => (
+                                  <option key={ca.id} value={ca.name}>{ca.name} ({ca.ville})</option>
+                                ))}
+                              </select>
+                            </div>
                           </div>
                         </div>
 
-                        {(selectedRegion || selectedBarreau || selectedCity) && (
+                        {(selectedRegion || selectedBarreau || selectedCity || selectedCourDAppel) && (
                           <Button
                             variant="outline"
                             size="sm"
@@ -1873,6 +1980,7 @@ const DashboardLawyer: React.FC = () => {
                               setSelectedRegion(null);
                               setSelectedBarreau('');
                               setSelectedCity('');
+                              setSelectedCourDAppel('');
                             }}
                             className="w-full"
                           >
@@ -1916,12 +2024,18 @@ const DashboardLawyer: React.FC = () => {
                             if (bar !== selectedBarreau) return false;
                           }
 
+                          if (selectedCourDAppel) {
+                            const ca = getCourDAppelForCity(l.city, l.postal_code);
+                            if (ca.name !== selectedCourDAppel) return false;
+                          }
+
                           return true;
                         })
                         .map(lawyer => {
                           const bar = Array.isArray(lawyer.lawyers) 
                             ? lawyer.lawyers[0]?.bar_association 
                             : lawyer.lawyers?.bar_association;
+                          const courDAppelObj = getCourDAppelForCity(lawyer.city, lawyer.postal_code);
 
                           return (
                             <Card key={lawyer.id} className="overflow-hidden">
@@ -1958,6 +2072,10 @@ const DashboardLawyer: React.FC = () => {
                                         <span>Barreau de {bar}</span>
                                       </p>
                                     )}
+                                    <p className={cn('text-xs', 'text-indigo-600', 'font-semibold', 'mt-1', 'flex', 'items-center', 'gap-1')}>
+                                      <span className="text-sm">⚖️</span>
+                                      <span>{courDAppelObj.name}</span>
+                                    </p>
                                     {lawyer.bio && <p className={cn('text-xs', 'text-secondary-600', 'mt-2', 'line-clamp-2')}>{lawyer.bio}</p>}
                                   </div>
                                 </div>
@@ -2101,7 +2219,7 @@ const DashboardLawyer: React.FC = () => {
 
                     {classroomsSubTab === 'virtual' ? (
                       <div className="space-y-6">
-                        <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-secondary-150 shadow-sm">
+                        <div className="flex justify-between items-center bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl text-slate-100">
                           <div>
                             <h3 className="text-sm font-bold text-secondary-800">Organisez vos visioconférences en direct</h3>
                             <p className="text-xs text-secondary-500">Planifiez des sessions WebRTC avec vos confrères ou vos clients avec visioconférence haute définition intégrée.</p>
@@ -2115,7 +2233,7 @@ const DashboardLawyer: React.FC = () => {
                           {classrooms.map((room) => {
                             const isMyRoom = room.lawyer_id === user?.id;
                             return (
-                              <Card key={room.id} className="overflow-hidden hover:shadow-md transition-all border-secondary-100 bg-white flex flex-col h-full">
+                              <Card key={room.id} className="overflow-hidden hover:shadow-md transition-all border-slate-800 bg-slate-900 text-slate-100 flex flex-col h-full">
                                 <div className={`p-3 text-white font-bold flex justify-between items-center bg-gradient-to-r ${
                                   room.type === 'direct' 
                                     ? 'from-red-600 to-orange-500' 
@@ -2382,22 +2500,84 @@ const DashboardLawyer: React.FC = () => {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-secondary-700 mb-1">Lien de la Vidéo de Cours (YouTube / Vimeo / MP4)</label>
+                          <label className="block text-xs font-bold text-slate-200 mb-1">Lien de la Vidéo de Cours (YouTube / Vimeo / MP4)</label>
                           <input
                             type="url"
                             placeholder="Ex: https://www.youtube.com/watch?v=..."
                             value={newClassroom.video_url}
                             onChange={e => setNewClassroom(prev => ({ ...prev, video_url: e.target.value }))}
-                            className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                            className="w-full text-xs bg-slate-800 border-slate-700 text-slate-100 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
                           />
                         </div>
 
-                        <div className="flex gap-3 pt-4 border-t border-secondary-100">
+                        {/* Import PDF & Image Attachments */}
+                        <div className="p-4 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-3">
+                          <label className="block text-xs font-extrabold text-slate-200 uppercase tracking-wider">
+                            📑 Importer des Fichiers de Formation (PDF & Images)
+                          </label>
+                          <p className="text-[11px] text-slate-400">
+                            Sélectionnez des supports PDF et des visuels/schémas d'illustration. Ils seront synchronisés en temps réel à 100% avec tous les participants !
+                          </p>
+
+                          <input
+                            type="file"
+                            multiple
+                            accept=".pdf,image/*"
+                            onChange={async (e) => {
+                              const files = Array.from(e.target.files || []);
+                              if (files.length === 0) return;
+                              const newAtts: FormationAttachment[] = [];
+                              for (const file of files) {
+                                try {
+                                  const att = await convertFileToAttachment(file);
+                                  newAtts.push(att);
+                                } catch (err) {
+                                  console.error("Error reading file:", err);
+                                }
+                              }
+                              setNewClassroom(prev => ({
+                                ...prev,
+                                attachments: [...(prev.attachments || []), ...newAtts]
+                              }));
+                            }}
+                            className="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-primary-600 file:text-white hover:file:bg-primary-500 cursor-pointer"
+                          />
+
+                          {newClassroom.attachments && newClassroom.attachments.length > 0 && (
+                            <div className="space-y-2 pt-2 border-t border-slate-700/60">
+                              <p className="text-[11px] font-bold text-slate-300">Fichiers rattachés ({newClassroom.attachments.length}) :</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {newClassroom.attachments.map((att, idx) => (
+                                  <div key={att.id} className="p-2 bg-slate-900 border border-slate-700 rounded-xl flex items-center justify-between text-xs">
+                                    <div className="flex items-center gap-2 truncate">
+                                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
+                                        {att.type.toUpperCase()}
+                                      </span>
+                                      <span className="truncate text-slate-200 text-[11px]">{att.name}</span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => setNewClassroom(prev => ({
+                                        ...prev,
+                                        attachments: prev.attachments.filter((_, i) => i !== idx)
+                                      }))}
+                                      className="text-slate-400 hover:text-red-400 p-1"
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex gap-3 pt-4 border-t border-slate-800">
                           <Button variant="outline" type="button" className="flex-1" onClick={() => setCreateClassroomOpen(false)}>
                             Annuler
                           </Button>
-                          <Button variant="primary" type="submit" className="flex-1">
-                            Programmer
+                          <Button variant="primary" type="submit" className="flex-1 font-bold">
+                            Programmer la Formation
                           </Button>
                         </div>
                       </form>

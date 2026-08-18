@@ -13,6 +13,11 @@ import { useTranslation } from "../i18n";
 import { generatePDF } from "../lib/pdfUtils";
 import { AnnualPlanning } from "../components/features/AnnualPlanning";
 import { filterActiveSessions } from "../lib/classroomUtils";
+import {
+  FormationAttachment,
+  exportAttachmentFile,
+  exportAllAttachments
+} from "../lib/formationAttachmentUtils";
 
 interface CurriculumSection {
   title: string;
@@ -36,6 +41,7 @@ interface Classroom {
   lawyer_last_name?: string;
   curriculum?: CurriculumSection[];
   category?: string;
+  attachments?: FormationAttachment[];
 }
 
 const getRichDescription = (title: string, currentDesc?: string): string => {
@@ -611,9 +617,9 @@ ${curriculumText}`;
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl overflow-hidden mb-12 shadow-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-8 md:p-16">
+        <div className="relative rounded-3xl overflow-hidden mb-12 shadow-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-8 md:p-16 border border-slate-800">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(59,130,246,0.15),transparent_60%)]" />
           <div className="relative z-10 max-w-3xl space-y-5">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-indigo-500/30 text-indigo-200 border border-indigo-500/30">
@@ -678,7 +684,7 @@ ${curriculumText}`;
                 className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
                   activeFilter === f.id
                     ? "bg-indigo-600 text-white border-indigo-600 shadow-md"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                    : "bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700"
                 }`}
               >
                 {f.label}
@@ -693,7 +699,7 @@ ${curriculumText}`;
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
                   statusFilter === sf.id
                     ? `${sf.color} text-white border-transparent shadow-md`
-                    : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                    : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700"
                 }`}
               >
                 {sf.label}
@@ -707,7 +713,7 @@ ${curriculumText}`;
               placeholder="Rechercher une formation..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+              className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
             />
           </div>
         </div>
@@ -718,9 +724,9 @@ ${curriculumText}`;
             <span className="text-sm font-medium">Chargement des programmes...</span>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-slate-100 p-16 text-center max-w-xl mx-auto shadow-sm">
-            <BookOpen className="h-14 w-14 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Aucune formation trouvée</h3>
+          <div className="bg-slate-900 rounded-3xl border border-slate-800 p-16 text-center max-w-xl mx-auto shadow-sm text-slate-100">
+            <BookOpen className="h-14 w-14 text-slate-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-slate-100 mb-2">Aucune formation trouvée</h3>
             <p className="text-slate-400 text-sm">Essayez de modifier votre recherche ou vos filtres.</p>
           </div>
         ) : (
@@ -730,7 +736,7 @@ ${curriculumText}`;
               const displayCurriculum = getRichCurriculum(room.title, room.curriculum);
 
               return (
-                <Card key={room.id} className="overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-none shadow-md flex flex-col bg-white group">
+                <Card key={room.id} className="overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-800 shadow-md flex flex-col bg-slate-900 text-slate-100 group">
                   <div className={`h-2 bg-gradient-to-r ${
                     room.type === "direct" ? "from-red-500 to-orange-400" :
                     room.type === "video" ? "from-indigo-600 to-blue-500" :
@@ -860,6 +866,56 @@ ${curriculumText}`;
                       <VideoPlayer url={selectedFormationModal.video_url} />
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* PDF & Image Attachments Export Section */}
+              {selectedFormationModal.attachments && selectedFormationModal.attachments.length > 0 && (
+                <div className="bg-slate-900 text-slate-100 rounded-2xl p-5 border border-slate-800 space-y-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-3">
+                    <div>
+                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                        📑 Pièces Jointes & Supports de Cours ({selectedFormationModal.attachments.length})
+                      </h4>
+                      <p className="text-xs text-slate-400 mt-0.5">Documents PDF et supports images intégrés à cette formation</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => exportAllAttachments(selectedFormationModal.attachments || [])}
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md"
+                    >
+                      <Download className="w-3.5 h-3.5" /> Exporter Tous les Fichiers (PDF & Images)
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {selectedFormationModal.attachments.map((att) => (
+                      <div key={att.id} className="bg-slate-800/90 border border-slate-700 rounded-xl p-3 flex items-center justify-between gap-3 hover:border-indigo-500/50 transition-all">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          {att.type === 'image' ? (
+                            <img src={att.dataUrl} alt={att.name} className="w-10 h-10 rounded-lg object-cover border border-slate-700 flex-shrink-0" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-lg bg-red-950/80 border border-red-800/60 flex items-center justify-center text-red-400 font-bold text-xs flex-shrink-0">
+                              PDF
+                            </div>
+                          )}
+                          <div className="truncate">
+                            <p className="text-xs font-bold text-white truncate">{att.name}</p>
+                            <p className="text-[10px] text-slate-400">{att.size} • {att.type.toUpperCase()}</p>
+                          </div>
+                        </div>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => exportAttachmentFile(att)}
+                          className="bg-slate-700 hover:bg-slate-600 border-slate-600 text-white text-xs font-semibold px-2.5 py-1 flex items-center gap-1 flex-shrink-0"
+                        >
+                          <Download className="w-3 h-3" /> Exporter
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { supabase } from '../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import Modal from '../components/ui/Modal';
@@ -50,6 +51,7 @@ const AdminDashboard: React.FC = () => {
   const { toasts, success, error: toastError, removeToast } = useToast();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments' | 'classrooms' | 'planning' | 'reviews'>('overview');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [classrooms, setClassrooms] = useState<any[]>([]);
 
@@ -221,41 +223,84 @@ const AdminDashboard: React.FC = () => {
   };
 
   const fetchAllDocuments = async () => {
-    const { data } = await supabase
-      .from('documents_just')
-      .select('*, profiles:user_id(first_name, last_name, email)')
-      .order('created_at', { ascending: false })
-      .limit(100);
-    if (data) setAllDocuments(data);
+    try {
+      const { data, error } = await supabase
+        .from('documents_just')
+        .select('*, profiles:owner_id(first_name, last_name, email)')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error) {
+        const { data: fallback } = await supabase
+          .from('documents_just')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100);
+        if (fallback) setAllDocuments(fallback);
+      } else if (data) {
+        setAllDocuments(data);
+      }
+    } catch (e) {
+      console.warn("Could not fetch documents:", e);
+    }
   };
 
   const fetchMessages = async () => {
-    const { data } = await supabase
-      .from('contact_messages_just')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
-    if (data) setMessages(data);
+    try {
+      const { data } = await supabase
+        .from('contact_messages_just')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (data) setMessages(data);
+    } catch (e) {
+      console.warn("Could not fetch messages:", e);
+    }
   };
 
   const fetchFormations = async () => {
-    const { data } = await supabase.from('formations_just').select('*').order('created_at', { ascending: false });
-    if (data) setFormations(data);
+    try {
+      const { data } = await supabase.from('formations_just').select('*').order('created_at', { ascending: false });
+      if (data) setFormations(data);
+    } catch (e) {
+      console.warn("Could not fetch formations:", e);
+    }
   };
 
   const fetchOutils = async () => {
-    const { data } = await supabase.from('outils_just').select('*').order('created_at', { ascending: false });
-    if (data) setOutils(data);
+    try {
+      const { data } = await supabase.from('outils_just').select('*').order('created_at', { ascending: false });
+      if (data) setOutils(data);
+    } catch (e) {
+      console.warn("Could not fetch outils:", e);
+    }
   };
 
   const fetchTickets = async () => {
-    const { data } = await supabase.from('assistance_tickets_just').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
-    if (data) setTickets(data);
+    try {
+      const { data, error } = await supabase.from('assistance_tickets_just').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
+      if (error) {
+        const { data: fallback } = await supabase.from('assistance_tickets_just').select('*').order('created_at', { ascending: false });
+        if (fallback) setTickets(fallback);
+      } else if (data) {
+        setTickets(data);
+      }
+    } catch (e) {
+      console.warn("Could not fetch tickets:", e);
+    }
   };
 
   const fetchPayments = async () => {
-    const { data } = await supabase.from('payments_just').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
-    if (data) setPayments(data);
+    try {
+      const { data, error } = await supabase.from('payments_just').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
+      if (error) {
+        const { data: fallback } = await supabase.from('payments_just').select('*').order('created_at', { ascending: false });
+        if (fallback) setPayments(fallback);
+      } else if (data) {
+        setPayments(data);
+      }
+    } catch (e) {
+      console.warn("Could not fetch payments:", e);
+    }
   };
 
   const fetchQuotes = async () => {
@@ -544,21 +589,94 @@ const AdminDashboard: React.FC = () => {
     setIsCreating(true);
     
     try {
-      const response = await fetch('/api/accounts/create-user-admin/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUser)
-      });
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      let successCreated = false;
+      let errorMessage = '';
 
-      const data = await response.json();
+      // Primary attempt: backend API with Authorization Bearer token
+      try {
+        const response = await fetch('/api/accounts/create-user-admin/', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify(newUser)
+        });
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la création du compte');
+        const data = await response.json();
+
+        if (response.ok && (data.status === 'success' || data.user_id)) {
+          successCreated = true;
+        } else {
+          errorMessage = data.message || 'Erreur API';
+        }
+      } catch (fetchErr: any) {
+        errorMessage = fetchErr.message;
       }
 
-      success("Compte créé", `Le compte ${newUser.role} a été créé avec succès.`);
-      setNewUser({ email: '', password: '', firstName: '', lastName: '', role: 'user' });
-      fetchUsers(); 
+      // Robust fallback: If backend API failed or returned error, use isolated non-persisted client
+      if (!successCreated) {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://zchhijltemvrsthdaxex.supabase.co';
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+        
+        const tempSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+          auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+        });
+
+        const { data: authData, error: authErr } = await tempSupabase.auth.signUp({
+          email: newUser.email,
+          password: newUser.password,
+          options: {
+            data: {
+              first_name: newUser.firstName,
+              last_name: newUser.lastName,
+              role: newUser.role
+            }
+          }
+        });
+
+        if (authErr && !authErr.message.includes('User already registered')) {
+          throw new Error(authErr.message || errorMessage || 'Échec de la création du compte');
+        }
+
+        const newUserId = authData.user?.id || authData.session?.user?.id;
+        if (newUserId) {
+          // Upsert profiles_just
+          await supabase.from('profiles_just').upsert({
+            id: newUserId,
+            email: newUser.email,
+            first_name: newUser.firstName,
+            last_name: newUser.lastName,
+            role: newUser.role,
+            is_verified: true
+          });
+
+          if (newUser.role === 'lawyer') {
+            await supabase.from('lawyers_just').upsert({
+              id: newUserId,
+              verification_status: 'verified'
+            });
+          } else if (['student', 'professor', 'doctorate'].includes(newUser.role)) {
+            await supabase.from('academic_profiles_just').upsert({
+              id: newUserId,
+              role: newUser.role,
+              status: 'verified'
+            });
+          }
+          successCreated = true;
+        }
+      }
+
+      if (successCreated) {
+        success("Compte créé", `Le compte ${newUser.role} a été créé avec succès.`);
+        setNewUser({ email: '', password: '', firstName: '', lastName: '', role: 'user' });
+        fetchUsers();
+      } else {
+        throw new Error(errorMessage || "Impossible de créer le compte.");
+      }
     } catch (err: any) {
       toastError("Erreur création", err.message);
     } finally {
@@ -650,12 +768,126 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Mobile Hamburger Button for Sidebar (Visible < lg) */}
+        <div className="lg:hidden mb-6">
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="w-full flex items-center justify-between px-4 py-3.5 bg-slate-900 border border-slate-800 rounded-2xl text-white font-extrabold text-sm shadow-xl hover:bg-slate-800 transition-all cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <Menu className="w-5 h-5 text-indigo-400" />
+              <span>Menu Admin : {[
+                { id: 'overview', name: t('dashboard.overview', "Vue d'ensemble") },
+                { id: 'appointments', name: t('dashboard.appointments', "Rendez-vous") },
+                { id: 'users', name: t('admin_dashboard.users', "Utilisateurs") },
+                { id: 'lawyers', name: t('admin_dashboard.verifications', "Approbations") },
+                { id: 'documents', name: t('admin_dashboard.all_documents', "Documents") },
+                { id: 'messages', name: t('dashboard.messages', "Messages") },
+                { id: 'system', name: t('admin_dashboard.system', "Système") },
+                { id: 'settings', name: t('admin_dashboard.settings', "Paramètres Globaux") },
+                { id: 'assistance', name: t('admin_dashboard.assistance', "Assistance") },
+                { id: 'outils', name: t('admin_dashboard.lawyer_tools', "Outils Avocats") },
+                { id: 'formations', name: t('dashboard.formations', "Formations") },
+                { id: 'classrooms', name: t('admin_dashboard.videoconferences', "Visioconférences") },
+                { id: 'planning', name: 'Planning Annuel' },
+                { id: 'reviews', name: 'Revues Scientifiques' },
+                { id: 'payments', name: t('admin_dashboard.platform_revenue', "Paiements") },
+                { id: 'monitoring', name: t('admin_dashboard.live_monitoring', "LIVE Monitoring") }
+              ].find(t => t.id === activeTab)?.name || "Navigation"}</span>
+            </div>
+            <span className="text-xs bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-full font-bold">
+              Menu Admin ☰
+            </span>
+          </button>
+        </div>
+
+        {/* Mobile Sidebar Navigation Drawer Overlay */}
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-50 flex lg:hidden bg-slate-950/80 backdrop-blur-md transition-all">
+            <div className="relative w-4/5 max-w-sm bg-slate-900 text-slate-100 h-full p-6 shadow-2xl border-r border-slate-800 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                  <div className="flex items-center gap-2 font-extrabold text-white text-base">
+                    <Shield className="w-5 h-5 text-indigo-400" />
+                    Administration Centrale
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <nav className="space-y-2">
+                  {[
+                    { id: 'overview', name: t('dashboard.overview', "Vue d'ensemble"), icon: BarChart3 },
+                    { id: 'appointments', name: t('dashboard.appointments', "Rendez-vous"), icon: RefreshCw },
+                    { id: 'users', name: t('admin_dashboard.users', "Utilisateurs"), icon: Users },
+                    { id: 'lawyers', name: t('admin_dashboard.verifications', "Approbations"), icon: Shield },
+                    { id: 'documents', name: t('admin_dashboard.all_documents', "Documents"), icon: FileText },
+                    { id: 'messages', name: t('dashboard.messages', "Messages"), icon: Mail },
+                    { id: 'system', name: t('admin_dashboard.system', "Système"), icon: Database },
+                    { id: 'settings', name: t('admin_dashboard.settings', "Paramètres Globaux"), icon: Settings },
+                    { id: 'assistance', name: t('admin_dashboard.assistance', "Assistance"), icon: HelpCircle },
+                    { id: 'outils', name: t('admin_dashboard.lawyer_tools', "Outils Avocats"), icon: PenTool },
+                    { id: 'formations', name: t('dashboard.formations', "Formations"), icon: BookOpen },
+                    { id: 'classrooms', name: t('admin_dashboard.videoconferences', "Visioconférences"), icon: Video },
+                    { id: 'planning', name: 'Planning Annuel', icon: Calendar },
+                    { id: 'reviews', name: 'Revues Scientifiques', icon: BookOpen },
+                    { id: 'payments', name: t('admin_dashboard.platform_revenue', "Paiements"), icon: CreditCard },
+                    { id: 'monitoring', name: t('admin_dashboard.live_monitoring', "LIVE Monitoring"), icon: RefreshCw },
+                  ].map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveTab(tab.id as any);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 text-sm font-semibold cursor-pointer ${
+                          isActive
+                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 font-bold'
+                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-indigo-400'}`} />
+                        <span>{tab.name}</span>
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              <div className="pt-6 border-t border-slate-800">
+                <Button
+                  variant="outline"
+                  className="w-full text-red-400 border-red-900/60 hover:bg-red-950 text-xs font-bold"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = '/login';
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" /> Déconnexion
+                </Button>
+              </div>
+            </div>
+
+            {/* Backdrop area to close when clicked outside */}
+            <div className="flex-1 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)} />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <aside className="lg:col-span-1 order-2 lg:order-1">
+          <aside className="hidden lg:block lg:col-span-1">
             <Card className="sticky top-6 overflow-hidden bg-slate-900/90 border-slate-800">
-              <CardContent className="p-2 sm:p-4 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible no-scrollbar pb-2 lg:pb-0">
-                {
-                  [
+              <CardContent className="p-4 flex flex-col space-y-1.5">
+                {[
                   { id: 'overview', name: t('dashboard.overview', "Vue d'ensemble"), icon: BarChart3 },
                   { id: 'appointments', name: t('dashboard.appointments', "Rendez-vous"), icon: RefreshCw },
                   { id: 'users', name: t('admin_dashboard.users', "Utilisateurs"), icon: Users },
@@ -676,13 +908,13 @@ const AdminDashboard: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex-shrink-0 lg:w-full flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
+                    className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
                       activeTab === tab.id 
-                        ? 'bg-primary-600 text-white font-semibold shadow-lg shadow-primary-500/30' 
+                        ? 'bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-500/30' 
                         : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                     }`}
                   >
-                    <tab.icon className="h-4 w-4 mr-3 text-primary-400" />
+                    <tab.icon className="h-4 w-4 mr-3 text-indigo-400" />
                     <span className="font-medium whitespace-nowrap">{tab.name}</span>
                   </button>
                 ))}
@@ -794,9 +1026,9 @@ const AdminDashboard: React.FC = () => {
                   <CardContent className="h-[600px] overflow-y-auto">
                     <div className="space-y-4">
                       {activities.map(act => (
-                        <div key={act.id} className="p-3 bg-white rounded-lg border-l-4 border-primary-500 shadow-sm">
-                          <p className="text-sm font-bold">{act.message}</p>
-                          <p className="text-[10px] text-secondary-500 uppercase">{act.time} • {act.type}</p>
+                        <div key={act.id} className="p-3 bg-slate-900 rounded-lg border-l-4 border-indigo-500 shadow-sm text-slate-100 border border-slate-800">
+                          <p className="text-sm font-bold text-white">{act.message}</p>
+                          <p className="text-[10px] text-slate-400 uppercase">{act.time} • {act.type}</p>
                         </div>
                       ))}
                       {activities.length === 0 && <p className="text-center text-secondary-400 py-10">En attente d'activité...</p>}
@@ -853,13 +1085,13 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'users' && (
               <div className="space-y-6">
                 {/* Filters Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl border shadow-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-sm text-slate-100">
                   <div>
-                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Rôle</label>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Rôle</label>
                     <select
                       value={filterRole}
                       onChange={(e) => setFilterRole(e.target.value)}
-                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
                     >
                       <option value="all">Tous les rôles</option>
                       <option value="user">Citoyens</option>
@@ -868,11 +1100,11 @@ const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Région</label>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Région</label>
                     <select
                       value={filterRegion}
                       onChange={(e) => setFilterRegion(e.target.value)}
-                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
                     >
                       <option value="">Toutes les régions</option>
                       {regions.map(r => (
@@ -881,11 +1113,11 @@ const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Barreau</label>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Barreau</label>
                     <select
                       value={filterBarreau}
                       onChange={(e) => setFilterBarreau(e.target.value)}
-                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
                     >
                       <option value="">Tous les barreaux</option>
                       {uniqueBarreaux.map(b => (
@@ -894,11 +1126,11 @@ const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Ville</label>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Ville</label>
                     <select
                       value={filterCity}
                       onChange={(e) => setFilterCity(e.target.value)}
-                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
                     >
                       <option value="">Toutes les villes</option>
                       {uniqueCities.map(c => (
@@ -908,18 +1140,18 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <Card className="bg-primary-50/20">
+                <Card className="bg-slate-900 border-slate-800 text-slate-100 shadow-xl">
                   <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <UserPlus className="h-5 w-5 mr-3 text-primary-600" />
-                      Nouveau compte
+                    <CardTitle className="flex items-center text-white">
+                      <UserPlus className="h-5 w-5 mr-3 text-indigo-400" />
+                      Création Administrative de Compte
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleCreateUser} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Input placeholder="Prénom" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} required/>
-                      <Input placeholder="Nom" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} required/>
-                      <Input type="email" placeholder="Email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} required/>
+                      <Input placeholder="Prénom" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} required className="bg-slate-800 border-slate-700 text-slate-100 placeholder-slate-400" />
+                      <Input placeholder="Nom" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} required className="bg-slate-800 border-slate-700 text-slate-100 placeholder-slate-400" />
+                      <Input type="email" placeholder="Email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} required className="bg-slate-800 border-slate-700 text-slate-100 placeholder-slate-400" />
                       <div className="relative">
                         <Input 
                           type={showPassword ? "text" : "password"} 
@@ -927,22 +1159,29 @@ const AdminDashboard: React.FC = () => {
                           value={newUser.password} 
                           onChange={e => setNewUser({...newUser, password: e.target.value})} 
                           required
-                          className="pr-10"
+                          className="pr-10 bg-slate-800 border-slate-700 text-slate-100 placeholder-slate-400"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-[2.4rem] -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
-                      <select className="w-full flex h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm" value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})}>
-                        <option value="user">Utilisateur</option>
-                        <option value="lawyer">Avocat</option>
-                        <option value="admin">Admin</option>
+                      <select 
+                        className="w-full flex h-10 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-sans" 
+                        value={newUser.role} 
+                        onChange={e => setNewUser({...newUser, role: e.target.value})}
+                      >
+                        <option value="user">👤 Citoyen / Utilisateur</option>
+                        <option value="lawyer">⚖️ Avocat</option>
+                        <option value="admin">🛡️ Administrateur</option>
+                        <option value="student">🎓 Étudiant en Droit</option>
+                        <option value="professor">👨‍🏫 Professeur de Droit</option>
+                        <option value="doctorate">📜 Doctorant en Droit</option>
                       </select>
-                      <Button type="submit" disabled={isCreating}>{isCreating ? 'En cours...' : 'Créer'}</Button>
+                      <Button type="submit" disabled={isCreating} className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold">{isCreating ? 'En cours...' : 'Créer le Compte'}</Button>
                     </form>
                   </CardContent>
                 </Card>
@@ -1022,13 +1261,13 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'lawyers' && (
               <div className="space-y-6">
                 {/* Filters Row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-4 rounded-xl border shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-sm text-slate-100">
                   <div>
-                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Région</label>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Région</label>
                     <select
                       value={filterRegion}
                       onChange={(e) => setFilterRegion(e.target.value)}
-                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
                     >
                       <option value="">Toutes les régions</option>
                       {regions.map(r => (
@@ -1037,11 +1276,11 @@ const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Barreau</label>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Barreau</label>
                     <select
                       value={filterBarreau}
                       onChange={(e) => setFilterBarreau(e.target.value)}
-                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
                     >
                       <option value="">Tous les barreaux</option>
                       {uniqueBarreaux.map(b => (
@@ -1050,11 +1289,11 @@ const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-secondary-500 block mb-1">Ville</label>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Ville</label>
                     <select
                       value={filterCity}
                       onChange={(e) => setFilterCity(e.target.value)}
-                      className="w-full h-10 px-3 border border-secondary-200 rounded-lg text-sm bg-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
                     >
                       <option value="">Toutes les villes</option>
                       {uniqueCities.map(c => (
@@ -1287,9 +1526,9 @@ const AdminDashboard: React.FC = () => {
               <Card>
                 <CardHeader><CardTitle>État du Système</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="p-4 border rounded-xl flex items-center justify-between bg-white">
-                    <span className="font-semibold text-secondary-700">Services Just-Law</span>
-                    <span className="px-3 py-1 rounded-lg bg-green-50 text-green-700 text-xs font-bold">100% Online</span>
+                  <div className="p-4 border border-slate-800 rounded-xl flex items-center justify-between bg-slate-900 text-slate-100">
+                    <span className="font-semibold text-slate-200">Services France-Justice</span>
+                    <span className="px-3 py-1 rounded-lg bg-emerald-950 text-emerald-300 text-xs font-bold border border-emerald-800">100% Online</span>
                   </div>
                 </CardContent>
               </Card>

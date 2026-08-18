@@ -101,25 +101,25 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-secondary-50 py-12 px-4 relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-slate-100 py-12 px-4 relative">
       <Link 
         to="/" 
-        className="absolute top-8 left-8 flex items-center text-secondary-600 hover:text-primary-600 font-medium transition-colors group"
+        className="absolute top-8 left-8 flex items-center text-slate-400 hover:text-white font-semibold transition-colors group"
       >
         <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
         Retour à l'accueil
       </Link>
 
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl bg-slate-900 border-slate-800 shadow-2xl">
         <CardContent className="p-8">
           <div className="text-center mb-6">
-            <div className="mx-auto h-12 w-12 bg-primary-100 rounded-full flex items-center justify-center mb-4">
-              <UserPlus className="h-6 w-6 text-primary-600" />
+            <div className="mx-auto h-12 w-12 bg-primary-900/60 border border-primary-700/50 rounded-full flex items-center justify-center mb-4">
+              <UserPlus className="h-6 w-6 text-primary-400" />
             </div>
-            <h2 className="text-3xl font-bold text-secondary-900">
+            <h2 className="text-3xl font-extrabold text-white">
               Créer un compte France Justice
             </h2>
-            <p className="text-secondary-600 mt-2 text-sm">
+            <p className="text-slate-300 mt-2 text-sm">
               Rejoignez France Justice pour gérer vos démarches juridiques
             </p>
 
@@ -128,28 +128,28 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
               <button
                 type="button"
                 onClick={() => setForm({ ...form, role: 'user' })}
-                className={`p-2.5 rounded-xl text-xs font-bold transition-all border text-left ${form.role === 'user' ? 'bg-emerald-50 border-emerald-500 text-emerald-900 ring-2 ring-emerald-400' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`}
+                className={`p-2.5 rounded-xl text-xs font-bold transition-all border text-left ${form.role === 'user' ? 'bg-emerald-950 border-emerald-500 text-emerald-300 ring-2 ring-emerald-400' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}`}
               >
                 👤 Citoyen
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/register/student')}
-                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-indigo-50 border-indigo-200 text-indigo-900 hover:bg-indigo-100"
+                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-indigo-950/80 border-indigo-700 text-indigo-300 hover:bg-indigo-900/80"
               >
                 🎓 Étudiant →
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/register/professor')}
-                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-blue-50 border-blue-200 text-blue-900 hover:bg-blue-100"
+                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-blue-950/80 border-blue-700 text-blue-300 hover:bg-blue-900/80"
               >
                 👨‍🏫 Professeur →
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/register/doctorate')}
-                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-purple-50 border-purple-200 text-purple-900 hover:bg-purple-100"
+                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-purple-950/80 border-purple-700 text-purple-300 hover:bg-purple-900/80"
               >
                 🔬 Doctorant →
               </button>
@@ -158,13 +158,13 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-md font-medium">
-                <p className="text-sm text-red-700">{error}</p>
+              <div className="bg-red-950/80 border-l-4 border-red-500 p-4 rounded-r-md font-medium">
+                <p className="text-sm text-red-200">{error}</p>
               </div>
             )}
 
             <div className="space-y-1.5">
-              <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Type de compte :</label>
+              <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider">Type de compte :</label>
               <select
                 value={form.role}
                 onChange={(e) => {
@@ -175,7 +175,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
                   else if (r === 'lawyer') navigate('/register/lawyer');
                   else setForm({ ...form, role: r });
                 }}
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm font-bold text-white focus:ring-2 focus:ring-primary-500 focus:outline-none"
               >
                 <option value="user">👤 Citoyen / Particulier</option>
                 <option value="student">🎓 Étudiant en Droit (Dossier complet 5 pièces)</option>

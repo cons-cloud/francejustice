@@ -18,15 +18,21 @@ import {
   Eye,
   MapPin, 
   Video, 
-  Clock 
+  Clock,
+  Menu,
+  X
 } from 'lucide-react';
 import LawCodes from '../components/features/LawCodes';
 import ProcedureLibrary from '../components/features/ProcedureLibrary';
 import CodeAnalysis from '../components/features/CodeAnalysis';
 import { FranceMap, regions } from '../components/features/FranceMap';
+import { COURS_D_APPEL_LIST, getCourDAppelForCity } from '../lib/jurisdictions';
 import { AdvancedAreaChart } from '../components/features/StatsCharts';
-import { StripePaymentModal } from '../components/ui/StripePaymentModal';
 import { exportToJSON } from '../lib/exportUtils';
+import {
+  exportAttachmentFile,
+  exportAllAttachments
+} from '../lib/formationAttachmentUtils';
 import { createCheckoutSession } from '../lib/api';
 import { filterActiveSessions } from '../lib/classroomUtils';
 import { Button } from '../components/ui/Button';
@@ -52,6 +58,7 @@ const DashboardPage: React.FC = () => {
   const { toasts, success, error: toastError, removeToast } = useToast();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('overview');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
   const [searches, setSearches] = useState<any[]>([]);
@@ -891,7 +898,7 @@ Ce document est généré par la plateforme France Justice.
               <div>
                 <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.doc_type', 'Classification / Type')}</label>
                 <select 
-                  className="w-full flex h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" 
+                  className="w-full flex h-10 rounded-md border border-slate-700 bg-slate-800 text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" 
                   value={uploadDocType} 
                   onChange={e => setUploadDocType(e.target.value)}
                 >
@@ -917,7 +924,7 @@ Ce document est généré par la plateforme France Justice.
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
                 docFilterType === type 
                   ? 'bg-primary-600 text-white shadow-sm' 
-                  : 'bg-white text-secondary-600 hover:bg-secondary-50 border border-secondary-200'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
               }`}
             >
               {type === 'all' ? 'Tous les documents' : (docTypeLabels[type] || type)}
@@ -965,7 +972,7 @@ Ce document est généré par la plateforme France Justice.
             </Card>
           ))}
           {filteredDocs.length === 0 && (
-            <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-secondary-200 text-secondary-400">
+            <div className="text-center py-12 bg-slate-900 text-slate-100 rounded-2xl border border-dashed border-slate-800">
               <FileText className="h-10 w-10 mx-auto mb-2 text-secondary-200" />
               Aucun document dans cette catégorie.
             </div>
@@ -1112,7 +1119,7 @@ Ce document est généré par la plateforme France Justice.
               })}
 
               {appointments.length === 0 && (
-                <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-secondary-200 text-secondary-400">
+                <div className="text-center py-20 bg-slate-900 text-slate-100 rounded-2xl border border-dashed border-slate-800">
                   <Calendar className="h-10 w-10 mx-auto mb-2 text-secondary-200" />
                   {t('dashboard.no_appointments', 'Aucune consultation planifiée pour le moment.')}
                 </div>
@@ -1200,24 +1207,105 @@ Ce document est généré par la plateforme France Justice.
           </div>
         </div>
 
+        {/* Mobile Hamburger Button for Sidebar (Visible < lg) */}
+        <div className="lg:hidden mb-6">
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="w-full flex items-center justify-between px-4 py-3.5 bg-slate-900 border border-slate-800 rounded-2xl text-white font-extrabold text-sm shadow-xl hover:bg-slate-800 transition-all cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <Menu className="w-5 h-5 text-indigo-400" />
+              <span>Menu : {tabs.find(t => t.id === activeTab)?.name || "Navigation"}</span>
+            </div>
+            <span className="text-xs bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-full font-bold">
+              Navigation ☰
+            </span>
+          </button>
+        </div>
+
+        {/* Mobile Sidebar Navigation Drawer Overlay */}
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-50 flex lg:hidden bg-slate-950/80 backdrop-blur-md transition-all">
+            <div className="relative w-4/5 max-w-sm bg-slate-900 text-slate-100 h-full p-6 shadow-2xl border-r border-slate-800 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                  <div className="flex items-center gap-2 font-extrabold text-white text-base">
+                    <Shield className="w-5 h-5 text-indigo-400" />
+                    Menu du Tableau de Bord
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <nav className="space-y-2">
+                  {tabs.map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 text-sm font-semibold cursor-pointer ${
+                          isActive
+                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 font-bold'
+                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-indigo-400'}`} />
+                        <span>{tab.name}</span>
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              <div className="pt-6 border-t border-slate-800">
+                <Button
+                  variant="outline"
+                  className="w-full text-red-400 border-red-900/60 hover:bg-red-950 text-xs font-bold"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = '/login';
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" /> Déconnexion
+                </Button>
+              </div>
+            </div>
+
+            {/* Backdrop area to close when clicked outside */}
+            <div className="flex-1 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)} />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <aside className="lg:col-span-1 order-2 lg:order-1">
+          <aside className="hidden lg:block lg:col-span-1">
             <Card className="sticky top-6 bg-slate-900/90 border-slate-800">
               <CardContent className="p-4 sm:p-6">
-                <nav className="flex flex-wrap lg:flex-col gap-2 pb-2 lg:pb-0 lg:space-y-2">
+                <nav className="flex flex-col space-y-2">
                   {tabs.map((tab) => {
                     const Icon = tab.icon;
                     return (
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex-shrink-0 lg:w-full flex items-center space-x-3 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-left transition-all duration-200 text-sm sm:text-base cursor-pointer ${
+                        className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 text-sm cursor-pointer ${
                           activeTab === tab.id
-                            ? 'bg-primary-600 text-white font-semibold shadow-lg shadow-primary-500/30'
+                            ? 'bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-500/30'
                             : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                         }`}
                       >
-                        <Icon className="h-5 w-5 text-primary-400" />
+                        <Icon className="h-5 w-5 text-indigo-400" />
                         <span className="font-medium whitespace-nowrap">{tab.name}</span>
                       </button>
                     );
@@ -1292,7 +1380,7 @@ Ce document est généré par la plateforme France Justice.
                           </CardContent>
                         </Card>
                       ))}
-                      {quotes.length === 0 && <div className="text-center py-12 bg-white rounded-xl text-secondary-400">{t('dashboard.no_quotes', 'Aucun devis reçu.')}</div>}
+                      {quotes.length === 0 && <div className="text-center py-12 bg-slate-900 text-slate-100 rounded-xl border border-slate-800">{t('dashboard.no_quotes', 'Aucun devis reçu.')}</div>}
                     </div>
                   </div>
                 )}
@@ -1323,19 +1411,20 @@ Ce document est généré par la plateforme France Justice.
                 {activeTab === 'analyse' && (
                   <div className="space-y-4 animate-fade-in">
                     <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.ia_analysis', 'Analyse de Contrats & Codes (IA)')}</h2>
+                    <h2 className="text-2xl font-semibold text-white">{t('dashboard.ia_analysis', 'Analyse de Contrats & Codes (IA)')}</h2>
                     <CodeAnalysis />
                   </div>
                 )}
                 {activeTab === 'formations' && (
                   <div className="space-y-6 animate-fade-in">
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                      <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.formations_academic', 'Formations et Espace Académique')}</h2>
+                      <h2 className="text-2xl font-semibold text-white">{t('dashboard.formations_academic', 'Formations et Espace Académique')}</h2>
                       
-                      <div className="flex bg-secondary-100 p-1 rounded-xl self-start">
+                      <div className="flex bg-slate-900 p-1 rounded-xl self-start border border-slate-800">
                         <button
                           onClick={() => setClassroomsSubTab('virtual')}
                           className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                            classroomsSubTab === 'virtual' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
+                            classroomsSubTab === 'virtual' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                           }`}
                         >
                           {t('dashboard.virtual_classrooms', 'Salles de Classe Virtuelles')}
@@ -1363,7 +1452,7 @@ Ce document est généré par la plateforme France Justice.
                           ].map((f) => (
                             <button
                               key={f.id}
-                              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-primary-300 transition-all"
+                              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-200 border border-slate-700 hover:border-primary-400 transition-all"
                             >
                               {f.label}
                             </button>
@@ -1389,7 +1478,7 @@ Ce document est généré par la plateforme France Justice.
                           const isSuspended = room.is_active === false;
                           
                           return (
-                            <Card key={room.id} className={`overflow-hidden hover:shadow-md transition-all border-secondary-100 bg-white flex flex-col h-full ${isSuspended ? 'opacity-60' : ''}`}>
+                            <Card key={room.id} className={`overflow-hidden hover:shadow-md transition-all border-slate-800 bg-slate-900 text-slate-100 flex flex-col h-full ${isSuspended ? 'opacity-60' : ''}`}>
                               <div className={`p-3 text-white font-bold flex justify-between items-center bg-gradient-to-r ${
                                 room.type === 'direct' 
                                   ? 'from-red-600 to-orange-500' 
@@ -1425,6 +1514,42 @@ Ce document est généré par la plateforme France Justice.
                                       <span>Le {new Date(room.scheduled_at).toLocaleDateString()} à {new Date(room.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
                                   )}
+                                  
+                                  {/* Fichiers PDF & Images rattachés */}
+                                  {room.attachments && room.attachments.length > 0 && (
+                                    <div className="bg-slate-800/90 border border-slate-700 rounded-xl p-3 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-bold text-slate-200">📑 Fichiers PDF & Images ({room.attachments.length})</span>
+                                        <button
+                                          type="button"
+                                          onClick={() => exportAllAttachments(room.attachments)}
+                                          className="text-[10px] font-extrabold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
+                                        >
+                                          <Download className="w-3 h-3" /> Tout exporter
+                                        </button>
+                                      </div>
+                                      <div className="space-y-1.5">
+                                        {room.attachments.map((att: any) => (
+                                          <div key={att.id} className="flex items-center justify-between text-xs bg-slate-900 p-2 rounded-lg border border-slate-700">
+                                            <div className="flex items-center gap-2 truncate">
+                                              <span className={`px-1 rounded text-[9px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300' : 'bg-emerald-950 text-emerald-300'}`}>
+                                                {att.type.toUpperCase()}
+                                              </span>
+                                              <span className="truncate text-[11px] text-slate-200">{att.name}</span>
+                                            </div>
+                                            <button
+                                              type="button"
+                                              onClick={() => exportAttachmentFile(att)}
+                                              className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 shrink-0 ml-2"
+                                            >
+                                              <Download className="w-3 h-3" /> Exporter
+                                            </button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
                                   <div className="flex items-center gap-1.5">
                                     <Clock className="w-3.5 h-3.5 text-secondary-400" />
                                     <span>Durée : {room.duration_minutes} min</span>
@@ -1623,6 +1748,17 @@ Ce document est généré par la plateforme France Justice.
                             <label className="block text-sm font-medium mb-1">{t('dashboard.postal_code', 'Code Postal')}</label>
                             <Input value={profileForm.postal_code} onChange={e => setProfileForm(p => ({...p, postal_code: e.target.value}))} />
                           </div>
+                          
+                          {(profileForm.city || profileForm.postal_code) && (
+                            <div className="md:col-span-2 p-3 bg-indigo-50 border border-indigo-200 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-indigo-900">
+                              <span className="font-bold flex items-center gap-1.5">
+                                ⚖️ Cour d'Appel de la ville : {getCourDAppelForCity(profileForm.city, profileForm.postal_code).name}
+                              </span>
+                              <span className="text-indigo-600 font-semibold">
+                                Premier Président : {getCourDAppelForCity(profileForm.city, profileForm.postal_code).premierPresident}
+                              </span>
+                            </div>
+                          )}
                           <div className="md:col-span-2">
                             <label className="block text-sm font-medium mb-1">{t('dashboard.birth_date', 'Date de naissance')}</label>
                             <Input type="date" value={profileForm.birth_date} onChange={e => setProfileForm(p => ({...p, birth_date: e.target.value}))} />
@@ -1666,19 +1802,19 @@ Ce document est généré par la plateforme France Justice.
                       />
                     </div>
                     
-                    <div className="bg-white rounded-3xl p-5 border border-secondary-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div className="bg-slate-900 rounded-3xl p-5 border border-slate-800 shadow-xl flex flex-col justify-between space-y-4 text-slate-100">
                       <div>
-                        <h3 className="font-bold text-secondary-900 mb-3 flex items-center gap-2">
+                        <h3 className="font-bold text-white mb-3 flex items-center gap-2">
                           🏛️ Localisation
                         </h3>
                         
                         <div className="space-y-3">
                           <div>
-                            <label className="text-[11px] font-semibold text-secondary-500 block mb-1">Région</label>
+                            <label className="text-[11px] font-semibold text-slate-300 block mb-1">Région</label>
                             <select
                               value={selectedRegion || ''}
                               onChange={(e) => setSelectedRegion(e.target.value || null)}
-                              className="w-full h-10 px-2.5 border border-secondary-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                              className="w-full h-10 px-2.5 border border-slate-700 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
                             >
                               <option value="">Toutes les régions</option>
                               {regions.map(r => (
@@ -1688,11 +1824,11 @@ Ce document est généré par la plateforme France Justice.
                           </div>
 
                           <div>
-                            <label className="text-[11px] font-semibold text-secondary-500 block mb-1">Barreau d'inscription</label>
+                            <label className="text-[11px] font-semibold text-slate-300 block mb-1">Barreau d'inscription</label>
                             <select
                               value={selectedBarreau}
                               onChange={(e) => setSelectedBarreau(e.target.value)}
-                              className="w-full h-10 px-2.5 border border-secondary-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                              className="w-full h-10 px-2.5 border border-slate-700 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
                             >
                               <option value="">Tous les barreaux</option>
                               {availableBarreaux.map(b => (
@@ -1702,11 +1838,11 @@ Ce document est généré par la plateforme France Justice.
                           </div>
 
                           <div>
-                            <label className="text-[11px] font-semibold text-secondary-500 block mb-1">Ville du cabinet</label>
+                            <label className="text-[11px] font-semibold text-slate-300 block mb-1">Ville du cabinet</label>
                             <select
                               value={selectedCity}
                               onChange={(e) => setSelectedCity(e.target.value)}
-                              className="w-full h-10 px-2.5 border border-secondary-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                              className="w-full h-10 px-2.5 border border-slate-700 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
                             >
                               <option value="">Toutes les villes</option>
                               {availableCities.map(c => (
