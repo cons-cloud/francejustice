@@ -2267,7 +2267,7 @@ const DashboardLawyer: React.FC = () => {
                         <button
                           onClick={() => setClassroomsSubTab('virtual')}
                           className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                            classroomsSubTab === 'virtual' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
+                            classroomsSubTab === 'virtual' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                           }`}
                         >
                           Salles de Classe Virtuelles
@@ -2275,7 +2275,7 @@ const DashboardLawyer: React.FC = () => {
                         <button
                           onClick={() => setClassroomsSubTab('static')}
                           className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                            classroomsSubTab === 'static' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
+                            classroomsSubTab === 'static' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                           }`}
                         >
                           Guides de Formation
@@ -2996,7 +2996,7 @@ const DashboardLawyer: React.FC = () => {
           <div>
             <label className={cn('block', 'text-sm', 'font-medium', 'mb-1')}>Dossier / Client</label>
             <select 
-              className={cn('w-full', 'flex', 'h-10', 'rounded-md', 'border', 'border-secondary-200', 'bg-white', 'px-3', 'py-2', 'text-sm')}
+              className={cn('w-full', 'flex', 'h-10', 'rounded-md', 'border', 'border-slate-800', 'bg-slate-900', 'text-slate-100', 'px-3', 'py-2', 'text-sm')}
               value={newQuote.client_id}
               onChange={(e) => {
                 const caseObj = cases.find(c => c.owner_id === e.target.value);
@@ -3004,10 +3004,10 @@ const DashboardLawyer: React.FC = () => {
               }}
               required
             >
-              <option value="">Sélectionner un client</option>
+              <option value="" className="bg-slate-900 text-slate-100">Sélectionner un client</option>
               {Array.from(new Set(cases.map(c => JSON.stringify({id: c.owner_id, name: `${c.profiles?.first_name} ${c.profiles?.last_name}${c.profiles?.city ? ` (${c.profiles.city})` : ''}` }))))
                 .map(s => JSON.parse(s))
-                .map(u => <option key={u.id} value={u.id}>{u.name}</option>)
+                .map(u => <option key={u.id} value={u.id} className="bg-slate-900 text-slate-100">{u.name}</option>)
               }
             </select>
           </div>
@@ -3019,13 +3019,14 @@ const DashboardLawyer: React.FC = () => {
               onChange={(e) => setNewQuote({...newQuote, amount: e.target.value})}
               placeholder="Ex: 5000"
               required
+              className="bg-slate-900 border-slate-800 text-slate-100"
             />
-            <p className={cn('text-[10px]', 'text-secondary-500', 'mt-1')}>Note: Une commission de 20% sera prélevée par la plateforme.</p>
+            <p className={cn('text-[10px]', 'text-slate-400', 'mt-1')}>Note: Une commission de 20% sera prélevée par la plateforme.</p>
           </div>
           <div>
             <label className={cn('block', 'text-sm', 'font-medium', 'mb-1')}>Description des prestations</label>
             <textarea 
-              className={cn('w-full', 'min-h-[100px]', 'rounded-md', 'border', 'border-secondary-200', 'bg-white', 'px-3', 'py-2', 'text-sm')}
+              className={cn('w-full', 'min-h-[100px]', 'rounded-md', 'border', 'border-slate-800', 'bg-slate-900', 'text-slate-100', 'px-3', 'py-2', 'text-sm', 'placeholder-slate-500')}
               value={newQuote.description}
               onChange={(e) => setNewQuote({...newQuote, description: e.target.value})}
               placeholder="Détaillez vos honoraires..."
@@ -3050,14 +3051,14 @@ const DashboardLawyer: React.FC = () => {
           <div>
             <label className={cn('block', 'text-sm', 'font-medium', 'mb-1')}>Dossier / Client</label>
             <select 
-              className={cn('w-full', 'flex', 'h-10', 'rounded-md', 'border', 'border-secondary-200', 'bg-white', 'px-3', 'py-2', 'text-sm', 'focus:outline-none', 'focus:ring-2', 'focus:ring-primary-500')}
+              className={cn('w-full', 'flex', 'h-10', 'rounded-md', 'border', 'border-slate-800', 'bg-slate-900', 'text-slate-100', 'px-3', 'py-2', 'text-sm', 'focus:outline-none', 'focus:ring-2', 'focus:ring-indigo-500')}
               value={newDoc.client_id}
               onChange={(e) => setNewDoc({...newDoc, client_id: e.target.value})}
               required
             >
-              <option value="">Sélectionner un client</option>
+              <option value="" className="bg-slate-900 text-slate-100">Sélectionner un client</option>
               {allInteractingClients.map((u) => (
-                <option key={u.id} value={u.id}>{u.name}</option>
+                <option key={u.id} value={u.id} className="bg-slate-900 text-slate-100">{u.name}</option>
               ))}
             </select>
           </div>
@@ -3068,19 +3069,20 @@ const DashboardLawyer: React.FC = () => {
               onChange={(e) => setNewDoc({...newDoc, name: e.target.value})}
               placeholder="Ex: Acte de Naissance, Statuts de Société..."
               required
+              className="bg-slate-900 border-slate-800 text-slate-100"
             />
           </div>
           <div>
             <label className={cn('block', 'text-sm', 'font-medium', 'mb-1')}>Classification / Type</label>
             <select 
-              className={cn('w-full', 'flex', 'h-10', 'rounded-md', 'border', 'border-secondary-200', 'bg-white', 'px-3', 'py-2', 'text-sm', 'focus:outline-none', 'focus:ring-2', 'focus:ring-primary-500')} 
+              className={cn('w-full', 'flex', 'h-10', 'rounded-md', 'border', 'border-slate-800', 'bg-slate-900', 'text-slate-100', 'px-3', 'py-2', 'text-sm', 'focus:outline-none', 'focus:ring-2', 'focus:ring-indigo-500')} 
               value={newDoc.type} 
               onChange={e => setNewDoc({...newDoc, type: e.target.value})}
             >
-              <option value="identity">🪪 Pièce d'identité client</option>
-              <option value="license">📜 Licence / Diplôme client</option>
-              <option value="legal_template">📝 Modèle de document</option>
-              <option value="client_document">📁 Pièce de dossier / Justificatif</option>
+              <option value="identity" className="bg-slate-900 text-slate-100">🪪 Pièce d'identité client</option>
+              <option value="license" className="bg-slate-900 text-slate-100">📜 Licence / Diplôme client</option>
+              <option value="legal_template" className="bg-slate-900 text-slate-100">📝 Modèle de document</option>
+              <option value="client_document" className="bg-slate-900 text-slate-100">📁 Pièce de dossier / Justificatif</option>
             </select>
           </div>
           <div className={cn('flex', 'justify-end', 'gap-3', 'mt-6')}>

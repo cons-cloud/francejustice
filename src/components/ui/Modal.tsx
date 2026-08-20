@@ -34,7 +34,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, classNa
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-secondary-900"
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
           />
 
           {/* Modal Container */}

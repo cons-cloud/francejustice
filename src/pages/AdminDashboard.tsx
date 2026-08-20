@@ -1783,7 +1783,7 @@ const AdminDashboard: React.FC = () => {
                     );
                   })}
                   {formations.length === 0 && (
-                    <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl bg-white space-y-3">
+                    <div className="col-span-full text-center py-12 text-slate-400 border border-dashed border-slate-800 rounded-2xl bg-slate-900 space-y-3">
                       <p className="text-base font-semibold">Aucun module de formation enregistré.</p>
                       <Button onClick={handleAddFormation} size="sm"><Plus className="w-4 h-4 mr-1.5" /> Créer la première formation</Button>
                     </div>

@@ -94,21 +94,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
-              className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative pointer-events-auto border border-slate-100 flex flex-col max-h-[92vh] overflow-y-auto"
+              className="bg-slate-900 text-slate-100 rounded-3xl p-8 max-w-lg w-full shadow-2xl relative pointer-events-auto border border-slate-800 flex flex-col max-h-[92vh] overflow-y-auto"
             >
               <button 
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors"
+                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-full transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
 
-              <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-5">
-                <ShieldAlert className="h-7 w-7 text-indigo-600" />
+              <div className="w-14 h-14 bg-indigo-950/80 border border-indigo-800/60 rounded-2xl flex items-center justify-center mb-5">
+                <ShieldAlert className="h-7 w-7 text-indigo-400" />
               </div>
 
-              <h2 className="text-2xl font-black text-slate-900 mb-2">{title}</h2>
-              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+              <h2 className="text-2xl font-black text-white mb-2">{title}</h2>
+              <p className="text-sm text-slate-400 mb-6 leading-relaxed">
                 {message}
               </p>
 
@@ -122,24 +122,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       onClick={() => setSelectedOption(opt.id as any)}
                       className={`relative cursor-pointer transition-all duration-300 rounded-2xl p-4 border flex items-center gap-4 ${
                         isSelected
-                          ? 'border-2 border-indigo-600 bg-indigo-50/90 ring-2 ring-indigo-500/30 shadow-lg scale-[1.01]'
-                          : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50/80'
+                          ? 'border-2 border-indigo-500 bg-indigo-950/60 ring-2 ring-indigo-500/30 shadow-lg scale-[1.01]'
+                          : 'border-slate-800 hover:border-slate-700 hover:bg-slate-800/80 bg-slate-950'
                       }`}
                     >
                       <div className={`p-3 rounded-xl bg-gradient-to-br ${opt.color} text-white`}>
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 pr-6">
-                        <h4 className={`font-extrabold text-sm ${isSelected ? 'text-indigo-950' : 'text-slate-900'}`}>
+                        <h4 className={`font-extrabold text-sm ${isSelected ? 'text-white' : 'text-slate-200'}`}>
                           {opt.title}
                         </h4>
-                        <p className={`text-xs ${isSelected ? 'text-indigo-900/80 font-medium' : 'text-slate-500'}`}>
+                        <p className={`text-xs ${isSelected ? 'text-indigo-200 font-medium' : 'text-slate-400'}`}>
                           {opt.description}
                         </p>
                       </div>
                       {isSelected && (
-                        <div className="absolute right-4 text-indigo-600">
-                          <CheckCircle className="h-5 w-5 fill-white text-indigo-600" />
+                        <div className="absolute right-4 text-indigo-400">
+                          <CheckCircle className="h-5 w-5 fill-indigo-950 text-indigo-400" />
                         </div>
                       )}
                     </div>
@@ -151,13 +151,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <Button 
                   variant="outline"
                   onClick={onClose}
-                  className="rounded-xl"
+                  className="rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800"
                 >
                   Annuler
                 </Button>
                 <Button 
                   size="lg"
-                  className="rounded-xl px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold flex items-center shadow-lg shadow-indigo-600/10"
+                  className="rounded-xl px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-bold flex items-center shadow-lg shadow-indigo-600/20"
                   onClick={handleConfirm}
                 >
                   Continuer

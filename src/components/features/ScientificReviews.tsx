@@ -359,41 +359,41 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
 
       {/* Modal Text Integral */}
       {selectedReviewModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col">
-            <div className="p-6 border-b border-slate-100 bg-slate-900 text-white rounded-t-3xl flex justify-between items-start">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 text-slate-100 rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-800 flex flex-col">
+            <div className="p-6 border-b border-slate-800 bg-slate-950 text-white rounded-t-3xl flex justify-between items-start">
               <div>
                 <span className="bg-indigo-500/20 text-indigo-300 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-indigo-500/30">
                   {selectedReviewModal.discipline} • {selectedReviewModal.journal_name}
                 </span>
-                <h3 className="text-xl font-bold mt-2 leading-tight">{selectedReviewModal.title}</h3>
-                <p className="text-xs text-slate-300 mt-1">Par {selectedReviewModal.author_name} — {selectedReviewModal.author_title}</p>
+                <h3 className="text-xl font-bold mt-2 leading-tight text-white">{selectedReviewModal.title}</h3>
+                <p className="text-xs text-slate-400 mt-1">Par {selectedReviewModal.author_name} — {selectedReviewModal.author_title}</p>
               </div>
-              <button onClick={() => setSelectedReviewModal(null)} className="text-slate-400 hover:text-white p-1">
-                ✕
+              <button onClick={() => setSelectedReviewModal(null)} className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-all">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6 text-sm text-slate-800 leading-relaxed font-sans">
-              <div className="bg-indigo-50/50 border border-indigo-100 p-4 rounded-2xl space-y-2">
-                <h4 className="text-xs font-bold text-indigo-900 uppercase">Résumé Académique / Abstract</h4>
-                <p className="text-xs text-indigo-950 italic">{selectedReviewModal.abstract}</p>
+            <div className="p-6 space-y-6 text-sm text-slate-200 leading-relaxed font-sans flex-1">
+              <div className="bg-indigo-950/40 border border-indigo-800/50 p-4 rounded-2xl space-y-2">
+                <h4 className="text-xs font-bold text-indigo-300 uppercase">Résumé Académique / Abstract</h4>
+                <p className="text-xs text-slate-300 italic">{selectedReviewModal.abstract}</p>
               </div>
 
               <div className="space-y-4">
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Texte Intégral de la Publication</h4>
-                <div className="whitespace-pre-line bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs leading-relaxed font-mono">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Texte Intégral de la Publication</h4>
+                <div className="whitespace-pre-line bg-slate-950 p-5 rounded-2xl border border-slate-800 text-xs text-slate-200 leading-relaxed font-mono">
                   {selectedReviewModal.content}
                 </div>
               </div>
             </div>
 
-            <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-3xl flex justify-between items-center">
-              <Button variant="outline" onClick={() => setSelectedReviewModal(null)}>
+            <div className="p-6 border-t border-slate-800 bg-slate-950 rounded-b-3xl flex justify-between items-center">
+              <Button variant="outline" onClick={() => setSelectedReviewModal(null)} className="border-slate-700 text-slate-300 hover:bg-slate-800">
                 Fermer
               </Button>
-              <Button variant="primary" onClick={() => downloadReviewPDF(selectedReviewModal)} className="bg-emerald-600 hover:bg-emerald-700 font-bold">
-                <Download className="w-4 h-4 mr-1.5" /> Télécharger au format PDF
+              <Button variant="primary" onClick={() => downloadReviewPDF(selectedReviewModal)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1.5 shadow-md">
+                <Download className="w-4 h-4" /> Télécharger au format PDF
               </Button>
             </div>
           </div>
