@@ -14,7 +14,7 @@ import { generatePDF } from "../lib/pdfUtils";
 import { AnnualPlanning } from "../components/features/AnnualPlanning";
 import { filterActiveSessions } from "../lib/classroomUtils";
 import {
-  FormationAttachment,
+  type FormationAttachment,
   exportAttachmentFile,
   exportAllAttachments,
   getFormationAttachments

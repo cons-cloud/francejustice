@@ -19,7 +19,7 @@ import { AnnualPlanning } from '../components/features/AnnualPlanning';
 import { ScientificReviews } from '../components/features/ScientificReviews';
 import { COURS_D_APPEL_LIST } from '../lib/jurisdictions';
 import {
-  FormationAttachment,
+  type FormationAttachment,
   convertFileToAttachment,
   exportAttachmentFile,
   exportAllAttachments,
