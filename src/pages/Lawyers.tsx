@@ -67,7 +67,7 @@ const LawyersPage: React.FC = () => {
     };
   }, []);
 
-  const fetchLawyers = async () => {
+  const fetchLawyers = async (_pageNumber?: number) => {
     setLoading(true);
     const unified = await getUnifiedLawyersList();
     setLawyers(unified as any);
