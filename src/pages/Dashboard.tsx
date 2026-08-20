@@ -34,7 +34,7 @@ import {
   exportAllAttachments,
   getFormationAttachments,
   convertFileToAttachment,
-  FormationAttachment
+  type FormationAttachment
 } from '../lib/formationAttachmentUtils';
 import { createCheckoutSession } from '../lib/api';
 import { filterActiveSessions } from '../lib/classroomUtils';
