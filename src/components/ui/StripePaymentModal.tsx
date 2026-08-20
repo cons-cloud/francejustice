@@ -274,7 +274,7 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-black text-sm rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all"
+                className="w-full h-12 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-sm rounded-xl shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01] active:scale-[0.99]"
               >
                 {loading ? (
                   <>

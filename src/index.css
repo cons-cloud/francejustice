@@ -1,1 +1,39 @@
 @import "tailwindcss";
+
+/* Force Dark Theme for all Form Input Fields (including Typed Text & Browser Autofill) */
+input,
+textarea,
+select,
+.input,
+.textarea {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+/* Browser Webkit Autofill Override - Prevents White/Yellow background when text exists or autofilled */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #0f172a inset !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  caret-color: #ffffff !important;
+  transition: background-color 50000s ease-in-out 0s !important;
+}
+
+option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}

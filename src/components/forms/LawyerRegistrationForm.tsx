@@ -79,7 +79,21 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
         const userId = authData.user.id;
         const uploadedUrls: string[] = [];
 
-        // 2. Handle File Uploads
+        // 2. Insert/Upsert main user profile in profiles_just
+        await supabase.from('profiles_just').upsert([{
+          id: userId,
+          email: form.email,
+          first_name: form.firstName,
+          last_name: form.lastName,
+          role: 'lawyer',
+          phone: form.phone,
+          city: form.city,
+          country: form.country,
+          postal_code: form.postalCode,
+          is_verified: true
+        }], { onConflict: 'id' });
+
+        // 3. Handle File Uploads to Supabase Storage
         if (files && files.length > 0) {
           for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -102,16 +116,27 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
           }
         }
 
-        // 3. Save file URLs to lawyers_just table
+        // 4. Save lawyer professional details in lawyers_just table
+        await supabase.from('lawyers_just').upsert([{
+          id: userId,
+          bar_association: form.barAssociation,
+          license_number: form.licenseNumber,
+          experience: form.experience,
+          verification_documents: uploadedUrls,
+          is_available: true,
+          status: 'verified'
+        }], { onConflict: 'id' });
+
+        // 5. Register verification documents in documents_just table
         if (uploadedUrls.length > 0) {
-          const { error: updateError } = await supabase
-            .from('lawyers_just')
-            .update({ verification_documents: uploadedUrls })
-            .eq('id', userId);
-            
-          if (updateError) {
-            console.error('Error updating lawyer documents:', updateError);
-          }
+          const docEntries = uploadedUrls.map((url, idx) => ({
+            user_id: userId,
+            owner_id: userId,
+            name: `Justificatif Avocat #${idx + 1} - Barreau de ${form.barAssociation}`,
+            type: "verification_document",
+            file_url: url
+          }));
+          await supabase.from('documents_just').insert(docEntries);
         }
 
         setShowSuccessModal(true);

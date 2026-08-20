@@ -1543,7 +1543,7 @@ const DashboardLawyer: React.FC = () => {
                     <CardContent className="p-0">
                       <div className="overflow-x-auto">
                         <table className={cn('w-full', 'text-left', 'text-sm', 'whitespace-nowrap')}>
-                          <thead className={cn('bg-secondary-50', 'border-y')}>
+                          <thead className={cn('bg-slate-950', 'border-y', 'border-slate-800', 'text-slate-400')}>
                             <tr>
                               <th className={cn('px-6', 'py-4')}>Client</th>
                               <th className={cn('px-6', 'py-4')}>Date & Heure</th>
@@ -1552,24 +1552,24 @@ const DashboardLawyer: React.FC = () => {
                               <th className={cn('px-6', 'py-4', 'text-right')}>Actions de Gestion</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y">
+                          <tbody className="divide-y divide-slate-800 text-slate-300">
                             {appointments.map((a) => {
                               const statusLabels: Record<string, { text: string; color: string }> = {
-                                pending: { text: "En attente", color: "bg-yellow-100 text-yellow-700" },
-                                confirmed: { text: "Confirmé", color: "bg-green-100 text-green-700" },
-                                cancelled: { text: "Annulé", color: "bg-red-100 text-red-700" },
-                                completed: { text: "Terminé", color: "bg-primary-100 text-primary-700" }
+                                pending: { text: "En attente", color: "bg-amber-950 text-amber-300 border border-amber-800" },
+                                confirmed: { text: "Confirmé", color: "bg-emerald-950 text-emerald-300 border border-emerald-800" },
+                                cancelled: { text: "Annulé", color: "bg-red-950 text-red-300 border border-red-800" },
+                                completed: { text: "Terminé", color: "bg-indigo-950 text-indigo-300 border border-indigo-800" }
                               };
-                              const label = statusLabels[a.status] || { text: a.status, color: "bg-secondary-100 text-secondary-600" };
+                              const label = statusLabels[a.status] || { text: a.status, color: "bg-slate-800 text-slate-300" };
                               
                               return (
-                                <tr key={a.id} className="hover:bg-secondary-50">
-                                  <td className={cn('px-6', 'py-4', 'font-semibold')}>
+                                <tr key={a.id} className="hover:bg-slate-800/60 transition-colors">
+                                  <td className={cn('px-6', 'py-4', 'font-semibold', 'text-white')}>
                                     {(a.profiles as any)?.first_name} {(a.profiles as any)?.last_name}
-                                    {(a.profiles as any)?.city ? <span className={cn('text-secondary-400', 'font-normal', 'text-xs', 'ml-1')}>({(a.profiles as any).city})</span> : ''}
+                                    {(a.profiles as any)?.city ? <span className={cn('text-slate-400', 'font-normal', 'text-xs', 'ml-1')}>({(a.profiles as any).city})</span> : ''}
                                   </td>
-                                  <td className={cn('px-6', 'py-4')}>{new Date(a.scheduled_at).toLocaleString('fr-FR')}</td>
-                                  <td className={cn('px-6', 'py-4', 'max-w-xs', 'truncate', 'text-secondary-500')} title={a.notes}>{a.notes || "Aucune note fournie"}</td>
+                                  <td className={cn('px-6', 'py-4', 'text-slate-300')}>{new Date(a.scheduled_at).toLocaleString('fr-FR')}</td>
+                                  <td className={cn('px-6', 'py-4', 'max-w-xs', 'truncate', 'text-slate-400')} title={a.notes}>{a.notes || "Aucune note fournie"}</td>
                                   <td className={cn('px-6', 'py-4')}>
                                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${label.color}`}>
                                       {label.text}
@@ -1578,20 +1578,20 @@ const DashboardLawyer: React.FC = () => {
                                   <td className={cn('px-6', 'py-4', 'text-right', 'flex', 'justify-end', 'gap-2')}>
                                     {a.status === 'pending' && (
                                       <>
-                                        <Button size="sm" className={cn('bg-success-600', 'hover:bg-success-700')} onClick={() => handleUpdateAppointmentStatus(a.id, 'confirmed')}>
+                                        <Button size="sm" className={cn('bg-emerald-600', 'hover:bg-emerald-500', 'text-white')} onClick={() => handleUpdateAppointmentStatus(a.id, 'confirmed')}>
                                           Confirmer
                                         </Button>
-                                        <Button size="sm" variant="outline" className={cn('text-red-600', 'hover:bg-red-50', 'border-red-200')} onClick={() => handleUpdateAppointmentStatus(a.id, 'cancelled')}>
+                                        <Button size="sm" variant="outline" className={cn('text-red-400', 'hover:bg-slate-800', 'border-red-900/60')} onClick={() => handleUpdateAppointmentStatus(a.id, 'cancelled')}>
                                           Réfuser
                                         </Button>
                                       </>
                                     )}
                                     {a.status === 'confirmed' && (
                                       <>
-                                        <Button size="sm" className={cn('bg-primary-600', 'hover:bg-primary-700')} onClick={() => handleUpdateAppointmentStatus(a.id, 'completed')}>
+                                        <Button size="sm" className={cn('bg-indigo-600', 'hover:bg-indigo-500', 'text-white')} onClick={() => handleUpdateAppointmentStatus(a.id, 'completed')}>
                                           Terminer
                                         </Button>
-                                        <Button size="sm" variant="outline" className={cn('text-red-600', 'hover:bg-red-50', 'border-red-200')} onClick={() => handleUpdateAppointmentStatus(a.id, 'cancelled')}>
+                                        <Button size="sm" variant="outline" className={cn('text-red-400', 'hover:bg-slate-800', 'border-red-900/60')} onClick={() => handleUpdateAppointmentStatus(a.id, 'cancelled')}>
                                           Annuler
                                         </Button>
                                       </>
@@ -1603,7 +1603,7 @@ const DashboardLawyer: React.FC = () => {
                           </tbody>
                         </table>
                         {appointments.length === 0 && (
-                          <div className={cn('p-12', 'text-center', 'text-secondary-400', 'italic')}>Aucun rendez-vous planifié.</div>
+                          <div className={cn('p-12', 'text-center', 'text-slate-400', 'italic')}>Aucun rendez-vous planifié.</div>
                         )}
                       </div>
                     </CardContent>
@@ -1615,15 +1615,15 @@ const DashboardLawyer: React.FC = () => {
                     <CardHeader className={cn('flex', 'justify-between', 'items-center', 'flex-row', 'flex-wrap', 'gap-4')}>
                       <div className="space-y-1">
                         <CardTitle>Dossiers Clients</CardTitle>
-                        <p className={cn('text-xs', 'text-secondary-500')}>Sélectionnez un client pour voir ses documents</p>
+                        <p className={cn('text-xs', 'text-slate-400')}>Sélectionnez un client pour voir ses documents</p>
                       </div>
                       <div className={cn('flex', 'items-center', 'gap-3', 'flex-wrap')}>
                         <div className={cn('relative', 'w-64')}>
-                          <Search className={cn('absolute', 'left-3', 'top-1/2', '-translate-y-1/2', 'h-4', 'w-4', 'text-secondary-400')} />
+                          <Search className={cn('absolute', 'left-3', 'top-1/2', '-translate-y-1/2', 'h-4', 'w-4', 'text-slate-400')} />
                           <input
                             type="text"
                             placeholder="Rechercher un client..."
-                            className={cn('w-full', 'pl-9', 'pr-3', 'py-1.5', 'text-sm', 'rounded-xl', 'border', 'border-slate-700', 'bg-slate-800', 'text-slate-100', 'focus:outline-none', 'focus:ring-2', 'focus:ring-primary-500')}
+                            className={cn('w-full', 'pl-9', 'pr-3', 'py-1.5', 'text-sm', 'rounded-xl', 'border', 'border-slate-700', 'bg-slate-800', 'text-slate-100', 'focus:outline-none', 'focus:ring-2', 'focus:ring-indigo-500')}
                             value={clientSearchText}
                             onChange={(e) => setClientSearchText(e.target.value)}
                           />
@@ -1631,7 +1631,7 @@ const DashboardLawyer: React.FC = () => {
                         <Button onClick={() => {
                           setNewDoc({ name: '', type: 'client_document', client_id: '' });
                           setDocModalOpen(true);
-                        }}>
+                        }} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold">
                           <Plus className={cn('h-4', 'w-4', 'mr-2')} />
                           Nouveau Document Client
                         </Button>
@@ -1645,27 +1645,27 @@ const DashboardLawyer: React.FC = () => {
                             <div
                               key={client.id}
                               onClick={() => setSelectedClientForCases(client.id)}
-                              className={cn('group', 'cursor-pointer', 'border', 'border-slate-800', 'rounded-2xl', 'p-5', 'bg-slate-900/90', 'hover:border-primary-400', 'hover:shadow-md', 'transition-all', 'duration-200')}
+                              className={cn('group', 'cursor-pointer', 'border', 'border-slate-800', 'rounded-2xl', 'p-5', 'bg-slate-900/90', 'hover:border-indigo-500', 'hover:shadow-md', 'transition-all', 'duration-200')}
                             >
                               <div className={cn('flex', 'items-center', 'gap-4', 'mb-4')}>
-                                <div className={cn('h-12', 'w-12', 'rounded-xl', 'bg-gradient-to-br', 'from-primary-50', 'to-primary-100/50', 'text-primary-700', 'flex', 'items-center', 'justify-center', 'font-bold', 'text-lg', 'border', 'border-primary-100/30', 'group-hover:scale-105', 'transition-transform')}>
+                                <div className={cn('h-12', 'w-12', 'rounded-xl', 'bg-indigo-950', 'text-indigo-300', 'flex', 'items-center', 'justify-center', 'font-bold', 'text-lg', 'border', 'border-indigo-800', 'group-hover:scale-105', 'transition-transform')}>
                                   {initials}
                                 </div>
                                 <div className={cn('min-w-0', 'flex-1')}>
-                                  <h4 className={cn('font-bold', 'text-secondary-900', 'truncate', 'group-hover:text-primary-600', 'transition-colors')}>
+                                  <h4 className={cn('font-bold', 'text-white', 'truncate', 'group-hover:text-indigo-400', 'transition-colors')}>
                                     {client.first_name} {client.last_name}
                                   </h4>
-                                  <p className={cn('text-xs', 'text-secondary-500', 'truncate')}>{client.email}</p>
+                                  <p className={cn('text-xs', 'text-slate-400', 'truncate')}>{client.email}</p>
                                 </div>
                               </div>
-                              <div className={cn('space-y-2', 'pt-3', 'border-t', 'border-secondary-50', 'text-xs', 'text-secondary-600')}>
+                              <div className={cn('space-y-2', 'pt-3', 'border-t', 'border-slate-800', 'text-xs', 'text-slate-300')}>
                                 <div className={cn('flex', 'justify-between')}>
                                   <span>Localisation:</span>
-                                  <span className={cn('font-semibold', 'text-secondary-800')}>{client.city || 'Non renseigné'}{client.postal_code ? ` (${client.postal_code.substring(0,2)})` : ''}</span>
+                                  <span className={cn('font-semibold', 'text-white')}>{client.city || 'Non renseigné'}{client.postal_code ? ` (${client.postal_code.substring(0,2)})` : ''}</span>
                                 </div>
                                 <div className={cn('flex', 'justify-between')}>
                                   <span>Documents :</span>
-                                  <span className={cn('px-2', 'py-0.5', 'rounded-md', 'bg-secondary-100', 'text-secondary-700', 'font-bold')}>{client.count} document(s)</span>
+                                  <span className={cn('px-2', 'py-0.5', 'rounded-md', 'bg-slate-800', 'text-slate-200', 'font-bold', 'border', 'border-slate-700')}>{client.count} document(s)</span>
                                 </div>
                               </div>
                             </div>
@@ -1673,7 +1673,7 @@ const DashboardLawyer: React.FC = () => {
                         })}
                       </div>
                       {filteredClients.length === 0 && (
-                        <div className={cn('py-12', 'text-center', 'text-secondary-400', 'italic')}>
+                        <div className={cn('py-12', 'text-center', 'text-slate-400', 'italic')}>
                           Aucun client trouvé ou aucun document disponible.
                         </div>
                       )}
@@ -1687,7 +1687,7 @@ const DashboardLawyer: React.FC = () => {
                       <div className={cn('flex', 'items-center', 'gap-3')}>
                         <button
                           onClick={() => setSelectedClientForCases(null)}
-                          className={cn('p-2', 'rounded-xl', 'hover:bg-secondary-100', 'text-secondary-600', 'transition-colors')}
+                          className={cn('p-2', 'rounded-xl', 'hover:bg-slate-800', 'text-slate-300', 'transition-colors')}
                           title="Retour à la liste"
                         >
                           <ArrowLeft className={cn('h-5', 'w-5')} />
@@ -1695,9 +1695,9 @@ const DashboardLawyer: React.FC = () => {
                         <div>
                           <CardTitle className={cn('flex', 'items-center', 'gap-2')}>
                             <span>Dossier de</span>
-                            <span className="text-primary-600">{selectedClientInfo?.name}</span>
+                            <span className="text-indigo-400">{selectedClientInfo?.name}</span>
                           </CardTitle>
-                          <p className={cn('text-xs', 'text-secondary-500')}>
+                          <p className={cn('text-xs', 'text-slate-400')}>
                             {selectedClientInfo?.email} {selectedClientInfo?.city ? `• ${selectedClientInfo.city}` : ''}
                           </p>
                         </div>
@@ -1705,7 +1705,7 @@ const DashboardLawyer: React.FC = () => {
                       <Button onClick={() => {
                         setNewDoc({ name: '', type: 'client_document', client_id: selectedClientForCases });
                         setDocModalOpen(true);
-                      }}>
+                      }} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold">
                         <Plus className={cn('h-4', 'w-4', 'mr-2')} />
                         Nouveau Document Client
                       </Button>
@@ -1713,7 +1713,7 @@ const DashboardLawyer: React.FC = () => {
                     <CardContent className="p-0">
                       <div className="overflow-x-auto">
                         <table className={cn('w-full', 'text-left', 'text-sm', 'whitespace-nowrap')}>
-                          <thead className={cn('bg-secondary-50', 'border-y')}>
+                          <thead className={cn('bg-slate-950', 'border-y', 'border-slate-800', 'text-slate-400')}>
                             <tr>
                               <th className={cn('px-6', 'py-4')}>Document</th>
                               <th className={cn('px-6', 'py-4')}>Client</th>
@@ -1722,7 +1722,7 @@ const DashboardLawyer: React.FC = () => {
                               <th className={cn('px-6', 'py-4', 'text-right')}>Fichier</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y">
+                          <tbody className="divide-y divide-slate-800 text-slate-300">
                             {cases
                               .filter(c => c.owner_id === selectedClientForCases)
                               .map((c) => {
@@ -1733,42 +1733,30 @@ const DashboardLawyer: React.FC = () => {
                                   client_document: "📁 Pièce de dossier / Justificatif"
                                 };
                                 return (
-                                  <tr key={c.id} className="hover:bg-secondary-50">
-                                    <td className={cn('px-6', 'py-4', 'font-semibold', 'text-secondary-900')}>{c.name}</td>
-                                    <td className={cn('px-6', 'py-4')}>
+                                  <tr key={c.id} className="hover:bg-slate-800/60 transition-colors">
+                                    <td className={cn('px-6', 'py-4', 'font-semibold', 'text-white')}>{c.name}</td>
+                                    <td className={cn('px-6', 'py-4', 'text-slate-300')}>
                                       {c.profiles?.first_name} {c.profiles?.last_name}
-                                      {c.profiles?.city ? <span className={cn('text-secondary-400', 'text-xs', 'ml-1', 'font-normal')}>({c.profiles.city})</span> : ''}
+                                      {c.profiles?.city ? <span className={cn('text-slate-400', 'text-xs', 'ml-1', 'font-normal')}>({c.profiles.city})</span> : ''}
                                     </td>
                                     <td className={cn('px-6', 'py-4')}>
-                                      <span className={cn('bg-secondary-100', 'text-secondary-800', 'px-2', 'py-0.5', 'rounded', 'text-xs')}>
+                                      <span className={cn('bg-slate-800', 'text-slate-200', 'px-2', 'py-0.5', 'rounded', 'text-xs', 'border', 'border-slate-700')}>
                                         {docTypeLabels[c.type] || c.type}
                                       </span>
                                     </td>
-                                    <td className={cn('px-6', 'py-4', 'text-secondary-500')}>
+                                    <td className={cn('px-6', 'py-4', 'text-slate-400')}>
                                       {new Date(c.created_at).toLocaleDateString('fr-FR')}
                                     </td>
                                     <td className={cn('px-6', 'py-4', 'text-right')}>
-                                      {c.file_url ? (
-                                        <a href={c.file_url} target="_blank" rel="noreferrer">
-                                          <Button variant="outline" size="sm">
-                                            Ouvrir
-                                          </Button>
-                                        </a>
-                                      ) : c.metadata?.content ? (
-                                        <Button variant="outline" size="sm" onClick={() => setSelectedIADoc(c)}>
-                                          <Eye className={cn('h-4', 'w-4', 'mr-2', 'text-primary-600')} />
-                                          Visualiser
-                                        </Button>
-                                      ) : null}
+                                      <Button size="sm" variant="ghost" onClick={() => setSelectedIADoc(c)} className="hover:bg-slate-800 text-slate-300">
+                                        Voir
+                                      </Button>
                                     </td>
                                   </tr>
                                 );
                               })}
                           </tbody>
                         </table>
-                        {cases.filter(c => c.owner_id === selectedClientForCases).length === 0 && (
-                          <div className={cn('p-12', 'text-center', 'text-secondary-400', 'italic')}>Aucun document pour ce client.</div>
-                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -1861,13 +1849,13 @@ const DashboardLawyer: React.FC = () => {
                 {activeTab === 'quotes' && (
                   <div className="space-y-6">
                     <div className={cn('flex', 'items-center', 'justify-between')}>
-                      <h2 className={cn('text-2xl', 'font-semibold', 'text-secondary-900')}>Gestion des Devis & Honoraires</h2>
-                      <Button onClick={() => setQuoteModalOpen(true)}><Plus className={cn('h-4', 'w-4', 'mr-2')} /> Nouveau Devis</Button>
+                      <h2 className={cn('text-2xl', 'font-semibold', 'text-white')}>Gestion des Devis & Honoraires</h2>
+                      <Button onClick={() => setQuoteModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold"><Plus className={cn('h-4', 'w-4', 'mr-2')} /> Nouveau Devis</Button>
                     </div>
                     <Card>
                       <CardContent className="p-0">
                         <table className={cn('w-full', 'text-left', 'text-sm', 'whitespace-nowrap')}>
-                          <thead className={cn('bg-secondary-50', 'border-y')}>
+                          <thead className={cn('bg-slate-950', 'border-y', 'border-slate-800', 'text-slate-400')}>
                             <tr>
                               <th className={cn('px-6', 'py-4')}>Client</th>
                               <th className={cn('px-6', 'py-4')}>Montant (MAD)</th>
@@ -1876,32 +1864,33 @@ const DashboardLawyer: React.FC = () => {
                               <th className={cn('px-6', 'py-4', 'text-right')}>Actions</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y">
+                          <tbody className="divide-y divide-slate-800 text-slate-300">
                             {quotes.map((q) => (
-                              <tr key={q.id}>
-                                <td className={cn('px-6', 'py-4')}>{q.profiles?.first_name} {q.profiles?.last_name}</td>
-                                <td className={cn('px-6', 'py-4', 'font-bold')}>{q.amount}</td>
+                              <tr key={q.id} className="hover:bg-slate-800/60 transition-colors">
+                                <td className={cn('px-6', 'py-4', 'font-medium', 'text-white')}>{q.profiles?.first_name} {q.profiles?.last_name}</td>
+                                <td className={cn('px-6', 'py-4', 'font-bold', 'text-white')}>{q.amount}</td>
                                 <td className={cn('px-6', 'py-4')}>
-                                  <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                  <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'paid' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}`}>
                                     {q.status}
                                   </span>
                                 </td>
                                 <td className={cn('px-6', 'py-4')}>
                                   {q.status === 'paid' ? (
-                                    <span className="text-secondary-500">{q.commission_amount} MAD dû</span>
+                                    <span className="text-slate-400">{q.commission_amount} MAD dû</span>
                                   ) : q.status === 'commissioned' ? (
-                                    <span className={cn('text-green-600', 'font-bold')}>Payée</span>
+                                    <span className={cn('text-emerald-400', 'font-bold')}>Payée</span>
                                   ) : "-"}
                                 </td>
                                 <td className={cn('px-6', 'py-4', 'text-right', 'flex', 'justify-end', 'gap-2')}>
                                   {q.status === 'pending' && (
-                                    <Button size="sm" variant="outline" onClick={() => handleMarkAsPaid(q.id)}>Confirmer Encaissement</Button>
+                                    <Button size="sm" variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => handleMarkAsPaid(q.id)}>Confirmer Encaissement</Button>
                                   )}
                                   {q.status === 'paid' && (
                                     <Button
                                       size="sm"
                                       onClick={() => handlePayCommission(q)}
                                       disabled={payingCommissionId === q.id}
+                                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold"
                                     >
                                       {payingCommissionId === q.id ? (
                                         <span className="flex items-center gap-1.5">
@@ -1918,7 +1907,7 @@ const DashboardLawyer: React.FC = () => {
                             ))}
                           </tbody>
                         </table>
-                        {quotes.length === 0 && <div className={cn('p-12', 'text-center', 'text-secondary-400')}>Aucun devis créé.</div>}
+                        {quotes.length === 0 && <div className={cn('p-12', 'text-center', 'text-slate-400')}>Aucun devis créé.</div>}
                       </CardContent>
                     </Card>
                   </div>
@@ -1926,29 +1915,29 @@ const DashboardLawyer: React.FC = () => {
                 {activeTab === 'assistance' && (
                   <div className="space-y-6">
                     <div className={cn('flex', 'items-center', 'justify-between')}>
-                      <h2 className={cn('text-2xl', 'font-semibold', 'text-secondary-900')}>Support et Assistance</h2>
-                      <Button onClick={() => setModalOpen(true)}><Plus className={cn('h-4', 'w-4', 'mr-2')} /> Nouveau Ticket</Button>
+                      <h2 className={cn('text-2xl', 'font-semibold', 'text-white')}>Support et Assistance</h2>
+                      <Button onClick={() => setModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold"><Plus className={cn('h-4', 'w-4', 'mr-2')} /> Nouveau Ticket</Button>
                     </div>
                     <Card>
                       <CardContent className="p-0">
                         <table className={cn('w-full', 'text-left', 'text-sm', 'whitespace-nowrap')}>
-                          <thead className={cn('bg-secondary-50', 'border-y')}>
+                          <thead className={cn('bg-slate-950', 'border-y', 'border-slate-800', 'text-slate-400')}>
                             <tr>
                               <th className={cn('px-6', 'py-4')}>Sujet</th>
                               <th className={cn('px-6', 'py-4')}>Statut</th>
                               <th className={cn('px-6', 'py-4')}>Date</th>
                             </tr>
                           </thead>
-                          <tbody className={cn('divide-y', 'relative')}>
+                          <tbody className={cn('divide-y', 'divide-slate-800', 'text-slate-300', 'relative')}>
                             {tickets.map((ticket, idx) => (
-                              <tr key={idx} className="hover:bg-secondary-50">
-                                <td className={cn('px-6', 'py-4')}>{ticket.subject}</td>
+                              <tr key={idx} className="hover:bg-slate-800/60 transition-colors">
+                                <td className={cn('px-6', 'py-4', 'text-white')}>{ticket.subject}</td>
                                 <td className={cn('px-6', 'py-4')}>
-                                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${ticket.status === 'En cours' ? 'bg-warning-100 text-warning-700' : ticket.status === 'Résolu' ? 'bg-success-100 text-success-700' : 'bg-primary-100 text-primary-700'}`}>
+                                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${ticket.status === 'En cours' ? 'bg-amber-950 text-amber-300 border border-amber-800' : ticket.status === 'Résolu' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-indigo-950 text-indigo-300 border border-indigo-800'}`}>
                                     {ticket.status}
                                   </span>
                                 </td>
-                                <td className={cn('px-6', 'py-4')}>{new Date(ticket.created_at).toLocaleDateString()}</td>
+                                <td className={cn('px-6', 'py-4', 'text-slate-400')}>{new Date(ticket.created_at).toLocaleDateString()}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -2405,7 +2394,7 @@ const DashboardLawyer: React.FC = () => {
                             );
                           })}
                           {classrooms.length === 0 && (
-                            <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl bg-white">
+                            <div className="col-span-full text-center py-12 text-slate-400 border border-dashed border-slate-800 rounded-2xl bg-slate-900">
                               Aucune visioconférence n'est programmée pour le moment.
                             </div>
                           )}
@@ -2420,7 +2409,7 @@ const DashboardLawyer: React.FC = () => {
                             </h3>
                             <p className="text-xs text-slate-400 mt-1">Créez et publiez vos modules de formation enrichis de documents PDF et visuels d'illustration pour vos confrères, étudiants et citoyens.</p>
                           </div>
-                          <Button variant="primary" size="sm" onClick={() => setCreateFormationOpen(true)} className="whitespace-nowrap font-bold shadow-lg shadow-primary-500/20">
+                          <Button variant="primary" size="sm" onClick={() => setCreateFormationOpen(true)} className="whitespace-nowrap font-bold bg-indigo-600 hover:bg-indigo-500 text-white">
                             <Plus className="w-4 h-4 mr-1.5" /> Créer une formation
                           </Button>
                         </div>
@@ -2430,46 +2419,46 @@ const DashboardLawyer: React.FC = () => {
                             const isCompleted = completedFormations.includes(f.id);
                             const atts = getFormationAttachments(f);
                             return (
-                              <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100 flex flex-col justify-between">
+                              <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-slate-800 flex flex-col justify-between">
                                 <CardContent className="p-6 flex flex-col justify-between h-full space-y-4">
                                   <div className={cn('flex', 'flex-col', 'space-y-3')}>
                                     <div className="flex justify-between items-start">
-                                      <span className={cn('text-xs', 'font-bold', 'text-primary-600', 'uppercase', 'tracking-wider')}>{f.category}</span>
+                                      <span className={cn('text-xs', 'font-bold', 'text-indigo-400', 'uppercase', 'tracking-wider')}>{f.category}</span>
                                       {isCompleted ? (
-                                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-success-100 text-success-700 flex items-center gap-1">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
+                                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center gap-1">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                                           Terminé
                                         </span>
                                       ) : (
-                                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-100 text-secondary-600">
+                                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
                                           Disponible
                                         </span>
                                       )}
                                     </div>
-                                    <h3 className={cn('text-lg', 'font-bold', 'text-secondary-900', 'line-clamp-2')}>{f.title}</h3>
-                                    <p className={cn('text-xs', 'text-secondary-500')}>Durée: {f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
+                                    <h3 className={cn('text-lg', 'font-bold', 'text-white', 'line-clamp-2')}>{f.title}</h3>
+                                    <p className={cn('text-xs', 'text-slate-400')}>Durée: {f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
                                     
                                     {f.description && (
-                                      <p className="text-xs text-secondary-600 line-clamp-2 italic bg-secondary-50 p-2 rounded-xl">
+                                      <p className="text-xs text-slate-300 line-clamp-2 italic bg-slate-950 p-2 rounded-xl border border-slate-800">
                                         "{f.description}"
                                       </p>
                                     )}
 
                                     {atts.length > 0 && (
-                                      <div className="flex items-center gap-1.5 text-xs text-indigo-600 font-bold bg-indigo-50 border border-indigo-100 px-2.5 py-1.5 rounded-xl w-fit">
+                                      <div className="flex items-center gap-1.5 text-xs text-indigo-300 font-bold bg-slate-950 border border-indigo-900/60 px-2.5 py-1.5 rounded-xl w-fit">
                                         <span>📑</span>
                                         <span>{atts.length} document(s) & visuel(s) rattaché(s)</span>
                                       </div>
                                     )}
 
                                     <div className="space-y-1.5 pt-2">
-                                      <div className="flex justify-between text-xs text-secondary-400">
+                                      <div className="flex justify-between text-xs text-slate-400">
                                         <span>Progression</span>
                                         <span>{isCompleted ? '100%' : '0%'}</span>
                                       </div>
-                                      <div className="w-full bg-secondary-100 rounded-full h-1.5">
+                                      <div className="w-full bg-slate-800 rounded-full h-1.5">
                                         <div 
-                                          className={cn('h-1.5 rounded-full transition-all duration-300', isCompleted ? 'bg-success-500' : 'bg-secondary-300')}
+                                          className={cn('h-1.5 rounded-full transition-all duration-300', isCompleted ? 'bg-emerald-500' : 'bg-slate-700')}
                                           style={{ width: isCompleted ? '100%' : '0%' }}
                                         />
                                       </div>
@@ -2479,7 +2468,7 @@ const DashboardLawyer: React.FC = () => {
                                   <div className="flex gap-2 pt-2">
                                     <Button 
                                       variant={isCompleted ? "outline" : "primary"}
-                                      className="flex-1 text-sm font-semibold"
+                                      className={cn("flex-1 text-sm font-semibold", !isCompleted && "bg-indigo-600 hover:bg-indigo-500 text-white", isCompleted && "border-slate-700 text-slate-300 hover:bg-slate-800")}
                                       onClick={() => {
                                         setSelectedFormation(f);
                                         setFormationViewMode('start');
@@ -2492,7 +2481,7 @@ const DashboardLawyer: React.FC = () => {
                                     <Button 
                                       variant="outline" 
                                       size="sm" 
-                                      className="px-3 text-secondary-500 hover:text-primary-600"
+                                      className="px-3 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
                                       onClick={() => {
                                         setSelectedFormation(f);
                                         setFormationViewMode('preview');
@@ -2508,9 +2497,9 @@ const DashboardLawyer: React.FC = () => {
                             );
                           })}
                           {formations.length === 0 && (
-                            <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl bg-white space-y-3">
+                            <div className="col-span-full text-center py-12 text-slate-400 border border-dashed border-slate-800 rounded-2xl bg-slate-900 space-y-3">
                               <p className="text-base font-semibold">Aucun module de formation n'est actuellement publié.</p>
-                              <Button variant="primary" size="sm" onClick={() => setCreateFormationOpen(true)}>
+                              <Button variant="primary" size="sm" onClick={() => setCreateFormationOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold">
                                 <Plus className="w-4 h-4 mr-1.5" /> Créer la première formation
                               </Button>
                             </div>
@@ -3097,15 +3086,15 @@ const DashboardLawyer: React.FC = () => {
         onClose={() => setShowWelcome(false)}
         title="Bienvenue Maître"
       >
-        <div className={cn('text-center', 'py-6')}>
-          <div className={cn('mx-auto', 'h-16', 'w-16', 'bg-primary-100', 'rounded-full', 'flex', 'items-center', 'justify-center', 'mb-4')}>
-            <Users className={cn('h-8', 'w-8', 'text-primary-600')} />
+        <div className="text-center py-6">
+          <div className="mx-auto h-16 w-16 bg-indigo-500/20 border border-indigo-500/30 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/20">
+            <Users className="h-8 w-8 text-indigo-400" />
           </div>
-          <h3 className={cn('text-2xl', 'font-bold', 'text-secondary-900', 'mb-2')}>Bienvenue Maître {profile?.last_name || profile?.first_name} !</h3>
-          <p className={cn('text-secondary-600', 'mb-6')}>
+          <h3 className="text-2xl font-extrabold text-white mb-2">Bienvenue Maître {profile?.last_name || profile?.first_name} !</h3>
+          <p className="text-slate-300 text-sm mb-6 leading-relaxed max-w-md mx-auto">
             Votre tableau de bord professionnel est prêt. Gérez vos rendez-vous, accédez à vos outils d'IA et suivez vos honoraires en toute simplicité.
           </p>
-          <Button className="w-full" onClick={() => setShowWelcome(false)}>
+          <Button className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-extrabold py-3 rounded-xl shadow-lg shadow-indigo-600/30" onClick={() => setShowWelcome(false)}>
             Accéder au tableau de bord
           </Button>
         </div>
@@ -3117,11 +3106,11 @@ const DashboardLawyer: React.FC = () => {
         title={selectedIADoc?.name || "Visualisation du Document"}
       >
         <div className="space-y-6">
-          <div className={cn('p-5', 'bg-secondary-50', 'border', 'border-secondary-200', 'rounded-2xl', 'max-h-[60vh]', 'overflow-y-auto', 'whitespace-pre-wrap', 'font-serif', 'text-secondary-800', 'text-sm', 'leading-relaxed', 'shadow-inner')}>
+          <div className={cn('p-5', 'bg-slate-950', 'border', 'border-slate-800', 'rounded-2xl', 'max-h-[60vh]', 'overflow-y-auto', 'whitespace-pre-wrap', 'font-serif', 'text-slate-100', 'text-sm', 'leading-relaxed', 'shadow-inner')}>
             {selectedIADoc?.metadata?.content}
           </div>
-          <div className={cn('flex', 'justify-end', 'gap-3', 'pt-4', 'border-t', 'border-secondary-100')}>
-            <Button variant="outline" onClick={() => setSelectedIADoc(null)}>Fermer</Button>
+          <div className={cn('flex', 'justify-end', 'gap-3', 'pt-4', 'border-t', 'border-slate-800')}>
+            <Button variant="outline" onClick={() => setSelectedIADoc(null)} className="border-slate-700 text-slate-300 hover:bg-slate-800">Fermer</Button>
             <Button onClick={() => {
               const printWindow = window.open('', '_blank');
               if (printWindow) {
@@ -3163,32 +3152,32 @@ const DashboardLawyer: React.FC = () => {
         onClose={() => setPaymentAlarmQuote(null)}
         title="⚠️ ALERTE DE PAIEMENT : Commission en attente !"
       >
-        <div className={cn('text-center', 'py-6', 'space-y-4')}>
-          <div className={cn('mx-auto', 'h-16', 'w-16', 'bg-red-100', 'text-red-600', 'rounded-full', 'flex', 'items-center', 'justify-center', 'animate-bounce', 'shadow-lg', 'shadow-red-500/20')}>
+        <div className={cn('text-center', 'py-6', 'space-y-4', 'text-slate-100')}>
+          <div className={cn('mx-auto', 'h-16', 'w-16', 'bg-red-950/80', 'text-red-400', 'border', 'border-red-800', 'rounded-full', 'flex', 'items-center', 'justify-center', 'animate-bounce', 'shadow-lg', 'shadow-red-500/20')}>
             <AlertTriangle className={cn('h-8', 'w-8')} />
           </div>
-          <h3 className={cn('text-xl', 'font-bold', 'text-secondary-900')}>
+          <h3 className={cn('text-xl', 'font-bold', 'text-white')}>
             Paiement Client Reçu !
           </h3>
-          <p className={cn('text-sm', 'text-secondary-600', 'leading-relaxed', 'px-2')}>
-            Le client <strong className="text-secondary-800">{paymentAlarmQuote?.profiles?.first_name || 'Citoyen'} {paymentAlarmQuote?.profiles?.last_name || ''}</strong> a payé la somme de <strong>{paymentAlarmQuote?.amount} MAD</strong> pour le devis <strong>#{paymentAlarmQuote?.id?.slice(0, 8)}</strong>.
+          <p className={cn('text-sm', 'text-slate-300', 'leading-relaxed', 'px-2')}>
+            Le client <strong className="text-white">{paymentAlarmQuote?.profiles?.first_name || 'Citoyen'} {paymentAlarmQuote?.profiles?.last_name || ''}</strong> a payé la somme de <strong>{paymentAlarmQuote?.amount} MAD</strong> pour le devis <strong>#{paymentAlarmQuote?.id?.slice(0, 8)}</strong>.
           </p>
-          <div className={cn('bg-red-50/70', 'border', 'border-red-200/50', 'rounded-2xl', 'p-4.5', 'text-left', 'space-y-2')}>
-            <div className={cn('flex', 'justify-between', 'text-xs', 'text-secondary-600')}>
+          <div className={cn('bg-red-950/40', 'border', 'border-red-800/60', 'rounded-2xl', 'p-4.5', 'text-left', 'space-y-2')}>
+            <div className={cn('flex', 'justify-between', 'text-xs', 'text-slate-300')}>
               <span>Montant versé par le client :</span>
-              <span className={cn('font-semibold', 'text-secondary-800')}>{paymentAlarmQuote?.amount} MAD</span>
+              <span className={cn('font-semibold', 'text-white')}>{paymentAlarmQuote?.amount} MAD</span>
             </div>
-            <div className={cn('flex', 'justify-between', 'text-xs', 'text-red-600', 'font-semibold', 'border-t', 'border-red-100', 'pt-2')}>
+            <div className={cn('flex', 'justify-between', 'text-xs', 'text-red-300', 'font-semibold', 'border-t', 'border-red-800/50', 'pt-2')}>
               <span>Commission due (20%) :</span>
               <span>{(paymentAlarmQuote?.amount * 0.2).toFixed(2)} MAD</span>
             </div>
           </div>
-          <p className={cn('text-xs', 'text-secondary-500', 'italic')}>
+          <p className={cn('text-xs', 'text-slate-400', 'italic')}>
             Pour activer le dossier, valider l'accès aux documents et à la messagerie sécurisée, vous devez régler cette commission.
           </p>
           <div className={cn('flex', 'flex-col', 'gap-2', 'pt-4')}>
             <Button 
-              className={cn('w-full', 'bg-red-600', 'hover:bg-red-700', 'text-white', 'font-semibold', 'py-2.5', 'rounded-xl', 'shadow-md', 'transition-all', 'duration-200')}
+              className={cn('w-full', 'bg-red-600', 'hover:bg-red-500', 'text-white', 'font-semibold', 'py-2.5', 'rounded-xl', 'shadow-md', 'transition-all', 'duration-200')}
               disabled={payingCommissionId === paymentAlarmQuote?.id}
               onClick={() => {
                 const quoteToPay = {
@@ -3210,7 +3199,7 @@ const DashboardLawyer: React.FC = () => {
             </Button>
             <Button 
               variant="ghost" 
-              className={cn('w-full', 'text-secondary-500', 'hover:text-secondary-600', 'text-xs')}
+              className={cn('w-full', 'text-slate-400', 'hover:text-white', 'text-xs', 'hover:bg-slate-800')}
               onClick={() => setPaymentAlarmQuote(null)}
             >
               Fermer et régler plus tard
@@ -3235,28 +3224,28 @@ const DashboardLawyer: React.FC = () => {
           const atts = getFormationAttachments(selectedFormation);
 
           return (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center bg-secondary-50 p-4 rounded-2xl border border-secondary-100">
+            <div className="space-y-6 text-slate-100">
+              <div className="flex justify-between items-center bg-slate-900 p-4 rounded-2xl border border-slate-800">
                 <div className="space-y-1">
-                  <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Durée du module</p>
-                  <p className="text-sm font-semibold text-secondary-900 font-sans">{selectedFormation.duration}</p>
+                  <p className="text-xs text-slate-400 font-bold uppercase font-sans">Durée du module</p>
+                  <p className="text-sm font-semibold text-white font-sans">{selectedFormation.duration}</p>
                 </div>
                 {selectedFormation.author_name && (
                   <div className="space-y-1 text-center">
-                    <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Formateur</p>
-                    <p className="text-xs font-bold text-primary-700 font-sans">{selectedFormation.author_name} ({selectedFormation.author_role || 'Expert'})</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase font-sans">Formateur</p>
+                    <p className="text-xs font-bold text-indigo-300 font-sans">{selectedFormation.author_name} ({selectedFormation.author_role || 'Expert'})</p>
                   </div>
                 )}
                 <div className="space-y-1 text-right">
-                  <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Niveau requis</p>
-                  <p className="text-sm font-semibold text-secondary-900 font-sans">{selectedFormation.level}</p>
+                  <p className="text-xs text-slate-400 font-bold uppercase font-sans">Niveau requis</p>
+                  <p className="text-sm font-semibold text-white font-sans">{selectedFormation.level}</p>
                 </div>
               </div>
 
               {selectedFormation.description && (
-                <div className="bg-primary-50/60 border border-primary-100 p-4 rounded-2xl space-y-1 text-xs">
-                  <p className="font-bold text-primary-900 uppercase tracking-wider text-[10px]">Description & Objectifs</p>
-                  <p className="text-primary-800 leading-relaxed">{selectedFormation.description}</p>
+                <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1 text-xs">
+                  <p className="font-bold text-indigo-400 uppercase tracking-wider text-[10px]">Description & Objectifs</p>
+                  <p className="text-slate-300 leading-relaxed">{selectedFormation.description}</p>
                 </div>
               )}
 
@@ -3290,20 +3279,20 @@ const DashboardLawyer: React.FC = () => {
 
               {/* Progress bar in Modal */}
               <div className="space-y-2">
-                <div className="flex justify-between text-sm font-bold text-secondary-700">
+                <div className="flex justify-between text-sm font-bold text-slate-300">
                   <span>Progression globale</span>
                   <span>{percent}%</span>
                 </div>
-                <div className="w-full bg-secondary-100 rounded-full h-2">
+                <div className="w-full bg-slate-800 rounded-full h-2">
                   <div 
-                    className="h-2 rounded-full bg-success-500 transition-all duration-300"
+                    className="h-2 rounded-full bg-emerald-500 transition-all duration-300"
                     style={{ width: `${percent}%` }}
                   />
                 </div>
               </div>
 
               {/* Chapter navigation */}
-              <div className="border-t border-secondary-100 pt-4">
+              <div className="border-t border-slate-800 pt-4">
                 <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
                   {chapters.map((ch, idx) => (
                     <button
@@ -3312,8 +3301,8 @@ const DashboardLawyer: React.FC = () => {
                       className={cn(
                         'px-3', 'py-1.5', 'rounded-xl', 'text-xs', 'font-bold', 'whitespace-nowrap', 'transition-all',
                         activeChapterIndex === idx 
-                          ? 'bg-primary-600 text-white shadow-sm shadow-primary-500/20' 
-                          : 'bg-secondary-50 text-secondary-600 hover:bg-secondary-100 border border-secondary-200'
+                          ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20' 
+                          : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
                       )}
                     >
                       {ch.title.split('.')[0]}. {ch.title.split('.').slice(1).join('.').trim()}
@@ -3323,10 +3312,10 @@ const DashboardLawyer: React.FC = () => {
                 </div>
 
                 {/* Chapter content */}
-                <div className="bg-secondary-50/50 border border-secondary-200/50 rounded-2xl p-5 min-h-[180px] flex flex-col justify-between font-sans">
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 min-h-[180px] flex flex-col justify-between font-sans">
                   <div className="space-y-3">
-                    <h4 className="font-bold text-secondary-900 text-base">{chapters[activeChapterIndex].title}</h4>
-                    <p className="text-sm text-secondary-700 leading-relaxed font-sans">{chapters[activeChapterIndex].content}</p>
+                    <h4 className="font-bold text-white text-base">{chapters[activeChapterIndex].title}</h4>
+                    <p className="text-sm text-slate-300 leading-relaxed font-sans">{chapters[activeChapterIndex].content}</p>
                   </div>
                   {formationViewMode === 'start' && (
                     <div className="mt-4 pt-4 border-t border-secondary-100 flex items-center justify-between">
@@ -3483,14 +3472,15 @@ const DashboardLawyer: React.FC = () => {
                 </div>
 
                 {contractGeneratedText && (
-                  <div className="space-y-3 pt-3 border-t border-secondary-100 animate-fade-in">
-                    <label className="block text-xs font-bold text-secondary-700">Contrat Généré :</label>
-                    <pre className="p-4 bg-secondary-50 border border-secondary-200 rounded-xl text-xs font-mono max-h-[200px] overflow-y-auto whitespace-pre-wrap leading-relaxed">
+                  <div className="space-y-3 pt-3 border-t border-slate-800 animate-fade-in">
+                    <label className="block text-xs font-bold text-slate-300">Contrat Généré :</label>
+                    <pre className="p-4 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono max-h-[200px] overflow-y-auto whitespace-pre-wrap leading-relaxed text-slate-200 shadow-inner">
                       {contractGeneratedText}
                     </pre>
                     <div className="flex justify-between gap-3">
                       <Button
                         variant="outline"
+                        className="border-slate-700 text-slate-300 hover:bg-slate-800"
                         onClick={() => {
                           navigator.clipboard.writeText(contractGeneratedText);
                           success("Copié !", "Le texte du contrat a été copié dans le presse-papiers.");
@@ -3501,6 +3491,7 @@ const DashboardLawyer: React.FC = () => {
                       <Button
                         variant="primary"
                         onClick={handleSaveContractToClient}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold"
                       >
                         Enregistrer au dossier
                       </Button>
@@ -3545,11 +3536,11 @@ const DashboardLawyer: React.FC = () => {
 
             return (
               <div className="space-y-4 font-sans text-sm">
-                <p className="text-sm text-secondary-500">Estimez vos honoraires en fonction du temps passé et des frais annexes, puis convertissez cette estimation en devis réel dans Supabase.</p>
+                <p className="text-sm text-slate-300">Estimez vos honoraires en fonction du temps passé et des frais annexes, puis convertissez cette estimation en devis réel dans Supabase.</p>
                 
-                <div className="grid grid-cols-2 gap-3 border-t border-secondary-100 pt-3">
+                <div className="grid grid-cols-2 gap-3 border-t border-slate-800 pt-3">
                   <div>
-                    <label className="block text-xs font-bold text-secondary-700 mb-1">Taux Horaire (MAD/h)</label>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Taux Horaire (MAD/h)</label>
                     <Input
                       type="number"
                       value={calcHourlyRate}
@@ -3557,7 +3548,7 @@ const DashboardLawyer: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-secondary-700 mb-1">Nombre d'heures</label>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Nombre d'heures</label>
                     <Input
                       type="number"
                       value={calcHours}
@@ -3565,7 +3556,7 @@ const DashboardLawyer: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-secondary-700 mb-1">Frais / Débours (MAD)</label>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Frais / Débours (MAD)</label>
                     <Input
                       type="number"
                       value={calcExpenses}
@@ -3573,7 +3564,7 @@ const DashboardLawyer: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-secondary-700 mb-1">Taux de TVA (%)</label>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Taux de TVA (%)</label>
                     <Input
                       type="number"
                       value={calcVatRate}
@@ -3582,38 +3573,38 @@ const DashboardLawyer: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-secondary-50 border border-secondary-200 rounded-2xl p-4 space-y-2">
-                  <div className="flex justify-between text-xs text-secondary-600">
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2">
+                  <div className="flex justify-between text-xs text-slate-400">
                     <span>Total Honoraires HT :</span>
-                    <span className="font-semibold text-secondary-800">{totalHT.toFixed(2)} MAD</span>
+                    <span className="font-semibold text-slate-200">{totalHT.toFixed(2)} MAD</span>
                   </div>
-                  <div className="flex justify-between text-xs text-secondary-600">
+                  <div className="flex justify-between text-xs text-slate-400">
                     <span>Montant TVA :</span>
-                    <span className="font-semibold text-secondary-800">{vatAmount.toFixed(2)} MAD</span>
+                    <span className="font-semibold text-slate-200">{vatAmount.toFixed(2)} MAD</span>
                   </div>
-                  <div className="flex justify-between text-sm font-bold text-primary-600 border-t border-secondary-200 pt-2">
+                  <div className="flex justify-between text-sm font-bold text-indigo-400 border-t border-slate-800 pt-2">
                     <span>TOTAL TTC :</span>
                     <span>{totalTTC.toFixed(2)} MAD</span>
                   </div>
                 </div>
 
-                <div className="space-y-3 pt-3 border-t border-secondary-100">
-                  <h4 className="text-xs font-bold text-secondary-700">Enregistrer en tant que Devis</h4>
+                <div className="space-y-3 pt-3 border-t border-slate-800">
+                  <h4 className="text-xs font-bold text-slate-300">Enregistrer en tant que Devis</h4>
                   <div>
-                    <label className="block text-xs text-secondary-500 mb-1">Sélectionner le Client</label>
+                    <label className="block text-xs text-slate-400 mb-1">Sélectionner le Client</label>
                     <select
                       value={calcClient}
                       onChange={e => setCalcClient(e.target.value)}
-                      className="w-full text-sm border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500"
+                      className="w-full text-sm bg-slate-950 text-slate-100 border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-indigo-500"
                     >
-                      <option value="">-- Sélectionner un client --</option>
+                      <option value="" className="bg-slate-900 text-slate-100">-- Sélectionner un client --</option>
                       {allInteractingClients.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
+                        <option key={c.id} value={c.id} className="bg-slate-900 text-slate-100">{c.name}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-secondary-500 mb-1">Description libre (optionnel)</label>
+                    <label className="block text-xs text-slate-400 mb-1">Description libre (optionnel)</label>
                     <Input
                       value={calcDescription}
                       onChange={e => setCalcDescription(e.target.value)}
@@ -3622,7 +3613,7 @@ const DashboardLawyer: React.FC = () => {
                   </div>
                   <Button
                     variant="primary"
-                    className="w-full"
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold"
                     disabled={!calcClient}
                     onClick={handleCreateQuoteFromCalc}
                   >
@@ -3673,54 +3664,54 @@ const DashboardLawyer: React.FC = () => {
 
             return (
               <div className="space-y-4 font-sans text-sm">
-                <p className="text-sm text-secondary-500">Calculez rapidement la date limite d'action en justice ou de poursuite selon les règles légales de prescription.</p>
+                <p className="text-sm text-slate-300">Calculez rapidement la date limite d'action en justice ou de poursuite selon les règles légales de prescription.</p>
                 
-                <div className="space-y-3 border-t border-secondary-100 pt-3">
+                <div className="space-y-3 border-t border-slate-800 pt-3">
                   <div>
-                    <label className="block text-xs font-bold text-secondary-700 mb-1">Matière / Domaine</label>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Matière / Domaine</label>
                     <select
                       value={prescDomain}
                       onChange={e => setPrescDomain(e.target.value)}
-                      className="w-full text-sm border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500"
+                      className="w-full text-sm bg-slate-950 text-slate-100 border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-indigo-500"
                     >
-                      <option value="civil">Droit Civil / Commercial (5 ans)</option>
-                      <option value="penal_crime">Action Pénale : Crime (20 ans)</option>
-                      <option value="penal_delit">Action Pénale : Délit (6 ans)</option>
-                      <option value="penal_contravention">Action Pénale : Contravention (1 an)</option>
-                      <option value="administratif">Droit Administratif (4 ans)</option>
+                      <option value="civil" className="bg-slate-900 text-slate-100">Droit Civil / Commercial (5 ans)</option>
+                      <option value="penal_crime" className="bg-slate-900 text-slate-100">Action Pénale : Crime (20 ans)</option>
+                      <option value="penal_delit" className="bg-slate-900 text-slate-100">Action Pénale : Délit (6 ans)</option>
+                      <option value="penal_contravention" className="bg-slate-900 text-slate-100">Action Pénale : Contravention (1 an)</option>
+                      <option value="administratif" className="bg-slate-900 text-slate-100">Droit Administratif (4 ans)</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-secondary-700 mb-1">Point de départ (Date du fait générateur ou de l'infraction)</label>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Point de départ (Date du fait générateur ou de l'infraction)</label>
                     <input
                       type="date"
                       value={prescStartDate}
                       onChange={e => setPrescStartDate(e.target.value)}
-                      className="w-full text-sm border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500"
+                      className="w-full text-sm bg-slate-950 text-slate-100 border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 p-2.5"
                     />
                   </div>
 
-                  <Button variant="primary" className="w-full" onClick={handleCalculatePrescription}>
+                  <Button variant="primary" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold" onClick={handleCalculatePrescription}>
                     Calculer le délai de prescription
                   </Button>
                 </div>
 
                 {prescResult && (
-                  <div className="bg-secondary-50 border border-secondary-200 rounded-2xl p-4 space-y-2 mt-3 animate-fade-in">
-                    <p className="text-xs text-secondary-500 italic">{prescResult.description}</p>
+                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2 mt-3 animate-fade-in">
+                    <p className="text-xs text-slate-400 italic">{prescResult.description}</p>
                     <div className="flex justify-between items-center pt-2">
-                      <span className="text-sm text-secondary-700 font-semibold">Date d'échéance légale :</span>
-                      <span className="text-sm font-bold text-secondary-900">{prescResult.limitDate}</span>
+                      <span className="text-sm text-slate-300 font-semibold">Date d'échéance légale :</span>
+                      <span className="text-sm font-bold text-white">{prescResult.limitDate}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-secondary-700 font-semibold">Statut du délai :</span>
+                      <span className="text-sm text-slate-300 font-semibold">Statut du délai :</span>
                       {prescResult.daysLeft > 0 ? (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-success-100 text-success-700">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                           {prescResult.daysLeft} jours restants
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 animate-pulse">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse">
                           ⚠️ Action prescrite
                         </span>
                       )}
@@ -3754,34 +3745,34 @@ const DashboardLawyer: React.FC = () => {
 
             return (
               <div className="space-y-4 font-sans text-sm">
-                <p className="text-sm text-secondary-500">Collez le texte de vos conclusions ou décisions judiciaires pour masquer automatiquement les emails, téléphones et noms de famille.</p>
+                <p className="text-sm text-slate-300">Collez le texte de vos conclusions ou décisions judiciaires pour masquer automatiquement les emails, téléphones et noms de famille.</p>
                 
-                <div className="space-y-3 border-t border-secondary-100 pt-3">
+                <div className="space-y-3 border-t border-slate-800 pt-3">
                   <div>
-                    <label className="block text-xs font-bold text-secondary-700 mb-1">Texte Original</label>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Texte Original</label>
                     <textarea
                       rows={5}
                       value={anonInputText}
                       onChange={e => setAnonInputText(e.target.value)}
                       placeholder="Collez votre document ici (ex: M. Ahmed Benjelloun, demeurant à Casablanca, tél: 0661123456...)"
-                      className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans p-2"
+                      className="w-full text-xs bg-slate-950 text-slate-100 border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
                     />
                   </div>
 
-                  <Button variant="primary" className="w-full" disabled={anonProcessing} onClick={handleAnonymizeText}>
+                  <Button variant="primary" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold" disabled={anonProcessing} onClick={handleAnonymizeText}>
                     {anonProcessing ? "Anonymisation en cours..." : "Lancer l'anonymisation locale"}
                   </Button>
                 </div>
 
                 {anonOutputText && (
-                  <div className="space-y-2 pt-3 border-t border-secondary-100 animate-fade-in">
-                    <label className="block text-xs font-bold text-secondary-700">Texte Anonymisé :</label>
-                    <pre className="p-4 bg-secondary-50 border border-secondary-200 rounded-xl text-xs font-mono max-h-[180px] overflow-y-auto whitespace-pre-wrap leading-relaxed">
+                  <div className="space-y-2 pt-3 border-t border-slate-800 animate-fade-in">
+                    <label className="block text-xs font-bold text-slate-300">Texte Anonymisé :</label>
+                    <pre className="p-4 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono max-h-[180px] overflow-y-auto whitespace-pre-wrap leading-relaxed text-slate-200 shadow-inner">
                       {anonOutputText}
                     </pre>
                     <Button
                       variant="outline"
-                      className="w-full"
+                      className="w-full border-slate-700 text-slate-300 hover:bg-slate-800"
                       onClick={() => {
                         navigator.clipboard.writeText(anonOutputText);
                         success("Copié !", "Le texte anonymisé est copié.");
@@ -3797,17 +3788,17 @@ const DashboardLawyer: React.FC = () => {
 
           return (
             <div className="space-y-4 font-sans text-sm">
-              <p className="text-sm text-secondary-500">Cet outil est opérationnel en version bêta. Configurez ses paramètres de calcul pour simuler le rendu.</p>
-              <div className="bg-secondary-50 border border-secondary-200 rounded-2xl p-6 text-center space-y-3">
-                <div className="h-12 w-12 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center mx-auto">
+              <p className="text-sm text-slate-300">Cet outil est opérationnel en version bêta. Configurez ses paramètres de calcul pour simuler le rendu.</p>
+              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 text-center space-y-3">
+                <div className="h-12 w-12 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-full flex items-center justify-center mx-auto">
                   <PenTool className="h-6 w-6" />
                 </div>
-                <h4 className="font-bold text-secondary-900">{title}</h4>
-                <p className="text-xs text-secondary-500">Statut de l'environnement : <span className="font-bold text-success-600">Prêt</span></p>
+                <h4 className="font-bold text-white">{title}</h4>
+                <p className="text-xs text-slate-400">Statut de l'environnement : <span className="font-bold text-emerald-400">Prêt</span></p>
                 
                 <Button 
                   variant="primary" 
-                  className="w-full mt-4" 
+                  className="w-full mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold" 
                   onClick={() => {
                     success("Simulation lancée", `L'outil ${title} a exécuté ses tests d'intégration.`);
                     setSelectedOutil(null);

@@ -52,7 +52,11 @@ describe('LawyersPage', () => {
       render(<LawyersPage />);
     });
 
-    // Le mock Supabase retourne data:[] — la liste est vide
+    const searchInput = screen.getByPlaceholderText(/Rechercher par nom/i);
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: 'NonExistentAvocatName123' } });
+    });
+
     // Le composant affiche l'état vide "Aucun avocat trouvé"
     expect(screen.getByText(/Aucun avocat trouvé/i)).toBeInTheDocument();
     expect(

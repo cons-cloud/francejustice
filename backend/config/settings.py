@@ -88,9 +88,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
 # Database
-# Using dj-database-url for Supabase Postgres
+# Using dj-database-url for Supabase Postgres with automatic fallback to local SQLite
 import dj_database_url
 import sys
+import psycopg2
+
 if 'test' in sys.argv:
     DATABASES = {
         'default': {
@@ -99,12 +101,29 @@ if 'test' in sys.argv:
         }
     }
 else:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=env('DATABASE_URL', default='sqlite:///db.sqlite3'),
-            conn_max_age=600
-        )
-    }
+    db_config = dj_database_url.config(
+        default=env('DATABASE_URL', default='sqlite:///' + str(BASE_DIR / 'db.sqlite3')),
+        conn_max_age=600
+    )
+    if db_config and db_config.get('ENGINE') == 'django.db.backends.postgresql':
+        try:
+            conn = psycopg2.connect(
+                dbname=db_config.get('NAME'),
+                user=db_config.get('USER'),
+                password=db_config.get('PASSWORD'),
+                host=db_config.get('HOST'),
+                port=db_config.get('PORT') or 5432,
+                connect_timeout=3
+            )
+            conn.close()
+        except Exception as err:
+            print(f"⚠️ [DATABASE] Supabase Postgres connection unreachable ({err}). Falling back to local SQLite (db.sqlite3)...")
+            db_config = {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+
+    DATABASES = {'default': db_config}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

@@ -54,6 +54,7 @@ import { Sparkles } from 'lucide-react';
 import AssistantPage from './Assistant';
 import NotificationBell from '../components/ui/NotificationBell';
 import LiveSyncBadge from '../components/ui/LiveSyncBadge';
+import StripePaymentModal from '../components/ui/StripePaymentModal';
 import { useTranslation } from '../i18n';
 
 const DashboardPage: React.FC = () => {
@@ -1130,14 +1131,14 @@ Ce document est généré par la plateforme France Justice.
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-4 flex-wrap">
                         <div className="flex gap-4">
-                          <div className="p-3 bg-secondary-50 rounded-xl text-secondary-600">
+                          <div className="p-3 bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-indigo-400">
                             <Calendar className="h-6 w-6" />
                           </div>
                           <div>
-                            <h4 className="font-bold text-secondary-900">
+                            <h4 className="font-bold text-white">
                               Consultation avec Me. {appt.profiles?.first_name} {appt.profiles?.last_name}
                             </h4>
-                            <p className="text-xs text-secondary-500 mt-1 font-semibold">
+                            <p className="text-xs text-slate-400 mt-1 font-semibold">
                               {new Date(appt.scheduled_at).toLocaleDateString('fr-FR', {
                                 weekday: 'long',
                                 day: 'numeric',
@@ -1148,7 +1149,7 @@ Ce document est généré par la plateforme France Justice.
                               })}
                             </p>
                             {appt.notes && (
-                              <p className="text-sm text-secondary-600 bg-secondary-50 rounded-lg p-3 mt-3 border border-secondary-100 max-w-lg italic">
+                              <p className="text-sm text-slate-300 bg-slate-950 rounded-lg p-3 mt-3 border border-slate-800 max-w-lg italic">
                                 "{appt.notes}"
                               </p>
                             )}
@@ -1495,7 +1496,7 @@ Ce document est généré par la plateforme France Justice.
                           <button
                             onClick={() => setClassroomsSubTab('virtual')}
                             className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                              classroomsSubTab === 'virtual' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                              classroomsSubTab === 'virtual' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'
                             }`}
                           >
                             {t('dashboard.virtual_classrooms', 'Salles de Classe Virtuelles')}
@@ -1503,7 +1504,7 @@ Ce document est généré par la plateforme France Justice.
                           <button
                             onClick={() => setClassroomsSubTab('static')}
                             className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                              classroomsSubTab === 'static' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
+                              classroomsSubTab === 'static' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'
                             }`}
                           >
                             {t('dashboard.training_guides', 'Guides de Formation')}
@@ -1710,28 +1711,28 @@ Ce document est généré par la plateforme France Justice.
                                         Terminé
                                       </span>
                                     ) : (
-                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-100 text-secondary-600">
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
                                         Disponible
                                       </span>
                                     )}
                                   </div>
-                                  <h3 className="text-lg font-bold text-secondary-900 line-clamp-2">{f.title}</h3>
-                                  <p className="text-xs text-secondary-500">Durée: {f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
+                                  <h3 className="text-lg font-bold text-white line-clamp-2">{f.title}</h3>
+                                  <p className="text-xs text-slate-400">Durée: {f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
                                   
                                   {f.description && (
-                                    <p className="text-xs text-secondary-600 line-clamp-2 italic bg-secondary-50 p-2 rounded-xl">
+                                    <p className="text-xs text-slate-300 line-clamp-2 italic bg-slate-950 p-2 rounded-xl border border-slate-800">
                                       "{f.description}"
                                     </p>
                                   )}
 
                                   <div className="space-y-1.5 pt-2">
-                                    <div className="flex justify-between text-xs text-secondary-400">
+                                    <div className="flex justify-between text-xs text-slate-400">
                                       <span>Progression</span>
                                       <span>{isCompleted ? '100%' : '0%'}</span>
                                     </div>
-                                    <div className="w-full bg-secondary-100 rounded-full h-1.5">
+                                    <div className="w-full bg-slate-800 rounded-full h-1.5">
                                       <div 
-                                        className={`h-1.5 rounded-full transition-all duration-300 ${isCompleted ? 'bg-success-500' : 'bg-secondary-300'}`}
+                                        className={`h-1.5 rounded-full transition-all duration-300 ${isCompleted ? 'bg-emerald-500' : 'bg-slate-700'}`}
                                         style={{ width: isCompleted ? '100%' : '0%' }}
                                       />
                                     </div>
@@ -1739,7 +1740,7 @@ Ce document est généré par la plateforme France Justice.
 
                                   {atts.length > 0 && (
                                     <div className="pt-2 space-y-1.5">
-                                      <p className="text-[11px] font-bold text-secondary-700 flex items-center gap-1">
+                                      <p className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
                                         <span>📑</span> Supports joints ({atts.length}) :
                                       </p>
                                       <div className="flex flex-col gap-1.5">
@@ -2158,14 +2159,14 @@ Ce document est généré par la plateforme France Justice.
         title={t('dashboard.welcome_modal_title', 'Bienvenue sur France Justice')}
       >
         <div className="text-center py-6">
-          <div className="mx-auto h-16 w-16 bg-success-100 rounded-full flex items-center justify-center mb-4">
-            <User className="h-8 w-8 text-success-600" />
+          <div className="mx-auto h-16 w-16 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20">
+            <User className="h-8 w-8 text-emerald-400" />
           </div>
-          <h3 className="text-2xl font-bold text-secondary-900 mb-2">{t('dashboard.welcome', 'Bienvenue')} {profile?.first_name} !</h3>
-          <p className="text-secondary-600 mb-6">
+          <h3 className="text-2xl font-extrabold text-white mb-2">{t('dashboard.welcome', 'Bienvenue')} {profile?.first_name} !</h3>
+          <p className="text-slate-300 text-sm mb-6 leading-relaxed max-w-md mx-auto">
             {t('dashboard.welcome_modal_desc', "Votre espace personnel est ouvert. Accédez à vos documents juridiques, consultez l'assistance ou contactez votre avocat à tout moment.")}
           </p>
-          <Button className="w-full" onClick={() => setShowWelcome(false)}>
+          <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold py-3 rounded-xl shadow-lg shadow-emerald-600/30" onClick={() => setShowWelcome(false)}>
             {t('dashboard.discover_space', 'Découvrir mon espace')}
           </Button>
         </div>
@@ -2177,11 +2178,11 @@ Ce document est généré par la plateforme France Justice.
         title={selectedIADoc?.name || "Visualisation du Document"}
       >
         <div className="space-y-6">
-          <div className="p-5 bg-secondary-50 border border-secondary-200 rounded-2xl max-h-[60vh] overflow-y-auto whitespace-pre-wrap font-serif text-secondary-800 text-sm leading-relaxed shadow-inner">
+          <div className="p-5 bg-slate-950 border border-slate-800 rounded-2xl max-h-[60vh] overflow-y-auto whitespace-pre-wrap font-serif text-slate-100 text-sm leading-relaxed shadow-inner">
             {selectedIADoc?.metadata?.content}
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-secondary-100">
-            <Button variant="outline" onClick={() => setSelectedIADoc(null)}>{t('common.close', 'Fermer')}</Button>
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+            <Button variant="outline" onClick={() => setSelectedIADoc(null)} className="border-slate-700 text-slate-300 hover:bg-slate-800">{t('common.close', 'Fermer')}</Button>
             <Button onClick={() => {
               const printWindow = window.open('', '_blank');
               if (printWindow) {
@@ -2225,6 +2226,7 @@ Ce document est généré par la plateforme France Justice.
       >
         {(() => {
           if (!selectedFormation) return null;
+          const formObj = selectedFormation as any;
           const chapters = getFormationCurriculum(selectedFormation.title);
           const totalChapters = chapters.length;
           const readCount = chapters.reduce((acc, _, idx) => acc + (chaptersRead[idx] ? 1 : 0), 0);
@@ -2233,28 +2235,28 @@ Ce document est généré par la plateforme France Justice.
           const atts = getFormationAttachments(selectedFormation);
 
           return (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center bg-secondary-50 p-4 rounded-2xl border border-secondary-100">
+            <div className="space-y-6 text-slate-100">
+              <div className="flex justify-between items-center bg-slate-900 p-4 rounded-2xl border border-slate-800">
                 <div className="space-y-1">
-                  <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Durée du module</p>
-                  <p className="text-sm font-semibold text-secondary-900 font-sans">{selectedFormation.duration}</p>
+                  <p className="text-xs text-slate-400 font-bold uppercase font-sans">Durée du module</p>
+                  <p className="text-sm font-semibold text-white font-sans">{selectedFormation.duration}</p>
                 </div>
-                {selectedFormation.author_name && (
+                {formObj.author_name && (
                   <div className="space-y-1 text-center">
-                    <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Formateur</p>
-                    <p className="text-xs font-bold text-primary-700 font-sans">{selectedFormation.author_name} ({selectedFormation.author_role || 'Expert'})</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase font-sans">Formateur</p>
+                    <p className="text-xs font-bold text-indigo-300 font-sans">{formObj.author_name} ({formObj.author_role || 'Expert'})</p>
                   </div>
                 )}
                 <div className="space-y-1 text-right">
-                  <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Niveau requis</p>
-                  <p className="text-sm font-semibold text-secondary-900 font-sans">{selectedFormation.level}</p>
+                  <p className="text-xs text-slate-400 font-bold uppercase font-sans">Niveau requis</p>
+                  <p className="text-sm font-semibold text-white font-sans">{selectedFormation.level}</p>
                 </div>
               </div>
 
-              {selectedFormation.description && (
-                <div className="bg-primary-50/60 border border-primary-100 p-4 rounded-2xl space-y-1 text-xs">
-                  <p className="font-bold text-primary-900 uppercase tracking-wider text-[10px]">Description & Objectifs</p>
-                  <p className="text-primary-800 leading-relaxed">{selectedFormation.description}</p>
+              {formObj.description && (
+                <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1 text-xs">
+                  <p className="font-bold text-indigo-400 uppercase tracking-wider text-[10px]">Description & Objectifs</p>
+                  <p className="text-slate-300 leading-relaxed">{formObj.description}</p>
                 </div>
               )}
 
@@ -2288,20 +2290,20 @@ Ce document est généré par la plateforme France Justice.
 
               {/* Progress bar in Modal */}
               <div className="space-y-2">
-                <div className="flex justify-between text-sm font-bold text-secondary-700">
+                <div className="flex justify-between text-sm font-bold text-slate-300">
                   <span>Progression globale</span>
                   <span>{percent}%</span>
                 </div>
-                <div className="w-full bg-secondary-100 rounded-full h-2">
+                <div className="w-full bg-slate-800 rounded-full h-2">
                   <div 
-                    className="h-2 rounded-full bg-success-500 transition-all duration-300"
+                    className="h-2 rounded-full bg-emerald-500 transition-all duration-300"
                     style={{ width: `${percent}%` }}
                   />
                 </div>
               </div>
 
               {/* Chapter navigation */}
-              <div className="border-t border-secondary-100 pt-4">
+              <div className="border-t border-slate-800 pt-4">
                 <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
                   {chapters.map((ch, idx) => (
                     <button
@@ -2309,8 +2311,8 @@ Ce document est généré par la plateforme France Justice.
                       onClick={() => setActiveChapterIndex(idx)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                         activeChapterIndex === idx 
-                          ? 'bg-primary-600 text-white shadow-sm shadow-primary-500/20' 
-                          : 'bg-secondary-50 text-secondary-600 hover:bg-secondary-100 border border-secondary-200'
+                          ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20' 
+                          : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
                       }`}
                     >
                       {ch.title.split('.')[0]}. {ch.title.split('.').slice(1).join('.').trim()}
@@ -2320,13 +2322,13 @@ Ce document est généré par la plateforme France Justice.
                 </div>
 
                 {/* Chapter content */}
-                <div className="bg-secondary-50/50 border border-secondary-200/50 rounded-2xl p-5 min-h-[180px] flex flex-col justify-between font-sans">
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 min-h-[180px] flex flex-col justify-between font-sans">
                   <div className="space-y-3">
-                    <h4 className="font-bold text-secondary-900 text-base">{chapters[activeChapterIndex].title}</h4>
-                    <p className="text-sm text-secondary-700 leading-relaxed font-sans">{chapters[activeChapterIndex].content}</p>
+                    <h4 className="font-bold text-white text-base">{chapters[activeChapterIndex].title}</h4>
+                    <p className="text-sm text-slate-300 leading-relaxed font-sans">{chapters[activeChapterIndex].content}</p>
                   </div>
                   {formationViewMode === 'start' && (
-                    <div className="mt-4 pt-4 border-t border-secondary-100 flex items-center justify-between">
+                    <div className="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between">
                       <label className="flex items-center gap-2.5 cursor-pointer select-none">
                         <input
                           type="checkbox"
@@ -2338,9 +2340,9 @@ Ce document est généré par la plateforme France Justice.
                               [activeChapterIndex]: checked
                             }));
                           }}
-                          className="h-4 w-4 rounded border-secondary-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                          className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
                         />
-                        <span className="text-xs font-bold text-secondary-700">J'ai lu et compris ce chapitre</span>
+                        <span className="text-xs font-bold text-slate-300">J'ai lu et compris ce chapitre</span>
                       </label>
                     </div>
                   )}

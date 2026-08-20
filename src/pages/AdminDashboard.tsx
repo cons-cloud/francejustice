@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar, AlertCircle } from 'lucide-react';
+import { cn } from '../lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -49,7 +50,7 @@ interface UserProfile {
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { success, error: toastError } = useToast();
+  const { toasts, removeToast, success, error: toastError } = useToast();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments' | 'classrooms' | 'planning' | 'reviews'>('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -1050,10 +1051,10 @@ const AdminDashboard: React.FC = () => {
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-xs font-semibold text-secondary-500 uppercase tracking-wider mb-1">{s.label}</p>
-                            <p className="text-2xl font-bold text-secondary-900">{s.value}</p>
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{s.label}</p>
+                            <p className="text-2xl font-bold text-white">{s.value}</p>
                           </div>
-                          <div className="p-3 rounded-xl bg-primary-50 text-primary-600">
+                          <div className="p-3 rounded-xl bg-primary-950/80 text-primary-400 border border-primary-800">
                             <s.icon className="h-6 w-6" />
                           </div>
                         </div>
@@ -1098,14 +1099,14 @@ const AdminDashboard: React.FC = () => {
                       <CardDescription>Nouvelles demandes de contact</CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
-                      <div className="divide-y border-t">
+                      <div className="divide-y border-t border-slate-800">
                         {messages.slice(0, 5).map((m) => (
-                          <div key={m.id} className="p-4 hover:bg-secondary-50 transition-colors">
+                          <div key={m.id} className="p-4 hover:bg-slate-800/60 transition-colors">
                             <div className="flex justify-between mb-1">
-                              <span className="font-bold text-sm">{m.name}</span>
-                              <span className="text-[10px] text-secondary-400">{new Date(m.created_at).toLocaleDateString()}</span>
+                              <span className="font-bold text-sm text-white">{m.name}</span>
+                              <span className="text-[10px] text-slate-400">{new Date(m.created_at).toLocaleDateString()}</span>
                             </div>
-                            <p className="text-xs text-secondary-600 truncate">{m.subject}</p>
+                            <p className="text-xs text-slate-300 truncate">{m.subject}</p>
                           </div>
                         ))}
                       </div>
@@ -1118,11 +1119,11 @@ const AdminDashboard: React.FC = () => {
                       <CardDescription>Demandes d'inscription à vérifier</CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
-                      <div className="divide-y border-t">
+                      <div className="divide-y border-t border-slate-800">
                         {users.filter(u => u.role === 'lawyer' && !u.is_verified).slice(0, 5).map((u) => (
                           <div key={u.id} className="p-4 flex items-center justify-between">
-                            <span className="text-sm font-medium">{u.first_name} {u.last_name}</span>
-                            <Button size="sm" variant="outline" onClick={() => handleApproveLawyer(u.id)}>Approuver</Button>
+                            <span className="text-sm font-medium text-slate-200">{u.first_name} {u.last_name}</span>
+                            <Button size="sm" variant="outline" onClick={() => handleApproveLawyer(u.id)} className="border-slate-700 text-slate-300 hover:bg-slate-800">Approuver</Button>
                           </div>
                         ))}
                       </div>
@@ -1137,7 +1138,7 @@ const AdminDashboard: React.FC = () => {
                 <Card className="lg:col-span-1">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                       <RefreshCw className="h-5 w-5 text-primary-600 animate-spin" />
+                       <RefreshCw className="h-5 w-5 text-primary-400 animate-spin" />
                        Flux Live
                     </CardTitle>
                     <CardDescription>Événements en temps réel</CardDescription>
@@ -1150,7 +1151,7 @@ const AdminDashboard: React.FC = () => {
                           <p className="text-[10px] text-slate-400 uppercase">{act.time} • {act.type}</p>
                         </div>
                       ))}
-                      {activities.length === 0 && <p className="text-center text-secondary-400 py-10">En attente d'activité...</p>}
+                      {activities.length === 0 && <p className="text-center text-slate-400 py-10">En attente d'activité...</p>}
                     </div>
                   </CardContent>
                 </Card>
@@ -1160,16 +1161,16 @@ const AdminDashboard: React.FC = () => {
                     <CardHeader><CardTitle>Surveillance des Chats</CardTitle></CardHeader>
                     <CardContent className="p-0">
                       <table className="w-full text-left text-sm">
-                        <thead className="bg-secondary-50 border-y">
+                        <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
                           <tr><th className="px-6 py-4">Avocat</th><th className="px-6 py-4">Citizen</th><th className="px-6 py-4">Logs</th></tr>
                         </thead>
-                        <tbody className="divide-y text-xs">
+                        <tbody className="divide-y divide-slate-800 text-xs text-slate-300">
                           {chatRooms.map(room => (
-                            <tr key={room.id} className="hover:bg-secondary-50">
+                            <tr key={room.id} className="hover:bg-slate-800/60 transition-colors">
                               <td className="px-6 py-4">Me {room.lawyer?.first_name} {room.lawyer?.last_name}</td>
                               <td className="px-6 py-4">{room.client?.first_name} {room.client?.last_name}</td>
                               <td className="px-6 py-4">
-                                <Button variant="ghost" size="sm" className="text-primary-600 hover:bg-primary-50">Visualiser</Button>
+                                <Button variant="ghost" size="sm" className="text-primary-400 hover:bg-slate-800">Visualiser</Button>
                               </td>
                             </tr>
                           ))}
@@ -1325,10 +1326,10 @@ const AdminDashboard: React.FC = () => {
                   <CardContent className="p-0">
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-sm">
-                        <thead className="bg-secondary-50 border-y">
+                        <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
                           <tr><th className="px-6 py-3">Membre</th><th className="px-6 py-3">Rôle</th><th className="px-6 py-3 text-right">Actions</th></tr>
                         </thead>
-                        <tbody className="divide-y">
+                        <tbody className="divide-y divide-slate-800 text-slate-300">
                           {users
                             .filter(u => {
                               if (filterRole !== 'all' && u.role !== filterRole) return false;
@@ -1346,23 +1347,23 @@ const AdminDashboard: React.FC = () => {
                             .map((u) => {
                               const regName = getRegionFromPostalCode(u.postal_code);
                               return (
-                                <tr key={u.id} className="hover:bg-secondary-50">
+                                <tr key={u.id} className="hover:bg-slate-800/60 transition-colors">
                                   <td className="px-6 py-4">
-                                    <div>{u.first_name} {u.last_name}</div>
-                                    <div className="text-xs text-secondary-500">{u.email}</div>
-                                    <div className="text-[10px] text-secondary-400 font-semibold mt-1">
+                                    <div className="font-semibold text-white">{u.first_name} {u.last_name}</div>
+                                    <div className="text-xs text-slate-400">{u.email}</div>
+                                    <div className="text-[10px] text-slate-400 font-semibold mt-1">
                                       📍 {u.city || 'Non renseigné'}{u.postal_code ? ` (${u.postal_code.substring(0, 2)})` : ''} 
                                       {regName ? ` - Région : ${regName}` : ''}
                                     </div>
                                   </td>
                                   <td className="px-6 py-4 text-right flex justify-end gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)}>
-                                      <Edit className="w-4 h-4"/>
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)} className="hover:bg-slate-800">
+                                      <Edit className="w-4 h-4 text-slate-300"/>
                                     </Button>
-                                    <Button variant="ghost" size="sm" onClick={() => handleToggleSuspend(u)} className={u.is_verified ? "text-warning-600" : "text-success-600"}>
+                                    <Button variant="ghost" size="sm" onClick={() => handleToggleSuspend(u)} className={u.is_verified ? "text-amber-400 hover:bg-slate-800" : "text-emerald-400 hover:bg-slate-800"}>
                                       {u.is_verified ? "Suspendre" : "Activer"}
                                     </Button>
-                                    <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteUser(u.id)}>
+                                    <Button variant="ghost" size="sm" className="text-red-400 hover:bg-slate-800" onClick={() => handleDeleteUser(u.id)}>
                                       <Trash2 className="w-4 h-4"/>
                                     </Button>
                                   </td>
@@ -1388,9 +1389,9 @@ const AdminDashboard: React.FC = () => {
                       onChange={(e) => setFilterRegion(e.target.value)}
                       className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
                     >
-                      <option value="">Toutes les régions</option>
+                      <option value="" className="bg-slate-900 text-slate-100">Toutes les régions</option>
                       {regions.map(r => (
-                        <option key={r.id} value={r.name}>{r.name}</option>
+                        <option key={r.id} value={r.name} className="bg-slate-900 text-slate-100">{r.name}</option>
                       ))}
                     </select>
                   </div>
@@ -1401,9 +1402,9 @@ const AdminDashboard: React.FC = () => {
                       onChange={(e) => setFilterBarreau(e.target.value)}
                       className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
                     >
-                      <option value="">Tous les barreaux</option>
+                      <option value="" className="bg-slate-900 text-slate-100">Tous les barreaux</option>
                       {uniqueBarreaux.map(b => (
-                        <option key={b} value={b}>{b}</option>
+                        <option key={b} value={b} className="bg-slate-900 text-slate-100">{b}</option>
                       ))}
                     </select>
                   </div>
@@ -1414,9 +1415,9 @@ const AdminDashboard: React.FC = () => {
                       onChange={(e) => setFilterCity(e.target.value)}
                       className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
                     >
-                      <option value="">Toutes les villes</option>
+                      <option value="" className="bg-slate-900 text-slate-100">Toutes les villes</option>
                       {uniqueCities.map(c => (
-                        <option key={c} value={c}>{c}</option>
+                        <option key={c} value={c} className="bg-slate-900 text-slate-100">{c}</option>
                       ))}
                     </select>
                   </div>
@@ -1428,7 +1429,7 @@ const AdminDashboard: React.FC = () => {
                     <CardDescription>Approuvez ou suspendez l'accès des avocats à la plateforme</CardDescription>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <div className="divide-y border-t">
+                    <div className="divide-y divide-slate-800 border-t border-slate-800">
                       {users
                         .filter(u => u.role === 'lawyer')
                         .filter(u => {
@@ -1452,9 +1453,9 @@ const AdminDashboard: React.FC = () => {
                               <div className="flex items-center gap-4">
                                 <div className={`h-3 w-3 rounded-full shrink-0 ${l.is_verified ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
                                 <div>
-                                  <p className="font-bold">Me {l.first_name} {l.last_name}</p>
-                                  <p className="text-xs text-secondary-500">{l.email}</p>
-                                  <p className="text-[10px] text-secondary-400 font-semibold mt-0.5">
+                                  <p className="font-bold text-white">Me {l.first_name} {l.last_name}</p>
+                                  <p className="text-xs text-slate-400">{l.email}</p>
+                                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
                                     📍 Cabinet : {l.city || 'Non renseigné'}{l.postal_code ? ` (${l.postal_code.substring(0, 2)})` : ''} 
                                     {regName ? ` - Région : ${regName}` : ''}
                                   </p>
@@ -1462,7 +1463,7 @@ const AdminDashboard: React.FC = () => {
                               </div>
                               <div className="flex gap-2">
                             {!l.is_verified && <Button size="sm" onClick={() => handleApproveLawyer(l.id)}>Approuver</Button>}
-                            <Button size="sm" variant="outline" className="text-red-600">Suspendre</Button>
+                            <Button size="sm" variant="outline" className="text-red-400 border-slate-700 hover:bg-slate-800">Suspendre</Button>
                           </div>
                         </div>
 
@@ -1470,15 +1471,15 @@ const AdminDashboard: React.FC = () => {
                           <div className="ml-7 space-y-2">
                             <div className="flex flex-wrap gap-3 text-xs">
                               {lawyerInfo.bar_association && (
-                                <span className="bg-secondary-100 text-secondary-700 px-2.5 py-1 rounded-full font-medium">🏛️ Barreau : {lawyerInfo.bar_association}</span>
+                                <span className="bg-slate-800 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-full font-medium">🏛️ Barreau : {lawyerInfo.bar_association}</span>
                               )}
                               {lawyerInfo.license_number && (
-                                <span className="bg-secondary-100 text-secondary-700 px-2.5 py-1 rounded-full font-medium">📋 Licence : {lawyerInfo.license_number}</span>
+                                <span className="bg-slate-800 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-full font-medium">📋 Licence : {lawyerInfo.license_number}</span>
                               )}
                               {lawyerInfo.experience_years != null && (
-                                <span className="bg-secondary-100 text-secondary-700 px-2.5 py-1 rounded-full font-medium">⏳ {lawyerInfo.experience_years} ans d'expérience</span>
+                                <span className="bg-slate-800 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-full font-medium">⏳ {lawyerInfo.experience_years} ans d'expérience</span>
                               )}
-                              <span className={`px-2.5 py-1 rounded-full font-medium ${lawyerInfo.verification_status === 'approved' ? 'bg-green-100 text-green-700' : lawyerInfo.verification_status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                              <span className={`px-2.5 py-1 rounded-full font-medium ${lawyerInfo.verification_status === 'approved' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : lawyerInfo.verification_status === 'rejected' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}`}>
                                 {lawyerInfo.verification_status === 'approved' ? '✅ Approuvé' : lawyerInfo.verification_status === 'rejected' ? '❌ Rejeté' : '⏳ En attente'}
                               </span>
                             </div>
@@ -1522,7 +1523,7 @@ const AdminDashboard: React.FC = () => {
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
-                      <thead className="bg-secondary-50 border-y">
+                      <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
                         <tr>
                           <th className="px-6 py-3">Client</th>
                           <th className="px-6 py-3">Avocat</th>
@@ -1531,25 +1532,25 @@ const AdminDashboard: React.FC = () => {
                           <th className="px-6 py-3 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y">
+                      <tbody className="divide-y divide-slate-800 text-slate-300">
                         {allAppointments.map((appt) => {
                           const statusLabels: Record<string, { text: string; color: string }> = {
-                            pending: { text: "En attente", color: "bg-yellow-100 text-yellow-700" },
-                            confirmed: { text: "Confirmé", color: "bg-green-100 text-green-700" },
-                            cancelled: { text: "Annulé", color: "bg-red-100 text-red-700" },
-                            completed: { text: "Terminé", color: "bg-primary-100 text-primary-700" }
+                            pending: { text: "En attente", color: "bg-amber-950 text-amber-300 border border-amber-800" },
+                            confirmed: { text: "Confirmé", color: "bg-emerald-950 text-emerald-300 border border-emerald-800" },
+                            cancelled: { text: "Annulé", color: "bg-red-950 text-red-300 border border-red-800" },
+                            completed: { text: "Terminé", color: "bg-indigo-950 text-indigo-300 border border-indigo-800" }
                           };
-                          const label = statusLabels[appt.status] || { text: appt.status, color: "bg-secondary-100 text-secondary-600" };
+                          const label = statusLabels[appt.status] || { text: appt.status, color: "bg-slate-800 text-slate-300" };
                           
                           return (
-                            <tr key={appt.id} className="hover:bg-secondary-50">
-                              <td className="px-6 py-4 font-medium">
+                            <tr key={appt.id} className="hover:bg-slate-800/60 transition-colors">
+                              <td className="px-6 py-4 font-medium text-white">
                                 {appt.client ? `${appt.client.first_name} ${appt.client.last_name}` : "Client inconnu"}
                               </td>
-                              <td className="px-6 py-4">
+                              <td className="px-6 py-4 text-slate-300">
                                 {appt.lawyer ? `Me. ${appt.lawyer.first_name} ${appt.lawyer.last_name}` : "Avocat inconnu"}
                               </td>
-                              <td className="px-6 py-4 text-secondary-500">
+                              <td className="px-6 py-4 text-slate-400">
                                 {new Date(appt.scheduled_at).toLocaleString('fr-FR')}
                               </td>
                               <td className="px-6 py-4">
@@ -1559,11 +1560,11 @@ const AdminDashboard: React.FC = () => {
                               </td>
                               <td className="px-6 py-4 text-right flex justify-end gap-2">
                                 {appt.status !== 'cancelled' && appt.status !== 'completed' && (
-                                  <Button size="sm" variant="outline" className="text-red-600 border-red-100" onClick={() => handleCancelAppointmentByAdmin(appt.id)}>
+                                  <Button size="sm" variant="outline" className="text-red-400 border-red-900/60 hover:bg-slate-800" onClick={() => handleCancelAppointmentByAdmin(appt.id)}>
                                     Annuler
                                   </Button>
                                 )}
-                                <Button size="sm" variant="ghost" className="text-red-600" onClick={() => handleDeleteAppointmentByAdmin(appt.id)}>
+                                <Button size="sm" variant="ghost" className="text-red-400 hover:bg-slate-800" onClick={() => handleDeleteAppointmentByAdmin(appt.id)}>
                                   Supprimer
                                 </Button>
                               </td>
@@ -1572,7 +1573,7 @@ const AdminDashboard: React.FC = () => {
                         })}
                       </tbody>
                     </table>
-                    {allAppointments.length === 0 && <div className="p-8 text-center text-secondary-500">Aucun rendez-vous sur la plateforme.</div>}
+                    {allAppointments.length === 0 && <div className="p-8 text-center text-slate-400">Aucun rendez-vous sur la plateforme.</div>}
                   </div>
                 </CardContent>
               </Card>
@@ -1587,7 +1588,7 @@ const AdminDashboard: React.FC = () => {
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                      <thead className="bg-secondary-50 border-y">
+                      <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
                         <tr>
                           <th className="px-6 py-3">Document</th>
                           <th className="px-6 py-3">Propriétaire</th>
@@ -1595,22 +1596,22 @@ const AdminDashboard: React.FC = () => {
                           <th className="px-6 py-3">Date</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y">
+                      <tbody className="divide-y divide-slate-800 text-slate-300">
                         {allDocuments.map((doc) => (
-                          <tr key={doc.id} className="hover:bg-secondary-50">
-                            <td className="px-6 py-4 font-medium">{doc.name}</td>
-                            <td className="px-6 py-4">
+                          <tr key={doc.id} className="hover:bg-slate-800/60 transition-colors">
+                            <td className="px-6 py-4 font-medium text-white">{doc.name}</td>
+                            <td className="px-6 py-4 text-slate-300">
                               {doc.profiles?.first_name} {doc.profiles?.last_name}
                             </td>
-                            <td className="px-6 py-4">{doc.type}</td>
-                            <td className="px-6 py-4 text-secondary-500">
+                            <td className="px-6 py-4 text-slate-400">{doc.type}</td>
+                            <td className="px-6 py-4 text-slate-400">
                               {new Date(doc.created_at).toLocaleDateString()}
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
-                    {allDocuments.length === 0 && <div className="p-8 text-center text-secondary-500">Aucun document généré.</div>}
+                    {allDocuments.length === 0 && <div className="p-8 text-center text-slate-400">Aucun document généré.</div>}
                   </div>
                 </CardContent>
               </Card>
@@ -1622,20 +1623,20 @@ const AdminDashboard: React.FC = () => {
                   <CardTitle>Messages de contact</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <div className="divide-y border-t">
+                  <div className="divide-y divide-slate-800 border-t border-slate-800">
                     {messages.map((m) => (
-                      <div key={m.id} className="p-6 hover:bg-secondary-50 transition-colors">
+                      <div key={m.id} className="p-6 hover:bg-slate-800/60 transition-colors">
                         <div className="flex justify-between items-start mb-2">
                           <div>
-                            <h3 className="font-bold text-secondary-900">{m.subject}</h3>
-                            <p className="text-sm text-secondary-500">De: {m.name} ({m.email})</p>
+                            <h3 className="font-bold text-white">{m.subject}</h3>
+                            <p className="text-sm text-slate-400">De: {m.name} ({m.email})</p>
                           </div>
-                          <span className="text-xs text-secondary-400">{new Date(m.created_at).toLocaleString()}</span>
+                          <span className="text-xs text-slate-400">{new Date(m.created_at).toLocaleString()}</span>
                         </div>
-                        <p className="text-secondary-700 bg-secondary-50 p-4 rounded-xl mt-2">{m.message}</p>
+                        <p className="text-slate-200 bg-slate-950 p-4 rounded-xl mt-2 border border-slate-800">{m.message}</p>
                       </div>
                     ))}
-                    {messages.length === 0 && <div className="p-8 text-center text-secondary-500">Aucun message pour le moment.</div>}
+                    {messages.length === 0 && <div className="p-8 text-center text-slate-400">Aucun message pour le moment.</div>}
                   </div>
                 </CardContent>
               </Card>
@@ -1658,7 +1659,7 @@ const AdminDashboard: React.FC = () => {
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
                   <CardTitle>Gestion des Paiements</CardTitle>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleExportData('payments', 'csv')}>
+                    <Button variant="outline" size="sm" onClick={() => handleExportData('payments', 'csv')} className="border-slate-700 text-slate-300 hover:bg-slate-800">
                       <Download className="h-4 w-4 mr-2" />
                       Rapport CSV
                     </Button>
@@ -1666,7 +1667,7 @@ const AdminDashboard: React.FC = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <table className="w-full text-left text-sm whitespace-nowrap">
-                    <thead className="bg-secondary-50 border-y">
+                    <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
                       <tr>
                         <th className="px-6 py-4">Avocat</th>
                         <th className="px-6 py-4">Client</th>
@@ -1675,21 +1676,21 @@ const AdminDashboard: React.FC = () => {
                         <th className="px-6 py-4">Statut</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y relative">
+                    <tbody className="divide-y divide-slate-800 text-slate-300 relative">
                       {quotes.map(q => (
-                        <tr key={q.id} className="hover:bg-secondary-50">
-                          <td className="px-6 py-4">{q.profiles?.first_name} {q.profiles?.last_name}</td>
-                          <td className="px-6 py-4">{(q as any).client?.first_name} {(q as any).client?.last_name}</td>
-                          <td className="px-6 py-4 font-bold">{q.amount} MAD</td>
-                          <td className="px-6 py-4 text-primary-600 font-bold">{q.commission_amount} MAD</td>
+                        <tr key={q.id} className="hover:bg-slate-800/60 transition-colors">
+                          <td className="px-6 py-4 font-medium text-white">{q.profiles?.first_name} {q.profiles?.last_name}</td>
+                          <td className="px-6 py-4 text-slate-300">{(q as any).client?.first_name} {(q as any).client?.last_name}</td>
+                          <td className="px-6 py-4 font-bold text-white">{q.amount} MAD</td>
+                          <td className="px-6 py-4 text-indigo-400 font-bold">{q.commission_amount} MAD</td>
                           <td className="px-6 py-4">
-                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'commissioned' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'commissioned' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}`}>
                               {q.status}
                             </span>
                           </td>
                         </tr>
                       ))}
-                      {quotes.length === 0 && <tr><td colSpan={5} className="px-6 py-8 text-center text-secondary-500">Aucune transaction de devis.</td></tr>}
+                      {quotes.length === 0 && <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">Aucune transaction de devis.</td></tr>}
                     </tbody>
                   </table>
                 </CardContent>
@@ -1700,32 +1701,32 @@ const AdminDashboard: React.FC = () => {
               <Card>
                 <CardHeader><CardTitle>Paramètres Globaux du Système</CardTitle></CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between border-b pb-4">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                     <div>
-                      <h4 className="font-semibold text-secondary-900">Mode Maintenance</h4>
-                      <p className="text-sm text-secondary-500">Désactiver l'accès public au site</p>
+                      <h4 className="font-semibold text-white">Mode Maintenance</h4>
+                      <p className="text-sm text-slate-400">Désactiver l'accès public au site</p>
                     </div>
-                    <Button variant={settings?.maintenance_mode ? 'danger' : 'outline'} onClick={() => handleUpdateSettings('maintenance_mode', !settings?.maintenance_mode)}>
+                    <Button variant={settings?.maintenance_mode ? 'danger' : 'outline'} onClick={() => handleUpdateSettings('maintenance_mode', !settings?.maintenance_mode)} className={!settings?.maintenance_mode ? "border-slate-700 text-slate-300 hover:bg-slate-800" : ""}>
                       {settings?.maintenance_mode ? 'Désactiver le site' : 'Activer'}
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between border-b pb-4">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                     <div>
-                      <h4 className="font-semibold text-secondary-900">Commission Avocat (%)</h4>
-                      <p className="text-sm text-secondary-500">Taux prélevé sur les consultations</p>
+                      <h4 className="font-semibold text-white">Commission Avocat (%)</h4>
+                      <p className="text-sm text-slate-400">Taux prélevé sur les consultations</p>
                     </div>
                     <div className="flex gap-2">
-                       <Input type="number" defaultValue={settings?.commission_rate} id="comm_rate" className="w-20" />
-                       <Button variant="outline" onClick={() => handleUpdateSettings('commission_rate', (document.getElementById('comm_rate') as HTMLInputElement).value)}>Enregistrer</Button>
+                       <Input type="number" defaultValue={settings?.commission_rate} id="comm_rate" className="w-20 bg-slate-900 border-slate-800 text-slate-100" />
+                       <Button variant="outline" onClick={() => handleUpdateSettings('commission_rate', (document.getElementById('comm_rate') as HTMLInputElement).value)} className="border-slate-700 text-slate-300 hover:bg-slate-800">Enregistrer</Button>
                     </div>
                   </div>
                   <div className="flex items-center justify-between pb-2">
                     <div>
-                      <h4 className="font-semibold text-secondary-900">Message de Bienvenue</h4>
+                      <h4 className="font-semibold text-white">Message de Bienvenue</h4>
                     </div>
                     <div className="flex gap-2 w-1/2">
-                       <Input type="text" defaultValue={settings?.welcome_message} id="welcome_msg" className="w-full" />
-                       <Button variant="outline" onClick={() => handleUpdateSettings('welcome_message', (document.getElementById('welcome_msg') as HTMLInputElement).value)}>Sauver</Button>
+                       <Input type="text" defaultValue={settings?.welcome_message} id="welcome_msg" className="w-full bg-slate-900 border-slate-800 text-slate-100" />
+                       <Button variant="outline" onClick={() => handleUpdateSettings('welcome_message', (document.getElementById('welcome_msg') as HTMLInputElement).value)} className="border-slate-700 text-slate-300 hover:bg-slate-800">Sauver</Button>
                     </div>
                   </div>
                 </CardContent>
@@ -1735,12 +1736,12 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'assistance' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-semibold text-secondary-900">Tickets d'Assistance</h2>
+                  <h2 className="text-2xl font-semibold text-white">Tickets d'Assistance</h2>
                 </div>
                 <Card>
                   <CardContent className="p-0">
                     <table className="w-full text-left text-sm whitespace-nowrap">
-                      <thead className="bg-secondary-50 border-y">
+                      <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
                         <tr>
                           <th className="px-6 py-4">Utilisateur</th>
                           <th className="px-6 py-4">Sujet</th>
@@ -1749,20 +1750,20 @@ const AdminDashboard: React.FC = () => {
                           <th className="px-6 py-4">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y relative">
+                      <tbody className="divide-y divide-slate-800 text-slate-300 relative">
                         {tickets.map((ticket) => (
-                          <tr key={ticket.id} className="hover:bg-secondary-50">
-                            <td className="px-6 py-4 font-medium">{ticket.profiles ? `${ticket.profiles.first_name} ${ticket.profiles.last_name}` : ticket.user_id}</td>
-                            <td className="px-6 py-4">{ticket.subject}</td>
+                          <tr key={ticket.id} className="hover:bg-slate-800/60 transition-colors">
+                            <td className="px-6 py-4 font-medium text-white">{ticket.profiles ? `${ticket.profiles.first_name} ${ticket.profiles.last_name}` : ticket.user_id}</td>
+                            <td className="px-6 py-4 text-slate-300">{ticket.subject}</td>
                             <td className="px-6 py-4">
-                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${ticket.status === 'En cours' ? 'bg-warning-100 text-warning-700' : ticket.status === 'Résolu' ? 'bg-success-100 text-success-700' : 'bg-primary-100 text-primary-700'}`}>
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${ticket.status === 'En cours' ? 'bg-amber-950 text-amber-300 border border-amber-800' : ticket.status === 'Résolu' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-indigo-950 text-indigo-300 border border-indigo-800'}`}>
                                 {ticket.status}
                               </span>
                             </td>
-                            <td className="px-6 py-4">{new Date(ticket.created_at).toLocaleDateString()}</td>
+                            <td className="px-6 py-4 text-slate-400">{new Date(ticket.created_at).toLocaleDateString()}</td>
                             <td className="px-6 py-4 flex items-center gap-2">
-                              <Button size="sm" variant="outline" onClick={() => handleManageTicket(ticket.id, ticket.status)}>Statut</Button>
-                              <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => handleDeleteTicket(ticket.id)}><Trash2 className="h-4 w-4" /></Button>
+                              <Button size="sm" variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => handleManageTicket(ticket.id, ticket.status)}>Statut</Button>
+                              <Button size="sm" variant="ghost" className="text-red-400 hover:bg-slate-800" onClick={() => handleDeleteTicket(ticket.id)}><Trash2 className="h-4 w-4" /></Button>
                             </td>
                           </tr>
                         ))}
@@ -1776,22 +1777,22 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'outils' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-semibold text-secondary-900">Gestion des Outils Avocats</h2>
-                  <Button onClick={handleAddOutil}><Plus className="h-4 w-4 mr-2" /> Ajouter un Outil</Button>
+                  <h2 className="text-2xl font-semibold text-white">Gestion des Outils Avocats</h2>
+                  <Button onClick={handleAddOutil} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold"><Plus className="h-4 w-4 mr-2" /> Ajouter un Outil</Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {outils.map((o) => (
                     <Card key={o.id}>
                       <CardContent className="p-6 space-y-4">
                         <div className="flex justify-between">
-                          <span className="text-xs font-bold text-primary-600 uppercase">{o.category}</span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${o.status === 'Actif' ? 'bg-success-100 text-success-700' : 'bg-warning-100 text-warning-700'}`}>{o.status}</span>
+                          <span className="text-xs font-bold text-indigo-400 uppercase">{o.category}</span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${o.status === 'Actif' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}`}>{o.status}</span>
                         </div>
-                        <h3 className="font-bold text-lg">{o.title}</h3>
+                        <h3 className="font-bold text-lg text-white">{o.title}</h3>
                         <div className="flex gap-2 pt-2">
-                          <Button variant="outline" className="flex-1" size="sm" onClick={() => handleToggleOutilStatus(o.id, o.status)}>Statut</Button>
-                          <Button variant="outline" size="sm" onClick={() => handleEditOutil(o)}><Edit className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={() => handleDeleteOutil(o.id)}><Trash2 className="h-4 w-4" /></Button>
+                          <Button variant="outline" className="flex-1 border-slate-700 text-slate-300 hover:bg-slate-800" size="sm" onClick={() => handleToggleOutilStatus(o.id, o.status)}>Statut</Button>
+                          <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => handleEditOutil(o)}><Edit className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="sm" className="text-red-400 hover:bg-slate-800" onClick={() => handleDeleteOutil(o.id)}><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -1804,10 +1805,10 @@ const AdminDashboard: React.FC = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-semibold text-secondary-900">Catalogue des Formations</h2>
-                    <p className="text-xs text-secondary-500">Supervisez et créez des formations enrichies avec documents PDF et visuels d'illustration pour l'ensemble des utilisateurs.</p>
+                    <h2 className="text-2xl font-semibold text-white">Catalogue des Formations</h2>
+                    <p className="text-xs text-slate-400">Supervisez et créez des formations enrichies avec documents PDF et visuels d'illustration pour l'ensemble des utilisateurs.</p>
                   </div>
-                  <Button onClick={handleAddFormation} className="font-bold"><Plus className="h-4 w-4 mr-2" /> Créer une formation</Button>
+                  <Button onClick={handleAddFormation} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold"><Plus className="h-4 w-4 mr-2" /> Créer une formation</Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {formations.map((f) => {
@@ -1817,33 +1818,33 @@ const AdminDashboard: React.FC = () => {
                         <CardContent className="p-6 flex flex-col justify-between h-full space-y-4">
                           <div className="space-y-2">
                             <div className="flex justify-between items-start">
-                              <span className="text-xs font-bold text-primary-600 uppercase">{f.category || 'Général'}</span>
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${f.status === 'Publié' ? 'bg-success-100 text-success-700' : 'bg-secondary-100 text-secondary-700'}`}>{f.status}</span>
+                              <span className="text-xs font-bold text-indigo-400 uppercase">{f.category || 'Général'}</span>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${f.status === 'Publié' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-slate-800 text-slate-300 border border-slate-700'}`}>{f.status}</span>
                             </div>
-                            <h3 className="font-bold text-base text-secondary-900 line-clamp-2">{f.title}</h3>
-                            <p className="text-xs text-secondary-500">{f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
+                            <h3 className="font-bold text-base text-white line-clamp-2">{f.title}</h3>
+                            <p className="text-xs text-slate-400">{f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
 
                             {f.description && (
-                              <p className="text-xs text-secondary-600 line-clamp-2 italic bg-secondary-50 p-2 rounded-xl">
+                              <p className="text-xs text-slate-300 line-clamp-2 italic bg-slate-950 p-2 rounded-xl border border-slate-800">
                                 "{f.description}"
                               </p>
                             )}
 
                             {atts.length > 0 && (
-                              <div className="flex items-center justify-between text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 p-2 rounded-xl">
+                              <div className="flex items-center justify-between text-xs text-indigo-300 bg-slate-950 border border-indigo-900/60 p-2 rounded-xl">
                                 <span className="font-bold flex items-center gap-1">
                                   <span>📑</span> {atts.length} fichier(s) joint(s)
                                 </span>
-                                <Button variant="ghost" size="sm" className="h-auto p-1 text-indigo-700 hover:text-indigo-900" onClick={() => exportAllAttachments(atts)}>
+                                <Button variant="ghost" size="sm" className="h-auto p-1 text-indigo-300 hover:text-indigo-100 hover:bg-slate-800" onClick={() => exportAllAttachments(atts)}>
                                   <Download className="w-3.5 h-3.5" />
                                 </Button>
                               </div>
                             )}
                           </div>
-                          <div className="flex gap-2 border-t border-secondary-100 pt-3">
-                            <Button variant="outline" className="flex-1 text-xs" size="sm" onClick={() => handleToggleFormationStatus(f.id, f.status)}>Publier / Masquer</Button>
-                            <Button variant="outline" size="sm" onClick={() => handleEditFormation(f)}><Edit className="h-4 w-4" /></Button>
-                            <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={() => handleDeleteFormation(f.id)}><Trash2 className="h-4 w-4" /></Button>
+                          <div className="flex gap-2 border-t border-slate-800 pt-3">
+                            <Button variant="outline" className="flex-1 text-xs border-slate-700 text-slate-300 hover:bg-slate-800" size="sm" onClick={() => handleToggleFormationStatus(f.id, f.status)}>Publier / Masquer</Button>
+                            <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => handleEditFormation(f)}><Edit className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="sm" className="text-red-400 hover:bg-slate-800" onClick={() => handleDeleteFormation(f.id)}><Trash2 className="h-4 w-4" /></Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -1884,13 +1885,13 @@ const AdminDashboard: React.FC = () => {
                           onChange={e => setNewFormation(prev => ({ ...prev, category: e.target.value }))}
                           className="w-full text-xs bg-slate-900 border border-slate-800 text-slate-100 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
                         >
-                          <option value="Droit des Contrats">Droit des Contrats</option>
-                          <option value="Droit Social">Droit Social / du Travail</option>
-                          <option value="Contentieux">Contentieux & Procédure</option>
-                          <option value="Droit Numérique">Droit Numérique & RGPD</option>
-                          <option value="Droit Pénal">Droit Pénal des Affaires</option>
-                          <option value="Propriété Intellectuelle">Propriété Intellectuelle</option>
-                          <option value="Pratique Juridique">Pratique Juridique</option>
+                          <option value="Droit des Contrats" className="bg-slate-900 text-slate-100">Droit des Contrats</option>
+                          <option value="Droit Social" className="bg-slate-900 text-slate-100">Droit Social / du Travail</option>
+                          <option value="Contentieux" className="bg-slate-900 text-slate-100">Contentieux & Procédure</option>
+                          <option value="Droit Numérique" className="bg-slate-900 text-slate-100">Droit Numérique & RGPD</option>
+                          <option value="Droit Pénal" className="bg-slate-900 text-slate-100">Droit Pénal des Affaires</option>
+                          <option value="Propriété Intellectuelle" className="bg-slate-900 text-slate-100">Propriété Intellectuelle</option>
+                          <option value="Pratique Juridique" className="bg-slate-900 text-slate-100">Pratique Juridique</option>
                         </select>
                       </div>
 
@@ -1901,9 +1902,9 @@ const AdminDashboard: React.FC = () => {
                           onChange={e => setNewFormation(prev => ({ ...prev, level: e.target.value }))}
                           className="w-full text-xs bg-slate-900 border border-slate-800 text-slate-100 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
                         >
-                          <option value="Débutant">Débutant</option>
-                          <option value="Intermédiaire">Intermédiaire</option>
-                          <option value="Avancé">Avancé</option>
+                          <option value="Débutant" className="bg-slate-900 text-slate-100">Débutant</option>
+                          <option value="Intermédiaire" className="bg-slate-900 text-slate-100">Intermédiaire</option>
+                          <option value="Avancé" className="bg-slate-900 text-slate-100">Avancé</option>
                         </select>
                       </div>
 
@@ -1993,11 +1994,11 @@ const AdminDashboard: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="flex gap-3 pt-4 border-t border-secondary-100">
-                      <Button variant="outline" type="button" className="flex-1" onClick={() => setCreateFormationOpen(false)}>
+                    <div className="flex gap-3 pt-4 border-t border-slate-800">
+                      <Button variant="outline" type="button" className="flex-1 border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => setCreateFormationOpen(false)}>
                         Annuler
                       </Button>
-                      <Button variant="primary" type="submit" className="flex-1 font-bold">
+                      <Button variant="primary" type="submit" className="flex-1 font-bold bg-indigo-600 hover:bg-indigo-500 text-white">
                         Publier la Formation
                       </Button>
                     </div>
@@ -2009,8 +2010,8 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'classrooms' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-semibold text-secondary-900">Gestion des Visioconférences</h2>
-                  <Button onClick={handleAddClassroomByAdmin}>
+                  <h2 className="text-2xl font-semibold text-white">Gestion des Visioconférences</h2>
+                  <Button onClick={handleAddClassroomByAdmin} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold">
                     <Plus className="h-4 w-4 mr-2" /> Créer une visio (Admin)
                   </Button>
                 </div>
@@ -2019,7 +2020,7 @@ const AdminDashboard: React.FC = () => {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-secondary-50 border-b border-secondary-100 text-xs font-bold text-secondary-500 uppercase">
+                          <tr className="bg-slate-950 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase">
                             <th className="px-6 py-4">Titre</th>
                             <th className="px-6 py-4">Description</th>
                             <th className="px-6 py-4">Type</th>
@@ -2029,29 +2030,29 @@ const AdminDashboard: React.FC = () => {
                             <th className="px-6 py-4">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-secondary-50 text-sm">
+                        <tbody className="divide-y divide-slate-800 text-sm text-slate-300">
                           {classrooms.map((room) => (
-                            <tr key={room.id} className="hover:bg-secondary-50/50">
-                              <td className="px-6 py-4 font-semibold text-secondary-900">{room.title}</td>
-                              <td className="px-6 py-4 text-secondary-500 max-w-xs truncate" title={room.description}>{room.description}</td>
+                            <tr key={room.id} className="hover:bg-slate-800/60 transition-colors">
+                              <td className="px-6 py-4 font-semibold text-white">{room.title}</td>
+                              <td className="px-6 py-4 text-slate-400 max-w-xs truncate" title={room.description}>{room.description}</td>
                               <td className="px-6 py-4">
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                                  room.type === 'direct' ? 'bg-red-50 text-red-700' :
-                                  room.type === 'video' ? 'bg-blue-50 text-blue-700' :
-                                  'bg-emerald-50 text-emerald-700'
+                                  room.type === 'direct' ? 'bg-red-950 text-red-300 border border-red-800' :
+                                  room.type === 'video' ? 'bg-indigo-950 text-indigo-300 border border-indigo-800' :
+                                  'bg-emerald-950 text-emerald-300 border border-emerald-800'
                                 }`}>
                                   {room.type === 'direct' ? 'Direct' : room.type === 'video' ? 'Vidéo' : 'Différé'}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 text-secondary-700">
+                              <td className="px-6 py-4 text-slate-300">
                                 {room.lawyer ? `Me ${room.lawyer.first_name} ${room.lawyer.last_name}` : 'Avocat / Admin'}
                               </td>
-                              <td className="px-6 py-4 text-secondary-500">
+                              <td className="px-6 py-4 text-slate-400">
                                 {room.scheduled_at ? new Date(room.scheduled_at).toLocaleString('fr-FR') : 'Non planifié'}
                               </td>
                               <td className="px-6 py-4">
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                                  room.is_active !== false ? 'bg-success-100 text-success-700' : 'bg-warning-100 text-warning-700'
+                                  room.is_active !== false ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'
                                 }`}>
                                   {room.is_active !== false ? 'Actif' : 'Suspendu'}
                                 </span>
@@ -2061,7 +2062,7 @@ const AdminDashboard: React.FC = () => {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="text-xs"
+                                    className="text-xs border-slate-700 text-slate-300 hover:bg-slate-800"
                                     onClick={() => handleToggleClassroomByAdmin(room.id, room.is_active !== false)}
                                     title={room.is_active !== false ? 'Suspendre' : 'Activer'}
                                   >
@@ -2070,6 +2071,7 @@ const AdminDashboard: React.FC = () => {
                                   <Button
                                     variant="outline"
                                     size="sm"
+                                    className="border-slate-700 text-slate-300 hover:bg-slate-800"
                                     onClick={() => handleEditClassroomByAdmin(room)}
                                     title="Modifier"
                                   >
@@ -2161,26 +2163,33 @@ const AdminDashboard: React.FC = () => {
               <div key={f.name}>
                 <label className="block text-xs font-bold text-slate-300 mb-1">{f.label}</label>
                 {f.type === 'select' ? (
-                  <select name={f.name} defaultValue={f.defaultValue} required className="w-full bg-slate-900 border border-slate-800 text-slate-100 rounded-xl p-2.5 text-xs">
+                  <select name={f.name} defaultValue={f.defaultValue} required className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
                     {f.options?.map((opt: any) => (
                       <option key={opt.value} value={opt.value} className="bg-slate-900 text-slate-100">{opt.label}</option>
                     ))}
                   </select>
                 ) : (
-                  <Input name={f.name} type={f.type || 'text'} defaultValue={f.defaultValue} required className="w-full bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500" />
+                  <Input name={f.name} type={f.type || 'text'} defaultValue={f.defaultValue} required className="w-full bg-slate-950 border-slate-800 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500" />
                 )}
               </div>
             ))}
             {modalConfig.fields.length === 0 && (
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl text-slate-200 text-sm space-y-1">
-                <p className="font-bold text-white">⚠️ Confirmation requise</p>
-                <p className="text-xs text-slate-300">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+              <div className="p-5 bg-slate-950 border border-slate-800/90 rounded-2xl text-slate-200 text-sm space-y-2 flex items-start gap-3.5 shadow-inner">
+                <div className={cn("p-2.5 rounded-xl shrink-0 mt-0.5", modalConfig.isDanger ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20")}>
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-extrabold text-white text-base">Confirmation Requise</p>
+                  <p className="text-xs text-slate-300 leading-relaxed mt-1">Êtes-vous sûr de vouloir exécuter cette opération ? Elle sera immédiatement répercutée en base de données.</p>
+                </div>
               </div>
             )}
           </div>
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
-            <Button type="button" variant="outline" onClick={closeModal} className="border-slate-700 text-slate-300 hover:bg-slate-800">Annuler</Button>
-            <Button type="submit" variant={modalConfig.isDanger ? 'danger' : 'primary'} className="font-bold">{modalConfig.confirmText || 'Valider'}</Button>
+            <Button type="button" variant="outline" onClick={closeModal} className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white rounded-xl">Annuler</Button>
+            <Button type="submit" variant={modalConfig.isDanger ? 'danger' : 'primary'} className={cn("font-extrabold rounded-xl px-5 shadow-lg", modalConfig.isDanger ? "bg-red-600 hover:bg-red-500 text-white shadow-red-900/30" : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-900/30")}>
+              {modalConfig.confirmText || 'Valider'}
+            </Button>
           </div>
         </form>
       </Modal>

@@ -278,14 +278,17 @@ a:hover {
    ============================================ */
 
 .input,
-.textarea {
+.textarea,
+input,
+textarea,
+select {
   display: flex;
   width: 100%;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   line-height: 1.5;
-  color: #f8fafc;
-  background-color: #0f172a;
+  color: #f8fafc !important;
+  background-color: #0f172a !important;
   border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.5rem;
   outline: none;
@@ -293,20 +296,44 @@ a:hover {
 }
 
 .input::placeholder,
-.textarea::placeholder {
-  color: #94a3b8;
+.textarea::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8 !important;
 }
 
 .input:focus,
-.textarea:focus {
+.textarea:focus,
+input:focus,
+textarea:focus,
+select:focus {
   border-color: var(--color-primary-500);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
-  background-color: #1e293b;
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+/* Force dark background when text is entered or when browser autofills */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+input:not(:placeholder-shown),
+textarea:not(:placeholder-shown) {
+  -webkit-box-shadow: 0 0 0 1000px #0f172a inset !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  caret-color: #ffffff !important;
+  color: #f8fafc !important;
+  background-color: #0f172a !important;
 }
 
 .input:disabled,
 .textarea:disabled {
-  background-color: #020617;
+  background-color: #020617 !important;
   cursor: not-allowed;
   opacity: 0.6;
 }
