@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { ANNUAIRE_AVOCATS_FRANCE_DATA, DataGouvAvocat } from '../data/annuaireAvocatsFrance';
+import { ANNUAIRE_AVOCATS_FRANCE_DATA, type DataGouvAvocat } from '../data/annuaireAvocatsFrance';
 import { getCourDAppelForCity } from './jurisdictions';
 
 export interface UnifiedLawyer {
