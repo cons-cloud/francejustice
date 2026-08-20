@@ -36,8 +36,8 @@ interface Classroom {
   date?: string;
   time?: string;
   duration_minutes: number;
-  max_members: number;
-  created_at: string;
+  max_members?: number;
+  created_at?: string;
   lawyer_first_name?: string;
   lawyer_last_name?: string;
   curriculum?: CurriculumSection[];
@@ -204,7 +204,7 @@ const getRichCurriculum = (title: string, existingCurriculum?: CurriculumSection
   return [
     {
       title: "Module 1 : Cadre juridique, textes de loi & principes fondamentaux",
-      content: "Examen approfondi des sources du droit applicables (Codes officiels, ordonnances, décrets d'application et traités internationaux). Délimitation exacte des droits, obligations et périmètres d'application des règles juridiques en vigueur."
+      content: customFirstModuleContent
     },
     {
       title: "Module 2 : Analyse de la jurisprudence constante & Arrêts de principe",
