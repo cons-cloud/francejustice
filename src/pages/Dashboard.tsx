@@ -149,6 +149,7 @@ const DashboardPage: React.FC = () => {
   const [lawyerSearch, setLawyerSearch] = useState('');
 
   const [selectedFormation, setSelectedFormation] = useState<{ id: string; title: string; category: string; duration: string; level: string } | null>(null);
+  const [formationToDelete, setFormationToDelete] = useState<any>(null);
   const [formationViewMode, setFormationViewMode] = useState<'start' | 'preview'>('preview');
   const [activeChapterIndex, setActiveChapterIndex] = useState<number>(0);
   const [chaptersRead, setChaptersRead] = useState<Record<number, boolean>>({});
@@ -1799,11 +1800,7 @@ Ce document est généré par la plateforme France Justice.
                                       size="sm" 
                                       className="px-3 border-red-900/50 text-red-400 hover:bg-red-950/60 hover:border-red-600 transition-colors"
                                       title="Supprimer la formation"
-                                      onClick={() => {
-                                        if (window.confirm("Êtes-vous sûr de vouloir supprimer cette formation ?")) {
-                                          handleDeleteFormation(f.id);
-                                        }
-                                      }}
+                                      onClick={() => setFormationToDelete(f)}
                                     >
                                       <Trash2 className="w-4 h-4" />
                                     </Button>
@@ -2234,6 +2231,53 @@ Ce document est généré par la plateforme France Justice.
           </div>
         </div>
       </Modal>
+
+      {/* Modal de Confirmation de Suppression de Formation */}
+      {formationToDelete && (
+        <Modal
+          isOpen={!!formationToDelete}
+          onClose={() => setFormationToDelete(null)}
+          title="Confirmation de Suppression"
+        >
+          <div className="space-y-5 p-2 font-sans text-slate-100">
+            <div className="flex items-center gap-4 p-4 bg-red-950/40 border border-red-800/50 rounded-2xl">
+              <div className="w-12 h-12 rounded-2xl bg-red-900/50 border border-red-700/60 flex items-center justify-center text-red-400 shrink-0 shadow-lg">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white mb-0.5">Supprimer définitivement la formation ?</h4>
+                <p className="text-xs text-red-300/90 leading-relaxed">
+                  Êtes-vous sûr de vouloir supprimer la formation <strong className="text-white font-extrabold font-mono">« {formationToDelete.title} »</strong> ?
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-400 leading-relaxed px-1">
+              Cette action retirera immédiatement ce module du catalogue en temps réel pour tous les étudiants, citoyens, professeurs, avocats et doctorants. Tous les documents PDF et visuels associés seront également supprimés.
+            </p>
+
+            <div className="flex gap-3 pt-3 border-t border-slate-800/80">
+              <Button
+                variant="outline"
+                className="flex-1 border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white"
+                onClick={() => setFormationToDelete(null)}
+              >
+                Annuler
+              </Button>
+              <Button
+                className="flex-1 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-bold shadow-lg shadow-red-950/50 flex items-center justify-center gap-2"
+                onClick={async () => {
+                  const id = formationToDelete.id;
+                  setFormationToDelete(null);
+                  await handleDeleteFormation(id);
+                }}
+              >
+                <Trash2 className="w-4 h-4" /> Supprimer la Formation
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Modal Formations Interactif */}
       <Modal
