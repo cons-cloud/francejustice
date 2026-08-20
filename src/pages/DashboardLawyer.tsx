@@ -187,13 +187,20 @@ const DashboardLawyer: React.FC = () => {
   const [anonProcessing, setAnonProcessing] = useState(false)
 
   // Curriculums dynamiques pour les formations
-  const getFormationCurriculum = (title: string) => {
+  const getFormationCurriculum = (formationOrTitle: any) => {
+    const title = typeof formationOrTitle === 'string' ? formationOrTitle : formationOrTitle?.title || 'Formation';
+    const description = typeof formationOrTitle === 'object' && formationOrTitle?.description ? formationOrTitle.description : '';
     const t = title.toLowerCase();
+
+    const customFirstModuleContent = description.trim() 
+      ? description 
+      : `Ce module vise à transmettre les connaissances pratiques et théoriques relatives à : ${title}.`;
+
     if (t.includes('contrat')) {
       return [
         {
-          title: "1. Définition et formation du contrat",
-          content: "Un contrat est un accord de volontés entre deux ou plusieurs personnes destiné à créer, modifier, transmettre ou éteindre des obligations. Pour être valide, il exige le consentement des parties, leur capacité de contracter, et un contenu licite et certain. L'offre et l'acceptation constituent la rencontre des volontés indispensable au contrat."
+          title: `1. Présentation & Objectifs : ${title}`,
+          content: customFirstModuleContent
         },
         {
           title: "2. Les clauses contractuelles clés",
@@ -207,8 +214,8 @@ const DashboardLawyer: React.FC = () => {
     } else if (t.includes('contentieux') || t.includes('litige')) {
       return [
         {
-          title: "1. Phase précontentieuse et mise en demeure",
-          content: "Avant toute action judiciaire, la tentative de résolution amiable est souvent requise. La lettre de mise en demeure formalise la réclamation et fait courir les intérêts moratoires. Elle fixe un dernier délai de conformité et constitue le préalable obligatoire à de nombreuses actions en justice."
+          title: `1. Présentation & Objectifs : ${title}`,
+          content: customFirstModuleContent
         },
         {
           title: "2. Stratégies de procédure et saisine",
@@ -222,8 +229,8 @@ const DashboardLawyer: React.FC = () => {
     } else if (t.includes('travail') || t.includes('social')) {
       return [
         {
-          title: "1. Le contrat de travail et ses clauses",
-          content: "Le contrat de travail (CDI, CDD) formalise la relation de subordination, les fonctions, la rémunération et le temps de travail. Il peut contenir des clauses sensibles comme la clause de non-concurrence (qui doit être limitée dans le temps/l'espace et comporter une contrepartie financière) ou la clause de mobilité."
+          title: `1. Présentation & Objectifs : ${title}`,
+          content: customFirstModuleContent
         },
         {
           title: "2. Les procédures de rupture",
@@ -237,8 +244,8 @@ const DashboardLawyer: React.FC = () => {
     } else if (t.includes('rgpd') || t.includes('données') || t.includes('numérique')) {
       return [
         {
-          title: "1. Les principes fondamentaux du RGPD",
-          content: "Le Règlement Général sur la Protection des Données régit le traitement des données personnelles dans l'UE. Les principes clés sont la licéité, la loyauté, la transparence, la limitation des finalités, la minimisation des données, et l'obligation d'obtenir un consentement libre, spécifique, éclairé et univoque."
+          title: `1. Présentation & Objectifs : ${title}`,
+          content: customFirstModuleContent
         },
         {
           title: "2. Obligations du responsable de traitement",
@@ -252,16 +259,16 @@ const DashboardLawyer: React.FC = () => {
     } else {
       return [
         {
-          title: "1. Analyse et recherche doctrinale",
-          content: "Chaque dossier juridique commence par une qualification rigoureuse des faits. L'avocat doit rechercher les textes législatifs applicables, analyser la jurisprudence récente (arrêts de la Cour de cassation ou du Conseil d'État), et consulter la doctrine pertinente pour fonder son argumentation."
+          title: `1. Contenu Pédagogique & Sommaire : ${title}`,
+          content: customFirstModuleContent
         },
         {
-          title: "2. Rédaction d'actes et de mémoires",
-          content: "La clarté, la rigueur logique et la précision terminologique sont les piliers de la rédaction juridique. Qu'il s'agisse de conclusions, de contrats ou de statuts de société, la structure doit être limpide, éliminant toute ambiguïté qui pourrait nuire aux intérêts du client ou engendrer un litige futur."
+          title: `2. Guide d'application pratique & Cadre Législatif`,
+          content: `Ce module de formation approfondit les notions relatives à "${title}". Il analyse les dispositions de loi, les règles d'ordre public et les bonnes pratiques professionnelles recommandées.`
         },
         {
-          title: "3. Déontologie et éthique professionnelle",
-          content: "L'avocat exerce ses fonctions avec dignité, conscience, indépendance, probité et humanité, conformément à son serment. Le respect du secret professionnel est absolu et d'ordre public. La gestion des conflits d'intérêts et le maniement des fonds via la CARPA font l'objet d'une vigilance constante."
+          title: `3. Documentation, supports PDF et validation`,
+          content: `Consultez les supports PDF et visuels joints à ce module pour appliquer les enseignements et valider votre attestation d'apprentissage.`
         }
       ];
     }
@@ -3250,7 +3257,7 @@ const DashboardLawyer: React.FC = () => {
       >
         {(() => {
           if (!selectedFormation) return null;
-          const chapters = getFormationCurriculum(selectedFormation.title);
+          const chapters = getFormationCurriculum(selectedFormation);
           const totalChapters = chapters.length;
           const readCount = chapters.reduce((acc, _, idx) => acc + (chaptersRead[idx] ? 1 : 0), 0);
           const percent = Math.round((readCount / totalChapters) * 100);
@@ -3279,12 +3286,12 @@ const DashboardLawyer: React.FC = () => {
               {selectedFormation.description && (
                 <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1 text-xs">
                   <p className="font-bold text-indigo-400 uppercase tracking-wider text-[10px]">Description & Objectifs</p>
-                  <p className="text-slate-300 leading-relaxed">{selectedFormation.description}</p>
+                  <p className="text-slate-300 leading-relaxed font-sans">{selectedFormation.description}</p>
                 </div>
               )}
 
               {atts.length > 0 && (
-                <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-3 text-slate-100 font-sans">
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-4 text-slate-100 font-sans">
                   <div className="flex justify-between items-center">
                     <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                       <span>📑</span> Documents PDF & Visuels joints ({atts.length})
@@ -3293,18 +3300,37 @@ const DashboardLawyer: React.FC = () => {
                       <Download className="w-3.5 h-3.5 mr-1" /> Exporter tout
                     </Button>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="space-y-3">
                     {atts.map((att) => (
-                      <div key={att.id} className="p-2.5 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 truncate">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
-                            {att.type.toUpperCase()}
-                          </span>
-                          <span className="truncate text-xs font-medium text-slate-200">{att.name}</span>
+                      <div key={att.id} className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 truncate">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
+                              {att.type.toUpperCase()}
+                            </span>
+                            <span className="truncate text-xs font-bold text-white">{att.name}</span>
+                          </div>
+                          <Button variant="outline" size="sm" className="text-xs font-bold border-indigo-700 text-indigo-300 hover:bg-indigo-950 px-2.5 py-1" onClick={() => exportAttachmentFile(att)}>
+                            <Download className="w-3.5 h-3.5 mr-1" /> Télécharger / Visionner PDF
+                          </Button>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-primary-400 hover:text-primary-300 hover:bg-primary-950/50 p-1.5 h-auto text-xs font-bold" onClick={() => exportAttachmentFile(att)}>
-                          <Download className="w-3.5 h-3.5" />
-                        </Button>
+                        {att.dataUrl && (
+                          <div className="mt-2 rounded-xl overflow-hidden border border-slate-800 bg-slate-900">
+                            {att.type === 'pdf' || (typeof att.dataUrl === 'string' && (att.dataUrl.includes('pdf') || att.name.toLowerCase().endsWith('.pdf'))) ? (
+                              <iframe
+                                src={att.dataUrl}
+                                title={att.name}
+                                className="w-full h-80 rounded-xl bg-slate-900 border-0"
+                              />
+                            ) : (
+                              <img
+                                src={att.dataUrl}
+                                alt={att.name}
+                                className="w-full max-h-80 object-contain mx-auto rounded-xl"
+                              />
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

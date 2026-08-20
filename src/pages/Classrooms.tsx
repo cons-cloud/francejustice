@@ -46,8 +46,7 @@ interface Classroom {
 }
 
 const getRichDescription = (title: string, currentDesc?: string): string => {
-  const t = (title || '').toLowerCase();
-  if (currentDesc && currentDesc.length > 130 && !currentDesc.includes('étude approfondie des dispositions')) {
+  if (currentDesc && currentDesc.trim().length > 0) {
     return currentDesc;
   }
   if (t.includes('contrat')) {
@@ -71,11 +70,14 @@ const getRichDescription = (title: string, currentDesc?: string): string => {
   return "Formation juridique complète dispensée par des avocats spécialisés du barreau. Ce programme associe théorie universitaire rigoureuse, analyse d'arrêts majeurs de jurisprudence, études de cas pratiques et remise d'un support pédagogique téléchargeable 100% en PDF.";
 };
 
-const getRichCurriculum = (title: string, existingCurriculum?: CurriculumSection[]): CurriculumSection[] => {
+const getRichCurriculum = (title: string, existingCurriculum?: CurriculumSection[], customDesc?: string): CurriculumSection[] => {
   if (existingCurriculum && existingCurriculum.length >= 3 && existingCurriculum[0].content.length > 100) {
     return existingCurriculum;
   }
   const t = (title || '').toLowerCase();
+  const customFirstModuleContent = (customDesc && customDesc.trim().length > 0)
+    ? customDesc
+    : `Présentation synthétique des objectifs pédagogiques et du cadre juridique de : ${title}.`;
   
   if (t.includes('contrat')) {
     return [
