@@ -126,6 +126,23 @@ const DashboardPage: React.FC = () => {
     }
   };
   
+  const handleDeleteFormation = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('formations_just')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        toastError('Erreur', error.message);
+      } else {
+        success('Formation supprimée 🗑️', 'Le module de formation a été supprimé.');
+        await fetchFormations();
+      }
+    } catch (err: any) {
+      toastError('Erreur', err.message || "Erreur lors de la suppression");
+    }
+  };
 
 
   const [availableLawyers, setAvailableLawyers] = useState<any[]>([]);
@@ -1780,15 +1797,15 @@ Ce document est généré par la plateforme France Justice.
                                     <Button 
                                       variant="outline" 
                                       size="sm" 
-                                      className="px-3 text-secondary-500 hover:text-primary-600"
+                                      className="px-3 border-red-900/50 text-red-400 hover:bg-red-950/60 hover:border-red-600 transition-colors"
+                                      title="Supprimer la formation"
                                       onClick={() => {
-                                        setSelectedFormation(f);
-                                        setFormationViewMode('preview');
-                                        setActiveChapterIndex(0);
-                                        setChaptersRead({0: true, 1: true, 2: true});
+                                        if (window.confirm("Êtes-vous sûr de vouloir supprimer cette formation ?")) {
+                                          handleDeleteFormation(f.id);
+                                        }
                                       }}
                                     >
-                                      <Eye className="h-4 w-4" />
+                                      <Trash2 className="w-4 h-4" />
                                     </Button>
                                   </div>
                                 </div>

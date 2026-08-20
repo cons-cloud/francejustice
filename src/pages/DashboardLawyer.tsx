@@ -2512,6 +2512,19 @@ const DashboardLawyer: React.FC = () => {
                                     >
                                       <Eye className="h-4 w-4" />
                                     </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="px-3 border-red-900/50 text-red-400 hover:bg-red-950/60 hover:border-red-600 transition-colors"
+                                      title="Supprimer la formation"
+                                      onClick={() => {
+                                        if (window.confirm("Êtes-vous sûr de vouloir supprimer cette formation ?")) {
+                                          handleDeleteFormation(f.id);
+                                        }
+                                      }}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
                                   </div>
                                 </CardContent>
                               </Card>
