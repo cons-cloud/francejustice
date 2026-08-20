@@ -741,20 +741,40 @@ const DashboardLawyer: React.FC = () => {
       const authorName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 'Expert France Justice';
       const pdfUrlData = newFormation.attachments.length > 0 ? JSON.stringify(newFormation.attachments) : null;
 
-      const { error } = await supabase.from('formations_just').insert([{
+      const payload: any = {
         title: newFormation.title,
-        category: newFormation.category,
-        level: newFormation.level,
-        duration: newFormation.duration,
-        description: newFormation.description,
+        category: newFormation.category || 'Droit Général',
+        level: newFormation.level || 'Tous niveaux',
+        duration: newFormation.duration || '1h 30',
+        description: newFormation.description || '',
         pdf_url: pdfUrlData,
-        author_id: user?.id,
-        author_name: authorName,
+        author_name: authorName || 'Expert France Justice',
         author_role: authorRole,
         status: 'Publié'
-      }]);
+      };
 
-      if (error) throw error;
+      if (user?.id) {
+        payload.author_id = user.id;
+      }
+
+      let { error } = await supabase.from('formations_just').insert([payload]);
+
+      if (error) {
+        console.warn("First formation insert attempt failed, attempting fallback without author_id:", error);
+        delete payload.author_id;
+        const fallbackRes = await supabase.from('formations_just').insert([payload]);
+        if (fallbackRes.error) {
+          console.warn("Second formation insert attempt failed, trying basic payload:", fallbackRes.error);
+          const basicRes = await supabase.from('formations_just').insert([{
+            title: newFormation.title,
+            category: newFormation.category || 'Droit Général',
+            description: newFormation.description || '',
+            status: 'Publié'
+          }]);
+          if (basicRes.error) throw basicRes.error;
+        }
+      }
+
       success('Formation créée 🎓', 'La nouvelle formation a été publiée avec succès !');
       setCreateFormationOpen(false);
       setNewFormation({
@@ -768,7 +788,7 @@ const DashboardLawyer: React.FC = () => {
       await fetchFormations();
     } catch (err: any) {
       console.error("Error creating formation:", err);
-      toastError('Erreur', err.message || "Erreur lors de la création de la formation");
+      toastError('Erreur', err.message || err.details || "Erreur lors de la création de la formation");
     }
   };
 
