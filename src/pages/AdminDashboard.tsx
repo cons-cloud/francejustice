@@ -47,7 +47,7 @@ interface UserProfile {
   };
 }
 
-export default function AdminDashboard() {
+const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { success, error: toastError } = useToast();
   const { t } = useTranslation();
