@@ -442,10 +442,10 @@ const LawyersPage: React.FC = () => {
             )}
             
             {filteredLawyers.length === 0 && !loading && (
-              <div className="col-span-full text-center py-20 bg-white rounded-3xl border border-secondary-200">
-                <Users className="h-16 w-16 text-secondary-200 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-secondary-900">{t('lawyers.no_results')}</h3>
-                <p className="text-secondary-600">{t('lawyers.no_results_hint', 'Essayez de modifier vos critères de recherche.')}</p>
+              <div className="col-span-full text-center py-20 bg-slate-900 rounded-3xl border border-slate-800 text-slate-100 shadow-xl">
+                <Users className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-white">{t('lawyers.no_results', 'Aucun avocat trouvé')}</h3>
+                <p className="text-slate-400">{t('lawyers.no_results_hint', 'Essayez de modifier vos critères de recherche.')}</p>
               </div>
             )}
           </div>
