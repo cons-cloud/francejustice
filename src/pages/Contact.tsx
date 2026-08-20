@@ -76,9 +76,9 @@ const Contact = () => {
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{t('contact.title')}</h1>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+          <div className="text-center mb-12 flex flex-col items-center justify-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">{t('contact.title')}</h1>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto text-center leading-relaxed">
               {t('contact.subtitle')}
             </p>
           </div>
