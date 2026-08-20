@@ -2402,14 +2402,14 @@ Ce document est généré par la plateforme France Justice.
                 onChange={e => setNewFormation({ ...newFormation, category: e.target.value })}
                 className="w-full bg-slate-900 border border-slate-800 text-slate-100 text-xs rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500"
               >
-                <option value="Droit des Contrats">Droit des Contrats</option>
-                <option value="Droit Administratif">Droit Administratif</option>
-                <option value="Droit des Affaires">Droit des Affaires</option>
-                <option value="Droit du Travail">Droit du Travail</option>
-                <option value="Droit Pénal">Droit Pénal</option>
-                <option value="Droit Immobilier">Droit Immobilier</option>
-                <option value="Droit International">Droit International</option>
-                <option value="Recherche & Doctrine">Recherche & Doctrine</option>
+                <option value="Droit des Contrats" className="bg-slate-900 text-slate-100">Droit des Contrats</option>
+                <option value="Droit Administratif" className="bg-slate-900 text-slate-100">Droit Administratif</option>
+                <option value="Droit des Affaires" className="bg-slate-900 text-slate-100">Droit des Affaires</option>
+                <option value="Droit du Travail" className="bg-slate-900 text-slate-100">Droit du Travail</option>
+                <option value="Droit Pénal" className="bg-slate-900 text-slate-100">Droit Pénal</option>
+                <option value="Droit Immobilier" className="bg-slate-900 text-slate-100">Droit Immobilier</option>
+                <option value="Droit International" className="bg-slate-900 text-slate-100">Droit International</option>
+                <option value="Recherche & Doctrine" className="bg-slate-900 text-slate-100">Recherche & Doctrine</option>
               </select>
             </div>
 
@@ -2420,10 +2420,10 @@ Ce document est généré par la plateforme France Justice.
                 onChange={e => setNewFormation({ ...newFormation, level: e.target.value })}
                 className="w-full bg-slate-900 border border-slate-800 text-slate-100 text-xs rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500"
               >
-                <option value="Débutant">Débutant (L1-L2)</option>
-                <option value="Intermédiaire">Intermédiaire (L3-M1)</option>
-                <option value="Avancé">Avancé (M2-Doctorat)</option>
-                <option value="Expert">Expert / Praticien</option>
+                <option value="Débutant" className="bg-slate-900 text-slate-100">Débutant (L1-L2)</option>
+                <option value="Intermédiaire" className="bg-slate-900 text-slate-100">Intermédiaire (L3-M1)</option>
+                <option value="Avancé" className="bg-slate-900 text-slate-100">Avancé (M2-Doctorat)</option>
+                <option value="Expert" className="bg-slate-900 text-slate-100">Expert / Praticien</option>
               </select>
             </div>
 

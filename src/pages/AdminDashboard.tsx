@@ -2081,8 +2081,7 @@ const AdminDashboard: React.FC = () => {
       </div>
       
       {/* Modal d'action / confirmation / modification / suppression */}
-      <Modal isOpen={modalConfig.isOpen} onClose={closeModal}>
-        <h2 className="text-xl font-bold text-white mb-4">{modalConfig.title}</h2>
+      <Modal isOpen={modalConfig.isOpen} onClose={closeModal} title={modalConfig.title}>
         <form onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.target as HTMLFormElement);
@@ -2094,14 +2093,25 @@ const AdminDashboard: React.FC = () => {
             {modalConfig.fields.map(f => (
               <div key={f.name}>
                 <label className="block text-xs font-bold text-slate-300 mb-1">{f.label}</label>
-                <Input name={f.name} type={f.type || 'text'} defaultValue={f.defaultValue} required className="w-full bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500" />
+                {f.type === 'select' ? (
+                  <select name={f.name} defaultValue={f.defaultValue} required className="w-full bg-slate-900 border border-slate-800 text-slate-100 rounded-xl p-2.5 text-xs">
+                    {f.options?.map((opt: any) => (
+                      <option key={opt.value} value={opt.value} className="bg-slate-900 text-slate-100">{opt.label}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <Input name={f.name} type={f.type || 'text'} defaultValue={f.defaultValue} required className="w-full bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500" />
+                )}
               </div>
             ))}
             {modalConfig.fields.length === 0 && (
-              <p className="text-slate-300 text-sm mb-4">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl text-slate-200 text-sm space-y-1">
+                <p className="font-bold text-white">⚠️ Confirmation requise</p>
+                <p className="text-xs text-slate-300">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+              </div>
             )}
           </div>
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
             <Button type="button" variant="outline" onClick={closeModal} className="border-slate-700 text-slate-300 hover:bg-slate-800">Annuler</Button>
             <Button type="submit" variant={modalConfig.isDanger ? 'danger' : 'primary'} className="font-bold">{modalConfig.confirmText || 'Valider'}</Button>
           </div>
