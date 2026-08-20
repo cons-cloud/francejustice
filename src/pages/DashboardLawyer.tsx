@@ -799,6 +799,21 @@ const DashboardLawyer: React.FC = () => {
     }
   };
 
+  const handleDeleteFormation = async (id: string) => {
+    try {
+      const { error } = await supabase.from('formations_just').delete().eq('id', id);
+      if (error) {
+        toastError('Erreur', error.message || "Erreur lors de la suppression");
+      } else {
+        success('Formation supprimée 🗑️', 'La formation a été supprimée avec succès.');
+        setFormations(prev => prev.filter(f => f.id !== id));
+      }
+    } catch (err: any) {
+      console.error("Error deleting formation:", err);
+      toastError('Erreur', err.message || "Erreur lors de la suppression");
+    }
+  };
+
   const handleToggleClassroomActive = async (id: string, currentActive: boolean) => {
     try {
       const { error } = await supabase
@@ -2557,24 +2572,24 @@ const DashboardLawyer: React.FC = () => {
                     >
                       <form onSubmit={handleCreateFormation} className="space-y-4 text-sm font-sans">
                         <div>
-                          <label className="block text-xs font-bold text-secondary-700 mb-1">Titre de la formation *</label>
+                          <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">Titre de la formation *</label>
                           <input
                             type="text"
                             required
                             placeholder="Ex: Procédures d'urgence en Droit des Contrats et des Affaires"
                             value={newFormation.title}
                             onChange={e => setNewFormation(prev => ({ ...prev, title: e.target.value }))}
-                            className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                            className="w-full text-xs bg-slate-950 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-sans"
                           />
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <div>
-                            <label className="block text-xs font-bold text-secondary-700 mb-1">Catégorie</label>
+                            <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">Catégorie</label>
                             <select
                               value={newFormation.category}
                               onChange={e => setNewFormation(prev => ({ ...prev, category: e.target.value }))}
-                              className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                              className="w-full text-xs bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-sans"
                             >
                               <option value="Droit des Contrats">Droit des Contrats</option>
                               <option value="Droit Social">Droit Social / du Travail</option>
@@ -2587,11 +2602,11 @@ const DashboardLawyer: React.FC = () => {
                           </div>
 
                           <div>
-                            <label className="block text-xs font-bold text-secondary-700 mb-1">Niveau</label>
+                            <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">Niveau</label>
                             <select
                               value={newFormation.level}
                               onChange={e => setNewFormation(prev => ({ ...prev, level: e.target.value }))}
-                              className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                              className="w-full text-xs bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-sans"
                             >
                               <option value="Débutant">Débutant</option>
                               <option value="Intermédiaire">Intermédiaire</option>
@@ -2600,35 +2615,35 @@ const DashboardLawyer: React.FC = () => {
                           </div>
 
                           <div>
-                            <label className="block text-xs font-bold text-secondary-700 mb-1">Durée estimée</label>
+                            <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">Durée estimée</label>
                             <input
                               type="text"
                               required
                               placeholder="Ex: 3h 00"
                               value={newFormation.duration}
                               onChange={e => setNewFormation(prev => ({ ...prev, duration: e.target.value }))}
-                              className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                              className="w-full text-xs bg-slate-950 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-sans"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-secondary-700 mb-1">Description & Sommaire Pédagogique</label>
+                          <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">Description & Sommaire Pédagogique</label>
                           <textarea
                             rows={3}
                             placeholder="Ex: Présentation synthétique des objectifs, jurisprudences clés et compétences visées..."
                             value={newFormation.description}
                             onChange={e => setNewFormation(prev => ({ ...prev, description: e.target.value }))}
-                            className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                            className="w-full text-xs bg-slate-950 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-sans leading-relaxed"
                           />
                         </div>
 
                         {/* Import PDF & Image Attachments */}
-                        <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-3 text-slate-100">
-                          <label className="block text-xs font-extrabold text-slate-200 uppercase tracking-wider">
-                            📑 Importer des Documents PDF et Visuels (Images)
+                        <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800/80 space-y-3 text-slate-100">
+                          <label className="block text-xs font-extrabold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <span>📑</span> Importer des Documents PDF et Visuels (Images)
                           </label>
-                          <p className="text-[11px] text-slate-400">
+                          <p className="text-[11px] text-slate-400 leading-relaxed">
                             Sélectionnez vos fichiers de formation (supports PDF, schémas juridiques, visuels). Ils seront consultables et téléchargeables par les apprenants, citoyens et étudiants.
                           </p>
 
@@ -2653,7 +2668,7 @@ const DashboardLawyer: React.FC = () => {
                                 attachments: [...prev.attachments, ...newAtts]
                               }));
                             }}
-                            className="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-primary-600 file:text-white hover:file:bg-primary-500 cursor-pointer"
+                            className="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
                           />
 
                           {newFormation.attachments.length > 0 && (
@@ -2661,12 +2676,12 @@ const DashboardLawyer: React.FC = () => {
                               <p className="text-[11px] font-bold text-slate-300">Fichiers rattachés ({newFormation.attachments.length}) :</p>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {newFormation.attachments.map((att, idx) => (
-                                  <div key={att.id} className="p-2 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
+                                  <div key={att.id} className="p-2 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
                                     <div className="flex items-center gap-2 truncate">
                                       <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
                                         {att.type.toUpperCase()}
                                       </span>
-                                      <span className="truncate text-slate-200 text-[11px]">{att.name}</span>
+                                      <span className="truncate text-slate-200 text-[11px] font-semibold">{att.name}</span>
                                     </div>
                                     <button
                                       type="button"
@@ -2674,7 +2689,7 @@ const DashboardLawyer: React.FC = () => {
                                         ...prev,
                                         attachments: prev.attachments.filter((_, i) => i !== idx)
                                       }))}
-                                      className="text-slate-400 hover:text-red-400 p-1"
+                                      className="text-slate-400 hover:text-red-400 p-1 font-bold"
                                     >
                                       ✕
                                     </button>
@@ -2685,11 +2700,11 @@ const DashboardLawyer: React.FC = () => {
                           )}
                         </div>
 
-                        <div className="flex gap-3 pt-4 border-t border-secondary-100">
-                          <Button variant="outline" type="button" className="flex-1" onClick={() => setCreateFormationOpen(false)}>
+                        <div className="flex gap-3 pt-4 border-t border-slate-800">
+                          <Button variant="outline" type="button" className="flex-1 border-slate-800 text-slate-300 hover:bg-slate-800" onClick={() => setCreateFormationOpen(false)}>
                             Annuler
                           </Button>
-                          <Button variant="primary" type="submit" className="flex-1 font-bold">
+                          <Button variant="primary" type="submit" className="flex-1 font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg">
                             Publier la Formation
                           </Button>
                         </div>
