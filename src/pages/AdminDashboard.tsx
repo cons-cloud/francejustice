@@ -301,10 +301,17 @@ const AdminDashboard: React.FC = () => {
 
   const fetchTickets = async () => {
     try {
-      const { data, error } = await supabase.from('assistance_tickets_just').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
-      if (error) {
-        const { data: fallback } = await supabase.from('assistance_tickets_just').select('*').order('created_at', { ascending: false });
-        if (fallback) setTickets(fallback);
+      const { data, error } = await supabase.from('assistance_tickets_just').select('*').order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        const uIds = [...new Set(data.map(t => t.user_id || t.owner_id).filter(Boolean))];
+        if (uIds.length > 0) {
+          const { data: profs } = await supabase.from('profiles_just').select('id, first_name, last_name').in('id', uIds);
+          const pMap: Record<string, any> = {};
+          profs?.forEach(p => { pMap[p.id] = p; });
+          setTickets(data.map(t => ({ ...t, profiles: pMap[t.user_id || t.owner_id] || null })));
+        } else {
+          setTickets(data);
+        }
       } else if (data) {
         setTickets(data);
       }
@@ -315,10 +322,17 @@ const AdminDashboard: React.FC = () => {
 
   const fetchPayments = async () => {
     try {
-      const { data, error } = await supabase.from('payments_just').select('*, profiles:user_id(first_name, last_name)').order('created_at', { ascending: false });
-      if (error) {
-        const { data: fallback } = await supabase.from('payments_just').select('*').order('created_at', { ascending: false });
-        if (fallback) setPayments(fallback);
+      const { data, error } = await supabase.from('payments_just').select('*').order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        const uIds = [...new Set(data.map(p => p.user_id || p.owner_id).filter(Boolean))];
+        if (uIds.length > 0) {
+          const { data: profs } = await supabase.from('profiles_just').select('id, first_name, last_name').in('id', uIds);
+          const pMap: Record<string, any> = {};
+          profs?.forEach(p => { pMap[p.id] = p; });
+          setPayments(data.map(p => ({ ...p, profiles: pMap[p.user_id || p.owner_id] || null })));
+        } else {
+          setPayments(data);
+        }
       } else if (data) {
         setPayments(data);
       }
@@ -328,19 +342,53 @@ const AdminDashboard: React.FC = () => {
   };
 
   const fetchQuotes = async () => {
-    const { data } = await supabase
-      .from('quotes_just')
-      .select('*, profiles:lawyer_id(first_name, last_name), client:client_id(first_name, last_name)')
-      .order('created_at', { ascending: false });
-    if (data) setQuotes(data);
+    try {
+      const { data, error } = await supabase.from('quotes_just').select('*').order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        const allIds = [...new Set(data.flatMap(q => [q.lawyer_id, q.client_id]).filter(Boolean))];
+        if (allIds.length > 0) {
+          const { data: profs } = await supabase.from('profiles_just').select('id, first_name, last_name').in('id', allIds);
+          const pMap: Record<string, any> = {};
+          profs?.forEach(p => { pMap[p.id] = p; });
+          setQuotes(data.map(q => ({
+            ...q,
+            profiles: pMap[q.lawyer_id] || null,
+            client: pMap[q.client_id] || null
+          })));
+        } else {
+          setQuotes(data);
+        }
+      } else if (data) {
+        setQuotes(data);
+      }
+    } catch (e) {
+      console.warn("Could not fetch quotes:", e);
+    }
   };
 
   const fetchChatRooms = async () => {
-    const { data } = await supabase
-      .from('chat_rooms_just')
-      .select('*, lawyer:lawyer_id(first_name, last_name), client:client_id(first_name, last_name)')
-      .order('created_at', { ascending: false });
-    if (data) setChatRooms(data);
+    try {
+      const { data, error } = await supabase.from('chat_rooms_just').select('*').order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        const allIds = [...new Set(data.flatMap(c => [c.lawyer_id, c.client_id]).filter(Boolean))];
+        if (allIds.length > 0) {
+          const { data: profs } = await supabase.from('profiles_just').select('id, first_name, last_name').in('id', allIds);
+          const pMap: Record<string, any> = {};
+          profs?.forEach(p => { pMap[p.id] = p; });
+          setChatRooms(data.map(c => ({
+            ...c,
+            lawyer: pMap[c.lawyer_id] || null,
+            client: pMap[c.client_id] || null
+          })));
+        } else {
+          setChatRooms(data);
+        }
+      } else if (data) {
+        setChatRooms(data);
+      }
+    } catch (e) {
+      console.warn("Could not fetch chat rooms:", e);
+    }
   };
 
   const fetchClassrooms = async () => {
@@ -590,26 +638,45 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteUser = (id: string) => {
     openModal("Supprimer l'utilisateur ?", [], async () => {
       try {
-        const response = await fetch(`/api/accounts/delete-user-admin/${id}/`, { method: 'DELETE' });
-        if(response.ok) {
+        const { error: err1 } = await supabase.from('lawyers_just').delete().eq('id', id);
+        const { error: err2 } = await supabase.from('academic_profiles_just').delete().eq('user_id', id);
+        const { error: err3 } = await supabase.from('profiles_just').delete().eq('id', id);
+
+        if (!err3) {
           fetchUsers();
-          success("Supprimé", "L'utilisateur a été supprimé.");
+          success("Supprimé", "L'utilisateur a été supprimé avec succès.");
         } else {
-          toastError("Erreur", "Erreur lors de la suppression.");
+          const response = await fetch(`/api/accounts/delete-user-admin/${id}/`, { method: 'DELETE' });
+          if(response.ok) {
+            fetchUsers();
+            success("Supprimé", "L'utilisateur a été supprimé.");
+          } else {
+            toastError("Erreur", "Impossible de supprimer l'utilisateur.");
+          }
         }
-      } catch(e) { console.error(e); }
+      } catch(e) {
+        console.error("User deletion error:", e);
+        toastError("Erreur", "Erreur lors de la suppression.");
+      }
     }, "Supprimer définitivement", true);
   };
 
   const handleToggleSuspend = async (u: any) => {
-    const action = u.is_verified ? 'suspend' : 'activate';
+    const newStatus = !u.is_verified;
     try {
-      const response = await fetch(`/api/accounts/${action}-user-admin/${u.id}/`, { method: 'POST' });
-      if(response.ok) {
+      const { error } = await supabase.from('profiles_just').update({ is_verified: newStatus }).eq('id', u.id);
+      if (!error) {
         fetchUsers();
-        success("Mise à jour", `L'utilisateur a été ${u.is_verified ? 'suspendu' : 'activé'}.`);
+        success("Mise à jour", `L'utilisateur a été ${newStatus ? 'activé' : 'suspendu'}.`);
       } else {
-        toastError("Erreur", "Erreur de mise à jour");
+        const action = u.is_verified ? 'suspend' : 'activate';
+        const response = await fetch(`/api/accounts/${action}-user-admin/${u.id}/`, { method: 'POST' });
+        if(response.ok) {
+          fetchUsers();
+          success("Mise à jour", `L'utilisateur a été ${u.is_verified ? 'suspendu' : 'activé'}.`);
+        } else {
+          toastError("Erreur", "Erreur de mise à jour");
+        }
       }
     } catch(e) { console.error(e); }
   };
