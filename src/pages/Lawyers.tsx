@@ -159,9 +159,9 @@ const LawyersPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 pb-20">
       <div className="bg-gradient-to-b from-slate-900 to-slate-950 text-white py-20 mb-12 border-b border-slate-800/80">
-        <div className="container text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">{t('lawyers.hero_title', 'Trouvez un Avocat de Confiance')}</h1>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto mb-10">
+        <div className="container text-center flex flex-col items-center justify-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white text-center">{t('lawyers.hero_title', 'Trouvez un Avocat de Confiance')}</h1>
+          <p className="text-xl text-slate-300 max-w-2xl mx-auto mb-10 text-center leading-relaxed">
             {t('lawyers.hero_subtitle', 'Notre annuaire regroupe uniquement des professionnels du droit français rigoureusement vérifiés par notre équipe.')}
           </p>
           
