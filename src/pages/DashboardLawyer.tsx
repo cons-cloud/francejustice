@@ -893,29 +893,51 @@ const DashboardLawyer: React.FC = () => {
   }
 
   const fetchCases = async (lawyerLoc?: { city?: string; postal_code?: string }) => {
-    if (!user) return
-    const { data } = await supabase
-      .from('documents_just')
-      .select('*, profiles:owner_id(first_name, last_name, email, city, postal_code)')
-      .order('created_at', { ascending: false })
-      .limit(50);
-    if (data) {
-      const city = lawyerLoc?.city || profileForm.city;
-      const postalCode = lawyerLoc?.postal_code || profileForm.postal_code;
-      const lawyerCity = city?.trim().toLowerCase();
-      const lawyerDept = postalCode?.trim().substring(0, 2);
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from('documents_just')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (!error && data && data.length > 0) {
+        const ownerIds = [...new Set(data.map(d => d.owner_id || d.user_id).filter(Boolean))];
+        const profileMap: Record<string, any> = {};
+        if (ownerIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles_just')
+            .select('id, first_name, last_name, email, city, postal_code')
+            .in('id', ownerIds);
+          profiles?.forEach(p => { profileMap[p.id] = p; });
+        }
 
-      const filtered = data.filter(c => {
-        const clientCity = c.profiles?.city?.trim().toLowerCase();
-        const clientDept = c.profiles?.postal_code?.trim().substring(0, 2);
-        if (!lawyerCity && !lawyerDept) return true;
-        const cityMatch = lawyerCity ? clientCity === lawyerCity : true;
-        const deptMatch = lawyerDept ? clientDept === lawyerDept : true;
-        return cityMatch && deptMatch;
-      });
-      setCases(filtered)
+        const enriched = data.map(d => ({
+          ...d,
+          profiles: profileMap[d.owner_id || d.user_id] || null
+        }));
+
+        const city = lawyerLoc?.city || profileForm.city;
+        const postalCode = lawyerLoc?.postal_code || profileForm.postal_code;
+        const lawyerCity = city?.trim().toLowerCase();
+        const lawyerDept = postalCode?.trim().substring(0, 2);
+
+        const filtered = enriched.filter(c => {
+          const clientCity = c.profiles?.city?.trim().toLowerCase();
+          const clientDept = c.profiles?.postal_code?.trim().substring(0, 2);
+          if (!lawyerCity && !lawyerDept) return true;
+          const cityMatch = lawyerCity ? clientCity === lawyerCity : true;
+          const deptMatch = lawyerDept ? clientDept === lawyerDept : true;
+          return cityMatch && deptMatch;
+        });
+        setCases(filtered);
+      } else {
+        setCases([]);
+      }
+    } catch (e) {
+      console.warn("Error fetching cases:", e);
     }
-  }
+  };
 
   const handleExportClients = () => {
     const clients = Array.from(new Set(cases.map(c => JSON.stringify({ 

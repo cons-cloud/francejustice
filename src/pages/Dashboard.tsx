@@ -1066,14 +1066,14 @@ Ce document est généré par la plateforme France Justice.
                 <div>
                   <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.available_lawyer', 'Avocat disponible')}</label>
                   <select
-                    className="w-full flex h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full flex h-10 rounded-md border border-slate-800 bg-slate-900 text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={selectedLawyerForRDV}
                     onChange={e => setSelectedLawyerForRDV(e.target.value)}
                     required
                   >
-                    <option value="">{t('dashboard.select_lawyer', 'Sélectionnez un avocat...')}</option>
+                    <option value="" className="bg-slate-900 text-slate-100">{t('dashboard.select_lawyer', 'Sélectionnez un avocat...')}</option>
                     {availableLawyers.map(l => (
-                      <option key={l.id} value={l.id}>
+                      <option key={l.id} value={l.id} className="bg-slate-900 text-slate-100">
                         Me. {l.first_name} {l.last_name} ({l.specialty || 'Généraliste'}) - {l.city}
                       </option>
                     ))}
@@ -1081,33 +1081,35 @@ Ce document est généré par la plateforme France Justice.
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.date', 'Date')}</label>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">{t('dashboard.date', 'Date')}</label>
                     <Input 
                       type="date" 
                       value={rdvDate} 
                       onChange={e => setRdvDate(e.target.value)} 
                       min={new Date().toISOString().split('T')[0]} 
                       required 
+                      className="bg-slate-900 border-slate-800 text-slate-100"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.time', 'Heure')}</label>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">{t('dashboard.time', 'Heure')}</label>
                     <Input 
                       type="time" 
                       value={rdvTime} 
                       onChange={e => setRdvTime(e.target.value)} 
                       required 
+                      className="bg-slate-900 border-slate-800 text-slate-100"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.notes', 'Description / Notes préliminaires')}</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">{t('dashboard.notes', 'Description / Notes préliminaires')}</label>
                   <textarea
                     value={rdvNotes}
                     onChange={e => setRdvNotes(e.target.value)}
                     placeholder={t('dashboard.notes_placeholder', 'Expliquez brièvement votre dossier ou vos questions...')}
                     rows={4}
-                    className="w-full rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full rounded-md border border-slate-800 bg-slate-900 text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-slate-500"
                   />
                 </div>
                 <Button type="submit" disabled={isBooking} className="w-full">
