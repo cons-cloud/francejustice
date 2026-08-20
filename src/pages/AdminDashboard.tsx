@@ -52,6 +52,7 @@ const AdminDashboard: React.FC = () => {
   const { success, error: toastError } = useToast();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments' | 'classrooms' | 'planning' | 'reviews'>('overview');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [classrooms, setClassrooms] = useState<any[]>([]);
 
