@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -8,7 +8,6 @@ import { createClient } from '@supabase/supabase-js';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import Modal from '../components/ui/Modal';
-import { LogOut, Download, FileJson, FileSpreadsheet } from 'lucide-react';
 import { AdvancedAreaChart, AdvancedBarChart, SimplePieChart } from '../components/features/StatsCharts';
 import { exportToCSV, exportToJSON } from '../lib/exportUtils';
 import { regions } from '../components/features/FranceMap';
@@ -18,7 +17,6 @@ import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import { useTranslation } from '../i18n';
 import { AnnualPlanning } from '../components/features/AnnualPlanning';
 import { ScientificReviews } from '../components/features/ScientificReviews';
-import { Calendar } from 'lucide-react';
 import { COURS_D_APPEL_LIST } from '../lib/jurisdictions';
 import {
   FormationAttachment,
