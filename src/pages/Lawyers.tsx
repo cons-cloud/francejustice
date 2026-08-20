@@ -157,18 +157,18 @@ const LawyersPage: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-secondary-50 pb-20">
-      <div className="bg-primary-900 text-white py-20 mb-12">
+    <div className="min-h-screen bg-slate-950 text-slate-100 pb-20">
+      <div className="bg-gradient-to-b from-slate-900 to-slate-950 text-white py-20 mb-12 border-b border-slate-800/80">
         <div className="container text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">{t('lawyers.hero_title', 'Trouvez un Avocat de Confiance')}</h1>
-          <p className="text-xl text-primary-200 max-w-2xl mx-auto mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">{t('lawyers.hero_title', 'Trouvez un Avocat de Confiance')}</h1>
+          <p className="text-xl text-slate-300 max-w-2xl mx-auto mb-10">
             {t('lawyers.hero_subtitle', 'Notre annuaire regroupe uniquement des professionnels du droit français rigoureusement vérifiés par notre équipe.')}
           </p>
           
           <div className="max-w-2xl mx-auto relative mb-6">
-            <Search className="absolute left-4 top-3.5 h-6 w-6 text-secondary-400" />
+            <Search className="absolute left-4 top-4 h-6 w-6 text-slate-400" />
             <Input 
-              className="pl-12 h-14 text-lg text-secondary-900 shadow-xl"
+              className="pl-12 h-14 text-lg bg-slate-900 border-slate-800 text-white placeholder-slate-400 focus:ring-2 focus:ring-primary-500 shadow-2xl"
               placeholder="Rechercher par nom, université, barreau ou spécialité..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -181,7 +181,7 @@ const LawyersPage: React.FC = () => {
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
                 roleFilter === 'all' 
                   ? 'bg-slate-800 text-white shadow-md font-bold border border-slate-700' 
-                  : 'bg-white/10 text-white hover:bg-white/20'
+                  : 'bg-slate-900/60 text-slate-300 hover:bg-slate-800 border border-slate-800'
               }`}
             >
               Tous les Intervenants ({lawyers.length})
@@ -190,8 +190,8 @@ const LawyersPage: React.FC = () => {
               onClick={() => setRoleFilter('lawyer')}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
                 roleFilter === 'lawyer' 
-                  ? 'bg-purple-500 text-white shadow-md' 
-                  : 'bg-white/10 text-white hover:bg-white/20'
+                  ? 'bg-purple-600 text-white shadow-md' 
+                  : 'bg-slate-900/60 text-purple-300 hover:bg-slate-800 border border-slate-800'
               }`}
             >
               ⚖️ Avocats au Barreau ({lawyers.filter(l => l.role === 'lawyer').length})
@@ -200,8 +200,8 @@ const LawyersPage: React.FC = () => {
               onClick={() => setRoleFilter('professor')}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
                 roleFilter === 'professor' 
-                  ? 'bg-amber-500 text-white shadow-md' 
-                  : 'bg-white/10 text-white hover:bg-white/20'
+                  ? 'bg-amber-600 text-white shadow-md' 
+                  : 'bg-slate-900/60 text-amber-300 hover:bg-slate-800 border border-slate-800'
               }`}
             >
               👨‍🏫 Professeurs de Droit ({lawyers.filter(l => l.role === 'professor').length})
@@ -210,8 +210,8 @@ const LawyersPage: React.FC = () => {
               onClick={() => setRoleFilter('doctorate')}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
                 roleFilter === 'doctorate' 
-                  ? 'bg-teal-500 text-white shadow-md' 
-                  : 'bg-white/10 text-white hover:bg-white/20'
+                  ? 'bg-teal-600 text-white shadow-md' 
+                  : 'bg-slate-900/60 text-teal-300 hover:bg-slate-800 border border-slate-800'
               }`}
             >
               🔬 Doctorants & Chercheurs ({lawyers.filter(l => l.role === 'doctorate').length})
@@ -309,7 +309,7 @@ const LawyersPage: React.FC = () => {
                   setSelectedCity('');
                   setSelectedCourDAppel('');
                 }}
-                className="w-full"
+                className="w-full border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
               >
                 {t('lawyers.reset_filters', 'Réinitialiser les filtres')}
               </Button>
@@ -319,8 +319,8 @@ const LawyersPage: React.FC = () => {
 
         {loading && lawyers.length === 0 ? (
           <div className="text-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="mt-4 text-secondary-600 font-medium">{t('common.loading')}</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto"></div>
+            <p className="mt-4 text-slate-400 font-medium">{t('common.loading')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -330,14 +330,14 @@ const LawyersPage: React.FC = () => {
                 : lawyer.lawyers?.bar_association;
 
               return (
-                <Card key={lawyer.id} hover className="border-none shadow-sm hover:shadow-xl transition-all overflow-hidden group">
-                  <div className={`h-4 ${
+                <Card key={lawyer.id} hover className="bg-slate-900 border border-slate-800 shadow-xl hover:border-slate-700 transition-all overflow-hidden group">
+                  <div className={`h-1.5 ${
                     lawyer.role === 'professor' ? 'bg-amber-500' :
-                    lawyer.role === 'doctorate' ? 'bg-teal-500' : 'bg-primary-600'
+                    lawyer.role === 'doctorate' ? 'bg-teal-500' : 'bg-primary-500'
                   }`}></div>
                   <CardContent className="p-8">
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center font-bold text-2xl uppercase overflow-hidden ring-2 ring-primary-100">
+                      <div className="w-16 h-16 bg-slate-950 text-primary-400 rounded-full flex items-center justify-center font-bold text-2xl uppercase overflow-hidden ring-2 ring-slate-800">
                         {lawyer.avatar_url ? (
                           <img src={lawyer.avatar_url} alt="" className="w-full h-full object-cover" />
                         ) : (
@@ -345,13 +345,13 @@ const LawyersPage: React.FC = () => {
                         )}
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-secondary-900 flex items-center gap-2">
+                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
                           {lawyer.role === 'professor' ? `Prof. ${lawyer.first_name} ${lawyer.last_name}` :
                            lawyer.role === 'doctorate' ? `Dr. ${lawyer.first_name} ${lawyer.last_name}` :
                            `Me. ${lawyer.first_name} ${lawyer.last_name}`}
-                          <CheckCircle className="h-5 w-5 text-success-500" />
+                          <CheckCircle className="h-5 w-5 text-emerald-400" />
                         </h3>
-                        <p className="text-primary-600 font-semibold text-xs">
+                        <p className="text-primary-400 font-semibold text-xs">
                           {lawyer.specialty || (
                             lawyer.role === 'professor' ? 'Professeur de Droit & Formateur' :
                             lawyer.role === 'doctorate' ? 'Doctorant / Chercheur en Droit' :
@@ -360,15 +360,15 @@ const LawyersPage: React.FC = () => {
                         </p>
                         <div className="flex items-center gap-1.5 mt-1">
                           <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-black ${
-                            lawyer.role === 'professor' ? 'bg-amber-100 text-amber-800' :
-                            lawyer.role === 'doctorate' ? 'bg-teal-100 text-teal-800' :
-                            'bg-purple-100 text-purple-800'
+                            lawyer.role === 'professor' ? 'bg-amber-950/80 text-amber-300 border border-amber-800/60' :
+                            lawyer.role === 'doctorate' ? 'bg-teal-950/80 text-teal-300 border border-teal-800/60' :
+                            'bg-purple-950/80 text-purple-300 border border-purple-800/60'
                           }`}>
                             {lawyer.role === 'professor' ? 'Professeur' :
                              lawyer.role === 'doctorate' ? 'Doctorant' : 'Avocat'}
                           </span>
                           <span className={`text-xs px-2 py-0.5 rounded-full font-semibold inline-block ${
-                            lawyer.is_available !== false ? 'bg-success-100 text-success-700' : 'bg-secondary-100 text-secondary-500'
+                            lawyer.is_available !== false ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/60' : 'bg-slate-800 text-slate-400 border border-slate-700'
                           }`}>
                             {lawyer.is_available !== false ? t('lawyers.available', 'Disponible') : t('lawyers.unavailable', 'Indisponible')}
                           </span>
@@ -377,8 +377,8 @@ const LawyersPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-3 mb-8">
-                      <div className="flex items-center text-secondary-600 gap-3">
-                        <MapPin className="h-5 w-5 text-secondary-400" />
+                      <div className="flex items-center text-slate-300 gap-3">
+                        <MapPin className="h-5 w-5 text-slate-400" />
                         <span>
                           {lawyer.city || 'France'}
                           {lawyer.postal_code ? ` (${lawyer.postal_code.substring(0, 2)})` : ''}
@@ -386,37 +386,37 @@ const LawyersPage: React.FC = () => {
                       </div>
                       
                       {lawyer.university && (
-                        <div className="flex items-center text-secondary-600 gap-3 text-xs font-medium">
-                          <span className="text-secondary-400">🎓</span>
+                        <div className="flex items-center text-slate-300 gap-3 text-xs font-medium">
+                          <span className="text-slate-400">🎓</span>
                           <span>{lawyer.university}</span>
                         </div>
                       )}
 
                       {bar && (
-                        <div className="flex items-center text-secondary-600 gap-3 text-xs">
-                          <span className="text-secondary-400">🏛️</span>
+                        <div className="flex items-center text-slate-300 gap-3 text-xs">
+                          <span className="text-slate-400">🏛️</span>
                           <span>{t('lawyers.barreau_of', 'Barreau de')} {bar}</span>
                         </div>
                       )}
 
-                      <div className="flex items-center text-indigo-700 gap-3 text-xs font-semibold">
-                        <span className="text-indigo-500">⚖️</span>
+                      <div className="flex items-center text-indigo-400 gap-3 text-xs font-semibold">
+                        <span className="text-indigo-400">⚖️</span>
                         <span>{getCourDAppelForCity(lawyer.city, lawyer.postal_code).name}</span>
                       </div>
 
-                      <div className="flex items-center text-secondary-600 gap-3 text-xs">
-                        <Mail className="h-5 w-5 text-secondary-400" />
+                      <div className="flex items-center text-slate-300 gap-3 text-xs">
+                        <Mail className="h-5 w-5 text-slate-400" />
                         <span>{lawyer.email}</span>
                       </div>
                     </div>
 
-                    <p className="text-secondary-600 line-clamp-3 mb-8 min-h-18">
+                    <p className="text-slate-400 line-clamp-3 mb-8 min-h-18">
                       {lawyer.bio || t('lawyers.default_bio', "Professionnel dévoué au service du droit, spécialisé dans l'assistance et le conseil juridique pour les particuliers et les entreprises.")}
                     </p>
 
                     <div className="flex gap-2">
-                      <Button className="flex-1 font-bold" onClick={() => navigate(`/dashboard/user?bookLawyerId=${lawyer.id}`)}>{t('lawyers.book_appointment', 'Prendre RDV')}</Button>
-                      <Button variant="outline" className="px-4">
+                      <Button className="flex-1 font-bold bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white shadow-lg shadow-indigo-950/50" onClick={() => navigate(`/dashboard/user?bookLawyerId=${lawyer.id}`)}>{t('lawyers.book_appointment', 'Prendre RDV')}</Button>
+                      <Button variant="outline" className="px-4 border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700">
                         <Phone className="h-5 w-5" />
                       </Button>
                     </div>
@@ -431,7 +431,7 @@ const LawyersPage: React.FC = () => {
                   onClick={handleLoadMore} 
                   variant="outline" 
                   size="lg" 
-                  className="px-10 h-14 font-bold border-2"
+                  className="px-10 h-14 font-bold border-2 border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
                   disabled={loading}
                 >
                   {loading ? <RefreshCw className="h-5 w-5 animate-spin mr-2" /> : null}
@@ -452,12 +452,12 @@ const LawyersPage: React.FC = () => {
       </div>
 
       <div className="container mt-20">
-        <div className="bg-primary-50 rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between gap-8 border border-primary-100">
+        <div className="bg-slate-900 rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between gap-8 border border-slate-800 shadow-2xl">
           <div>
-            <h2 className="text-3xl font-bold text-primary-900 mb-4">{t('lawyers.cta_title', 'Vous êtes avocat ?')}</h2>
-            <p className="text-lg text-primary-700">{t('lawyers.cta_subtitle', 'Rejoignez Law Just pour augmenter votre visibilité et gérer vos dossiers en ligne.')}</p>
+            <h2 className="text-3xl font-bold text-white mb-4">{t('lawyers.cta_title', 'Vous êtes avocat ?')}</h2>
+            <p className="text-lg text-slate-300">{t('lawyers.cta_subtitle', 'Rejoignez Law Just pour augmenter votre visibilité et gérer vos dossiers en ligne.')}</p>
           </div>
-          <Button size="lg" className="px-10 h-16 text-xl shadow-lg shadow-primary-500/20" onClick={() => navigate('/register/lawyer')}>
+          <Button size="lg" className="px-10 h-16 text-xl shadow-lg shadow-primary-500/20 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white font-bold" onClick={() => navigate('/register/lawyer')}>
             {t('lawyers.cta_btn', "S'inscrire comme Avocat")}
           </Button>
         </div>
