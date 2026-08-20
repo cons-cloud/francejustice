@@ -22,7 +22,6 @@ import { COURS_D_APPEL_LIST } from '../lib/jurisdictions';
 import {
   type FormationAttachment,
   convertFileToAttachment,
-  exportAttachmentFile,
   exportAllAttachments,
   getFormationAttachments
 } from '../lib/formationAttachmentUtils';
@@ -89,7 +88,7 @@ const AdminDashboard: React.FC = () => {
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean;
     title: string;
-    fields: { name: string; label: string; defaultValue?: string; type?: string }[];
+    fields: { name: string; label: string; defaultValue?: string; type?: string; options?: { value: string; label: string }[] }[];
     onConfirm: (values: any) => void;
     confirmText?: string;
     isDanger?: boolean;
@@ -639,8 +638,8 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteUser = (id: string) => {
     openModal("Supprimer l'utilisateur ?", [], async () => {
       try {
-        const { error: err1 } = await supabase.from('lawyers_just').delete().eq('id', id);
-        const { error: err2 } = await supabase.from('academic_profiles_just').delete().eq('user_id', id);
+        await supabase.from('lawyers_just').delete().eq('id', id);
+        await supabase.from('academic_profiles_just').delete().eq('user_id', id);
         const { error: err3 } = await supabase.from('profiles_just').delete().eq('id', id);
 
         if (!err3) {

@@ -20,13 +20,14 @@ import {
   Video, 
   Clock,
   Menu,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 import LawCodes from '../components/features/LawCodes';
 import ProcedureLibrary from '../components/features/ProcedureLibrary';
 import CodeAnalysis from '../components/features/CodeAnalysis';
 import { FranceMap, regions } from '../components/features/FranceMap';
-import { COURS_D_APPEL_LIST, getCourDAppelForCity } from '../lib/jurisdictions';
+import { getCourDAppelForCity } from '../lib/jurisdictions';
 import { AdvancedAreaChart } from '../components/features/StatsCharts';
 import { exportToJSON } from '../lib/exportUtils';
 import {

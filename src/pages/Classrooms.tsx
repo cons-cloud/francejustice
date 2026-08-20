@@ -49,6 +49,7 @@ const getRichDescription = (title: string, currentDesc?: string): string => {
   if (currentDesc && currentDesc.trim().length > 0) {
     return currentDesc;
   }
+  const t = (title || '').toLowerCase();
   if (t.includes('contrat')) {
     return "Formation académique et professionnelle d'excellence dédiée à la pratique des contrats civils et commerciaux. Cette masterclass aborde la négociation précontractuelle, la rédaction des clauses à hauts risques (responsabilité, pénalités, force majeure), l'analyse des viciations du consentement et la gestion stratégique des inexécutions et des résiliations unilatérales ou judiciaires.";
   }

@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
 import { FranceMap, regions } from '../components/features/FranceMap';
 import { useTranslation } from '../i18n';
 import { COURS_D_APPEL_LIST, getCourDAppelForCity } from '../lib/jurisdictions';
-import { getUnifiedLawyersList, UnifiedLawyer } from '../lib/avocatsDataGouvSync';
+import { getUnifiedLawyersList } from '../lib/avocatsDataGouvSync';
 
 interface LawyerProfile {
   id: string;
@@ -47,18 +47,17 @@ const LawyersPage: React.FC = () => {
   
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const PAGE_SIZE = 50;
 
   useEffect(() => {
-    fetchLawyers(0, true);
+    fetchLawyers(0);
     
     const lawyersSub = supabase
       .channel('public-lawyers')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'lawyers_just' }, () => {
-        fetchLawyers(0, true);
+        fetchLawyers(0);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles_just' }, () => {
-        fetchLawyers(0, true);
+        fetchLawyers(0);
       })
       .subscribe();
 

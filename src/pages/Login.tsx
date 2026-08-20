@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import {
   LogIn, Mail, Lock, ShieldCheck, User as UserIcon,
-  Eye, EyeOff, ArrowLeft, KeyRound, CheckCircle2, X,
+  Eye, EyeOff, ArrowLeft, KeyRound, CheckCircle2,
 } from 'lucide-react';
 
 type View = 'login' | 'forgot' | 'forgot_sent';

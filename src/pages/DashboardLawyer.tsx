@@ -41,6 +41,13 @@ import { FranceMap, regions } from "../components/features/FranceMap"
 import JitsiMeeting from "../components/features/JitsiMeeting"
 import { COURS_D_APPEL_LIST, getCourDAppelForCity } from "../lib/jurisdictions"
 import { getUnifiedLawyersList } from "../lib/avocatsDataGouvSync"
+import {
+  type FormationAttachment,
+  convertFileToAttachment,
+  exportAttachmentFile,
+  exportAllAttachments,
+  getFormationAttachments
+} from "../lib/formationAttachmentUtils"
 
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
 import { Button } from "../components/ui/Button"
@@ -57,7 +64,6 @@ import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import { cn } from "../lib/utils";
 import { createCheckoutSession } from "../lib/api";
 import { filterActiveSessions } from '../lib/classroomUtils';
-import { getFormationAttachments } from '../lib/formationAttachmentUtils';
 import { useTranslation } from '../i18n';
 
 const DashboardLawyer: React.FC = () => {
