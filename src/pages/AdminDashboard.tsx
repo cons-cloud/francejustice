@@ -20,6 +20,13 @@ import { AnnualPlanning } from '../components/features/AnnualPlanning';
 import { ScientificReviews } from '../components/features/ScientificReviews';
 import { Calendar } from 'lucide-react';
 import { COURS_D_APPEL_LIST } from '../lib/jurisdictions';
+import {
+  FormationAttachment,
+  convertFileToAttachment,
+  exportAttachmentFile,
+  exportAllAttachments,
+  getFormationAttachments
+} from '../lib/formationAttachmentUtils';
 
 interface UserProfile {
   id: string;
@@ -38,20 +45,15 @@ interface UserProfile {
     verification_status?: string;
     verification_documents?: string[];
   } | {
-    bar_association?: string;
-    license_number?: string;
-    experience_years?: number;
-    verification_status?: string;
-    verification_documents?: string[];
-  }[];
+    [key: string]: any;
+  };
 }
 
-const AdminDashboard: React.FC = () => {
+export default function AdminDashboard() {
   const { user } = useAuth();
-  const { toasts, success, error: toastError, removeToast } = useToast();
+  const { success, error: toastError } = useToast();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments' | 'classrooms' | 'planning' | 'reviews'>('overview');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [classrooms, setClassrooms] = useState<any[]>([]);
 
@@ -63,6 +65,16 @@ const AdminDashboard: React.FC = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [allDocuments, setAllDocuments] = useState<any[]>([]);
   const [formations, setFormations] = useState<any[]>([]);
+  const [createFormationOpen, setCreateFormationOpen] = useState(false);
+  const [newFormation, setNewFormation] = useState({
+    title: '',
+    category: 'Droit des Contrats',
+    level: 'Débutant',
+    duration: '2h 00',
+    description: '',
+    attachments: [] as FormationAttachment[]
+  });
+
   const [outils, setOutils] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
@@ -473,16 +485,44 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleAddFormation = () => {
-    openModal("Créer une formation", [
-      { name: 'title', label: "Titre" }, 
-      { name: 'duration', label: "Durée (ex: 2h 30)" }, 
-      { name: 'category', label: "Catégorie (ex: Droit Social)" }
-    ], async (vals) => {
-      if (!vals.title) return;
-      const { error } = await supabase.from('formations_just').insert([{ title: vals.title, duration: vals.duration, level: 'Débutant', category: vals.category }]);
-      if (error) toastError("Erreur", error.message);
-      else success("Formation créée", "Formation enregistrée.");
-    });
+    setCreateFormationOpen(true);
+  };
+
+  const handleCreateFormationAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFormation.title.trim()) {
+      toastError("Erreur", "Le titre de la formation est obligatoire.");
+      return;
+    }
+    try {
+      const pdfUrlData = newFormation.attachments.length > 0 ? JSON.stringify(newFormation.attachments) : null;
+      const { error } = await supabase.from('formations_just').insert([{
+        title: newFormation.title,
+        category: newFormation.category,
+        level: newFormation.level,
+        duration: newFormation.duration,
+        description: newFormation.description,
+        pdf_url: pdfUrlData,
+        author_id: user?.id,
+        author_name: 'Administration France Justice',
+        author_role: 'Admin',
+        status: 'Publié'
+      }]);
+      if (error) throw error;
+      success("Formation créée 🎓", "Module de formation publié avec succès.");
+      setCreateFormationOpen(false);
+      setNewFormation({
+        title: '',
+        category: 'Droit des Contrats',
+        level: 'Débutant',
+        duration: '2h 00',
+        description: '',
+        attachments: []
+      });
+      fetchFormations();
+    } catch (err: any) {
+      toastError("Erreur", err.message || "Impossible de créer la formation.");
+    }
   };
 
   const handleDeleteFormation = (id: string) => {
@@ -1684,27 +1724,206 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'formations' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-semibold text-secondary-900">Catalogue des Formations</h2>
-                  <Button onClick={handleAddFormation}><Plus className="h-4 w-4 mr-2" /> Créer un module</Button>
+                  <div>
+                    <h2 className="text-2xl font-semibold text-secondary-900">Catalogue des Formations</h2>
+                    <p className="text-xs text-secondary-500">Supervisez et créez des formations enrichies avec documents PDF et visuels d'illustration pour l'ensemble des utilisateurs.</p>
+                  </div>
+                  <Button onClick={handleAddFormation} className="font-bold"><Plus className="h-4 w-4 mr-2" /> Créer une formation</Button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {formations.map((f) => (
-                    <Card key={f.id}>
-                      <CardContent className="p-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <h3 className="font-bold text-lg">{f.title}</h3>
-                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${f.status === 'Publié' ? 'bg-success-100 text-success-700' : 'bg-secondary-100 text-secondary-700'}`}>{f.status}</span>
-                        </div>
-                        <p className="text-secondary-500 mb-4">{f.duration} • {f.category}</p>
-                        <div className="flex gap-2">
-                          <Button variant="outline" className="flex-1" size="sm" onClick={() => handleToggleFormationStatus(f.id, f.status)}>Publier / Masquer</Button>
-                          <Button variant="outline" size="sm" onClick={() => handleEditFormation(f)}><Edit className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={() => handleDeleteFormation(f.id)}><Trash2 className="h-4 w-4" /></Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {formations.map((f) => {
+                    const atts = getFormationAttachments(f);
+                    return (
+                      <Card key={f.id} className="flex flex-col justify-between">
+                        <CardContent className="p-6 flex flex-col justify-between h-full space-y-4">
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-start">
+                              <span className="text-xs font-bold text-primary-600 uppercase">{f.category || 'Général'}</span>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${f.status === 'Publié' ? 'bg-success-100 text-success-700' : 'bg-secondary-100 text-secondary-700'}`}>{f.status}</span>
+                            </div>
+                            <h3 className="font-bold text-base text-secondary-900 line-clamp-2">{f.title}</h3>
+                            <p className="text-xs text-secondary-500">{f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
+
+                            {f.description && (
+                              <p className="text-xs text-secondary-600 line-clamp-2 italic bg-secondary-50 p-2 rounded-xl">
+                                "{f.description}"
+                              </p>
+                            )}
+
+                            {atts.length > 0 && (
+                              <div className="flex items-center justify-between text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 p-2 rounded-xl">
+                                <span className="font-bold flex items-center gap-1">
+                                  <span>📑</span> {atts.length} fichier(s) joint(s)
+                                </span>
+                                <Button variant="ghost" size="sm" className="h-auto p-1 text-indigo-700 hover:text-indigo-900" onClick={() => exportAllAttachments(atts)}>
+                                  <Download className="w-3.5 h-3.5" />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-2 border-t border-secondary-100 pt-3">
+                            <Button variant="outline" className="flex-1 text-xs" size="sm" onClick={() => handleToggleFormationStatus(f.id, f.status)}>Publier / Masquer</Button>
+                            <Button variant="outline" size="sm" onClick={() => handleEditFormation(f)}><Edit className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={() => handleDeleteFormation(f.id)}><Trash2 className="h-4 w-4" /></Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                  {formations.length === 0 && (
+                    <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl bg-white space-y-3">
+                      <p className="text-base font-semibold">Aucun module de formation enregistré.</p>
+                      <Button onClick={handleAddFormation} size="sm"><Plus className="w-4 h-4 mr-1.5" /> Créer la première formation</Button>
+                    </div>
+                  )}
                 </div>
+
+                {/* Modal de création de formation Admin */}
+                <Modal
+                  isOpen={createFormationOpen}
+                  onClose={() => setCreateFormationOpen(false)}
+                  title="Créer une Formation (Mode Administration)"
+                >
+                  <form onSubmit={handleCreateFormationAdmin} className="space-y-4 text-sm font-sans">
+                    <div>
+                      <label className="block text-xs font-bold text-secondary-700 mb-1">Titre de la formation *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ex: Formation pratique au Contentieux et à la Rédaction d'Actes"
+                        value={newFormation.title}
+                        onChange={e => setNewFormation(prev => ({ ...prev, title: e.target.value }))}
+                        className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-secondary-700 mb-1">Catégorie</label>
+                        <select
+                          value={newFormation.category}
+                          onChange={e => setNewFormation(prev => ({ ...prev, category: e.target.value }))}
+                          className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                        >
+                          <option value="Droit des Contrats">Droit des Contrats</option>
+                          <option value="Droit Social">Droit Social / du Travail</option>
+                          <option value="Contentieux">Contentieux & Procédure</option>
+                          <option value="Droit Numérique">Droit Numérique & RGPD</option>
+                          <option value="Droit Pénal">Droit Pénal des Affaires</option>
+                          <option value="Propriété Intellectuelle">Propriété Intellectuelle</option>
+                          <option value="Pratique Juridique">Pratique Juridique</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-secondary-700 mb-1">Niveau</label>
+                        <select
+                          value={newFormation.level}
+                          onChange={e => setNewFormation(prev => ({ ...prev, level: e.target.value }))}
+                          className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                        >
+                          <option value="Débutant">Débutant</option>
+                          <option value="Intermédiaire">Intermédiaire</option>
+                          <option value="Avancé">Avancé</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-secondary-700 mb-1">Durée estimée</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ex: 3h 00"
+                          value={newFormation.duration}
+                          onChange={e => setNewFormation(prev => ({ ...prev, duration: e.target.value }))}
+                          className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-secondary-700 mb-1">Description & Sommaire Pédagogique</label>
+                      <textarea
+                        rows={3}
+                        placeholder="Ex: Présentation des objectifs pédagogiques et du contenu du programme..."
+                        value={newFormation.description}
+                        onChange={e => setNewFormation(prev => ({ ...prev, description: e.target.value }))}
+                        className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                      />
+                    </div>
+
+                    {/* Import PDF & Image Attachments */}
+                    <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-3 text-slate-100">
+                      <label className="block text-xs font-extrabold text-slate-200 uppercase tracking-wider">
+                        📑 Importer des Documents PDF et Visuels (Images)
+                      </label>
+                      <p className="text-[11px] text-slate-400">
+                        Sélectionnez les supports PDF et visuels d'illustration rattachés à cette formation.
+                      </p>
+
+                      <input
+                        type="file"
+                        multiple
+                        accept=".pdf,image/*"
+                        onChange={async (e) => {
+                          const files = Array.from(e.target.files || []);
+                          if (files.length === 0) return;
+                          const newAtts: FormationAttachment[] = [];
+                          for (const file of files) {
+                            try {
+                              const att = await convertFileToAttachment(file);
+                              newAtts.push(att);
+                            } catch (err) {
+                              console.error("Error reading file:", err);
+                            }
+                          }
+                          setNewFormation(prev => ({
+                            ...prev,
+                            attachments: [...prev.attachments, ...newAtts]
+                          }));
+                        }}
+                        className="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-primary-600 file:text-white hover:file:bg-primary-500 cursor-pointer"
+                      />
+
+                      {newFormation.attachments.length > 0 && (
+                        <div className="space-y-2 pt-2 border-t border-slate-800">
+                          <p className="text-[11px] font-bold text-slate-300">Fichiers rattachés ({newFormation.attachments.length}) :</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {newFormation.attachments.map((att, idx) => (
+                              <div key={att.id} className="p-2 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
+                                <div className="flex items-center gap-2 truncate">
+                                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
+                                    {att.type.toUpperCase()}
+                                  </span>
+                                  <span className="truncate text-slate-200 text-[11px]">{att.name}</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setNewFormation(prev => ({
+                                    ...prev,
+                                    attachments: prev.attachments.filter((_, i) => i !== idx)
+                                  }))}
+                                  className="text-slate-400 hover:text-red-400 p-1"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-3 pt-4 border-t border-secondary-100">
+                      <Button variant="outline" type="button" className="flex-1" onClick={() => setCreateFormationOpen(false)}>
+                        Annuler
+                      </Button>
+                      <Button variant="primary" type="submit" className="flex-1 font-bold">
+                        Publier la Formation
+                      </Button>
+                    </div>
+                  </form>
+                </Modal>
               </div>
             )}
 

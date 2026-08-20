@@ -116,13 +116,6 @@ const DashboardLawyer: React.FC = () => {
   const [selectedClientForCases, setSelectedClientForCases] = useState<string | null>(null)
   const [clientSearchText, setClientSearchText] = useState('')
 
-import {
-  FormationAttachment,
-  convertFileToAttachment,
-  exportAttachmentFile,
-  exportAllAttachments
-} from "../lib/formationAttachmentUtils";
-
   // Salles de classe / Visioconférences
   const [classrooms, setClassrooms] = useState<any[]>([])
   const [classroomsSubTab, setClassroomsSubTab] = useState<'static' | 'virtual'>('virtual')
@@ -132,7 +125,7 @@ import {
   const [newClassroom, setNewClassroom] = useState({
     title: '',
     description: '',
-    type: 'direct', // 'direct' | 'video' | 'differe'
+    type: 'direct' as 'direct' | 'video' | 'recorded',
     scheduled_at: '',
     duration_minutes: 60,
     max_members: 100,
@@ -141,7 +134,16 @@ import {
     attachments: [] as FormationAttachment[]
   })
 
-  // États pour le module Formations
+  // États pour le module Formations (Guides de Formation)
+  const [createFormationOpen, setCreateFormationOpen] = useState(false)
+  const [newFormation, setNewFormation] = useState({
+    title: '',
+    category: 'Droit des Contrats',
+    level: 'Débutant',
+    duration: '2h 00',
+    description: '',
+    attachments: [] as FormationAttachment[]
+  })
   const [selectedFormation, setSelectedFormation] = useState<any | null>(null)
   const [formationViewMode, setFormationViewMode] = useState<'start' | 'preview'>('preview')
   const [completedFormations, setCompletedFormations] = useState<string[]>(() => {
@@ -724,6 +726,48 @@ import {
       }
     } catch (err: any) {
       toastError('Erreur', err.message);
+    }
+  };
+
+  const handleCreateFormation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFormation.title.trim()) {
+      toastError('Erreur', 'Le titre de la formation est obligatoire.');
+      return;
+    }
+    try {
+      const authorRole = profile?.role === 'professor' ? 'Professeur' : profile?.role === 'doctorate' ? 'Doctorant' : 'Avocat';
+      const authorName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 'Expert France Justice';
+      const pdfUrlData = newFormation.attachments.length > 0 ? JSON.stringify(newFormation.attachments) : null;
+
+      const { error } = await supabase.from('formations_just').insert([{
+        title: newFormation.title,
+        category: newFormation.category,
+        level: newFormation.level,
+        duration: newFormation.duration,
+        description: newFormation.description,
+        pdf_url: pdfUrlData,
+        author_id: user?.id,
+        author_name: authorName,
+        author_role: authorRole,
+        status: 'Publié'
+      }]);
+
+      if (error) throw error;
+      success('Formation créée 🎓', 'La nouvelle formation a été publiée avec succès !');
+      setCreateFormationOpen(false);
+      setNewFormation({
+        title: '',
+        category: 'Droit des Contrats',
+        level: 'Débutant',
+        duration: '2h 00',
+        description: '',
+        attachments: []
+      });
+      await fetchFormations();
+    } catch (err: any) {
+      console.error("Error creating formation:", err);
+      toastError('Erreur', err.message || "Erreur lors de la création de la formation");
     }
   };
 
@@ -2346,39 +2390,67 @@ import {
                         </div>
                       </div>
                     ) : (
-                      <div className={cn('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-6')}>
-                        {formations.map((f) => {
-                          const isCompleted = completedFormations.includes(f.id);
-                          return (
-                            <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100">
-                              <CardContent className="p-6">
-                                <div className={cn('flex', 'flex-col', 'space-y-3')}>
-                                  <div className="flex justify-between items-start">
-                                    <span className={cn('text-xs', 'font-bold', 'text-primary-600', 'uppercase')}>{f.category}</span>
-                                    {isCompleted ? (
-                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-success-100 text-success-700 flex items-center gap-1">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
-                                        Terminé
-                                      </span>
-                                    ) : (
-                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-100 text-secondary-600">
-                                        Disponible
-                                      </span>
-                                    )}
-                                  </div>
-                                  <h3 className={cn('text-lg', 'font-bold', 'text-secondary-900', 'line-clamp-2', 'h-14')}>{f.title}</h3>
-                                  <p className={cn('text-sm', 'text-secondary-500')}>Durée: {f.duration} • Niveau: {f.level}</p>
-                                  
-                                  <div className="space-y-1.5 pt-2">
-                                    <div className="flex justify-between text-xs text-secondary-400">
-                                      <span>Progression</span>
-                                      <span>{isCompleted ? '100%' : '0%'}</span>
+                      <div className="space-y-6">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-900 p-4.5 rounded-2xl border border-slate-800 shadow-xl text-slate-100 gap-4">
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+                              <span>📚</span> Guides de Formation & Supports Pédagogiques
+                            </h3>
+                            <p className="text-xs text-slate-400 mt-1">Créez et publiez vos modules de formation enrichis de documents PDF et visuels d'illustration pour vos confrères, étudiants et citoyens.</p>
+                          </div>
+                          <Button variant="primary" size="sm" onClick={() => setCreateFormationOpen(true)} className="whitespace-nowrap font-bold shadow-lg shadow-primary-500/20">
+                            <Plus className="w-4 h-4 mr-1.5" /> Créer une formation
+                          </Button>
+                        </div>
+
+                        <div className={cn('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-6')}>
+                          {formations.map((f) => {
+                            const isCompleted = completedFormations.includes(f.id);
+                            const atts = getFormationAttachments(f);
+                            return (
+                              <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100 flex flex-col justify-between">
+                                <CardContent className="p-6 flex flex-col justify-between h-full space-y-4">
+                                  <div className={cn('flex', 'flex-col', 'space-y-3')}>
+                                    <div className="flex justify-between items-start">
+                                      <span className={cn('text-xs', 'font-bold', 'text-primary-600', 'uppercase', 'tracking-wider')}>{f.category}</span>
+                                      {isCompleted ? (
+                                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-success-100 text-success-700 flex items-center gap-1">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
+                                          Terminé
+                                        </span>
+                                      ) : (
+                                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-100 text-secondary-600">
+                                          Disponible
+                                        </span>
+                                      )}
                                     </div>
-                                    <div className="w-full bg-secondary-100 rounded-full h-1.5">
-                                      <div 
-                                        className={cn('h-1.5 rounded-full transition-all duration-300', isCompleted ? 'bg-success-500' : 'bg-secondary-300')}
-                                        style={{ width: isCompleted ? '100%' : '0%' }}
-                                      />
+                                    <h3 className={cn('text-lg', 'font-bold', 'text-secondary-900', 'line-clamp-2')}>{f.title}</h3>
+                                    <p className={cn('text-xs', 'text-secondary-500')}>Durée: {f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
+                                    
+                                    {f.description && (
+                                      <p className="text-xs text-secondary-600 line-clamp-2 italic bg-secondary-50 p-2 rounded-xl">
+                                        "{f.description}"
+                                      </p>
+                                    )}
+
+                                    {atts.length > 0 && (
+                                      <div className="flex items-center gap-1.5 text-xs text-indigo-600 font-bold bg-indigo-50 border border-indigo-100 px-2.5 py-1.5 rounded-xl w-fit">
+                                        <span>📑</span>
+                                        <span>{atts.length} document(s) & visuel(s) rattaché(s)</span>
+                                      </div>
+                                    )}
+
+                                    <div className="space-y-1.5 pt-2">
+                                      <div className="flex justify-between text-xs text-secondary-400">
+                                        <span>Progression</span>
+                                        <span>{isCompleted ? '100%' : '0%'}</span>
+                                      </div>
+                                      <div className="w-full bg-secondary-100 rounded-full h-1.5">
+                                        <div 
+                                          className={cn('h-1.5 rounded-full transition-all duration-300', isCompleted ? 'bg-success-500' : 'bg-secondary-300')}
+                                          style={{ width: isCompleted ? '100%' : '0%' }}
+                                        />
+                                      </div>
                                     </div>
                                   </div>
 
@@ -2409,18 +2481,168 @@ import {
                                       <Eye className="h-4 w-4" />
                                     </Button>
                                   </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                        {formations.length === 0 && (
-                          <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl bg-white">
-                            Aucun module de formation n'est actuellement publié.
-                          </div>
-                        )}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
+                          {formations.length === 0 && (
+                            <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl bg-white space-y-3">
+                              <p className="text-base font-semibold">Aucun module de formation n'est actuellement publié.</p>
+                              <Button variant="primary" size="sm" onClick={() => setCreateFormationOpen(true)}>
+                                <Plus className="w-4 h-4 mr-1.5" /> Créer la première formation
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
+
+                    {/* Modal de création de formation guide */}
+                    <Modal
+                      isOpen={createFormationOpen}
+                      onClose={() => setCreateFormationOpen(false)}
+                      title="Créer un Module de Formation"
+                    >
+                      <form onSubmit={handleCreateFormation} className="space-y-4 text-sm font-sans">
+                        <div>
+                          <label className="block text-xs font-bold text-secondary-700 mb-1">Titre de la formation *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Ex: Procédures d'urgence en Droit des Contrats et des Affaires"
+                            value={newFormation.title}
+                            onChange={e => setNewFormation(prev => ({ ...prev, title: e.target.value }))}
+                            className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div>
+                            <label className="block text-xs font-bold text-secondary-700 mb-1">Catégorie</label>
+                            <select
+                              value={newFormation.category}
+                              onChange={e => setNewFormation(prev => ({ ...prev, category: e.target.value }))}
+                              className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                            >
+                              <option value="Droit des Contrats">Droit des Contrats</option>
+                              <option value="Droit Social">Droit Social / du Travail</option>
+                              <option value="Contentieux">Contentieux & Procédure</option>
+                              <option value="Droit Numérique">Droit Numérique & RGPD</option>
+                              <option value="Droit Pénal">Droit Pénal des Affaires</option>
+                              <option value="Propriété Intellectuelle">Propriété Intellectuelle</option>
+                              <option value="Pratique Juridique">Pratique Juridique</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-secondary-700 mb-1">Niveau</label>
+                            <select
+                              value={newFormation.level}
+                              onChange={e => setNewFormation(prev => ({ ...prev, level: e.target.value }))}
+                              className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                            >
+                              <option value="Débutant">Débutant</option>
+                              <option value="Intermédiaire">Intermédiaire</option>
+                              <option value="Avancé">Avancé</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-secondary-700 mb-1">Durée estimée</label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="Ex: 3h 00"
+                              value={newFormation.duration}
+                              onChange={e => setNewFormation(prev => ({ ...prev, duration: e.target.value }))}
+                              className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-secondary-700 mb-1">Description & Sommaire Pédagogique</label>
+                          <textarea
+                            rows={3}
+                            placeholder="Ex: Présentation synthétique des objectifs, jurisprudences clés et compétences visées..."
+                            value={newFormation.description}
+                            onChange={e => setNewFormation(prev => ({ ...prev, description: e.target.value }))}
+                            className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                          />
+                        </div>
+
+                        {/* Import PDF & Image Attachments */}
+                        <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-3 text-slate-100">
+                          <label className="block text-xs font-extrabold text-slate-200 uppercase tracking-wider">
+                            📑 Importer des Documents PDF et Visuels (Images)
+                          </label>
+                          <p className="text-[11px] text-slate-400">
+                            Sélectionnez vos fichiers de formation (supports PDF, schémas juridiques, visuels). Ils seront consultables et téléchargeables par les apprenants, citoyens et étudiants.
+                          </p>
+
+                          <input
+                            type="file"
+                            multiple
+                            accept=".pdf,image/*"
+                            onChange={async (e) => {
+                              const files = Array.from(e.target.files || []);
+                              if (files.length === 0) return;
+                              const newAtts: FormationAttachment[] = [];
+                              for (const file of files) {
+                                try {
+                                  const att = await convertFileToAttachment(file);
+                                  newAtts.push(att);
+                                } catch (err) {
+                                  console.error("Error reading file:", err);
+                                }
+                              }
+                              setNewFormation(prev => ({
+                                ...prev,
+                                attachments: [...prev.attachments, ...newAtts]
+                              }));
+                            }}
+                            className="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-primary-600 file:text-white hover:file:bg-primary-500 cursor-pointer"
+                          />
+
+                          {newFormation.attachments.length > 0 && (
+                            <div className="space-y-2 pt-2 border-t border-slate-800">
+                              <p className="text-[11px] font-bold text-slate-300">Fichiers rattachés ({newFormation.attachments.length}) :</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {newFormation.attachments.map((att, idx) => (
+                                  <div key={att.id} className="p-2 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
+                                    <div className="flex items-center gap-2 truncate">
+                                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
+                                        {att.type.toUpperCase()}
+                                      </span>
+                                      <span className="truncate text-slate-200 text-[11px]">{att.name}</span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => setNewFormation(prev => ({
+                                        ...prev,
+                                        attachments: prev.attachments.filter((_, i) => i !== idx)
+                                      }))}
+                                      className="text-slate-400 hover:text-red-400 p-1"
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex gap-3 pt-4 border-t border-secondary-100">
+                          <Button variant="outline" type="button" className="flex-1" onClick={() => setCreateFormationOpen(false)}>
+                            Annuler
+                          </Button>
+                          <Button variant="primary" type="submit" className="flex-1 font-bold">
+                            Publier la Formation
+                          </Button>
+                        </div>
+                      </form>
+                    </Modal>
 
                     {/* Modal de création de visioconférence */}
                     <Modal
@@ -2986,6 +3208,8 @@ import {
           const readCount = chapters.reduce((acc, _, idx) => acc + (chaptersRead[idx] ? 1 : 0), 0);
           const percent = Math.round((readCount / totalChapters) * 100);
 
+          const atts = getFormationAttachments(selectedFormation);
+
           return (
             <div className="space-y-6">
               <div className="flex justify-between items-center bg-secondary-50 p-4 rounded-2xl border border-secondary-100">
@@ -2993,11 +3217,52 @@ import {
                   <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Durée du module</p>
                   <p className="text-sm font-semibold text-secondary-900 font-sans">{selectedFormation.duration}</p>
                 </div>
+                {selectedFormation.author_name && (
+                  <div className="space-y-1 text-center">
+                    <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Formateur</p>
+                    <p className="text-xs font-bold text-primary-700 font-sans">{selectedFormation.author_name} ({selectedFormation.author_role || 'Expert'})</p>
+                  </div>
+                )}
                 <div className="space-y-1 text-right">
                   <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Niveau requis</p>
                   <p className="text-sm font-semibold text-secondary-900 font-sans">{selectedFormation.level}</p>
                 </div>
               </div>
+
+              {selectedFormation.description && (
+                <div className="bg-primary-50/60 border border-primary-100 p-4 rounded-2xl space-y-1 text-xs">
+                  <p className="font-bold text-primary-900 uppercase tracking-wider text-[10px]">Description & Objectifs</p>
+                  <p className="text-primary-800 leading-relaxed">{selectedFormation.description}</p>
+                </div>
+              )}
+
+              {atts.length > 0 && (
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-3 text-slate-100 font-sans">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>📑</span> Documents PDF & Visuels joints ({atts.length})
+                    </h4>
+                    <Button variant="outline" size="sm" className="text-xs font-bold border-slate-700 text-slate-200 hover:bg-slate-800" onClick={() => exportAllAttachments(atts)}>
+                      <Download className="w-3.5 h-3.5 mr-1" /> Exporter tout
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {atts.map((att) => (
+                      <div key={att.id} className="p-2.5 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 truncate">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
+                            {att.type.toUpperCase()}
+                          </span>
+                          <span className="truncate text-xs font-medium text-slate-200">{att.name}</span>
+                        </div>
+                        <Button variant="ghost" size="sm" className="text-primary-400 hover:text-primary-300 hover:bg-primary-950/50 p-1.5 h-auto text-xs font-bold" onClick={() => exportAttachmentFile(att)}>
+                          <Download className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Progress bar in Modal */}
               <div className="space-y-2">

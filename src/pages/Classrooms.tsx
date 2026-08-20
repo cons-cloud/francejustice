@@ -16,7 +16,8 @@ import { filterActiveSessions } from "../lib/classroomUtils";
 import {
   FormationAttachment,
   exportAttachmentFile,
-  exportAllAttachments
+  exportAllAttachments,
+  getFormationAttachments
 } from "../lib/formationAttachmentUtils";
 
 interface CurriculumSection {
@@ -471,8 +472,34 @@ const ClassroomsPage: React.FC = () => {
         }));
       }
 
-      // Merge enriched Supabase rooms with INITIAL_FORMATIONS, prioritizing rich INITIAL_FORMATIONS
-      const merged = [...INITIAL_FORMATIONS, ...enriched];
+      const { data: dbFormations } = await supabase
+        .from("formations_just")
+        .select("*")
+        .eq("status", "Publié")
+        .order("created_at", { ascending: false });
+
+      let staticFormations: Classroom[] = [];
+      if (dbFormations && dbFormations.length > 0) {
+        staticFormations = dbFormations.map(f => {
+          const atts = getFormationAttachments(f);
+          return {
+            id: f.id,
+            title: f.title,
+            description: f.description || `Module de formation en ${f.category || 'Droit'} dispensé par ${f.author_name || 'France Justice'}.`,
+            lawyer_id: f.author_id,
+            lawyer_first_name: f.author_name ? f.author_name.split(' ')[0] : 'Expert',
+            lawyer_last_name: f.author_name ? f.author_name.split(' ').slice(1).join(' ') : 'France Justice',
+            category: f.category || 'Formation Juridique',
+            duration_minutes: parseInt(f.duration) || 120,
+            type: 'video',
+            is_active: true,
+            attachments: atts
+          };
+        });
+      }
+
+      // Merge enriched Supabase rooms, staticFormations with INITIAL_FORMATIONS
+      const merged = [...staticFormations, ...INITIAL_FORMATIONS, ...enriched];
       const uniqueMap = new Map<string, Classroom>();
       merged.forEach(item => {
         const existing = uniqueMap.get(item.id);

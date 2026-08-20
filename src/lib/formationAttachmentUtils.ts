@@ -54,3 +54,31 @@ export const exportAllAttachments = (attachments: FormationAttachment[]) => {
     }, index * 300);
   });
 };
+
+export const getFormationAttachments = (formation: any): FormationAttachment[] => {
+  if (!formation) return [];
+  if (Array.isArray(formation.attachments) && formation.attachments.length > 0) {
+    return formation.attachments;
+  }
+  if (formation.pdf_url && typeof formation.pdf_url === 'string') {
+    try {
+      const trimmed = formation.pdf_url.trim();
+      if (trimmed.startsWith('[')) {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      // not JSON format
+    }
+    return [{
+      id: 'att_pdf',
+      name: 'Document_Formation.pdf',
+      type: 'pdf',
+      size: 'PDF',
+      dataUrl: formation.pdf_url,
+      created_at: formation.created_at || new Date().toISOString()
+    }];
+  }
+  return [];
+};
+

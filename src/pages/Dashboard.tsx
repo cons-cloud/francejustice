@@ -31,7 +31,10 @@ import { AdvancedAreaChart } from '../components/features/StatsCharts';
 import { exportToJSON } from '../lib/exportUtils';
 import {
   exportAttachmentFile,
-  exportAllAttachments
+  exportAllAttachments,
+  getFormationAttachments,
+  convertFileToAttachment,
+  FormationAttachment
 } from '../lib/formationAttachmentUtils';
 import { createCheckoutSession } from '../lib/api';
 import { filterActiveSessions } from '../lib/classroomUtils';
@@ -69,6 +72,58 @@ const DashboardPage: React.FC = () => {
   const [classrooms, setClassrooms] = useState<any[]>([]);
   const [registrations, setRegistrations] = useState<string[]>([]);
   const [classroomsSubTab, setClassroomsSubTab] = useState<'static' | 'virtual'>('virtual');
+  
+  const [createFormationOpen, setCreateFormationOpen] = useState(false);
+  const [newFormation, setNewFormation] = useState({
+    title: '',
+    category: 'Droit des Contrats',
+    level: 'Débutant',
+    duration: '2h 00',
+    description: '',
+    attachments: [] as FormationAttachment[]
+  });
+
+  const handleCreateFormation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFormation.title.trim()) {
+      toastError('Erreur', 'Le titre de la formation est obligatoire.');
+      return;
+    }
+    try {
+      const authorRole = profile?.role === 'professor' ? 'Professeur' : profile?.role === 'doctorate' ? 'Doctorant' : profile?.role === 'admin' ? 'Administrateur' : 'Avocat';
+      const authorName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 'Expert France Justice';
+      const pdfUrlData = newFormation.attachments.length > 0 ? JSON.stringify(newFormation.attachments) : null;
+
+      const { error } = await supabase.from('formations_just').insert([{
+        title: newFormation.title,
+        category: newFormation.category,
+        level: newFormation.level,
+        duration: newFormation.duration,
+        description: newFormation.description,
+        pdf_url: pdfUrlData,
+        author_id: user?.id,
+        author_name: authorName,
+        author_role: authorRole,
+        status: 'Publié'
+      }]);
+
+      if (error) throw error;
+      success('Formation créée 🎓', 'La nouvelle formation a été publiée avec succès !');
+      setCreateFormationOpen(false);
+      setNewFormation({
+        title: '',
+        category: 'Droit des Contrats',
+        level: 'Débutant',
+        duration: '2h 00',
+        description: '',
+        attachments: []
+      });
+      await fetchFormations();
+    } catch (err: any) {
+      console.error("Error creating formation:", err);
+      toastError('Erreur', err.message || "Erreur lors de la création de la formation");
+    }
+  };
   
 
 
@@ -1418,25 +1473,40 @@ Ce document est généré par la plateforme France Justice.
                 {activeTab === 'formations' && (
                   <div className="space-y-6 animate-fade-in">
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                      <h2 className="text-2xl font-semibold text-white">{t('dashboard.formations_academic', 'Formations et Espace Académique')}</h2>
+                      <div>
+                        <h2 className="text-2xl font-semibold text-white">{t('dashboard.formations_academic', 'Formations et Espace Académique')}</h2>
+                        <p className="text-xs text-slate-400 mt-1">Accédez aux programmes de formation, masterclasses et supports téléchargeables.</p>
+                      </div>
                       
-                      <div className="flex bg-slate-900 p-1 rounded-xl self-start border border-slate-800">
-                        <button
-                          onClick={() => setClassroomsSubTab('virtual')}
-                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                            classroomsSubTab === 'virtual' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          {t('dashboard.virtual_classrooms', 'Salles de Classe Virtuelles')}
-                        </button>
-                        <button
-                          onClick={() => setClassroomsSubTab('static')}
-                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                            classroomsSubTab === 'static' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
-                          }`}
-                        >
-                          {t('dashboard.training_guides', 'Guides de Formation')}
-                        </button>
+                      <div className="flex flex-wrap items-center gap-3">
+                        {['professor', 'doctorate', 'lawyer', 'admin'].includes((profile as any)?.role) && (
+                          <Button
+                            onClick={() => setCreateFormationOpen(true)}
+                            className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-lg rounded-xl flex items-center gap-1.5 py-2 px-3.5"
+                          >
+                            <Plus className="w-4 h-4" />
+                            🎓 Créer une Formation / Masterclass
+                          </Button>
+                        )}
+
+                        <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800">
+                          <button
+                            onClick={() => setClassroomsSubTab('virtual')}
+                            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                              classroomsSubTab === 'virtual' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            {t('dashboard.virtual_classrooms', 'Salles de Classe Virtuelles')}
+                          </button>
+                          <button
+                            onClick={() => setClassroomsSubTab('static')}
+                            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                              classroomsSubTab === 'static' ? 'bg-white text-primary-600 shadow-sm' : 'text-secondary-600 hover:text-primary-600'
+                            }`}
+                          >
+                            {t('dashboard.training_guides', 'Guides de Formation')}
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -1625,12 +1695,13 @@ Ce document est généré par la plateforme France Justice.
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {formations.map((f) => {
                           const isCompleted = completedFormations.includes(f.id);
+                          const atts = getFormationAttachments(f);
                           return (
-                            <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100">
-                              <CardContent className="p-6">
+                            <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100 flex flex-col justify-between">
+                              <CardContent className="p-6 flex flex-col justify-between h-full space-y-4">
                                 <div className="flex flex-col space-y-3">
                                   <div className="flex justify-between items-start">
-                                    <span className="text-xs font-bold text-primary-600 uppercase">{f.category}</span>
+                                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wider">{f.category}</span>
                                     {isCompleted ? (
                                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-success-100 text-success-700 flex items-center gap-1">
                                         <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
@@ -1642,9 +1713,15 @@ Ce document est généré par la plateforme France Justice.
                                       </span>
                                     )}
                                   </div>
-                                  <h3 className="text-lg font-bold text-secondary-900 line-clamp-2 h-14">{f.title}</h3>
-                                  <p className="text-sm text-secondary-500">Durée: {f.duration} • Niveau: {f.level}</p>
+                                  <h3 className="text-lg font-bold text-secondary-900 line-clamp-2">{f.title}</h3>
+                                  <p className="text-xs text-secondary-500">Durée: {f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
                                   
+                                  {f.description && (
+                                    <p className="text-xs text-secondary-600 line-clamp-2 italic bg-secondary-50 p-2 rounded-xl">
+                                      "{f.description}"
+                                    </p>
+                                  )}
+
                                   <div className="space-y-1.5 pt-2">
                                     <div className="flex justify-between text-xs text-secondary-400">
                                       <span>Progression</span>
@@ -1658,17 +1735,29 @@ Ce document est généré par la plateforme France Justice.
                                     </div>
                                   </div>
 
-                                  {f.pdf_url && (
-                                    <div className="pt-1">
-                                      <a
-                                        href={f.pdf_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-all w-full justify-center"
-                                      >
-                                        <FileText className="h-3.5 w-3.5 mr-1.5 text-indigo-600" />
-                                        📄 Télécharger le support de cours (PDF)
-                                      </a>
+                                  {atts.length > 0 && (
+                                    <div className="pt-2 space-y-1.5">
+                                      <p className="text-[11px] font-bold text-secondary-700 flex items-center gap-1">
+                                        <span>📑</span> Supports joints ({atts.length}) :
+                                      </p>
+                                      <div className="flex flex-col gap-1.5">
+                                        {atts.map((att) => (
+                                          <button
+                                            key={att.id}
+                                            type="button"
+                                            onClick={() => exportAttachmentFile(att)}
+                                            className="inline-flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-all w-full text-left"
+                                          >
+                                            <span className="truncate flex items-center gap-1.5">
+                                              <span className={`px-1.5 py-0.2 rounded text-[9px] font-extrabold ${att.type === 'pdf' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                                {att.type.toUpperCase()}
+                                              </span>
+                                              <span className="truncate">{att.name}</span>
+                                            </span>
+                                            <FileText className="h-3.5 w-3.5 shrink-0 text-indigo-600" />
+                                          </button>
+                                        ))}
+                                      </div>
                                     </div>
                                   )}
 
@@ -2139,6 +2228,8 @@ Ce document est généré par la plateforme France Justice.
           const readCount = chapters.reduce((acc, _, idx) => acc + (chaptersRead[idx] ? 1 : 0), 0);
           const percent = Math.round((readCount / totalChapters) * 100);
 
+          const atts = getFormationAttachments(selectedFormation);
+
           return (
             <div className="space-y-6">
               <div className="flex justify-between items-center bg-secondary-50 p-4 rounded-2xl border border-secondary-100">
@@ -2146,11 +2237,52 @@ Ce document est généré par la plateforme France Justice.
                   <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Durée du module</p>
                   <p className="text-sm font-semibold text-secondary-900 font-sans">{selectedFormation.duration}</p>
                 </div>
+                {selectedFormation.author_name && (
+                  <div className="space-y-1 text-center">
+                    <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Formateur</p>
+                    <p className="text-xs font-bold text-primary-700 font-sans">{selectedFormation.author_name} ({selectedFormation.author_role || 'Expert'})</p>
+                  </div>
+                )}
                 <div className="space-y-1 text-right">
                   <p className="text-xs text-secondary-400 font-bold uppercase font-sans">Niveau requis</p>
                   <p className="text-sm font-semibold text-secondary-900 font-sans">{selectedFormation.level}</p>
                 </div>
               </div>
+
+              {selectedFormation.description && (
+                <div className="bg-primary-50/60 border border-primary-100 p-4 rounded-2xl space-y-1 text-xs">
+                  <p className="font-bold text-primary-900 uppercase tracking-wider text-[10px]">Description & Objectifs</p>
+                  <p className="text-primary-800 leading-relaxed">{selectedFormation.description}</p>
+                </div>
+              )}
+
+              {atts.length > 0 && (
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-3 text-slate-100 font-sans">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>📑</span> Documents PDF & Visuels joints ({atts.length})
+                    </h4>
+                    <Button variant="outline" size="sm" className="text-xs font-bold border-slate-700 text-slate-200 hover:bg-slate-800" onClick={() => exportAllAttachments(atts)}>
+                      <Download className="w-3.5 h-3.5 mr-1" /> Exporter tout
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {atts.map((att) => (
+                      <div key={att.id} className="p-2.5 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 truncate">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
+                            {att.type.toUpperCase()}
+                          </span>
+                          <span className="truncate text-xs font-medium text-slate-200">{att.name}</span>
+                        </div>
+                        <Button variant="ghost" size="sm" className="text-primary-400 hover:text-primary-300 hover:bg-primary-950/50 p-1.5 h-auto text-xs font-bold" onClick={() => exportAttachmentFile(att)}>
+                          <Download className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Progress bar in Modal */}
               <div className="space-y-2">
@@ -2240,6 +2372,143 @@ Ce document est généré par la plateforme France Justice.
         })()}
       </Modal>
 
+
+      {/* Modal de Création de Formation pour Enseignants, Doctorants, Avocats et Admins */}
+      <Modal
+        isOpen={createFormationOpen}
+        onClose={() => setCreateFormationOpen(false)}
+        title="🎓 Créer & Publier une nouvelle Formation Académique"
+      >
+        <form onSubmit={handleCreateFormation} className="space-y-4 text-slate-100">
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1">Titre de la Formation *</label>
+            <Input
+              type="text"
+              placeholder="ex: Le Contentieux Administratif & Recours pour Excès de Pouvoir"
+              value={newFormation.title}
+              onChange={e => setNewFormation({ ...newFormation, title: e.target.value })}
+              required
+              className="bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1">Catégorie</label>
+              <select
+                value={newFormation.category}
+                onChange={e => setNewFormation({ ...newFormation, category: e.target.value })}
+                className="w-full bg-slate-900 border border-slate-800 text-slate-100 text-xs rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="Droit des Contrats">Droit des Contrats</option>
+                <option value="Droit Administratif">Droit Administratif</option>
+                <option value="Droit des Affaires">Droit des Affaires</option>
+                <option value="Droit du Travail">Droit du Travail</option>
+                <option value="Droit Pénal">Droit Pénal</option>
+                <option value="Droit Immobilier">Droit Immobilier</option>
+                <option value="Droit International">Droit International</option>
+                <option value="Recherche & Doctrine">Recherche & Doctrine</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1">Niveau</label>
+              <select
+                value={newFormation.level}
+                onChange={e => setNewFormation({ ...newFormation, level: e.target.value })}
+                className="w-full bg-slate-900 border border-slate-800 text-slate-100 text-xs rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="Débutant">Débutant (L1-L2)</option>
+                <option value="Intermédiaire">Intermédiaire (L3-M1)</option>
+                <option value="Avancé">Avancé (M2-Doctorat)</option>
+                <option value="Expert">Expert / Praticien</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1">Durée Estimée</label>
+              <Input
+                type="text"
+                placeholder="ex: 3h 30"
+                value={newFormation.duration}
+                onChange={e => setNewFormation({ ...newFormation, duration: e.target.value })}
+                className="bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500 text-xs"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1">Description & Programme détaillé</label>
+            <textarea
+              rows={4}
+              placeholder="Décrivez les objectifs pédagogiques, les compétences visées et le plan de la formation..."
+              value={newFormation.description}
+              onChange={e => setNewFormation({ ...newFormation, description: e.target.value })}
+              className="w-full bg-slate-900 border border-slate-800 text-slate-100 text-xs rounded-xl p-3 focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1">
+              📄 Pièces Jointes & Supports de cours (PDF, Images)
+            </label>
+            <input
+              type="file"
+              accept="application/pdf,image/*"
+              multiple
+              onChange={async (e) => {
+                if (!e.target.files) return;
+                const files = Array.from(e.target.files);
+                const atts: FormationAttachment[] = [];
+                for (const f of files) {
+                  const att = await convertFileToAttachment(f);
+                  atts.push(att);
+                }
+                setNewFormation(prev => ({
+                  ...prev,
+                  attachments: [...prev.attachments, ...atts]
+                }));
+              }}
+              className="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
+            />
+
+            {newFormation.attachments.length > 0 && (
+              <div className="mt-3 space-y-1.5 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                <p className="text-[11px] font-bold text-indigo-300 uppercase">Fichiers sélectionnés :</p>
+                {newFormation.attachments.map((att, i) => (
+                  <div key={att.id || i} className="flex items-center justify-between text-xs text-slate-300 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+                    <span className="truncate max-w-[200px]">{att.type === 'pdf' ? '📄' : '🖼️'} {att.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setNewFormation(prev => ({ ...prev, attachments: prev.attachments.filter((_, idx) => idx !== i) }))}
+                      className="text-red-400 hover:text-red-300 text-xs font-bold ml-2"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCreateFormationOpen(false)}
+              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold"
+            >
+              🎓 Publier la Formation
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       <StripePaymentModal
         isOpen={!!selectedPaymentQuote}
