@@ -848,46 +848,46 @@ ${curriculumText}`;
 
       {/* FORMATION DETAIL MODAL */}
       {selectedFormationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-start bg-slate-900 text-white rounded-t-3xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="bg-slate-900 text-slate-100 rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-800 flex flex-col">
+            <div className="p-6 border-b border-slate-800 flex justify-between items-start bg-slate-950 text-white rounded-t-3xl">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
                   {selectedFormationModal.category || 'Formation Juridique Officielle'}
                 </span>
                 <h2 className="text-xl font-bold mt-1 text-white">{selectedFormationModal.title}</h2>
-                <p className="text-xs text-slate-300 mt-1">Formateur : Me {selectedFormationModal.lawyer_first_name} {selectedFormationModal.lawyer_last_name} • Durée : {selectedFormationModal.duration_minutes} min</p>
+                <p className="text-xs text-slate-400 mt-1">Formateur : Me {selectedFormationModal.lawyer_first_name} {selectedFormationModal.lawyer_last_name} • Durée : {selectedFormationModal.duration_minutes} min</p>
               </div>
               <button
                 onClick={() => setSelectedFormationModal(null)}
-                className="p-2 rounded-full hover:bg-white/10 text-slate-300 hover:text-white"
+                className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="p-6 space-y-6 flex-1">
-              <div className="bg-indigo-50/60 rounded-2xl p-5 border border-indigo-100/80">
-                <h4 className="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-indigo-600" /> Objectifs & Présentation Générale
+              <div className="bg-indigo-950/40 rounded-2xl p-5 border border-indigo-800/50">
+                <h4 className="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-indigo-400" /> Objectifs & Présentation Générale
                 </h4>
-                <p className="text-slate-700 text-sm leading-relaxed">
+                <p className="text-slate-200 text-sm leading-relaxed">
                   {getRichDescription(selectedFormationModal.title, selectedFormationModal.description)}
                 </p>
               </div>
 
               {isSessionPassed(selectedFormationModal) && (
-                <div className="bg-emerald-50/60 rounded-2xl p-5 border border-emerald-100/80 space-y-4">
-                  <h4 className="text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Résumé & Enregistrement de la Séance (Terminée)
+                <div className="bg-emerald-950/40 rounded-2xl p-5 border border-emerald-800/50 space-y-4">
+                  <h4 className="text-xs font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Résumé & Enregistrement de la Séance (Terminée)
                   </h4>
-                  <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-line">
+                  <p className="text-slate-200 text-sm leading-relaxed whitespace-pre-line">
                     {getSessionSummaryText(selectedFormationModal.title)}
                   </p>
                   
                   {selectedFormationModal.video_url && (
                     <div className="mt-4 space-y-2">
-                      <h5 className="font-bold text-slate-850 text-xs uppercase tracking-wide">
+                      <h5 className="font-bold text-white text-xs uppercase tracking-wide">
                         Replay / Enregistrement Vidéo de la Séance
                       </h5>
                       <VideoPlayer url={selectedFormationModal.video_url} />
@@ -898,7 +898,7 @@ ${curriculumText}`;
 
               {/* PDF & Image Attachments Export Section */}
               {selectedFormationModal.attachments && selectedFormationModal.attachments.length > 0 && (
-                <div className="bg-slate-900 text-slate-100 rounded-2xl p-5 border border-slate-800 space-y-4">
+                <div className="bg-slate-950 text-slate-100 rounded-2xl p-5 border border-slate-800 space-y-4">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-3">
                     <div>
                       <h4 className="text-sm font-bold text-white flex items-center gap-2">
@@ -917,7 +917,7 @@ ${curriculumText}`;
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {selectedFormationModal.attachments.map((att) => (
-                      <div key={att.id} className="bg-slate-800/90 border border-slate-700 rounded-xl p-3 flex items-center justify-between gap-3 hover:border-indigo-500/50 transition-all">
+                      <div key={att.id} className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3 hover:border-indigo-500/50 transition-all">
                         <div className="flex items-center gap-3 overflow-hidden">
                           {att.type === 'image' ? (
                             <img src={att.dataUrl} alt={att.name} className="w-10 h-10 rounded-lg object-cover border border-slate-700 flex-shrink-0" />
@@ -936,7 +936,7 @@ ${curriculumText}`;
                           size="sm"
                           variant="outline"
                           onClick={() => exportAttachmentFile(att)}
-                          className="bg-slate-700 hover:bg-slate-600 border-slate-600 text-white text-xs font-semibold px-2.5 py-1 flex items-center gap-1 flex-shrink-0"
+                          className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-white text-xs font-semibold px-2.5 py-1 flex items-center gap-1 flex-shrink-0"
                         >
                           <Download className="w-3 h-3" /> Exporter
                         </Button>
@@ -947,29 +947,29 @@ ${curriculumText}`;
               )}
 
               <div>
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-indigo-600" /> Syllabus & Modules d'Enseignement Intégral ({getRichCurriculum(selectedFormationModal.title, selectedFormationModal.curriculum).length} Modules)
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-indigo-400" /> Syllabus & Modules d'Enseignement Intégral ({getRichCurriculum(selectedFormationModal.title, selectedFormationModal.curriculum).length} Modules)
                 </h4>
                 <div className="space-y-4">
                   {getRichCurriculum(selectedFormationModal.title, selectedFormationModal.curriculum).map((sec, idx) => (
-                    <div key={idx} className="bg-slate-50 rounded-2xl p-5 border border-slate-200/80 hover:border-indigo-200 transition-colors">
-                      <h5 className="font-extrabold text-slate-900 text-sm flex items-center gap-2.5 mb-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <div key={idx} className="bg-slate-950 rounded-2xl p-5 border border-slate-800 hover:border-indigo-800 transition-colors">
+                      <h5 className="font-extrabold text-white text-sm flex items-center gap-2.5 mb-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                         {sec.title}
                       </h5>
-                      <p className="text-xs text-slate-600 leading-relaxed pl-6 whitespace-pre-line">{sec.content}</p>
+                      <p className="text-xs text-slate-300 leading-relaxed pl-6 whitespace-pre-line">{sec.content}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-3xl flex flex-wrap justify-between items-center gap-3">
-              <Button variant="outline" onClick={() => setSelectedFormationModal(null)}>
+            <div className="p-6 border-t border-slate-800 bg-slate-950 rounded-b-3xl flex flex-wrap justify-between items-center gap-3">
+              <Button variant="outline" onClick={() => setSelectedFormationModal(null)} className="border-slate-700 text-slate-300 hover:bg-slate-800">
                 Fermer
               </Button>
               <Button
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 shadow-lg"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-2 shadow-lg"
                 onClick={() => downloadFormationPDF(selectedFormationModal)}
               >
                 <Download className="w-4 h-4" /> Télécharger le Cours Complet (PDF)

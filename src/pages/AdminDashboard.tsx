@@ -237,16 +237,29 @@ const AdminDashboard: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('documents_just')
-        .select('*, profiles:owner_id(first_name, last_name, email)')
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
-      if (error) {
-        const { data: fallback } = await supabase
-          .from('documents_just')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(100);
-        if (fallback) setAllDocuments(fallback);
+      
+      if (!error && data && data.length > 0) {
+        const ownerIds = [...new Set(data.map(d => d.owner_id || d.user_id).filter(Boolean))];
+        if (ownerIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles_just')
+            .select('id, first_name, last_name, email')
+            .in('id', ownerIds);
+          
+          const profileMap: Record<string, any> = {};
+          profiles?.forEach(p => { profileMap[p.id] = p; });
+
+          const enriched = data.map(d => ({
+            ...d,
+            profiles: profileMap[d.owner_id || d.user_id] || null
+          }));
+          setAllDocuments(enriched);
+        } else {
+          setAllDocuments(data);
+        }
       } else if (data) {
         setAllDocuments(data);
       }
@@ -1783,26 +1796,26 @@ const AdminDashboard: React.FC = () => {
                   onClose={() => setCreateFormationOpen(false)}
                   title="Créer une Formation (Mode Administration)"
                 >
-                  <form onSubmit={handleCreateFormationAdmin} className="space-y-4 text-sm font-sans">
+                  <form onSubmit={handleCreateFormationAdmin} className="space-y-4 text-sm font-sans text-slate-100">
                     <div>
-                      <label className="block text-xs font-bold text-secondary-700 mb-1">Titre de la formation *</label>
+                      <label className="block text-xs font-bold text-slate-300 mb-1">Titre de la formation *</label>
                       <input
                         type="text"
                         required
                         placeholder="Ex: Formation pratique au Contentieux et à la Rédaction d'Actes"
                         value={newFormation.title}
                         onChange={e => setNewFormation(prev => ({ ...prev, title: e.target.value }))}
-                        className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                        className="w-full text-xs bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-xs font-bold text-secondary-700 mb-1">Catégorie</label>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">Catégorie</label>
                         <select
                           value={newFormation.category}
                           onChange={e => setNewFormation(prev => ({ ...prev, category: e.target.value }))}
-                          className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                          className="w-full text-xs bg-slate-900 border border-slate-800 text-slate-100 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
                         >
                           <option value="Droit des Contrats">Droit des Contrats</option>
                           <option value="Droit Social">Droit Social / du Travail</option>
@@ -1815,11 +1828,11 @@ const AdminDashboard: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-secondary-700 mb-1">Niveau</label>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">Niveau</label>
                         <select
                           value={newFormation.level}
                           onChange={e => setNewFormation(prev => ({ ...prev, level: e.target.value }))}
-                          className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                          className="w-full text-xs bg-slate-900 border border-slate-800 text-slate-100 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
                         >
                           <option value="Débutant">Débutant</option>
                           <option value="Intermédiaire">Intermédiaire</option>
@@ -1828,26 +1841,26 @@ const AdminDashboard: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-secondary-700 mb-1">Durée estimée</label>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">Durée estimée</label>
                         <input
                           type="text"
                           required
                           placeholder="Ex: 3h 00"
                           value={newFormation.duration}
                           onChange={e => setNewFormation(prev => ({ ...prev, duration: e.target.value }))}
-                          className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                          className="w-full text-xs bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-secondary-700 mb-1">Description & Sommaire Pédagogique</label>
+                      <label className="block text-xs font-bold text-slate-300 mb-1">Description & Sommaire Pédagogique</label>
                       <textarea
                         rows={3}
                         placeholder="Ex: Présentation des objectifs pédagogiques et du contenu du programme..."
                         value={newFormation.description}
                         onChange={e => setNewFormation(prev => ({ ...prev, description: e.target.value }))}
-                        className="w-full text-xs border-secondary-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 font-sans"
+                        className="w-full text-xs bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
                       />
                     </div>
 
@@ -2067,8 +2080,9 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
       
+      {/* Modal d'action / confirmation / modification / suppression */}
       <Modal isOpen={modalConfig.isOpen} onClose={closeModal}>
-        <h2 className="text-xl font-bold mb-4">{modalConfig.title}</h2>
+        <h2 className="text-xl font-bold text-white mb-4">{modalConfig.title}</h2>
         <form onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.target as HTMLFormElement);
@@ -2079,17 +2093,17 @@ const AdminDashboard: React.FC = () => {
           <div className="space-y-4">
             {modalConfig.fields.map(f => (
               <div key={f.name}>
-                <label className="block text-sm font-medium text-secondary-700 mb-1">{f.label}</label>
-                <Input name={f.name} type={f.type || 'text'} defaultValue={f.defaultValue} required className="w-full" />
+                <label className="block text-xs font-bold text-slate-300 mb-1">{f.label}</label>
+                <Input name={f.name} type={f.type || 'text'} defaultValue={f.defaultValue} required className="w-full bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500" />
               </div>
             ))}
             {modalConfig.fields.length === 0 && (
-              <p className="text-secondary-600 mb-4">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+              <p className="text-slate-300 text-sm mb-4">Êtes-vous sûr de vouloir effectuer cette action ?</p>
             )}
           </div>
           <div className="flex justify-end gap-3 mt-6">
-            <Button type="button" variant="ghost" onClick={closeModal}>Annuler</Button>
-            <Button type="submit" variant={modalConfig.isDanger ? 'danger' : 'primary'}>{modalConfig.confirmText || 'Valider'}</Button>
+            <Button type="button" variant="outline" onClick={closeModal} className="border-slate-700 text-slate-300 hover:bg-slate-800">Annuler</Button>
+            <Button type="submit" variant={modalConfig.isDanger ? 'danger' : 'primary'} className="font-bold">{modalConfig.confirmText || 'Valider'}</Button>
           </div>
         </form>
       </Modal>
