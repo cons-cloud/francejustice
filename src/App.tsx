@@ -39,10 +39,10 @@ const ResetPasswordPage    = lazy(() => import('./pages/ResetPassword'));
 // ─── Lightweight page-level fallback ─────────────────────────────────────────
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 rounded-full border-4 border-primary-200 border-t-primary-600 animate-spin" />
-        <span className="text-sm text-slate-400 font-medium">Chargement…</span>
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 rounded-full border-4 border-slate-800 border-t-primary-500 animate-spin" />
+        <span className="text-sm text-slate-400 font-medium tracking-wide">Chargement de France Justice…</span>
       </div>
     </div>
   );
