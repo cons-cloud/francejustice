@@ -258,15 +258,15 @@ const LoginPage: React.FC = () => {
       </Link>
 
       <div className="max-w-md w-full space-y-8">
-        <Card>
+        <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="text-center">
-            <div className="mx-auto h-12 w-12 bg-primary-100 rounded-full flex items-center justify-center mb-4">
-              <LogIn className="h-6 w-6 text-primary-600" />
+            <div className="mx-auto h-12 w-12 bg-indigo-950/80 border border-indigo-700/50 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-indigo-950/50">
+              <LogIn className="h-6 w-6 text-indigo-400" />
             </div>
-            <CardTitle className="text-3xl font-extrabold text-secondary-900">
+            <CardTitle className="text-3xl font-extrabold text-white">
               {t('login.welcome', 'Bienvenue sur France Justice')}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-slate-400">
               {t('login.subtitle')}
             </CardDescription>
           </CardHeader>
@@ -274,37 +274,37 @@ const LoginPage: React.FC = () => {
           <CardContent>
             <form className="mt-8 space-y-5" onSubmit={handleLogin}>
               {error && (
-                <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded-r-md">
-                  <p className="text-sm text-red-700">{error}</p>
+                <div className="bg-red-950/80 border-l-4 border-red-500 p-4 mb-4 rounded-r-md">
+                  <p className="text-sm text-red-200">{error}</p>
                 </div>
               )}
 
               <div className="rounded-md space-y-4">
                 <div className="relative">
-                  <Mail className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                  <Mail className="absolute left-5 top-3.5 h-5 w-5 text-slate-400" />
                   <Input
                     type="email"
                     required
                     placeholder={t('login.email_placeholder', 'votre@email.com')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-14!"
+                    className="pl-14! bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                  <Lock className="absolute left-5 top-3.5 h-5 w-5 text-slate-400" />
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     required
                     placeholder={t('login.password_placeholder', '••••••••')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-14! pr-12!"
+                    className="pl-14! pr-12! bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-secondary-400 hover:text-secondary-600 transition-colors"
+                    className="absolute right-3 top-3.5 text-slate-400 hover:text-white transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -316,7 +316,7 @@ const LoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => { setView('forgot'); setResetEmail(email); }}
-                    className="font-medium text-primary-600 hover:text-primary-500 transition-colors"
+                    className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
                   >
                     {t('login.forgot')}
                   </button>
@@ -324,49 +324,49 @@ const LoginPage: React.FC = () => {
               </div>
 
               <div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold shadow-lg shadow-indigo-950/50" disabled={loading}>
                   {loading ? t('login.loading') : t('login.submit')}
                 </Button>
               </div>
 
               {/* Quick Demo Login Badges */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 mt-4">
-                <p className="text-[11px] font-black text-slate-700 uppercase tracking-wider text-center">
+              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 space-y-2 mt-4">
+                <p className="text-[11px] font-black text-slate-300 uppercase tracking-wider text-center">
                   🔑 Connexion Rapide 1-Clic par Profil :
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => handleLogin(undefined, 'etudjust@gmail.com', 'Etudjust1@')}
-                    className="p-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl text-[11px] font-bold text-indigo-900 transition-all text-left flex items-center justify-between"
+                    className="p-2 bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-800/60 rounded-xl text-[11px] font-bold text-indigo-200 transition-all text-left flex items-center justify-between shadow-sm"
                   >
                     <span>🎓 Étudiant</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleLogin(undefined, 'profjust@gmail.com', 'Profjust1@')}
-                    className="p-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-[11px] font-bold text-blue-900 transition-all text-left flex items-center justify-between"
+                    className="p-2 bg-blue-950/60 hover:bg-blue-900/80 border border-blue-800/60 rounded-xl text-[11px] font-bold text-blue-200 transition-all text-left flex items-center justify-between shadow-sm"
                   >
                     <span>👨‍🏫 Professeur</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleLogin(undefined, 'doctjust@gmail.com', 'Doctjust1@')}
-                    className="p-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl text-[11px] font-bold text-purple-900 transition-all text-left flex items-center justify-between"
+                    className="p-2 bg-purple-950/60 hover:bg-purple-900/80 border border-purple-800/60 rounded-xl text-[11px] font-bold text-purple-200 transition-all text-left flex items-center justify-between shadow-sm"
                   >
                     <span>🔬 Doctorant</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleLogin(undefined, 'avocat@gmail.com', 'Avocat123!')}
-                    className="p-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-[11px] font-bold text-amber-900 transition-all text-left flex items-center justify-between"
+                    className="p-2 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-800/60 rounded-xl text-[11px] font-bold text-amber-200 transition-all text-left flex items-center justify-between shadow-sm"
                   >
                     <span>⚖️ Avocat</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleLogin(undefined, 'just@gmail.com', 'Just1@')}
-                    className="p-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[11px] font-bold text-emerald-900 transition-all text-left flex items-center justify-between"
+                    className="p-2 bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-800/60 rounded-xl text-[11px] font-bold text-emerald-200 transition-all text-left flex items-center justify-between shadow-sm"
                   >
                     <span>👤 Citoyen</span>
                   </button>
@@ -375,10 +375,10 @@ const LoginPage: React.FC = () => {
 
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-secondary-300" />
+                  <div className="w-full border-t border-slate-800" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-secondary-500">{t('login.no_account')}</span>
+                  <span className="px-3 bg-slate-900 text-slate-400">{t('login.no_account')}</span>
                 </div>
               </div>
 
@@ -387,7 +387,7 @@ const LoginPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register')}
-                  className="flex items-center justify-center text-xs"
+                  className="flex items-center justify-center text-xs border-slate-800 bg-slate-950 text-slate-300 hover:bg-slate-800 hover:text-white"
                 >
                   <UserIcon className="h-3.5 w-3.5 mr-1" />
                   Citoyen
@@ -396,16 +396,16 @@ const LoginPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register/lawyer')}
-                  className="flex items-center justify-center text-xs"
+                  className="flex items-center justify-center text-xs border-amber-900/50 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60"
                 >
-                  <ShieldCheck className="h-3.5 w-3.5 mr-1 text-amber-600" />
+                  <ShieldCheck className="h-3.5 w-3.5 mr-1 text-amber-400" />
                   Avocat
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register/student')}
-                  className="flex items-center justify-center text-xs text-indigo-700 bg-indigo-50/50 hover:bg-indigo-100"
+                  className="flex items-center justify-center text-xs border-indigo-900/50 bg-indigo-950/40 text-indigo-300 hover:bg-indigo-900/60"
                 >
                   🎓 Étudiant
                 </Button>
@@ -413,7 +413,7 @@ const LoginPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register/professor')}
-                  className="flex items-center justify-center text-xs text-blue-700 bg-blue-50/50 hover:bg-blue-100"
+                  className="flex items-center justify-center text-xs border-blue-900/50 bg-blue-950/40 text-blue-300 hover:bg-blue-900/60"
                 >
                   👨‍🏫 Professeur
                 </Button>
@@ -421,7 +421,7 @@ const LoginPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register/doctorate')}
-                  className="flex items-center justify-center text-xs text-purple-700 bg-purple-50/50 hover:bg-purple-100 sm:col-span-2"
+                  className="flex items-center justify-center text-xs border-purple-900/50 bg-purple-950/40 text-purple-300 hover:bg-purple-900/60 sm:col-span-2"
                 >
                   🔬 Doctorant
                 </Button>

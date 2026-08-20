@@ -25,6 +25,7 @@ import {
   exportAllAttachments,
   getFormationAttachments
 } from '../lib/formationAttachmentUtils';
+import { registerDeletedUser } from '../lib/avocatsDataGouvSync';
 
 interface UserProfile {
   id: string;
@@ -636,8 +637,12 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleDeleteUser = (id: string) => {
+    const targetUser = users.find(u => u.id === id);
     openModal("Supprimer l'utilisateur ?", [], async () => {
       try {
+        if (targetUser?.email) {
+          registerDeletedUser(targetUser.email);
+        }
         await supabase.from('lawyers_just').delete().eq('id', id);
         await supabase.from('academic_profiles_just').delete().eq('user_id', id);
         const { error: err3 } = await supabase.from('profiles_just').delete().eq('id', id);

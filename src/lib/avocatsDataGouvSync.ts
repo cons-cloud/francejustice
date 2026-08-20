@@ -54,12 +54,35 @@ export function normalizeDataGouvAvocat(av: DataGouvAvocat, index: number): Unif
   };
 }
 
+export function getDeletedUserEmails(): Set<string> {
+  try {
+    const raw = localStorage.getItem('francejustice_deleted_emails');
+    if (raw) return new Set(JSON.parse(raw));
+  } catch (e) {
+    console.error(e);
+  }
+  return new Set<string>();
+}
+
+export function registerDeletedUser(email?: string) {
+  if (!email) return;
+  const set = getDeletedUserEmails();
+  set.add(email.toLowerCase());
+  try {
+    localStorage.setItem('francejustice_deleted_emails', JSON.stringify(Array.from(set)));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 /**
  * Fetches real-time lawyers from Supabase, enriches with Cour d'Appel,
  * and merges with the official data.gouv.fr dataset.
  */
 export async function getUnifiedLawyersList(): Promise<UnifiedLawyer[]> {
-  const datasetLawyers = ANNUAIRE_AVOCATS_FRANCE_DATA.map((av, idx) => normalizeDataGouvAvocat(av, idx));
+  const deletedEmails = getDeletedUserEmails();
+  const datasetLawyers = ANNUAIRE_AVOCATS_FRANCE_DATA.map((av, idx) => normalizeDataGouvAvocat(av, idx))
+    .filter(d => !deletedEmails.has(d.email.toLowerCase()));
 
   try {
     const { data: dbProfiles, error } = await supabase
@@ -73,34 +96,36 @@ export async function getUnifiedLawyersList(): Promise<UnifiedLawyer[]> {
       return datasetLawyers;
     }
 
-    const supabaseLawyers: UnifiedLawyer[] = dbProfiles.map((p) => {
-      const lawyerInfo = Array.isArray(p.lawyers) ? p.lawyers[0] : p.lawyers;
-      const barAssoc = lawyerInfo?.bar_association || 'Paris';
-      const courInfo = getCourDAppelForCity(p.city, p.postal_code);
+    const supabaseLawyers: UnifiedLawyer[] = dbProfiles
+      .filter(p => p.email && !deletedEmails.has(p.email.toLowerCase()))
+      .map((p) => {
+        const lawyerInfo = Array.isArray(p.lawyers) ? p.lawyers[0] : p.lawyers;
+        const barAssoc = lawyerInfo?.bar_association || 'Paris';
+        const courInfo = getCourDAppelForCity(p.city, p.postal_code);
 
-      return {
-        id: p.id,
-        first_name: p.first_name || '',
-        last_name: p.last_name || '',
-        email: p.email || '',
-        phone: p.phone,
-        city: p.city || 'Paris',
-        postal_code: p.postal_code || '75001',
-        specialty: p.specialty || lawyerInfo?.specialty || 'Droit général',
-        specialties: p.specialties || [p.specialty || 'Droit général'],
-        bar_association: barAssoc,
-        company_name: lawyerInfo?.company_name,
-        siren: lawyerInfo?.siren,
-        oath_date: lawyerInfo?.oath_date,
-        languages: 'Français',
-        role: p.role || 'lawyer',
-        is_verified: p.is_verified ?? true,
-        avatar_url: p.avatar_url,
-        cour_d_appel: courInfo.name,
-        premier_president: courInfo.premierPresident,
-        source: 'supabase'
-      };
-    });
+        return {
+          id: p.id,
+          first_name: p.first_name || '',
+          last_name: p.last_name || '',
+          email: p.email || '',
+          phone: p.phone,
+          city: p.city || 'Paris',
+          postal_code: p.postal_code || '75001',
+          specialty: p.specialty || lawyerInfo?.specialty || 'Droit général',
+          specialties: p.specialties || [p.specialty || 'Droit général'],
+          bar_association: barAssoc,
+          company_name: lawyerInfo?.company_name,
+          siren: lawyerInfo?.siren,
+          oath_date: lawyerInfo?.oath_date,
+          languages: 'Français',
+          role: p.role || 'lawyer',
+          is_verified: p.is_verified ?? true,
+          avatar_url: p.avatar_url,
+          cour_d_appel: courInfo.name,
+          premier_president: courInfo.premierPresident,
+          source: 'supabase'
+        };
+      });
 
     // Merge: Supabase profiles take precedence over dataset fallback
     const supabaseEmails = new Set(supabaseLawyers.map(l => l.email.toLowerCase()));

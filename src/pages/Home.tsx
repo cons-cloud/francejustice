@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedCounter from '../components/ui/AnimatedCounter';
 import { useTranslation } from '../i18n';
 import { HeroPappersSearch } from '../components/features/HeroPappersSearch';
+import { getDeletedUserEmails } from '../lib/avocatsDataGouvSync';
 
 // Fallback datasets for immediate vibrant render if database is initializing
 const defaultLawyers = [
@@ -195,6 +196,28 @@ const Home: React.FC = () => {
   useEffect(() => {
     fetchStats();
     fetchHomeDynamicData();
+
+    const homeSub = supabase
+      .channel('public-home-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles_just' }, () => {
+        fetchStats();
+        fetchHomeDynamicData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'lawyers_just' }, () => {
+        fetchStats();
+        fetchHomeDynamicData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'classrooms_just' }, () => {
+        fetchHomeDynamicData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'formations_just' }, () => {
+        fetchHomeDynamicData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(homeSub);
+    };
   }, []);
 
   const fetchStats = async () => {
@@ -216,15 +239,24 @@ const Home: React.FC = () => {
 
   const fetchHomeDynamicData = async () => {
     try {
+      const deletedEmails = getDeletedUserEmails();
+
       // 1. Fetch Lawyers from Supabase
       const { data: dbLawyers } = await supabase
         .from('profiles_just')
         .select('*')
         .eq('role', 'lawyer')
-        .limit(4);
+        .limit(10);
 
       if (dbLawyers && dbLawyers.length > 0) {
-        setFeaturedLawyers(dbLawyers);
+        const filteredLawyers = dbLawyers.filter(l => !l.email || !deletedEmails.has(l.email.toLowerCase()));
+        if (filteredLawyers.length > 0) {
+          setFeaturedLawyers(filteredLawyers.slice(0, 4));
+        } else {
+          setFeaturedLawyers(defaultLawyers.filter(l => !deletedEmails.has((l as any).email?.toLowerCase() || '')));
+        }
+      } else {
+        setFeaturedLawyers(defaultLawyers.filter(l => !deletedEmails.has((l as any).email?.toLowerCase() || '')));
       }
 
       // 2. Fetch Classrooms / Formations from Supabase
