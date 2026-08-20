@@ -57,6 +57,7 @@ import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import { cn } from "../lib/utils";
 import { createCheckoutSession } from "../lib/api";
 import { filterActiveSessions } from '../lib/classroomUtils';
+import { getFormationAttachments, getFormationCurriculum } from '../lib/formationAttachmentUtils';
 import { useTranslation } from '../i18n';
 
 const DashboardLawyer: React.FC = () => {
