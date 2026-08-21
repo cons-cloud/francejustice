@@ -26,6 +26,7 @@ import {
   getFormationAttachments
 } from '../lib/formationAttachmentUtils';
 import { registerDeletedUser } from '../lib/avocatsDataGouvSync';
+import { getMergedOfficialFormations } from '../data/officialFormationsData';
 
 interface UserProfile {
   id: string;
@@ -285,9 +286,10 @@ const AdminDashboard: React.FC = () => {
   const fetchFormations = async () => {
     try {
       const { data } = await supabase.from('formations_just').select('*').order('created_at', { ascending: false });
-      if (data) setFormations(data);
+      setFormations(getMergedOfficialFormations(data || []));
     } catch (e) {
       console.warn("Could not fetch formations:", e);
+      setFormations(getMergedOfficialFormations([]));
     }
   };
 

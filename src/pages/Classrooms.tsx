@@ -19,6 +19,10 @@ import {
   exportAllAttachments,
   getFormationAttachments
 } from "../lib/formationAttachmentUtils";
+import {
+  OFFICIAL_FEDE_FORMATIONS,
+  getOfficialFormationsAsClassrooms
+} from "../data/officialFormationsData";
 
 interface CurriculumSection {
   title: string;
@@ -223,6 +227,7 @@ const getRichCurriculum = (title: string, existingCurriculum?: CurriculumSection
 
 // Complete Legal Masterclass & Training Catalog (Lawyer Account Formations)
 const INITIAL_FORMATIONS: Classroom[] = [
+  ...getOfficialFormationsAsClassrooms(),
   {
     id: 'form-contrats',
     title: 'Droit des Contrats & Rédaction Contractuelle (Pratique Avocat)',
@@ -439,7 +444,7 @@ const ClassroomsPage: React.FC = () => {
   const [classrooms, setClassrooms] = useState<Classroom[]>(INITIAL_FORMATIONS);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<"all" | "direct" | "differe" | "video">("all");
+  const [activeFilter, setActiveFilter] = useState<"all" | "direct" | "differe" | "video" | "texte">("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all_status');
   const [mainTab, setMainTab] = useState<'catalog' | 'planning'>('catalog');
   const [activeClassroom, setActiveClassroom] = useState<Classroom | null>(null);
@@ -532,6 +537,7 @@ const ClassroomsPage: React.FC = () => {
     const ch = supabase
       .channel("classrooms-public-rt")
       .on("postgres_changes", { event: "*", schema: "public", table: "classrooms_just" }, fetchData)
+      .on("postgres_changes", { event: "*", schema: "public", table: "formations_just" }, fetchData)
       .on("postgres_changes", { event: "*", schema: "public", table: "classroom_registrations_just" }, fetchData)
       .subscribe();
 
@@ -545,6 +551,20 @@ const ClassroomsPage: React.FC = () => {
       clearInterval(timer);
     };
   }, [user, fetchData]);
+
+  // Open modal automatically if 'formation' query parameter is in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const formationId = params.get('formation');
+    if (formationId && classrooms.length > 0 && !selectedFormationModal) {
+      const found = classrooms.find(c => c.id === formationId);
+      if (found) {
+        const displayDesc = getRichDescription(found.title, found.description);
+        const displayCurriculum = getRichCurriculum(found.title, found.curriculum);
+        setSelectedFormationModal({ ...found, description: displayDesc, curriculum: displayCurriculum });
+      }
+    }
+  }, [classrooms]);
 
   const joinMeeting = async (classroom: Classroom) => {
     if (!user) { navigate(`/login?redirect=/classrooms?formation=${classroom.id}`); return; }
@@ -571,6 +591,11 @@ const ClassroomsPage: React.FC = () => {
   }, [activeClassroom, user]);
 
   const downloadFormationPDF = (classroom: Classroom) => {
+    const atts = getFormationAttachments(classroom);
+    if (atts && atts.length > 0) {
+      exportAllAttachments(atts);
+      return;
+    }
     const curriculumText = (classroom.curriculum || getRichCurriculum(classroom.title))
       .map(c => `${c.title.toUpperCase()}\n${c.content}`)
       .join('\n\n' + '='.repeat(50) + '\n\n');
@@ -604,7 +629,10 @@ ${curriculumText}`;
   const filtered = classrooms.filter((r) => {
     const q = searchQuery.toLowerCase();
     const match = r.title.toLowerCase().includes(q) || r.description.toLowerCase().includes(q);
-    const typeMatch = activeFilter === "all" ? true : r.type === activeFilter;
+    const isTextPdf = (r as any).is_pdf_formation || r.id.startsWith('fede-') || (r as any).format === 'texte_pdf';
+    const typeMatch = activeFilter === "all" ? true :
+      activeFilter === "texte" ? isTextPdf :
+      r.type === activeFilter;
     
     let statusMatch = true;
     if (statusFilter === 'upcoming') statusMatch = isSessionUpcoming(r);
@@ -634,8 +662,9 @@ ${curriculumText}`;
 
   const filters = [
     { id: "all", label: t('classrooms.filter_all', 'Toutes les formations') },
-    { id: "video", label: t('classrooms.filter_video', 'Masterclass Vidéo') },
+    { id: "texte", label: '📜 Formations Texte & Diplômes PDF' },
     { id: "direct", label: t('classrooms.filter_direct', 'Direct & Visioconférence') },
+    { id: "video", label: t('classrooms.filter_video', 'Masterclass Vidéo') },
     { id: "differe", label: t('classrooms.filter_delayed', 'Différé & E-Learning') },
   ];
 
@@ -791,12 +820,12 @@ ${curriculumText}`;
 
                     <div className="space-y-2 text-sm border-t border-slate-100 pt-3">
                       <div className="flex items-center gap-2 text-slate-700 font-medium">
-                        <User className="w-4 h-4 text-indigo-500" />
-                        <span>Me {room.lawyer_first_name} {room.lawyer_last_name}</span>
+                        <User className="w-4 h-4 text-indigo-500 shrink-0" />
+                        <span>{(room as any).is_pdf_formation || room.id.startsWith('fede-') ? `${room.lawyer_first_name} ${room.lawyer_last_name}` : `Me ${room.lawyer_first_name} ${room.lawyer_last_name}`}</span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-600">
-                        <Clock className="w-4 h-4 text-slate-400" />
-                        <span>Durée : {room.duration_minutes} min • {displayCurriculum.length} Modules exhaustifs</span>
+                        <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                        <span>{(room as any).is_pdf_formation || room.id.startsWith('fede-') ? `${displayCurriculum.length} Modules de formation Texte & Support PDF` : `Durée : ${room.duration_minutes} min • ${displayCurriculum.length} Modules exhaustifs`}</span>
                       </div>
                     </div>
 
@@ -806,7 +835,7 @@ ${curriculumText}`;
                         className="w-full border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-bold flex items-center justify-center gap-2"
                         onClick={() => setSelectedFormationModal({ ...room, description: displayDesc, curriculum: displayCurriculum })}
                       >
-                        <BookOpen className="w-4 h-4" /> Consulter le Programme Détaillé
+                        <BookOpen className="w-4 h-4" /> 📖 Lire le Contenu & Programme
                       </Button>
 
                       <Button
@@ -819,6 +848,10 @@ ${curriculumText}`;
                       {isSessionPassed(room) ? (
                         <div className="w-full text-center py-2.5 px-3 bg-slate-100 rounded-xl text-slate-500 font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-200">
                           <span className="w-2 h-2 rounded-full bg-slate-400 animate-pulse" /> Séance Terminée (Résumé disponible)
+                        </div>
+                      ) : (room as any).is_pdf_formation || room.id.startsWith('fede-') ? (
+                        <div className="w-full text-center py-2.5 px-3 bg-indigo-950/80 rounded-xl text-indigo-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-indigo-800">
+                          <span>📜 Diplôme Européen (Support Texte & PDF)</span>
                         </div>
                       ) : user ? (
                         <Button
@@ -859,7 +892,9 @@ ${curriculumText}`;
                   {selectedFormationModal.category || 'Formation Juridique Officielle'}
                 </span>
                 <h2 className="text-xl font-bold mt-1 text-white">{selectedFormationModal.title}</h2>
-                <p className="text-xs text-slate-400 mt-1">Formateur : Me {selectedFormationModal.lawyer_first_name} {selectedFormationModal.lawyer_last_name} • Durée : {selectedFormationModal.duration_minutes} min</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  {(selectedFormationModal as any).is_pdf_formation || selectedFormationModal.id.startsWith('fede-') ? `Certificateur : ${selectedFormationModal.lawyer_first_name} ${selectedFormationModal.lawyer_last_name}` : `Formateur : Me ${selectedFormationModal.lawyer_first_name} ${selectedFormationModal.lawyer_last_name} • Durée : ${selectedFormationModal.duration_minutes} min`}
+                </p>
               </div>
               <button
                 onClick={() => setSelectedFormationModal(null)}
@@ -870,14 +905,79 @@ ${curriculumText}`;
             </div>
 
             <div className="p-6 space-y-6 flex-1">
-              <div className="bg-indigo-950/40 rounded-2xl p-5 border border-indigo-800/50">
-                <h4 className="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-indigo-400" /> Objectifs & Présentation Générale
-                </h4>
-                <p className="text-slate-200 text-sm leading-relaxed">
-                  {getRichDescription(selectedFormationModal.title, selectedFormationModal.description)}
-                </p>
-              </div>
+              {(() => {
+                const fedeDetail = OFFICIAL_FEDE_FORMATIONS.find(f => f.id === selectedFormationModal.id);
+                if (fedeDetail) {
+                  return (
+                    <div className="space-y-4">
+                      <div className="bg-gradient-to-r from-indigo-950/80 to-blue-950/80 rounded-2xl p-5 border border-indigo-700/60 shadow-lg space-y-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-indigo-800/60 pb-3">
+                          <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-300 bg-cyan-950/80 px-3 py-1 rounded-full border border-cyan-700/60">
+                            📜 Diplôme Européen Officiel — {fedeDetail.level}
+                          </span>
+                          <span className="text-xs font-bold text-slate-300 bg-slate-900 px-3 py-1 rounded-full border border-slate-700">
+                            {fedeDetail.ects} ECTS • {fedeDetail.duration}
+                          </span>
+                        </div>
+                        
+                        <div>
+                          <h4 className="text-sm font-extrabold text-white mb-1">
+                            {fedeDetail.title}
+                          </h4>
+                          <p className="text-xs text-indigo-200">
+                            Certificateur : <span className="font-bold text-white">{fedeDetail.certifier}</span>
+                          </p>
+                        </div>
+
+                        <p className="text-xs text-slate-200 leading-relaxed bg-slate-950/60 p-3.5 rounded-xl border border-indigo-900/40">
+                          {fedeDetail.description}
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                          <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                            <h5 className="text-xs font-bold text-cyan-400 uppercase tracking-wide">
+                              🎯 Objectifs de la Formation
+                            </h5>
+                            <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
+                              {fedeDetail.objectives.map((obj, i) => (
+                                <li key={i}>{obj}</li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                            <h5 className="text-xs font-bold text-emerald-400 uppercase tracking-wide">
+                              💼 Débouchés Professionnels
+                            </h5>
+                            <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
+                              {fedeDetail.careerOpportunities.map((opp, i) => (
+                                <li key={i}>{opp}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 text-xs text-slate-300 space-y-1">
+                          <p><strong className="text-white">Prérequis :</strong> {fedeDetail.prerequisites.join(' • ')}</p>
+                          <p><strong className="text-white">Public Visé :</strong> {fedeDetail.publicTarget}</p>
+                          <p><strong className="text-white">Évaluations :</strong> {fedeDetail.evaluationMethods.join(' • ')}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="bg-indigo-950/40 rounded-2xl p-5 border border-indigo-800/50">
+                    <h4 className="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-indigo-400" /> Objectifs & Présentation Générale
+                    </h4>
+                    <p className="text-slate-200 text-sm leading-relaxed">
+                      {getRichDescription(selectedFormationModal.title, selectedFormationModal.description)}
+                    </p>
+                  </div>
+                );
+              })()}
 
               {isSessionPassed(selectedFormationModal) && (
                 <div className="bg-emerald-950/40 rounded-2xl p-5 border border-emerald-800/50 space-y-4">

@@ -1,8 +1,8 @@
 export interface LegalResource {
   id: string;
   title: string;
-  type: 'jurisprudence' | 'code' | 'convention_collective' | 'bofip' | 'boss' | 'convention_fiscale';
-  category: string; // 'civil', 'travail', 'fiscal', 'penal', 'affaires', 'social', 'international', 'administratif'
+  type: 'jurisprudence' | 'code' | 'convention_collective' | 'bofip' | 'boss' | 'convention_fiscale' | 'pappers_entreprise';
+  category: string; // 'civil', 'travail', 'fiscal', 'penal', 'affaires', 'social', 'international', 'administratif', 'entreprise'
   reference: string;
   jurisdiction?: string;
   date: string;
@@ -13,6 +13,24 @@ export interface LegalResource {
   sourceUrl?: string;
   articlesCited?: string[];
   tags: string[];
+  pappersDetails?: {
+    siren: string;
+    siret?: string;
+    formeJuridique?: string;
+    capital?: string;
+    codeNaf?: string;
+    libelleNaf?: string;
+    dirigeants?: Array<{ nom: string; qualite: string }>;
+    adresse?: string;
+    codePostal?: string;
+    ville?: string;
+    dateCreation?: string;
+    chiffreAffaires?: string;
+    effectifs?: string;
+    statut?: string;
+    rcs?: string;
+    pappersUrl?: string;
+  };
 }
 
 export function generateDynamicLegalSearch(query: string, tab: string): { results: LegalResource[]; aiSummary: string } {

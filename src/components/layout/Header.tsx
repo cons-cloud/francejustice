@@ -31,6 +31,7 @@ const ministryImages: BannerImage[] = [
 ];
 
 const otherImages: BannerImage[] = [
+  { src: legifranceImg, alt: 'Légifrance', href: 'https://www.legifrance.gouv.fr/' },
   { src: conseilImg, alt: 'Conseil d\'État', href: 'https://www.conseil-etat.fr/' },
   { src: superieurImg, alt: 'Conseil Supérieur de la Magistrature', href: 'https://www.conseil-superieur-magistrature.fr/' },
 ];
@@ -151,29 +152,11 @@ const Header: React.FC = () => {
       </div>
       <div className="container px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo & Légifrance Official Link */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <a
-              href="https://www.legifrance.gouv.fr/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Légifrance — Le service public de la diffusion du droit"
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white/95 hover:bg-white transition-all duration-300 hover:scale-105 shadow-md border border-white/20 group"
-            >
-              <img
-                src={legifranceImg}
-                alt="Légifrance — Le service public de la diffusion du droit"
-                className="h-7 sm:h-8 w-auto block object-contain"
-              />
-            </a>
-
-            <div className="h-6 w-px bg-slate-700/60 hidden sm:block" />
-
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
-              <Scale className="h-6 w-6 text-primary-400" />
-              <div className="flex items-center">
-                <span className="text-xl font-bold text-white tracking-tight">France Justice</span>
-              </div>
+          {/* Logo */}
+          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
+            <Scale className="h-6 w-6 text-primary-400" />
+            <div className="flex items-center">
+              <span className="text-xl font-bold text-white tracking-tight">France Justice</span>
             </div>
           </div>
 

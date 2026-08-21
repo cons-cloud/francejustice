@@ -21,7 +21,9 @@ import {
   Clock,
   Menu,
   X,
-  Trash2
+  Trash2,
+  HelpCircle,
+  Send
 } from 'lucide-react';
 import LawCodes from '../components/features/LawCodes';
 import ProcedureLibrary from '../components/features/ProcedureLibrary';
@@ -37,6 +39,7 @@ import {
   convertFileToAttachment,
   type FormationAttachment
 } from '../lib/formationAttachmentUtils';
+import { getMergedOfficialFormations } from '../data/officialFormationsData';
 import { createCheckoutSession } from '../lib/api';
 import { filterActiveSessions } from '../lib/classroomUtils';
 import { Button } from '../components/ui/Button';
@@ -74,6 +77,46 @@ const DashboardPage: React.FC = () => {
   const [classrooms, setClassrooms] = useState<any[]>([]);
   const [registrations, setRegistrations] = useState<string[]>([]);
   const [classroomsSubTab, setClassroomsSubTab] = useState<'static' | 'virtual'>('virtual');
+  
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [ticketSubject, setTicketSubject] = useState('');
+  const [ticketMessage, setTicketMessage] = useState('');
+
+  const fetchTickets = async () => {
+    if (!user) return;
+    try {
+      const { data } = await supabase
+        .from('assistance_tickets_just')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      if (data) setTickets(data);
+    } catch (e) {
+      console.warn("Could not fetch tickets:", e);
+    }
+  };
+
+  const handleCreateTicket = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !ticketSubject.trim()) return;
+    try {
+      const { error } = await supabase
+        .from('assistance_tickets_just')
+        .insert([{
+          user_id: user.id,
+          subject: ticketSubject.trim(),
+          message: ticketMessage.trim() || undefined,
+          status: 'En attente'
+        }]);
+      if (error) throw error;
+      success('Ticket transmis !', 'Votre demande d\'assistance a été transmise à l\'administration.');
+      setTicketSubject('');
+      setTicketMessage('');
+      fetchTickets();
+    } catch (err: any) {
+      toastError('Erreur', err.message || 'Impossible de créer le ticket.');
+    }
+  };
   
   const [createFormationOpen, setCreateFormationOpen] = useState(false);
   const [newFormation, setNewFormation] = useState({
@@ -368,6 +411,11 @@ const DashboardPage: React.FC = () => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'classroom_registrations_just' }, () => fetchClassrooms())
         .subscribe();
 
+      const ticketSub = supabase
+        .channel('user-tickets')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'assistance_tickets_just', filter: `user_id=eq.${user.id}` }, () => fetchTickets())
+        .subscribe();
+
       return () => {
         supabase.removeChannel(docsSub);
         supabase.removeChannel(searchSub);
@@ -377,6 +425,7 @@ const DashboardPage: React.FC = () => {
         supabase.removeChannel(lawyersSub);
         supabase.removeChannel(apptSub);
         supabase.removeChannel(classroomsSub);
+        supabase.removeChannel(ticketSub);
       };
     }
   }, [user]);
@@ -523,7 +572,7 @@ const DashboardPage: React.FC = () => {
       .select('*')
       .eq('status', 'Publié')
       .order('created_at', { ascending: false });
-    if (data) setFormations(data);
+    setFormations(getMergedOfficialFormations(data || []));
   };
 
   const fetchSearches = async () => {
@@ -828,6 +877,7 @@ Ce document est généré par la plateforme France Justice.
     { id: 'planning', name: 'Planning Annuel', icon: Calendar },
     { id: 'reviews', name: 'Revues Scientifiques', icon: BookOpen },
     { id: 'avocats', name: t('dashboard.lawyers_directory', 'Annuaire Avocats'), icon: Users },
+    { id: 'tickets', name: 'Assistance & Support Admin', icon: HelpCircle },
     { id: 'profile', name: t('dashboard.profile', 'Profil'), icon: User },
   ];
 
@@ -2158,6 +2208,89 @@ Ce document est généré par la plateforme France Justice.
                       <Card className="h-[500px] flex items-center justify-center text-secondary-400">
                         <p>{t('dashboard.select_lawyer_to_chat', 'Sélectionnez un avocat pour discuter')}</p>
                       </Card>
+                    )}
+                  </div>
+                </div>
+              )}
+              {activeTab === 'tickets' && (
+                <div className="space-y-6 animate-fade-in">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-secondary-900">Tickets d'Assistance & Support Admin</h2>
+                      <p className="text-sm text-secondary-500">Transmettez vos demandes directement à l'administration FranceJustice. Suivi et réponse en temps réel.</p>
+                    </div>
+                  </div>
+
+                  <Card className="border-indigo-100 bg-gradient-to-r from-indigo-50/40 to-blue-50/40">
+                    <CardContent className="p-6">
+                      <form onSubmit={handleCreateTicket} className="space-y-4">
+                        <h3 className="text-sm font-bold text-secondary-900 flex items-center gap-2">
+                          <HelpCircle className="w-4 h-4 text-indigo-600" /> Créer un nouveau ticket d'assistance
+                        </h3>
+                        <div>
+                          <label className="block text-xs font-bold text-secondary-700 mb-1">Sujet de votre demande *</label>
+                          <Input
+                            type="text"
+                            placeholder="Ex: Question sur mon dossier, problème technique, demande d'information..."
+                            value={ticketSubject}
+                            onChange={(e) => setTicketSubject(e.target.value)}
+                            className="bg-white border-secondary-200"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-secondary-700 mb-1">Message / Détails (optionnel)</label>
+                          <textarea
+                            rows={3}
+                            placeholder="Décrivez votre demande avec précision..."
+                            value={ticketMessage}
+                            onChange={(e) => setTicketMessage(e.target.value)}
+                            className="w-full px-3 py-2 text-sm bg-white border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          />
+                        </div>
+                        <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2">
+                          <Send className="w-4 h-4" /> Transmettre à l'Admin (Temps Réel)
+                        </Button>
+                      </form>
+                    </CardContent>
+                  </Card>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-bold text-secondary-900">Historique de vos demandes ({tickets.length})</h3>
+                    {tickets.length === 0 ? (
+                      <div className="p-8 text-center bg-secondary-50 rounded-2xl text-secondary-500 text-sm">
+                        Aucun ticket d'assistance transmis pour le moment.
+                      </div>
+                    ) : (
+                      <div className="grid gap-4">
+                        {tickets.map((t) => (
+                          <Card key={t.id} className="border-secondary-200">
+                            <CardContent className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold ${
+                                    t.status === 'Résolu' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' :
+                                    t.status === 'En cours' ? 'bg-blue-100 text-blue-800 border border-blue-300' :
+                                    'bg-amber-100 text-amber-800 border border-amber-300'
+                                  }`}>
+                                    {t.status || 'En attente'}
+                                  </span>
+                                  <span className="text-xs text-secondary-400">
+                                    Transmis le {new Date(t.created_at).toLocaleDateString()} à {new Date(t.created_at).toLocaleTimeString().slice(0, 5)}
+                                  </span>
+                                </div>
+                                <h4 className="font-bold text-secondary-900 text-base">{t.subject}</h4>
+                                {t.message && <p className="text-xs text-secondary-600">{t.message}</p>}
+                                {t.admin_reply && (
+                                  <div className="mt-2 p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-xs text-indigo-900">
+                                    <strong>Réponse Administration :</strong> {t.admin_reply}
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>

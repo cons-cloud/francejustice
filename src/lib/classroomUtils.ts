@@ -1,8 +1,18 @@
 /**
- * Utility helper to determine if a visioconference / classroom session has ended.
+ * Utility helper to determine if a live visioconference session has ended.
+ * Recorded video courses and text/PDF diploma formations NEVER expire automatically.
  */
 export const isPastSession = (room: any): boolean => {
   if (!room) return false;
+  
+  // Recorded video replays and text/PDF diploma formations stay permanently in catalog
+  if (room.type === 'video' || room.type === 'differe' || room.format === 'texte_pdf' || room.is_pdf_formation || room.id?.startsWith('fede-')) {
+    return false;
+  }
+
+  // Only live sessions ('direct') check expiration date/time
+  if (room.type !== 'direct') return false;
+
   const now = new Date();
 
   // 1. Check using ISO scheduled_at date if available
@@ -33,7 +43,8 @@ export const isPastSession = (room: any): boolean => {
 };
 
 /**
- * Filter out past sessions from an array of classrooms.
+ * Filter out past live sessions from an array of classrooms.
+ * Recorded videos and text/PDF diploma courses remain untouched.
  */
 export const filterActiveSessions = <T extends Record<string, any>>(rooms: T[]): T[] => {
   if (!Array.isArray(rooms)) return [];

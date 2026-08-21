@@ -12,6 +12,7 @@ import AnimatedCounter from '../components/ui/AnimatedCounter';
 import { useTranslation } from '../i18n';
 import { HeroPappersSearch } from '../components/features/HeroPappersSearch';
 import { getDeletedUserEmails } from '../lib/avocatsDataGouvSync';
+import { getMergedOfficialClassrooms } from '../data/officialFormationsData';
 
 // Fallback datasets for immediate vibrant render if database is initializing
 const defaultLawyers = [
@@ -263,12 +264,9 @@ const Home: React.FC = () => {
       const { data: dbClassrooms } = await supabase
         .from('classrooms_just')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(4);
+        .order('created_at', { ascending: false });
 
-      if (dbClassrooms && dbClassrooms.length > 0) {
-        setFeaturedClassrooms(dbClassrooms);
-      }
+      setFeaturedClassrooms(getMergedOfficialClassrooms(dbClassrooms || []));
     } catch (err) {
       console.error('Error fetching home dynamic data:', err);
     }
@@ -399,11 +397,17 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-balance font-sans"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-balance font-sans drop-shadow-xl"
           >
-            La Justice Numérique de Demain, <br className="hidden sm:inline" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-300 drop-shadow-[0_4px_25px_rgba(252,211,77,0.4)]">
-              Accessible à Tous les Citoyens & Avocats
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-400 drop-shadow-[0_4px_25px_rgba(59,130,246,0.6)]">
+              La Justice Numérique de Demain,
+            </span>{' '}
+            <br className="hidden sm:inline" />
+            <span className="text-white drop-shadow-[0_4px_25px_rgba(255,255,255,0.8)]">
+              Accessible à Tous les{' '}
+            </span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-red-500 to-red-600 drop-shadow-[0_4px_25px_rgba(239,68,68,0.7)]">
+              Citoyens & Avocats
             </span>
           </motion.h1>
 
@@ -518,9 +522,15 @@ const Home: React.FC = () => {
                     <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-lg border border-cyan-800/40">
                       {cls.category || 'Formation Juridique'}
                     </span>
-                    <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                      <Video className="w-3 h-3 text-emerald-400" /> {cls.type === 'direct' ? 'Live HD' : 'Replay'}
-                    </span>
+                    {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? (
+                      <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+                        <FileText className="w-3 h-3 text-indigo-400" /> Diplôme Texte & PDF
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                        <Video className="w-3 h-3 text-emerald-400" /> {cls.type === 'direct' ? 'Live HD' : 'Replay'}
+                      </span>
+                    )}
                   </div>
 
                   <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
@@ -534,20 +544,22 @@ const Home: React.FC = () => {
 
                 <div className="pt-4 border-t border-slate-700/60 space-y-3">
                   <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span className="flex items-center gap-1 font-semibold text-slate-200">
-                      <UserCheck className="w-3.5 h-3.5 text-cyan-400" /> 
-                      {cls.lawyer_first_name ? `Me ${cls.lawyer_first_name} ${cls.lawyer_last_name}` : 'Professeur de Droit'}
+                    <span className="flex items-center gap-1 font-semibold text-slate-200 truncate">
+                      <UserCheck className="w-3.5 h-3.5 text-cyan-400 shrink-0" /> 
+                      {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? 'Fédération Européenne des Écoles (FEDE)' : cls.lawyer_first_name ? `${cls.lawyer_first_name} ${cls.lawyer_last_name}` : 'Professeur de Droit'}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" /> {cls.duration_minutes || 90} min
-                    </span>
+                    {!((cls as any).is_pdf_formation || cls.id.startsWith('fede-')) && cls.duration_minutes > 0 && (
+                      <span className="flex items-center gap-1 shrink-0">
+                        <Clock className="w-3.5 h-3.5 text-slate-400" /> {cls.duration_minutes} min
+                      </span>
+                    )}
                   </div>
 
                   <Button 
-                    onClick={() => navigate('/classrooms')}
+                    onClick={() => navigate(`/classrooms?formation=${cls.id}`)}
                     className="w-full bg-slate-700 hover:bg-cyan-600 text-white font-bold py-2.5 text-xs rounded-xl transition-all"
                   >
-                    Accéder à la Salle de Classe
+                    {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? '📖 Lire le Contenu' : 'Accéder à la Salle de Classe'}
                   </Button>
                 </div>
               </div>
