@@ -647,6 +647,126 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* ── SECTION ACTUALITÉS JURIDIQUES (TOUTES LES NOUVELLES ACTUALITÉS) ── */}
+      <section className="py-24 bg-slate-900 text-white relative border-y border-slate-800">
+        <div className="container px-4 mx-auto max-w-7xl space-y-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="space-y-4 max-w-3xl">
+              <span className="text-xs font-black uppercase tracking-widest text-emerald-400 bg-emerald-950/80 px-4 py-1.5 rounded-full border border-emerald-800/80 inline-flex items-center gap-2">
+                <Newspaper className="w-4 h-4 text-emerald-400" />
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                Fil d'Actualité Direct & Législation 2026
+              </span>
+              <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+                Toutes les Nouvelles Actualités Juridiques
+              </h2>
+              <p className="text-base text-slate-200 leading-relaxed font-medium">
+                Suivez l'évolution en temps réel du droit français et européen : décrets au JORF, nouvelles jurisprudences de la Cour de Cassation, AI Act UE 2024/1689 et publications scientifiques.
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate('/news')}
+              className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-black px-8 py-4 rounded-2xl shadow-xl flex items-center gap-2.5 self-start md:self-auto transition-all hover:scale-105"
+            >
+              Consulter Toutes les Actualités
+              <ArrowRight className="w-5 h-5" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* News 1 */}
+            <div className="bg-slate-950 p-8 rounded-3xl border-2 border-slate-800 shadow-2xl flex flex-col justify-between hover:border-indigo-500/60 transition-all duration-300 group">
+              <div className="space-y-5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="bg-indigo-950 text-indigo-300 px-3.5 py-1 rounded-full font-black border border-indigo-700/60">
+                    RGPD & Numérique
+                  </span>
+                  <span className="text-slate-300 font-bold">Union Européenne</span>
+                </div>
+                <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors leading-snug">
+                  Entrée en vigueur des premières obligations de l'AI Act européen (Règlement UE 2024/1689)
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed line-clamp-4 font-medium">
+                  L'UE déploie son cadre juridique historique encadrant l'IA générative et les systèmes à haut risque. Cartographie des risques, audits de conformité et sanctions financières obligatoires.
+                </p>
+                <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-emerald-300 font-bold">
+                  ⚡ Impact : Audits & Conformité IA obligatoire
+                </div>
+              </div>
+              <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
+                <span className="text-slate-400 font-medium">EUR-Lex / CNIL</span>
+                <Button 
+                  onClick={() => navigate('/news')}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
+                >
+                  Lire l'Article <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* News 2 */}
+            <div className="bg-slate-950 p-8 rounded-3xl border-2 border-slate-800 shadow-2xl flex flex-col justify-between hover:border-emerald-500/60 transition-all duration-300 group">
+              <div className="space-y-5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="bg-emerald-950 text-emerald-300 px-3.5 py-1 rounded-full font-black border border-emerald-700/60">
+                    Droit du Travail
+                  </span>
+                  <span className="text-slate-300 font-bold">France</span>
+                </div>
+                <h3 className="text-xl font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug">
+                  Cour de Cassation : Acquisition des congés payés pendant l'arrêt maladie
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed line-clamp-4 font-medium">
+                  La Chambre Sociale confirme le droit pour les salariés d'acquérir des congés payés durant un arrêt maladie ordinaire, en conformité totale avec la Directive UE 2003/88.
+                </p>
+                <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-emerald-300 font-bold">
+                  ⚖️ Impact : Conformité Législative & RH
+                </div>
+              </div>
+              <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
+                <span className="text-slate-400 font-medium">Légifrance</span>
+                <Button 
+                  onClick={() => navigate('/news')}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
+                >
+                  Lire l'Article <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* News 3 */}
+            <div className="bg-slate-950 p-8 rounded-3xl border-2 border-slate-800 shadow-2xl flex flex-col justify-between hover:border-amber-500/60 transition-all duration-300 group">
+              <div className="space-y-5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="bg-amber-950 text-amber-300 px-3.5 py-1 rounded-full font-black border border-amber-700/60">
+                    Droit des Affaires
+                  </span>
+                  <span className="text-slate-300 font-bold">Europe</span>
+                </div>
+                <h3 className="text-xl font-bold text-white group-hover:text-amber-300 transition-colors leading-snug">
+                  Directive UE CS3D & Pappers Entreprise : Devoir de Vigilance des Entreprises
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed line-clamp-4 font-medium">
+                  Les grandes sociétés doivent identifier et prévenir les atteintes aux droits humains et environnementaux. Publication officielle au BODACC et registres des entreprises.
+                </p>
+                <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-amber-300 font-bold">
+                  🏢 Impact : RSE & Transparence Pappers
+                </div>
+              </div>
+              <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
+                <span className="text-slate-400 font-medium">Journal Officiel UE / BODACC</span>
+                <Button 
+                  onClick={() => navigate('/news')}
+                  className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
+                >
+                  Lire l'Article <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── SECTION 3: LES MODULES DE L'ASSISTANT IA GÉNIA-L ── */}
       <section className="py-20 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white relative overflow-hidden">
         <div className="container px-4 mx-auto max-w-7xl space-y-12 relative z-10">
@@ -1001,104 +1121,6 @@ const Home: React.FC = () => {
               <Button onClick={() => navigate('/news')} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 text-xs rounded-xl">
                 Consulter les Revues Scientifiques
               </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION EXTRAIT DES DERNIERES ACTUALITES JURIDIQUES */}
-      <section className="py-24 bg-slate-900 text-white relative border-y border-slate-800">
-        <div className="container px-4 mx-auto max-w-7xl space-y-16">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-4 max-w-2xl">
-              <span className="text-xs font-black uppercase tracking-widest text-primary-400 bg-slate-950 px-4 py-1.5 rounded-full border border-slate-800 flex items-center gap-2 w-fit">
-                <Newspaper className="w-4 h-4 text-primary-400" />
-                Fil d'Actualité Direct & Législation 2026
-              </span>
-              <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
-                Dernières Actualités & Textes Officiels
-              </h2>
-              <p className="text-base text-slate-300">
-                Suivez l'évolution en temps réel du droit français et européen : décrets au JORF, nouvelles jurisprudences et analyses juridiques de référence.
-              </p>
-            </div>
-            <Button
-              onClick={() => navigate('/news')}
-              className="bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white font-bold px-8 py-4 rounded-2xl shadow-xl flex items-center gap-2 self-start md:self-auto"
-            >
-              Voir toutes les actualités
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all group">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="bg-indigo-950/80 text-indigo-300 px-3 py-1 rounded-full font-bold border border-indigo-800/60">
-                    Décret & Loi
-                  </span>
-                  <span className="text-slate-400 font-medium">Union Européenne</span>
-                </div>
-                <h3 className="text-lg font-bold text-white group-hover:text-primary-400 transition-colors leading-snug">
-                  Entrée en vigueur de l'AI Act européen (Règlement UE 2024/1689)
-                </h3>
-                <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
-                  L'UE déploie son cadre juridique historique encadrant l'IA générative et les systèmes à haut risque. Audits de conformité obligatoires.
-                </p>
-              </div>
-              <div className="pt-6 border-t border-slate-800/80 mt-6 flex justify-between items-center text-xs">
-                <span className="text-slate-400 font-medium">EUR-Lex / CNIL</span>
-                <button onClick={() => navigate('/news')} className="text-primary-400 font-bold hover:underline flex items-center gap-1">
-                  Lire <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all group">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="bg-emerald-950/80 text-emerald-300 px-3 py-1 rounded-full font-bold border border-emerald-800/60">
-                    Arrêt & Jurisprudence
-                  </span>
-                  <span className="text-slate-400 font-medium">France</span>
-                </div>
-                <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors leading-snug">
-                  Cour de Cassation : Congés payés pendant l'arrêt maladie
-                </h3>
-                <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
-                  La Chambre Sociale confirme le droit pour les salariés d'acquérir des congés payés durant un arrêt maladie ordinaire en conformité avec l'UE.
-                </p>
-              </div>
-              <div className="pt-6 border-t border-slate-800/80 mt-6 flex justify-between items-center text-xs">
-                <span className="text-slate-400 font-medium">Légifrance</span>
-                <button onClick={() => navigate('/news')} className="text-emerald-400 font-bold hover:underline flex items-center gap-1">
-                  Lire <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all group">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="bg-amber-950/80 text-amber-300 px-3 py-1 rounded-full font-bold border border-amber-800/60">
-                    Devoir de Vigilance
-                  </span>
-                  <span className="text-slate-400 font-medium">Europe</span>
-                </div>
-                <h3 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors leading-snug">
-                  Directive UE CS3D sur le devoir de vigilance des entreprises
-                </h3>
-                <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
-                  La directive européenne impose aux grandes sociétés d'identifier et de prévenir les atteintes aux droits humains et environnementaux.
-                </p>
-              </div>
-              <div className="pt-6 border-t border-slate-800/80 mt-6 flex justify-between items-center text-xs">
-                <span className="text-slate-400 font-medium">Journal Officiel UE</span>
-                <button onClick={() => navigate('/news')} className="text-amber-400 font-bold hover:underline flex items-center gap-1">
-                  Lire <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
             </div>
           </div>
         </div>
