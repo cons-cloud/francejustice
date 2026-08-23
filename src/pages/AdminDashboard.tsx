@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar, AlertCircle } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar, AlertCircle, Lock, Scale } from 'lucide-react';
+import { DATA_RETENTION_SCHEDULE, DATABASE_SECURITY_INFO, getSecurityStatusBadge } from '../lib/dataSecurityUtils';
 import { cn } from '../lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -53,7 +54,7 @@ const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { toasts, removeToast, success, error: toastError } = useToast();
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments' | 'classrooms' | 'planning' | 'reviews'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'lawyers' | 'documents' | 'messages' | 'system' | 'settings' | 'assistance' | 'outils' | 'formations' | 'payments' | 'monitoring' | 'appointments' | 'classrooms' | 'planning' | 'reviews' | 'security'>('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [classrooms, setClassrooms] = useState<any[]>([]);
@@ -1032,6 +1033,7 @@ const AdminDashboard: React.FC = () => {
                   { id: 'reviews', name: 'Revues Scientifiques', icon: BookOpen },
                   { id: 'payments', name: t('admin_dashboard.platform_revenue', "Paiements"), icon: CreditCard },
                   { id: 'monitoring', name: t('admin_dashboard.live_monitoring', "LIVE Monitoring"), icon: RefreshCw },
+                  { id: 'security', name: 'Sécurité BD & RGPD', icon: Lock },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -1046,6 +1048,25 @@ const AdminDashboard: React.FC = () => {
                     <span className="font-medium whitespace-nowrap">{tab.name}</span>
                   </button>
                 ))}
+
+                {/* 📜 CONFORMITÉ & SÉCURITÉ DE LA BASE DE DONNÉES */}
+                <div className="pt-4 mt-4 border-t border-slate-800 space-y-1.5">
+                  <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest px-2 mb-1 flex items-center gap-1">
+                    <Shield className="w-3 h-3 text-emerald-400" /> Administration RGPD & BD
+                  </div>
+                  <a href="/legal#legal" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                    ⚖️ Mentions Légales
+                  </a>
+                  <a href="/legal#privacy" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                    🔒 Politique de Confidentialité
+                  </a>
+                  <a href="/legal#cgv" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                    📜 CGV / CGU Plateforme
+                  </a>
+                  <a href="/legal#retention" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                    🛡️ Schedule Retention & BD
+                  </a>
+                </div>
               </CardContent>
             </Card>
           </aside>
@@ -2151,6 +2172,87 @@ const AdminDashboard: React.FC = () => {
                     });
                   }} 
                 />
+              </div>
+            )}
+
+            {activeTab === 'security' && (
+              <div className="space-y-6 animate-fade-in text-slate-100">
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5 mb-6">
+                    <div>
+                      <span className="text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        {getSecurityStatusBadge().label}
+                      </span>
+                      <h2 className="text-2xl font-black text-white mt-2">Console d'Administration Sécurité, RGPD & Database</h2>
+                      <p className="text-slate-400 text-xs mt-1">Contrôle central des règles RLS, protocoles d'isolation et politique de purge/conservation.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <a href="/legal#legal" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all">
+                        ⚖️ Mentions Légales
+                      </a>
+                      <a href="/legal#privacy" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all">
+                        🔒 Confidentialité
+                      </a>
+                      <a href="/legal#cgv" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition-all">
+                        📜 CGV / CGU
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Security Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Lock className="w-4 h-4 text-indigo-400" /> Infrastructure PostgreSQL & Auth
+                      </h4>
+                      <ul className="text-xs text-slate-300 space-y-1.5">
+                        <li>• <strong>Chiffrement Transit :</strong> {DATABASE_SECURITY_INFO.encryptionTransit}</li>
+                        <li>• <strong>Chiffrement Repos :</strong> {DATABASE_SECURITY_INFO.encryptionRest}</li>
+                        <li>• <strong>Isolation RLS :</strong> {DATABASE_SECURITY_INFO.accessControl}</li>
+                        <li>• <strong>Auth JWT éphémère :</strong> {DATABASE_SECURITY_INFO.authStandard}</li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Shield className="w-4 h-4 text-emerald-400" /> Conformité Financière & Synchro Realtime
+                      </h4>
+                      <ul className="text-xs text-slate-300 space-y-1.5">
+                        <li>• <strong>Supervision :</strong> {DATABASE_SECURITY_INFO.complianceStandard}</li>
+                        <li>• <strong>Moteur Realtime :</strong> {DATABASE_SECURITY_INFO.realtimeSync}</li>
+                        <li>• <strong>Encaissements Stripe :</strong> Tokenized PCI-DSS Level 1</li>
+                        <li>• <strong>Sauvegardes BD :</strong> {DATABASE_SECURITY_INFO.backupFrequency}</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Data Retention Schedule Table */}
+                  <h3 className="text-sm font-extrabold text-white mb-3 flex items-center gap-2">
+                    📅 Schedule de Conservation & Purge Réglementaire des Données
+                  </h3>
+                  <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950">
+                    <table className="w-full text-xs text-left text-slate-300">
+                      <thead className="bg-slate-800/80 text-slate-200 uppercase font-bold text-[10px] border-b border-slate-800">
+                        <tr>
+                          <th className="px-4 py-3">Type de Donnée</th>
+                          <th className="px-4 py-3">Durée de Conservation</th>
+                          <th className="px-4 py-3">Base Légale</th>
+                          <th className="px-4 py-3">Action à l'Échéance</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/60">
+                        {DATA_RETENTION_SCHEDULE.map((item) => (
+                          <tr key={item.id} className="hover:bg-slate-900/60">
+                            <td className="px-4 py-3 font-bold text-white">{item.dataType}</td>
+                            <td className="px-4 py-3 text-amber-300 font-semibold">{item.retentionPeriod}</td>
+                            <td className="px-4 py-3 text-slate-400">{item.legalBasis}</td>
+                            <td className="px-4 py-3 text-emerald-400 font-semibold">{item.actionAfterExpiry}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             )}
           </main>

@@ -113,32 +113,133 @@ const Legal: React.FC = () => {
 
                         <hr className="border-slate-100" />
 
-                        {/* 3. CGU */}
+                        {/* 3. CGU & CGV */}
                         <section id="terms" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
                                     <Shield className="h-6 w-6" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-gray-900">{t('legal.terms_title', "3. Conditions Générales d'Utilisation")}</h2>
+                                <h2 className="text-2xl font-bold text-gray-900">{t('legal.terms_title', "3. Conditions Générales d'Utilisation (CGU) & de Vente (CGV)")}</h2>
                             </div>
                             <div className="prose prose-orange max-w-none text-gray-600 space-y-4 text-sm leading-relaxed">
+                                <h3 className="font-bold text-slate-800 text-base mt-2">3.1 Conditions Générales d'Utilisation (CGU)</h3>
                                 <p>
                                     Les présentes Conditions Générales d'Utilisation (CGU) encadrent l'accès et l'utilisation des services de France Justice. L'utilisation de notre site implique l'acceptation pleine et entière de ces CGU par l'utilisateur.
                                 </p>
                                 <p>
-                                    **Responsabilité relative à l'Intelligence Artificielle :**
+                                    <strong>Responsabilité relative à l'Intelligence Artificielle :</strong>
                                     <br />
-                                    France Justice met à disposition des utilisateurs des outils d'IA avancés pour générer des projets de documents juridiques et de plaintes. Bien que nos modèles soient entraînés sur des bases de données juridiques officielles, **les documents générés par l'IA ne constituent en aucun cas un avis juridique final et ne sauraient remplacer l'assistance, la validation ou les conseils d'un avocat inscrit au barreau.**
+                                    France Justice met à disposition des utilisateurs des outils d'IA avancés (GÉNIA 2026) pour générer des projets de documents juridiques et de plaintes. Bien que nos modèles soient entraînés sur des bases de données juridiques officielles, <strong>les documents générés par l'IA ne constituent en aucun cas un avis juridique final et ne sauraient remplacer l'assistance, la validation ou les conseils d'un avocat inscrit au barreau.</strong>
                                 </p>
                                 <p>
                                     L'utilisateur est fortement invité à solliciter les services d'un avocat partenaire référencé sur la plateforme pour finaliser et valider tout acte juridique ou procédure contentieuse.
                                 </p>
+
+                                <div id="cgv" className="pt-4 scroll-mt-24">
+                                    <h3 className="font-bold text-slate-800 text-base border-t border-slate-200 pt-4">3.2 Conditions Générales de Vente (CGV) — Formations, Devis & Services Payants</h3>
+                                    <p>
+                                        Les présentes CGV s'appliquent à toutes les commandes d'abonnements, de devis d'honoraires d'avocats et de formations en ligne (Masterclass et Formations Diplômantes) effectuées sur la plateforme France Justice.
+                                    </p>
+                                    <ul className="list-disc pl-5 space-y-1.5">
+                                        <li><strong>Prix et Tarification :</strong> Tous les prix sont indiqués en Euros (€) TTC. France Justice se réserve le droit de modifier ses tarifs à tout moment, mais les services sont facturés sur la base des tarifs en vigueur au moment de la validation de la commande.</li>
+                                        <li><strong>Modalités de Paiement Sécurisé :</strong> Les règlements sont effectués exclusivement par carte bancaire via le serveur sécurisé de notre prestataire certifié <strong>Stripe (PCI-DSS Level 1)</strong>. Aucune donnée bancaire n'est conservée sur les serveurs de France Justice.</li>
+                                        <li><strong>Droit de Rétractation (Art. L. 221-18 du Code de la Consommation) :</strong> Conformément aux dispositions légales, le client dispose d'un délai de 14 jours francs à compter de la souscription d'un service pour exercer son droit de rétractation sans avoir à justifier de motifs ni à payer de pénalités. Pour les formations numériques immédiatement accessibles en intégralité après achat, l'accès immédiat vaut renonciation expresse au droit de rétractation conformément à l'article L. 221-28 13° du Code de la consommation.</li>
+                                        <li><strong>Facturation & Recouvrement :</strong> Une facture conforme aux exigences fiscales françaises est générée automatiquement et téléchargeable depuis l'espace client pour chaque transaction validée.</li>
+                                    </ul>
+                                </div>
                             </div>
                         </section>
 
                         <hr className="border-slate-100" />
 
-                        {/* 4. Cookies */}
+                        {/* 4. Durée de Conservation des Données & Sécurité de la Base de Données */}
+                        <section id="retention" className="scroll-mt-24">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
+                                    <Lock className="h-6 w-6" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900">4. Sécurité de la Base de Données & Durée de Conservation des Données (RGPD)</h2>
+                            </div>
+                            <div className="prose prose-emerald max-w-none text-gray-600 space-y-4 text-sm leading-relaxed">
+                                <p>
+                                    France Justice garantit une sécurité maximale des données stockées dans la base de données PostgreSQL Supabase et sur nos serveurs distants.
+                                </p>
+
+                                <div className="bg-slate-900 text-slate-100 p-6 rounded-2xl border border-slate-800 my-4 shadow-md">
+                                    <h3 className="text-base font-bold text-emerald-400 mb-3 flex items-center gap-2">
+                                        🛡️ Mesures de Sécurité Appliquées à la Base de Données
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                                        <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                                            <span className="font-bold text-white block mb-1">Chiffrement en Transit & au Repos</span>
+                                            <p className="text-slate-300">Connexions SSL/TLS 1.3 avec HSTS 256 bits. Chiffrement AES-256 des données au repos et des documents stockés.</p>
+                                        </div>
+                                        <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                                            <span className="font-bold text-white block mb-1">Contrôle d'Accès Strict (RLS)</span>
+                                            <p className="text-slate-300">Règles Row-Level Security (RLS) Supabase garantissant que chaque utilisateur ne peut lire que ses propres données.</p>
+                                        </div>
+                                        <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                                            <span className="font-bold text-white block mb-1">Authentification JWT Sécurisée</span>
+                                            <p className="text-slate-300">Jetons JSON Web Tokens éphémères avec rafraîchissement automatique et hachage sécurisé des mots de passe.</p>
+                                        </div>
+                                        <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                                            <span className="font-bold text-white block mb-1">Protection Financière PCI-DSS</span>
+                                            <p className="text-slate-300">Zéro donnée de carte bancaire stockée. Traitement 100% tokenisé par le partenaire Stripe certifié PCI-DSS Level 1.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h3 className="font-bold text-slate-800 text-base mt-6">Tableau Récapitulatif des Durées de Conservation des Données :</h3>
+                                <div className="overflow-x-auto rounded-xl border border-slate-200 mt-3">
+                                    <table className="w-full text-xs text-left text-slate-700">
+                                        <thead className="bg-slate-100 text-slate-800 uppercase font-bold text-[11px] border-b border-slate-200">
+                                            <tr>
+                                                <th className="px-4 py-3">Catégorie de Données</th>
+                                                <th className="px-4 py-3">Durée de Conservation</th>
+                                                <th className="px-4 py-3">Base Légale</th>
+                                                <th className="px-4 py-3">Action à l'Échéance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-200 bg-white">
+                                            <tr>
+                                                <td className="px-4 py-3 font-semibold text-slate-900">Comptes Utilisateurs & Profils Avocats</td>
+                                                <td className="px-4 py-3">3 ans après dernière activité</td>
+                                                <td className="px-4 py-3">Recommandation CNIL & Art. 5-1-e RGPD</td>
+                                                <td className="px-4 py-3 text-emerald-700 font-bold">Anonymisation ou Purge définitive</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-3 font-semibold text-slate-900">Documents Juridiques & Plaintes Générées</td>
+                                                <td className="px-4 py-3">5 ans après création</td>
+                                                <td className="px-4 py-3">Prescription civile (Art. 2224 Code Civil)</td>
+                                                <td className="px-4 py-3 text-emerald-700 font-bold">Purge automatique sécurisée</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-3 font-semibold text-slate-900">Factures, Devis & Transactions Stripe</td>
+                                                <td className="px-4 py-3">10 ans</td>
+                                                <td className="px-4 py-3">Article L123-22 du Code de Commerce</td>
+                                                <td className="px-4 py-3 text-emerald-700 font-bold">Archivage légal intermédiaire crypté</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-3 font-semibold text-slate-900">Logs de Connexion & Traces IP</td>
+                                                <td className="px-4 py-3">1 an</td>
+                                                <td className="px-4 py-3">Article 6 LCEN & Décret n° 2011-219</td>
+                                                <td className="px-4 py-3 text-emerald-700 font-bold">Purge automatisée des logs</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-3 font-semibold text-slate-900">Coordonnées Bancaires (Cartes Bleues)</td>
+                                                <td className="px-4 py-3 font-bold text-rose-600">0 jour (Non stocké)</td>
+                                                <td className="px-4 py-3">Norme PCI-DSS & API Tokenized Stripe</td>
+                                                <td className="px-4 py-3 text-emerald-700 font-bold">Géré exclusivement par Stripe</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+
+                        <hr className="border-slate-100" />
+
+                        {/* 5. Cookies */}
                         <section id="cookies" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">

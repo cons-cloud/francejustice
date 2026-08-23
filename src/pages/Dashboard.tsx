@@ -23,8 +23,11 @@ import {
   X,
   Trash2,
   HelpCircle,
-  Send
+  Send,
+  Scale,
+  Lock
 } from 'lucide-react';
+import { DATA_RETENTION_SCHEDULE, DATABASE_SECURITY_INFO, getSecurityStatusBadge } from '../lib/dataSecurityUtils';
 import LawCodes from '../components/features/LawCodes';
 import ProcedureLibrary from '../components/features/ProcedureLibrary';
 import CodeAnalysis from '../components/features/CodeAnalysis';
@@ -878,6 +881,7 @@ Ce document est généré par la plateforme France Justice.
     { id: 'reviews', name: 'Revues Scientifiques', icon: BookOpen },
     { id: 'avocats', name: t('dashboard.lawyers_directory', 'Annuaire Avocats'), icon: Users },
     { id: 'tickets', name: 'Assistance & Support Admin', icon: HelpCircle },
+    { id: 'legal', name: 'Mentions Légales & RGPD', icon: Scale },
     { id: 'profile', name: t('dashboard.profile', 'Profil'), icon: User },
   ];
 
@@ -1258,6 +1262,87 @@ Ce document est généré par la plateforme France Justice.
     );
   };
 
+  const renderLegalComplianceTab = () => (
+    <div className="space-y-6 animate-fade-in text-slate-100">
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5 mb-6">
+          <div>
+            <span className="text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
+              {getSecurityStatusBadge().label}
+            </span>
+            <h2 className="text-2xl font-black text-white mt-2">Conformité RGPD, Mentions Légales & Sécurité</h2>
+            <p className="text-slate-400 text-xs mt-1">Transparence totale, protection des données et respect des normes juridiques françaises.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <a href="/legal#legal" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all">
+              ⚖️ Mentions Légales
+            </a>
+            <a href="/legal#privacy" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all">
+              🔒 Confidentialité
+            </a>
+            <a href="/legal#cgv" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition-all">
+              📜 CGV / CGU
+            </a>
+          </div>
+        </div>
+
+        {/* Database Security Specs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+            <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Lock className="w-4 h-4 text-indigo-400" /> Chiffrement & Sécurité de la Base de Données
+            </h4>
+            <ul className="text-xs text-slate-300 space-y-1.5">
+              <li>• <strong>Chiffrement en Transit :</strong> {DATABASE_SECURITY_INFO.encryptionTransit}</li>
+              <li>• <strong>Chiffrement au Repos :</strong> {DATABASE_SECURITY_INFO.encryptionRest}</li>
+              <li>• <strong>Contrôle d'Accès :</strong> {DATABASE_SECURITY_INFO.accessControl}</li>
+              <li>• <strong>Authentification :</strong> {DATABASE_SECURITY_INFO.authStandard}</li>
+            </ul>
+          </div>
+
+          <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+            <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Shield className="w-4 h-4 text-emerald-400" /> Conformité Financière & RGPD
+            </h4>
+            <ul className="text-xs text-slate-300 space-y-1.5">
+              <li>• <strong>Supervision :</strong> {DATABASE_SECURITY_INFO.complianceStandard}</li>
+              <li>• <strong>Realtime Engine :</strong> {DATABASE_SECURITY_INFO.realtimeSync}</li>
+              <li>• <strong>Paiements Sécurisés :</strong> Cartes bleues traitées 100% via Stripe PCI-DSS Level 1</li>
+              <li>• <strong>Sauvegardes :</strong> {DATABASE_SECURITY_INFO.backupFrequency}</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Retention Schedule */}
+        <h3 className="text-sm font-extrabold text-white mb-3 flex items-center gap-2">
+          📅 Durées de Conservation des Données (Délai de Purge & Archivage)
+        </h3>
+        <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950">
+          <table className="w-full text-xs text-left text-slate-300">
+            <thead className="bg-slate-800/80 text-slate-200 uppercase font-bold text-[10px] border-b border-slate-800">
+              <tr>
+                <th className="px-4 py-3">Catégorie</th>
+                <th className="px-4 py-3">Durée de Conservation</th>
+                <th className="px-4 py-3">Base Légale</th>
+                <th className="px-4 py-3">Action Purge</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/60">
+              {DATA_RETENTION_SCHEDULE.map((item) => (
+                <tr key={item.id} className="hover:bg-slate-900/60">
+                  <td className="px-4 py-3 font-bold text-white">{item.dataType}</td>
+                  <td className="px-4 py-3 text-amber-300 font-semibold">{item.retentionPeriod}</td>
+                  <td className="px-4 py-3 text-slate-400">{item.legalBasis}</td>
+                  <td className="px-4 py-3 text-emerald-400 font-semibold">{item.actionAfterExpiry}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 pt-20 pb-16">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
@@ -1334,7 +1419,6 @@ Ce document est généré par la plateforme France Justice.
           </div>
         </div>
 
-        {/* Mobile Hamburger Button for Sidebar (Visible < lg) */}
         <div className="lg:hidden mb-6">
           <button
             type="button"
@@ -1438,6 +1522,25 @@ Ce document est généré par la plateforme France Justice.
                     );
                   })}
                 </nav>
+
+                {/* 📜 CONFORMITÉ & SÉCURITÉ DE LA BASE DE DONNÉES */}
+                <div className="pt-4 mt-4 border-t border-slate-800 space-y-1.5">
+                  <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest px-2 mb-1 flex items-center gap-1">
+                    <Shield className="w-3 h-3 text-emerald-400" /> Sécurité & Conformité
+                  </div>
+                  <a href="/legal#legal" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                    ⚖️ Mentions Légales
+                  </a>
+                  <a href="/legal#privacy" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                    🔒 Politique de Confidentialité
+                  </a>
+                  <a href="/legal#cgv" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                    📜 CGV / CGU
+                  </a>
+                  <a href="/legal#retention" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                    🛡️ Retention & Sécurité BD
+                  </a>
+                </div>
               </CardContent>
             </Card>
           </aside>
@@ -1447,6 +1550,7 @@ Ce document est généré par la plateforme France Justice.
               <div className="flex items-center justify-center h-64"><RefreshCw className="h-8 w-8 animate-spin text-primary-600" /></div>
             ) : (
               <>
+                {activeTab === 'legal' && renderLegalComplianceTab()}
                 {activeTab === 'overview' && renderOverview()}
                 {activeTab === 'appointments' && renderAppointments()}
                 {activeTab === 'generator' && (
