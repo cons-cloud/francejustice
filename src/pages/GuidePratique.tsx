@@ -329,17 +329,36 @@ const GuidePratique: React.FC = () => {
   const [selectedGuide, setSelectedGuide] = useState<LegalGuideItem | null>(null);
 
   const categories = [
-    'Tous',
-    'Droit du Travail',
-    'Immobilier & Logement',
-    'Famille & Succession',
-    'Consommation & Litiges',
-    'Procédures & Justice',
-    'Entreprise & Sociétés'
+    { id: 'Tous', label: t('guide.cat_all', 'Tous les Guides') },
+    { id: 'Droit du Travail', label: t('guide.cat_labor', 'Droit du Travail') },
+    { id: 'Immobilier & Logement', label: t('guide.cat_housing', 'Immobilier & Logement') },
+    { id: 'Famille & Succession', label: t('guide.cat_family', 'Famille & Succession') },
+    { id: 'Consommation & Litiges', label: t('guide.cat_consumer', 'Consommation & Litiges') },
+    { id: 'Procédures & Justice', label: t('guide.cat_procedure', 'Procédures & Justice') },
+    { id: 'Entreprise & Sociétés', label: t('guide.cat_company', 'Entreprise & Sociétés') }
   ];
 
+  const translatedGuides = useMemo(() => {
+    return GUIDES_DATABASE.map((guide) => ({
+      ...guide,
+      title: t(`guide.${guide.id}.title`, guide.title),
+      summary: t(`guide.${guide.id}.summary`, guide.summary),
+      legalBasis: t(`guide.${guide.id}.legalBasis`, guide.legalBasis),
+      estimatedTime: t(`guide.${guide.id}.estimatedTime`, guide.estimatedTime),
+      difficulty: t(`guide.diff_${guide.difficulty.toLowerCase()}`, guide.difficulty),
+      requiredDocuments: guide.requiredDocuments.map((doc, idx) => t(`guide.${guide.id}.doc_${idx}`, doc)),
+      steps: guide.steps.map((step) => ({
+        ...step,
+        title: t(`guide.${guide.id}.step_${step.number}_title`, step.title),
+        description: t(`guide.${guide.id}.step_${step.number}_desc`, step.description),
+        tip: step.tip ? t(`guide.${guide.id}.step_${step.number}_tip`, step.tip) : undefined,
+      })),
+      errorsToAvoid: guide.errorsToAvoid.map((err, idx) => t(`guide.${guide.id}.error_${idx}`, err)),
+    }));
+  }, [t]);
+
   const filteredGuides = useMemo(() => {
-    return GUIDES_DATABASE.filter((guide) => {
+    return translatedGuides.filter((guide) => {
       const matchesCat = selectedCategory === 'Tous' || guide.category === selectedCategory;
       const q = searchQuery.toLowerCase().trim();
       const matchesQ = !q || 
@@ -350,7 +369,7 @@ const GuidePratique: React.FC = () => {
 
       return matchesCat && matchesQ;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [translatedGuides, selectedCategory, searchQuery]);
 
   const handleExportPDF = (guide: LegalGuideItem) => {
     const fullText = `GUIDE JURIDIQUE OFFICIEL : ${guide.title}\n\n` +
@@ -399,7 +418,7 @@ const GuidePratique: React.FC = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Rechercher un guide (ex: plainte, rupture conventionnelle, caution, divorce, litige)..."
+                placeholder={t('guide.search_placeholder', 'Rechercher un guide (ex: plainte, rupture conventionnelle, caution, divorce, litige)...')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-4 py-3.5 bg-slate-900/90 border border-slate-700 rounded-2xl text-white placeholder-slate-400 text-sm focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/30 transition-all shadow-inner"
@@ -421,25 +440,25 @@ const GuidePratique: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              Filtrer par domaine juridique :
+              {t('guide.filter_domain', 'Filtrer par domaine juridique :')}
             </span>
             <span className="text-xs text-slate-400 font-medium">
-              <strong className="text-amber-300 font-black">{filteredGuides.length}</strong> guide(s) disponible(s)
+              <strong className="text-amber-300 font-black">{filteredGuides.length}</strong> {t('guide.available_count', 'guide(s) disponible(s)')}
             </span>
           </div>
 
           <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
             {categories.map((cat) => (
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
                 className={`px-4.5 py-2.5 rounded-xl text-xs font-black whitespace-nowrap transition-all border ${
-                  selectedCategory === cat
+                  selectedCategory === cat.id
                     ? 'bg-gradient-to-r from-primary-600 to-indigo-600 border-primary-400 text-white shadow-lg shadow-primary-950/60 ring-1 ring-primary-400'
                     : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-500'
                 }`}
               >
-                {cat}
+                {cat.label}
               </button>
             ))}
           </div>

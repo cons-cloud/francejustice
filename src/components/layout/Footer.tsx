@@ -30,18 +30,18 @@ const Footer: React.FC = () => {
   };
 
   const governmentLinks = [
-    { name: 'Légifrance — Droit Français', url: 'https://www.legifrance.gouv.fr/', category: 'Textes de Loi' },
-    { name: 'Service-Public.fr', url: 'https://www.service-public.fr/', category: 'Démarches Officielle' },
-    { name: 'Conseil National des Barreaux (CNB)', url: 'https://www.cnb.avocat.fr/', category: 'Ordre des Avocats' },
-    { name: 'Cour de Cassation', url: 'https://www.courdecassation.fr/', category: 'Ordre Judiciaire' },
-    { name: 'Conseil d\'État', url: 'https://www.conseil-etat.fr/', category: 'Ordre Administratif' },
-    { name: 'CNIL — Protection des Données', url: 'https://www.cnil.fr/', category: 'RGPD & Libertés' },
-    { name: 'Défenseur des Droits', url: 'https://www.defenseurdesdroits.fr/', category: 'Droits Fondamentaux' },
-    { name: 'Ministère du Travail', url: 'https://travail-emploi.gouv.fr/', category: 'Code du Travail' },
-    { name: 'Infogreffe / RCS', url: 'https://www.infogreffe.fr/', category: 'Registre du Commerce' },
-    { name: 'EUR-Lex — Droit de l\'UE', url: 'https://eur-lex.europa.eu/', category: 'Union Européenne' },
-    { name: 'CEDH — Cour Européenne Droits Homme', url: 'https://www.echr.coe.int/', category: 'Droits Humains' },
-    { name: 'Nations Unies OHCHR', url: 'https://www.ohchr.org/', category: 'International' },
+    { name: t('footer.gov.legifrance', 'Légifrance — Droit Français'), url: 'https://www.legifrance.gouv.fr/', category: t('footer.gov.cat_laws', 'Textes de Loi') },
+    { name: t('footer.gov.service_public', 'Service-Public.fr'), url: 'https://www.service-public.fr/', category: t('footer.gov.cat_admin', 'Démarches Officielles') },
+    { name: t('footer.gov.cnb', 'Conseil National des Barreaux (CNB)'), url: 'https://www.cnb.avocat.fr/', category: t('footer.gov.cat_bar', 'Ordre des Avocats') },
+    { name: t('footer.gov.cassation', 'Cour de Cassation'), url: 'https://www.courdecassation.fr/', category: t('footer.gov.cat_judiciary', 'Ordre Judiciaire') },
+    { name: t('footer.gov.conseil_etat', 'Conseil d\'État'), url: 'https://www.conseil-etat.fr/', category: t('footer.gov.cat_admin_order', 'Ordre Administratif') },
+    { name: t('footer.gov.cnil', 'CNIL — Protection des Données'), url: 'https://www.cnil.fr/', category: t('footer.gov.cat_rgpd', 'RGPD & Libertés') },
+    { name: t('footer.gov.defenseur', 'Défenseur des Droits'), url: 'https://www.defenseurdesdroits.fr/', category: t('footer.gov.cat_rights', 'Droits Fondamentaux') },
+    { name: t('footer.gov.travail', 'Ministère du Travail'), url: 'https://travail-emploi.gouv.fr/', category: t('footer.gov.cat_labor', 'Code du Travail') },
+    { name: t('footer.gov.infogreffe', 'Infogreffe / RCS'), url: 'https://www.infogreffe.fr/', category: t('footer.gov.cat_rcs', 'Registre du Commerce') },
+    { name: t('footer.gov.eurlex', 'EUR-Lex — Droit de l\'UE'), url: 'https://eur-lex.europa.eu/', category: t('footer.gov.cat_eu', 'Union Européenne') },
+    { name: t('footer.gov.cedh', 'CEDH — Cour Européenne Droits Homme'), url: 'https://www.echr.coe.int/', category: t('footer.gov.cat_human_rights', 'Droits Humains') },
+    { name: t('footer.gov.ohchr', 'Nations Unies OHCHR'), url: 'https://www.ohchr.org/', category: t('footer.gov.cat_intl', 'International') },
   ];
 
   const socialLinks = [
@@ -65,11 +65,11 @@ const Footer: React.FC = () => {
             <div className="flex items-center gap-2">
               <Building2 className="w-5 h-5 text-amber-400" />
               <h4 className="text-sm font-black uppercase tracking-wider text-white">
-                Sources Officielles Gouvernementales & Liens Institutionnels
+                {t('footer.gov_title', 'Sources Officielles Gouvernementales & Liens Institutionnels')}
               </h4>
             </div>
             <span className="text-xs font-bold text-slate-400">
-              🔗 Partenaire d'Accès Universel au Droit • ONG FranceJustice
+              {t('footer.ong_partner', '🔗 Partenaire d\'Accès Universel au Droit • ONG FranceJustice')}
             </span>
           </div>
 

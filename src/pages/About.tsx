@@ -85,65 +85,65 @@ const About: React.FC = () => {
   ];
 
   const externalOfficialSources = [
-    { name: 'Légifrance — Service Public du Droit Français', url: 'https://www.legifrance.gouv.fr/', desc: 'Textes officiels de lois, 75+ Codes, Décrets et Arrêtés en vigueur.' },
-    { name: 'Service-Public.fr — Site Officiel de l\'Administration', url: 'https://www.service-public.fr/', desc: 'Fiches pratiques, démarches administratives et droits des citoyens.' },
-    { name: 'Conseil National des Barreaux (CNB)', url: 'https://www.cnb.avocat.fr/', desc: 'Ordre officiel des Avocats de France et annuaire certifié.' },
-    { name: 'Cour de Cassation', url: 'https://www.courdecassation.fr/', desc: 'Haute juridiction judiciaire tranchant les pourvois civil et pénal.' },
-    { name: 'Conseil d\'État', url: 'https://www.conseil-etat.fr/', desc: 'Juridiction administrative suprême et conseiller du Gouvernement.' },
-    { name: 'CNIL — Informatique & Libertés', url: 'https://www.cnil.fr/', desc: 'Autorité de régulation des données personnelles et règles RGPD.' },
-    { name: 'Défenseur des Droits', url: 'https://www.defenseurdesdroits.fr/', desc: 'Protection des libertés fondamentales et lutte contre les discriminations.' },
-    { name: 'Ministère du Travail & de l\'Emploi', url: 'https://travail-emploi.gouv.fr/', desc: 'Code du Travail, conventions collectives et droits des salariés.' },
-    { name: 'Infogreffe — Registre du Commerce', url: 'https://www.infogreffe.fr/', desc: 'Accès officiel aux données des entreprises françaises et RCS.' },
-    { name: 'EUR-Lex — Droit de l\'Union Européenne', url: 'https://eur-lex.europa.eu/', desc: 'Journal officiel de l\'UE, directives et règlements communautaires.' },
-    { name: 'CEDH — Cour Européenne des Droits de l\'Homme', url: 'https://www.echr.coe.int/', desc: 'Arrêts et décisions de la jurisprudence européenne des droits humains.' },
-    { name: 'Nations Unies — Haut-Commissariat aux Droits de l\'Homme', url: 'https://www.ohchr.org/', desc: 'Déclaration Universelle des Droits de l\'Homme (DUDH) et traités internationaux.' }
+    { name: t('about.source_1_name', 'Légifrance — Service Public du Droit Français'), url: 'https://www.legifrance.gouv.fr/', desc: t('about.source_1_desc', 'Textes officiels de lois, 75+ Codes, Décrets et Arrêtés en vigueur.') },
+    { name: t('about.source_2_name', 'Service-Public.fr — Site Officiel de l\'Administration'), url: 'https://www.service-public.fr/', desc: t('about.source_2_desc', 'Fiches pratiques, démarches administratives et droits des citoyens.') },
+    { name: t('about.source_3_name', 'Conseil National des Barreaux (CNB)'), url: 'https://www.cnb.avocat.fr/', desc: t('about.source_3_desc', 'Ordre officiel des Avocats de France et annuaire certifié.') },
+    { name: t('about.source_4_name', 'Cour de Cassation'), url: 'https://www.courdecassation.fr/', desc: t('about.source_4_desc', 'Haute juridiction judiciaire tranchant les pourvois civil et pénal.') },
+    { name: t('about.source_5_name', 'Conseil d\'État'), url: 'https://www.conseil-etat.fr/', desc: t('about.source_5_desc', 'Juridiction administrative suprême et conseiller du Gouvernement.') },
+    { name: t('about.source_6_name', 'CNIL — Informatique & Libertés'), url: 'https://www.cnil.fr/', desc: t('about.source_6_desc', 'Autorité de régulation des données personnelles et règles RGPD.') },
+    { name: t('about.source_7_name', 'Défenseur des Droits'), url: 'https://www.defenseurdesdroits.fr/', desc: t('about.source_7_desc', 'Protection des libertés fondamentales et lutte contre les discriminations.') },
+    { name: t('about.source_8_name', 'Ministère du Travail & de l\'Emploi'), url: 'https://travail-emploi.gouv.fr/', desc: t('about.source_8_desc', 'Code du Travail, conventions collectives et droits des salariés.') },
+    { name: t('about.source_9_name', 'Infogreffe — Registre du Commerce'), url: 'https://www.infogreffe.fr/', desc: t('about.source_9_desc', 'Accès officiel aux données des entreprises françaises et RCS.') },
+    { name: t('about.source_10_name', 'EUR-Lex — Droit de l\'Union Européenne'), url: 'https://eur-lex.europa.eu/', desc: t('about.source_10_desc', 'Journal officiel de l\'UE, directives et règlements communautaires.') },
+    { name: t('about.source_11_name', 'CEDH — Cour Européenne des Droits de l\'Homme'), url: 'https://www.echr.coe.int/', desc: t('about.source_11_desc', 'Arrêts et décisions de la jurisprudence européenne des droits humains.') },
+    { name: t('about.source_12_name', 'Nations Unies — Haut-Commissariat aux Droits de l\'Homme'), url: 'https://www.ohchr.org/', desc: t('about.source_12_desc', 'Déclaration Universelle des Droits de l\'Homme (DUDH) et traités internationaux.') }
   ];
 
   const internalRegulations = [
     {
       id: 'art-1',
-      title: 'Article 1 — Statut Juridique d\'ONG & Mission d\'Intérêt Général',
-      content: 'L\'organisation "FranceJustice" (Just-Law) est une Organisation Non Gouvernementale (ONG) internationale à vocation juridique et éducative, régie par la loi du 1er juillet 1901. Elle a pour mission fondamentale la démocratisation de l\'accès au Droit, la défense des libertés publiques, le soutien aux personnes vulnérables et la diffusion d\'outils numériques souverains pour les citoyens et les professionnels.'
+      title: t('about.art_1_title', 'Article 1 — Statut Juridique d\'ONG & Mission d\'Intérêt Général'),
+      content: t('about.art_1_content', 'L\'organisation "FranceJustice" (Just-Law) est une Organisation Non Gouvernementale (ONG) internationale à vocation juridique et éducative, régie par la loi du 1er juillet 1901. Elle a pour mission fondamentale la démocratisation de l\'accès au Droit, la défense des libertés publiques, le soutien aux personnes vulnérables et la diffusion d\'outils numériques souverains pour les citoyens et les professionnels.')
     },
     {
       id: 'art-2',
-      title: 'Article 2 — Indépendance, Neutralité Politico-Religieuse & Éthique',
-      content: 'FranceJustice s\'interdit toute prise de position politique, confessionnelle ou doctrinale partisane. L\'ONG agit dans le strict respect de la Déclaration Universelle des Droits de l\'Homme de 1948 et de la Convention Européenne de Sauvegarde des Droits de l\'Homme. Ses activités sont guidées par la transparence, l\'équité et l\'impartialité.'
+      title: t('about.art_2_title', 'Article 2 — Indépendance, Neutralité Politico-Religieuse & Éthique'),
+      content: t('about.art_2_content', 'FranceJustice s\'interdit toute prise de position politique, confessionnelle ou doctrinale partisane. L\'ONG agit dans le strict respect de la Déclaration Universelle des Droits de l\'Homme de 1948 et de la Convention Européenne de Sauvegarde des Droits de l\'Homme. Ses activités sont guidées par la transparence, l\'équité et l\'impartialité.')
     },
     {
       id: 'art-3',
-      title: 'Article 3 — Secret Professionnel, Secret de l\'Avocat & Déontologie',
-      content: 'Tous les membres, avocats partenaires et juristes affiliés à l\'ONG FranceJustice s\'engagent au respect absolu du secret professionnel (Article 66-5 de la Loi du 31 décembre 1971). Les échanges entre citoyens et avocats sur la plateforme sont strictly chiffrés et protégés contre toute intrusion ou divulgation à des tiers.'
+      title: t('about.art_3_title', 'Article 3 — Secret Professionnel, Secret de l\'Avocat & Déontologie'),
+      content: t('about.art_3_content', 'Tous les membres, avocats partenaires et juristes affiliés à l\'ONG FranceJustice s\'engagent au respect absolu du secret professionnel (Article 66-5 de la Loi du 31 décembre 1971). Les échanges entre citoyens et avocats sur la plateforme sont strictly chiffrés et protégés contre toute intrusion ou divulgation à des tiers.')
     },
     {
       id: 'art-4',
-      title: 'Article 4 — Éthique Algorithmique & Supervision Humaine de l\'IA',
-      content: 'L\'utilisation de l\'Intelligence Artificielle (moteur GéniaL\'Avocat) au sein de la plateforme répond à des règles strictes de transparence. L\'IA constitue un outil de pré-analyse et de recherche documentaire automatisée, mais ne remplace en aucun cas la décision, le conseil ou l\'acte judiciaire réservé à l\'avocat ou au juge.'
+      title: t('about.art_4_title', 'Article 4 — Éthique Algorithmique & Supervision Humaine de l\'IA'),
+      content: t('about.art_4_content', 'L\'utilisation de l\'Intelligence Artificielle (moteur GéniaL\'Avocat) au sein de la plateforme répond à des règles strictes de transparence. L\'IA constitue un outil de pré-analyse et de recherche documentaire automatisée, mais ne remplace en aucun cas la décision, le conseil ou l\'acte judiciaire réservé à l\'avocat ou au juge.')
     },
     {
       id: 'art-5',
-      title: 'Article 5 — Catégories de Membres & Charte d\'Adhésion',
-      content: 'L\'ONG regroupe 4 catégories de membres : (a) Les Membres Avocats (inscrits au barreau), (b) Les Membres Universitaires & Enseignants (Docteurs en Droit, Professeurs), (c) Les Membres Étudiants en Droit, et (d) Les Membres Citoyens Bénéficiaires. L\'adhésion implique l\'acceptation sans réserve du présent Règlement Intérieur.'
+      title: t('about.art_5_title', 'Article 5 — Catégories de Membres & Charte d\'Adhésion'),
+      content: t('about.art_5_content', 'L\'ONG regroupe 4 catégories de membres : (a) Les Membres Avocats (inscrits au barreau), (b) Les Membres Universitaires & Enseignants (Docteurs en Droit, Professeurs), (c) Les Membres Étudiants en Droit, et (d) Les Membres Citoyens Bénéficiaires. L\'adhésion implique l\'acceptation sans réserve du présent Règlement Intérieur.')
     },
     {
       id: 'art-6',
-      title: 'Article 6 — Modèle Économique, Transparence Financière & Pro Bono',
-      content: 'ONG non lucrative, FranceJustice réinvestit 100% de ses ressources dans le développement des outils technologiques d\'accès au droit et l\'organisation de consultations gratuites (Pro Bono) pour les personnes en situation de précarité. Les honoraires de consultation d\'avocat sur la plateforme sont fixés en toute transparence avec devis préalable.'
+      title: t('about.art_6_title', 'Article 6 — Modèle Économique, Transparence Financière & Pro Bono'),
+      content: t('about.art_6_content', 'ONG non lucrative, FranceJustice réinvestit 100% de ses ressources dans le développement des outils technologiques d\'accès au droit et l\'organisation de consultations gratuites (Pro Bono) pour les personnes en situation de précarité. Les honoraires de consultation d\'avocat sur la plateforme sont fixés en toute transparence avec devis préalable.')
     },
     {
       id: 'art-7',
-      title: 'Article 7 — Direction Académique & Conseil d\'Administration',
-      content: 'L\'ONG est dirigée par un Conseil d\'Administration. La Direction Pédagogique et Scientifique des formations certifiantes est assurée par le Fondateur Dr. Imam Çoban, Docteur en Droit. Le Conseil veille à l\'excellence scientifique des cours et à l\'actualisation continue de la base de données juridique.'
+      title: t('about.art_7_title', 'Article 7 — Direction Académique & Conseil d\'Administration'),
+      content: t('about.art_7_content', 'L\'ONG est dirigée par un Conseil d\'Administration. La Direction Pédagogique et Scientifique des formations certifiantes est assurée par le Fondateur Dr. Imam Çoban, Docteur en Droit. Le Conseil veille à l\'excellence scientifique des cours et à l\'actualisation continue de la base de données juridique.')
     },
     {
       id: 'art-8',
-      title: 'Article 8 — Sécurité des Données & Calendrier de Purge RGPD',
-      content: 'En conformité avec les règles de la CNIL et du RGPD, les données nominatives et pièces téléchargées bénéficient d\'un chiffrement fort. Les données sont conservées selon un calendrier réglementaire précis (10 ans pour les factures comptables, 3 ans pour les comptes inactifs, 1 an pour les journaux de connexion) avant purge sécurisée définitive.'
+      title: t('about.art_8_title', 'Article 8 — Sécurité des Données & Calendrier de Purge RGPD'),
+      content: t('about.art_8_content', 'En conformité avec les règles de la CNIL et du RGPD, les données nominatives et pièces téléchargées bénéficient d\'un chiffrement fort. Les données sont conservées selon un calendrier réglementaire précis (10 ans pour les factures comptables, 3 ans pour les comptes inactifs, 1 an pour les journaux de connexion) avant purge sécurisée définitive.')
     },
     {
       id: 'art-9',
-      title: 'Article 9 — Sanctions Disciplinaires & Exclusion',
-      content: 'Tout manquement aux principes déontologiques, toute violation du secret professionnel ou tout comportement contraire à l\'honneur de la profession d\'avocat ou aux valeurs de l\'ONG entraîne la suspension immédiate du membre et sa saisine devant le Conseil d\'Administration pour radiation définitive.'
+      title: t('about.art_9_title', 'Article 9 — Sanctions Disciplinaires & Exclusion'),
+      content: t('about.art_9_content', 'Tout manquement aux principes déontologiques, toute violation du secret professionnel ou tout comportement contraire à l\'honneur de la profession d\'avocat ou aux valeurs de l\'ONG entraîne la suspension immédiate du membre et sa saisine devant le Conseil d\'Administration pour radiation définitive.')
     }
   ];
 
