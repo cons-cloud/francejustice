@@ -93,7 +93,11 @@
     "register_lawyer": "Wekî parêzer qeyd bibe",
     "or": "an jî",
     "error_invalid": "E-posta an şîfreya çewt.",
-    "back_home": "Vegere malperê"
+    "back_home": "Vegere malperê",
+    "welcome": "Bi xêr hatin ser platforma FranceJustice",
+    "citizen": "Welatî / Xwendekar",
+    "lawyer": "Parêzer / Profesorê Yasayî",
+    "error_email_not_confirmed": "Ji kerema xwe berî têketinê e-peyam û hesabê xwe piştrast bikin."
   },
   "register": {
     "title": "Hesab Biafirîne",
@@ -117,7 +121,27 @@
     "mission": "Demokratîzekirina gihîştina qanûnê ji bo herkesî.",
     "vision_title": "Vîzyona me",
     "values_title": "Nirxên me",
-    "team_title": "Tîma me"
+    "team_title": "Tîma me",
+    "team_role_founder": "Damezrîner û Rêveberê Perwerdehiyê",
+    "team_desc_founder": "Doctorê Yasayê û Mamosteyê Zanîngehê, damezrînerê FranceJustice.",
+    "team_role_legal": "Parêzerê Endamê Baroyê",
+    "team_desc_legal": "Pisporê yasayî yê piştrastkirî ji bo kontrolkirina belgeyan.",
+    "team_role_dev": "Serokê Teknolojiya AI",
+    "team_desc_dev": "Pisporê algorîtma û ewlehiya daneyan.",
+    "why_title": "Çima FranceJustice NGO hilbijêrin?",
+    "why_accessibility": "Gihîştina Hêsan a Mafan",
+    "why_accessibility_desc": "Zanyariyên yasayî yên belaş û piştgiriya pro bono ji bo welatiyan.",
+    "why_efficiency": "Hêza AI ya Serwer",
+    "why_efficiency_desc": "Lêgerîna bilez di hemû yasa û biryarên dadgehan de.",
+    "why_satisfaction": "Ewlehiya Temam û RGPD",
+    "why_satisfaction_desc": "Şîfrekirina WebRTC û paqijkirina daneyan li gorî CNIL.",
+    "mission_detail": "Gihîştina dadperweriyê bi teknolojiya pêşketî û parêzeran hêsan dikin.",
+    "mission_detail2": "Ji hêla Doktorên Yasayê ve tê kontrolkirin.",
+    "discover_services": "Xizmetên Platformê Bibînin",
+    "cta_title": "Tevlî Şoreşa Yasayî Bibe",
+    "cta_subtitle": "Welatî, xwendekar an parêzer bî, FranceJustice ligel te ye.",
+    "cta_register": "Hesabê Welatî/Xwendekar Çêke",
+    "cta_lawyer": "Têketina Parêzer û Profesoran"
   },
   "services": {
     "title": "Xizmetên Me",
@@ -143,11 +167,26 @@
     "success": "Peyam bi serkeftî hat şandin!",
     "phone_title": "Telefon",
     "email_title": "E-posta",
-    "address_title": "Navnîşan"
+    "address_title": "Navnîşan",
+    "subject_placeholder": "Mijarekê hilbijêre (Alîkarî, Pro Bono, Masterclass)",
+    "message_placeholder": "Pirsên xwe yên yasayî vir binivîse...",
+    "sending": "Peyam tê şandin...",
+    "success_desc": "Peyama te gihîşt tîma me. Di nav 24 saetan de bersiv tê dan.",
+    "hours": "Dûşemb-În: 09:00 - 19:00"
   },
   "faq": {
     "title": "Pirsên Pir Tên Pirsîn",
-    "subtitle": "Bersivên pirsên xwe bibînin"
+    "subtitle": "Bersivên pirsên xwe bibînin",
+    "q1": "FranceJustice rastiya yasayî çawa biparêze?",
+    "a1": "Hemû algorîtma ji hêla Dr. Imam Çoban û parêzeran ve têne kontrolkirin.",
+    "q2": "Civînên dîtbarî yên parêzeran razî ne?",
+    "a2": "Belê, hemû axaftin li gorî sira pîşeyî (Yasa 1971) têne şîfrekirin.",
+    "q3": "Lêgerîna yasayî belaş e?",
+    "a3": "Belê, lêgerîna bingehîn di çarçoveya pro bono de 100% belaş e.",
+    "q4": "Ez çawa dikarim bawernameyê bistînim?",
+    "a4": "Tevlî polên me yên virtual bibe û azmûnan derbas bike.",
+    "q5": "Daneyên min ewle ne?",
+    "a5": "Belê, em şîfrekirina TLS 1.3 û AES-256 bi kar tînin."
   },
   "search": {
     "title": "Lêgerîna Hiqûqî",
@@ -172,13 +211,36 @@
     "contact_btn": "Têkilî",
     "verified": "Piştrastkirî",
     "no_results": "Parêzer nehatin dîtin.",
-    "filters": "Parzûn"
+    "filters": "Parzûn",
+    "hero_title": "Rêbernameya Fermî ya Parêzeran",
+    "hero_subtitle": "Parêzerên piştrastkirî yên baroyê bibîne.",
+    "no_results_hint": "Bajar an cihê lêgerînê biguherîne.",
+    "location_filters": "Fîlterên Cih û Baroyê",
+    "region": "Herêm",
+    "all_regions": "Hemû Herêm",
+    "bar_association": "Baro",
+    "all_barreaux": "Hemû Baro",
+    "city": "Bajarê Ofîsê",
+    "all_cities": "Hemû Bajar",
+    "reset_filters": "Fîlteran Nû Bike",
+    "available": "Ji bo Şêwirmendiyê Amade ye",
+    "unavailable": "Naha Mijûl e",
+    "default_title": "Parêzerê Dadgehê",
+    "default_bio": "Pisporê yasayî yê amade ji bo alîkariya welatî û parparaniyan.",
+    "barreau_of": "Baroya",
+    "book_appointment": "Dîdarê Çêke",
+    "load_more": "Parêzerên Zêdetir Bîne",
+    "cta_title": "Tû Parêzer an Profesor î?",
+    "cta_subtitle": "Tevlî platforma FranceJustice bibe û dersan bide.",
+    "cta_btn": "Wekî Parêzer Qeyd Bibe"
   },
   "news": {
     "title": "Nûçeyên Hiqûqî",
     "subtitle": "Ji geşedanên herî dawî yên qanûnê agahdar bibin",
     "read_more": "Zêdetir bixwîne",
-    "published": "Dîroka weşanê"
+    "published": "Dîroka weşanê",
+    "by": "Hat weşandin ji hêla",
+    "no_results": "Nûçeyên yasayî nehatin dîtin."
   },
   "classrooms": {
     "title": "Qada Perwerdeyê",
@@ -226,7 +288,10 @@
     "back_login": "Vegere têketinê",
     "new_password": "Şîfreya nû",
     "confirm": "Piştrast bike",
-    "update": "Rojanekirin"
+    "update": "Rojanekirin",
+    "email_sent_title": "Lînk Hat Şandin",
+    "email_sent_desc": "Lînka guhartina şîfreyê ji e-peyama te re hat şandin.",
+    "check_inbox": "Ji kerema xwe e-peyama xwe kontrol bike."
   },
   "dashboard": {
     "title": "Panela Kontrolê",
@@ -358,9 +423,7 @@
     "city": "Bajar",
     "postal_code": "Koda Posteyê",
     "birth_date": "Dîroka ji dayikbûnê",
-    "my_lawyers": "Parêzerên min",
-    "email": "E-posta",
-    "phone": "Telefon"
+    "ia_analysis": "Analîza Dosyeyan bi AI"
   },
   "lawyer_dashboard": {
     "title": "Panela Parêzer",
@@ -467,5 +530,14 @@
   "guide": {
     "title": "Rênîşanderê Pratîk",
     "subtitle": "Her tiştê ku hûn hewce ne bizanibin da ku mafên xwe biparêzin"
+  },
+  "academic": {
+    "student_title": "Cihê Xwendekarên Yasayê",
+    "professor_title": "Cihê Profesorên Zanîngehê",
+    "doctorate_title": "Kontrola Doktorên Yasayê",
+    "upload_pdf": "Belgeya Dersê PDF Bar Bike",
+    "download_pdf": "Bawernameyê PDF Daîne",
+    "pdf_attached": "Materyalê Dersê PDF Hat Zêdekirin",
+    "realtime_sync": "Synkronîzasyona Akademîk Çalak e"
   }
 }

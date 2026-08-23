@@ -121,7 +121,27 @@
     "mission": "Herkes için hukuka erişimi demokratikleştirmek.",
     "vision_title": "Vizyonumuz",
     "values_title": "Değerlerimiz",
-    "team_title": "Ekibimiz"
+    "team_title": "Ekibimiz",
+    "team_role_founder": "Kurucu ve Pedagojik Direktör",
+    "team_desc_founder": "Hukuk Doktoru ve Öğretim Üyesi, FranceJustice STK kurucusu.",
+    "team_role_legal": "Baroya Kayıtlı Avukat",
+    "team_desc_legal": "Hukuki işlemlerin ve görüşme odalarının uygunluğunu denetleyen uzman.",
+    "team_role_dev": "Yapay Zeka ve Teknoloji Mimarı",
+    "team_desc_dev": "Egemen algoritmalar, RLS şifreleme ve hukuki dil modelleri uzmanı.",
+    "why_title": "Neden FranceJustice STK'sını Seçmelisiniz?",
+    "why_accessibility": "Demokratik Hukuk Erişimi",
+    "why_accessibility_desc": "Ücretsiz hukuki bilgi, ihtiyaç sahiplerine pro bono destek ve kolay erişim.",
+    "why_efficiency": "Egemen Yapay Zeka Gücü",
+    "why_efficiency_desc": "Kanunlar, kararnameler ve içtihatlar arasında anında anlamsal arama.",
+    "why_satisfaction": "Mutlak Şifreleme ve KVKK/RGPD",
+    "why_satisfaction_desc": "Row Level Security, uçtan uca WebRTC şifrelemesi ve CNIL uyumlu veri imhası.",
+    "mission_detail": "Son teknoloji ve sertifikalı hukukçularla adalete erişimi kolaylaştırıyoruz.",
+    "mission_detail2": "Akademik mükemmellik için Hukuk Doktorları tarafından denetlenmektedir.",
+    "discover_services": "Ekosistem Hizmetlerini Keşfedin",
+    "cta_title": "Hukuk Devrimine Katılın",
+    "cta_subtitle": "Vatandaş, hukuk öğrencisi veya avukat olun, FranceJustice yanınızda.",
+    "cta_register": "Vatandaş/Öğrenci Hesabı Oluştur",
+    "cta_lawyer": "Avukat/Profesör Girişi"
   },
   "services": {
     "title": "Hizmetlerimiz",
@@ -147,11 +167,26 @@
     "success": "Mesaj başarıyla gönderildi!",
     "phone_title": "Telefon",
     "email_title": "E-posta",
-    "address_title": "Adres"
+    "address_title": "Adres",
+    "subject_placeholder": "Bir konu seçin (Yardım, Pro Bono, Masterclass, Destek)",
+    "message_placeholder": "Hukuki sorunuzu ayrıntılı olarak yazın...",
+    "sending": "Mesaj gönderiliyor...",
+    "success_desc": "Mesajınız STK ekibimize ulaştı. 24 saat içinde yanıt verilecektir.",
+    "hours": "Pzt - Cuma: 09:00 - 19:00 (UTC+1)"
   },
   "faq": {
     "title": "Sıkça Sorulan Sorular",
-    "subtitle": "Sorularınızın cevaplarını bulun"
+    "subtitle": "Sorularınızın cevaplarını bulun",
+    "q1": "FranceJustice STK hukuki doğruluğu nasıl garanti eder?",
+    "a1": "Tüm algoritmalar Dr. Imam Çoban ve baro avukatları tarafından denetlenmektedir.",
+    "q2": "Avukatlarla yapılan görüşmeler gizli midir?",
+    "a2": "Evet, tüm görüntülü görüşmeler avukatlık meslek sırrı kapsamında uçtan uca şifrelenmektedir.",
+    "q3": "Hukuki bilgilere ücretsiz erişebilir miyim?",
+    "a3": "Evet, temel arama ve taslak üretimi pro bono kapsamında %100 ücretsizdir.",
+    "q4": "Sertifika veya diploma nasıl alınır?",
+    "a4": "Profesörlerimiz tarafından yönetilen sanal sınıflara katılın ve çevrimiçi sınavları tamamlayın.",
+    "q5": "Verilerim güvenli bir şekilde saklanıyor mu?",
+    "a5": "Evet, TLS 1.3, AES-256 şifreleme ve CNIL onaylı otomatik veri temizleme kullanıyoruz."
   },
   "search": {
     "title": "Hukuki Arama",
@@ -176,13 +211,36 @@
     "contact_btn": "İletişime geç",
     "verified": "Doğrulanmış",
     "no_results": "Avukat bulunamadı.",
-    "filters": "Filtreler"
+    "filters": "Filtreler",
+    "hero_title": "Resmi Kayıtlı Avukatlar Rehberi",
+    "hero_subtitle": "Barolar ve İstinaf Mahkemeleri tarafından doğrulanmış avukatları bulun.",
+    "no_results_hint": "Arama kriterlerinizi veya şehir seçiminizi değiştirmeyi deneyin.",
+    "location_filters": "Konum ve Baro Filtreleri",
+    "region": "Bölge",
+    "all_regions": "Tüm Bölgeler",
+    "bar_association": "Baro",
+    "all_barreaux": "Tüm Barolar",
+    "city": "Büro Şehri",
+    "all_cities": "Tüm Şehirler",
+    "reset_filters": "Filtreleri Sıfırla",
+    "available": "Görüşmeye Uygun",
+    "unavailable": "Şu An Meşgul",
+    "default_title": "Mahkeme Avukatı",
+    "default_bio": "Vatandaşlara ve şirketlere yüksek etik standartlarda hukuki danışmanlık sunan uzman.",
+    "barreau_of": "Barosu",
+    "book_appointment": "Randevu Al",
+    "load_more": "Daha Fazla Avukat Yükle",
+    "cta_title": "Avukat veya Hukuk Profesörü müsünüz?",
+    "cta_subtitle": "FranceJustice STK platformuna katılarak müvekkil ağınızı büyütün ve ders verin.",
+    "cta_btn": "Avukat Olarak Kaydol"
   },
   "news": {
     "title": "Hukuki Haberler",
     "subtitle": "Hukuktaki en son gelişmelerden haberdar olun",
     "read_more": "Devamını oku",
-    "published": "Yayınlanma tarihi"
+    "published": "Yayınlanma tarihi",
+    "by": "Yayınlayan",
+    "no_results": "Aramanıza uygun mevzuat haberi bulunamadı."
   },
   "classrooms": {
     "title": "Eğitim Alanı",
@@ -230,7 +288,10 @@
     "back_login": "Girişe dön",
     "new_password": "Yeni şifre",
     "confirm": "Onayla",
-    "update": "Güncelle"
+    "update": "Güncelle",
+    "email_sent_title": "Sıfırlama Bağlantısı Gönderildi",
+    "email_sent_desc": "Şifre sıfırlama bağlantısını içeren e-posta gönderildi.",
+    "check_inbox": "Lütfen gelen kutunuzu kontrol edin."
   },
   "dashboard": {
     "title": "Kontrol Paneli",
@@ -362,9 +423,7 @@
     "city": "Şehir",
     "postal_code": "Posta Kodu",
     "birth_date": "Doğum Tarihi",
-    "my_lawyers": "Avukatlarım",
-    "email": "E-posta",
-    "phone": "Telefon"
+    "ia_analysis": "Yapay Zeka ile Dosya Analizi"
   },
   "lawyer_dashboard": {
     "title": "Avukat Kontrol Paneli",
@@ -471,5 +530,14 @@
   "guide": {
     "title": "Pratik Rehber",
     "subtitle": "Haklarınızı savunmak için bilmeniz gereken her şey"
+  },
+  "academic": {
+    "student_title": "Hukuk Öğrencisi Alanı",
+    "professor_title": "Üniversite Profesörü Alanı",
+    "doctorate_title": "Hukuk Doktorları Denetimi",
+    "upload_pdf": "Ders Dokümanı PDF Yükle",
+    "download_pdf": "Onaylı Sertifika PDF İndir",
+    "pdf_attached": "Ders Materyali PDF Eklendi",
+    "realtime_sync": "Canlı Akademik Senkronizasyon Aktif"
   }
 }

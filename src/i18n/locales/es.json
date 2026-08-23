@@ -123,7 +123,25 @@
     "values_title": "Nuestros valores",
     "team_title": "Nuestro equipo",
     "team_role_founder": "Fundador y Doctor en Derecho",
-    "team_desc_founder": "Doctor en Derecho, Fundador de FranceJustice, experto en asistencia jurídica para ciudadanos y abogados."
+    "team_desc_founder": "Doctor en Derecho, Fundador de FranceJustice, experto en asistencia jurídica para ciudadanos y abogados.",
+    "team_role_legal": "Abogado Colegiado",
+    "team_desc_legal": "Profesional certificado que garantiza la conformidad normativa de los actos.",
+    "team_role_dev": "Líder de Arquitectura e IA",
+    "team_desc_dev": "Especialista en algoritmos soberanos, cifrado RLS y modelos de lenguaje legal.",
+    "why_title": "¿Por qué elegir la ONG FranceJustice?",
+    "why_accessibility": "Acceso Democratizado al Derecho",
+    "why_accessibility_desc": "Información jurídica gratuita y consultas pro bono para ciudadanos vulnerables.",
+    "why_efficiency": "Inteligencia Artificial Soberana",
+    "why_efficiency_desc": "Búsqueda semántica inmediata en el 100% de los códigos y jurisprudencia.",
+    "why_satisfaction": "Cifrado Absoluto y RGPD",
+    "why_satisfaction_desc": "Row Level Security, cifrado WebRTC de extremo a extremo y purga CNIL.",
+    "mission_detail": "Democratizar el acceso a la justicia mediante tecnología de vanguardia y juristas certificados.",
+    "mission_detail2": "Supervisado por Doctores en Derecho para garantizar la máxima excelencia académica.",
+    "discover_services": "Descubrir Servicios del Ecosistema",
+    "cta_title": "Únete a la Revolución Jurídica",
+    "cta_subtitle": "Ya seas ciudadano, estudiante de derecho o abogado, FranceJustice te acompaña.",
+    "cta_register": "Crear Cuenta Ciudadano/Estudiante",
+    "cta_lawyer": "Acceso Abogados y Profesores"
   },
   "services": {
     "title": "Nuestros Servicios",
@@ -149,11 +167,26 @@
     "success": "¡Mensaje enviado con éxito!",
     "phone_title": "Teléfono",
     "email_title": "Email",
-    "address_title": "Dirección"
+    "address_title": "Dirección",
+    "subject_placeholder": "Seleccione un asunto (Asistencia, Pro Bono, Masterclass, Soporte)",
+    "message_placeholder": "Escriba los detalles de su consulta jurídica...",
+    "sending": "Enviando mensaje...",
+    "success_desc": "Su mensaje ha sido enviado al equipo de la ONG. Responderemos en 24h.",
+    "hours": "Lun - Vie: 9:00 - 19:00 (UTC+1)"
   },
   "faq": {
     "title": "Preguntas frecuentes",
-    "subtitle": "Encuentre respuestas a sus preguntas"
+    "subtitle": "Encuentre respuestas a sus preguntas",
+    "q1": "¿Cómo garantiza la ONG FranceJustice la precisión legal?",
+    "a1": "Todos los algoritmos están supervisados por el Dr. Imam Çoban y abogados colegiados.",
+    "q2": "¿Las consultas con abogados son confidenciales?",
+    "a2": "Sí, las videollamadas están protegidas por el secreto profesional del abogado (Ley 1971).",
+    "q3": "¿Puedo acceder a la información legal de forma gratuita?",
+    "a3": "Sí, la búsqueda básica y las plantillas son 100% gratuitas en el marco pro bono.",
+    "q4": "¿Cómo obtener un diploma o certificado de masterclass?",
+    "a4": "Inscríbete en nuestras aulas virtuales y completa las evaluaciones en línea.",
+    "q5": "¿Mis datos se guardan de forma segura según el RGPD?",
+    "a5": "Sí, utilizamos cifrado TLS 1.3, AES-256 y calendarios de purga aprobados por la CNIL."
   },
   "search": {
     "title": "Búsqueda jurídica",
@@ -178,13 +211,36 @@
     "contact_btn": "Contactar",
     "verified": "Verificado",
     "no_results": "No se encontraron abogados.",
-    "filters": "Filtros"
+    "filters": "Filtros",
+    "hero_title": "Directorio Oficial de Abogados Afiliados",
+    "hero_subtitle": "Encuentre abogados verificados por los Colegios de Abogados y Tribunales de Apelación.",
+    "no_results_hint": "Intente modificar los criterios de búsqueda o ubicación.",
+    "location_filters": "Filtros de Ubicación y Colegio",
+    "region": "Región",
+    "all_regions": "Todas las Regiones",
+    "bar_association": "Colegio de Abogados",
+    "all_barreaux": "Todos los Colegios",
+    "city": "Ciudad del Despacho",
+    "all_cities": "Todas las Ciudades",
+    "reset_filters": "Restablecer Filtros",
+    "available": "Disponible para Consulta",
+    "unavailable": "Ocupado Actualmente",
+    "default_title": "Abogado de los Tribunales",
+    "default_bio": "Profesional dedicado al servicio del derecho y asesoramiento de ciudadanos y empresas.",
+    "barreau_of": "Colegio de",
+    "book_appointment": "Reservar Cita",
+    "load_more": "Cargar Más Abogados",
+    "cta_title": "¿Eres Abogado o Profesor de Derecho?",
+    "cta_subtitle": "Únete a la plataforma para ampliar tu despacho e impartir clases virtuales.",
+    "cta_btn": "Registrarse como Abogado"
   },
   "news": {
     "title": "Noticias Jurídicas",
     "subtitle": "Manténgase informado sobre las últimas evoluciones del derecho",
     "read_more": "Leer más",
-    "published": "Publicado el"
+    "published": "Publicado el",
+    "by": "Publicado por",
+    "no_results": "No hay noticias legislativas que coincidan con su búsqueda."
   },
   "classrooms": {
     "title": "Centro de Formación",
@@ -232,14 +288,17 @@
     "back_login": "Volver al inicio de sesión",
     "new_password": "Nueva contraseña",
     "confirm": "Confirmar",
-    "update": "Actualizar"
+    "update": "Actualizar",
+    "email_sent_title": "Enlace Enviado",
+    "email_sent_desc": "Se ha enviado un correo electrónico con el enlace de restablecimiento.",
+    "check_inbox": "Revise su bandeja de entrada y siga las instrucciones."
   },
   "dashboard": {
     "title": "Panel de control",
     "welcome": "Bienvenido",
     "my_documents": "Mis documentos",
     "my_quotes": "Mis presupuestos",
-    "my_lawyers": "Mis abogados",
+    "my_lawyers": "Mis Abogados",
     "notifications": "Notificaciones",
     "settings": "Configuración",
     "logout": "Cerrar sesión",
@@ -364,9 +423,7 @@
     "city": "Ciudad",
     "postal_code": "Código Postal",
     "birth_date": "Fecha de nacimiento",
-    "my_lawyers": "Mis Abogados",
-    "email": "Email",
-    "phone": "Teléfono"
+    "ia_analysis": "Análisis de Expedientes por IA"
   },
   "lawyer_dashboard": {
     "title": "Panel del Abogado",
@@ -473,5 +530,14 @@
   "guide": {
     "title": "Guía Práctica",
     "subtitle": "Todo lo que necesita saber para defender sus derechos"
+  },
+  "academic": {
+    "student_title": "Espacio Estudiante de Derecho",
+    "professor_title": "Espacio Profesor Universitario",
+    "doctorate_title": "Supervisión por Doctores en Derecho",
+    "upload_pdf": "Subir Documento de Curso PDF",
+    "download_pdf": "Descargar Certificado PDF",
+    "pdf_attached": "Material PDF Adjunto",
+    "realtime_sync": "Sincronización Académica en Tiempo Real"
   }
 }

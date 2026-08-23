@@ -123,7 +123,25 @@
     "values_title": "Our values",
     "team_title": "Our team",
     "team_role_founder": "Founder & Doctor of Law",
-    "team_desc_founder": "Doctor of Law, Founder of FranceJustice, expert in legal affairs and assistance to citizens and lawyers."
+    "team_desc_founder": "Doctor of Law, Founder of FranceJustice, expert in legal affairs and assistance to citizens and lawyers.",
+    "team_role_legal": "Bar Lawyer Affiliated",
+    "team_desc_legal": "Certified legal practitioner ensuring compliance of models and consultation rooms.",
+    "team_role_dev": "Lead AI & Tech Architect",
+    "team_desc_dev": "Specialist in sovereign algorithms, RLS cryptography, and legal language models.",
+    "why_title": "Why choose FranceJustice NGO?",
+    "why_accessibility": "Democratized Legal Access",
+    "why_accessibility_desc": "Free legal information, pro bono assistance for vulnerable citizens, and accessible law.",
+    "why_efficiency": "Sovereign AI Power",
+    "why_efficiency_desc": "Immediate semantic searching across 100% of codes, decrees, and case law.",
+    "why_satisfaction": "Absolute Encryption & RGPD",
+    "why_satisfaction_desc": "Row Level Security, end-to-end WebRTC encryption, and CNIL compliant data purge.",
+    "mission_detail": "Democratize access to law through cutting-edge sovereign technology and certified legal practitioners.",
+    "mission_detail2": "Supervised by Doctors of Law to ensure academic excellence and legal accuracy.",
+    "discover_services": "Discover Ecosystem Services",
+    "cta_title": "Join the Legal Revolution",
+    "cta_subtitle": "Whether you are a citizen, law student, or lawyer, FranceJustice supports you.",
+    "cta_register": "Create Citizen/Student Account",
+    "cta_lawyer": "Lawyer/Professor Access"
   },
   "services": {
     "title": "Our Services",
@@ -149,11 +167,26 @@
     "success": "Message sent successfully!",
     "phone_title": "Phone",
     "email_title": "Email",
-    "address_title": "Address"
+    "address_title": "Address",
+    "subject_placeholder": "Select a topic (Assistance, Pro Bono, Masterclass, Support)",
+    "message_placeholder": "Describe your legal query or message in detail...",
+    "sending": "Sending message...",
+    "success_desc": "Your message has been sent to our NGO team. A reply will be sent within 24 hours.",
+    "hours": "Mon - Fri: 9am - 7pm (UTC+1)"
   },
   "faq": {
     "title": "Frequently asked questions",
-    "subtitle": "Find answers to your questions"
+    "subtitle": "Find answers to your questions",
+    "q1": "How does FranceJustice NGO ensure legal accuracy?",
+    "a1": "All algorithms and templates are supervised by Dr. Imam Çoban (Doctor of Law) and CNB certified lawyers.",
+    "q2": "Are consultations with lawyers confidential?",
+    "a2": "Yes, all videoconferences and messages are end-to-end encrypted under attorney-client privilege (Loi 1971).",
+    "q3": "Can I access legal information for free?",
+    "a3": "Absolutely. Essential legal search and basic document templates are 100% free under our NGO pro bono mission.",
+    "q4": "How do I get a certified diploma or masterclass certificate?",
+    "a4": "Enroll in our virtual classrooms directed by law university professors and pass the validated online assessments.",
+    "q5": "Is my data stored securely according to RGPD?",
+    "a5": "Yes, we use PostgreSQL TLS 1.3, AES-256 encryption, and automatic CNIL retention purge schedules."
   },
   "search": {
     "title": "Legal Search",
@@ -178,13 +211,36 @@
     "contact_btn": "Contact",
     "verified": "Verified",
     "no_results": "No lawyers found.",
-    "filters": "Filters"
+    "filters": "Filters",
+    "hero_title": "Official Directory of Affiliated Lawyers",
+    "hero_subtitle": "Find certified lawyers verified by National Bar Councils and Courts of Appeal.",
+    "no_results_hint": "Try modifying your location or specialty search criteria.",
+    "location_filters": "Location & Bar Filters",
+    "region": "Region",
+    "all_regions": "All Regions",
+    "bar_association": "Bar Association",
+    "all_barreaux": "All Bars",
+    "city": "City of Office",
+    "all_cities": "All Cities",
+    "reset_filters": "Reset Filters",
+    "available": "Available for Consultation",
+    "unavailable": "Currently Busy",
+    "default_title": "Court Lawyer",
+    "default_bio": "Dedicated legal practitioner committed to advising citizens and businesses with high ethical standards.",
+    "barreau_of": "Bar of",
+    "book_appointment": "Book Appointment",
+    "load_more": "Load More Lawyers",
+    "cta_title": "Are you a Lawyer or Law Professor?",
+    "cta_subtitle": "Join the FranceJustice NGO platform to expand your practice and teach in virtual masterclasses.",
+    "cta_btn": "Register as Lawyer"
   },
   "news": {
     "title": "Legal News",
     "subtitle": "Stay informed about the latest developments in law",
     "read_more": "Read more",
-    "published": "Published on"
+    "published": "Published on",
+    "by": "Published by",
+    "no_results": "No legislative news matches your query."
   },
   "classrooms": {
     "title": "Training Center",
@@ -232,14 +288,17 @@
     "back_login": "Back to login",
     "new_password": "New password",
     "confirm": "Confirm",
-    "update": "Update"
+    "update": "Update",
+    "email_sent_title": "Reset Link Sent",
+    "email_sent_desc": "An email containing your password reset link has been dispatched.",
+    "check_inbox": "Please check your inbox and follow the instructions."
   },
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome",
     "my_documents": "My documents",
     "my_quotes": "My quotes",
-    "my_lawyers": "My lawyers",
+    "my_lawyers": "My Lawyers",
     "notifications": "Notifications",
     "settings": "Settings",
     "logout": "Logout",
@@ -330,10 +389,10 @@
     "doc_name": "Document name",
     "doc_name_placeholder": "Ex: ID Card, Lease Agreement...",
     "doc_type": "Classification / Type",
-    "doc_identity": "\uD83E\uDEAA Identity document",
-    "doc_license": "\uD83D\uDCDC License / Diploma",
-    "doc_template": "\uD83D\uDCDD Document template",
-    "doc_client": "\uD83D\uDCC1 Case file / Supporting document",
+    "doc_identity": "🪪 Identity document",
+    "doc_license": "📜 License / Diploma",
+    "doc_template": "📝 Document template",
+    "doc_client": "📁 Case file / Supporting document",
     "save_to_safe": "Save to safe",
     "doc_generator_title": "Legal Document Generator",
     "quotes_title": "My Quotes & Fees",
@@ -356,7 +415,7 @@
     "no_active_chats": "No active discussions.",
     "select_lawyer_to_chat": "Select a lawyer to chat",
     "weekly_activity": "Weekly Activity",
-    "module_completed": "Module Completed \uD83C\uDF93",
+    "module_completed": "Module Completed 🎓",
     "congrats": "Congratulations, you have validated the module",
     "validate_module": "Validate the module",
     "status_confirmed": "Confirmed",
@@ -364,10 +423,7 @@
     "time": "Time",
     "city": "City",
     "postal_code": "Postal code",
-    "birth_date": "Date of birth",
-    "my_lawyers": "My Lawyers",
-    "email": "Email",
-    "phone": "Phone"
+    "birth_date": "Date of birth"
   },
   "lawyer_dashboard": {
     "title": "Lawyer Dashboard",
@@ -427,7 +483,10 @@
     "system_health": "System Health",
     "platform_activity": "Platform activity",
     "activity_desc": "Evolution of registrations and activities",
-    "role_distribution": "Role distribution"
+    "role_distribution": "Role distribution",
+    "delete_user": "Supprimer",
+    "create_user": "Créer utilisateur",
+    "statistics": "Statistiques"
   },
   "cookie_consent": {
     "text": "We use cookies to improve your experience.",
@@ -473,5 +532,14 @@
   "guide": {
     "title": "Practical Guide",
     "subtitle": "Everything you need to know to defend your rights"
+  },
+  "academic": {
+    "student_title": "Law Student Space",
+    "professor_title": "University Professor Space",
+    "doctorate_title": "Doctor of Law Supervision",
+    "upload_pdf": "Upload PDF Course Document",
+    "download_pdf": "Download Certified PDF",
+    "pdf_attached": "PDF Course Material Attached",
+    "realtime_sync": "Realtime Academic Sync Active"
   }
 }
