@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from '../../i18n';
 
 export interface PlanningEvent {
   id: string;
@@ -36,6 +37,7 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
   onAddEventClick
 }) => {
   const { user: _user } = useAuth();
+  const { t } = useTranslation();
   const [viewType, setViewType] = useState<'year' | 'month' | 'week'>('month');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'formation' | 'actualite' | 'programme'>('all');
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());

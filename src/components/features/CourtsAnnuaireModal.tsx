@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Building2, UserCheck, Mail, Phone, MapPin, Search, X, Award } from 'lucide-react';
 import { COURS_D_APPEL_LIST } from '../../lib/jurisdictions';
+import { useTranslation } from '../../i18n';
 
 interface CourtsAnnuaireModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface CourtsAnnuaireModalProps {
 }
 
 export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
 

@@ -523,15 +523,15 @@ const Database: React.FC = () => {
 
             <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
               <span className="text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.4)]">
-                Base de Données Juridique
+                {t('database.title_part1', 'Base de Données Juridique')}
               </span>{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-300 drop-shadow-[0_4px_25px_rgba(252,211,77,0.4)]">
-                Mondiale & Synchronisée
+                {t('database.title_part2', 'Mondiale & Synchronisée')}
               </span>
             </h1>
 
             <p className="text-slate-300 text-base md:text-lg leading-relaxed">
-              Consultez et recherchez en temps réel parmi les codes de loi officiels, traités internationaux, jurisprudence de la Cour de Cassation, du Conseil d&apos;État, de la CJUE, de la CEDH et de l&apos;ONU.
+              {t('database.subtitle', 'Consultez et recherchez en temps réel parmi les codes de loi officiels, traités internationaux, jurisprudence de la Cour de Cassation, du Conseil d\'État, de la CJUE, de la CEDH et de l\'ONU.')}
             </p>
           </div>
           <Library className="absolute -right-10 -bottom-10 h-72 w-72 text-indigo-500/10 pointer-events-none" />
@@ -545,7 +545,7 @@ const Database: React.FC = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-indigo-400" />
               <input 
                 type="text" 
-                placeholder="Rechercher un texte juridique (Ex: Code Civil, RGPD, Licenciement, Article 1101, CEDH, CISG)..."
+                placeholder={t('database.search_placeholder', 'Rechercher un texte juridique (Ex: Code Civil, RGPD, Licenciement, Article 1101, CEDH, CISG)...')}
                 className="w-full pl-12 pr-4 py-3.5 bg-slate-900 border border-indigo-800/60 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm font-medium transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -566,12 +566,12 @@ const Database: React.FC = () => {
               {isSearchingAI ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Recherche Mondiale en cours...</span>
+                  <span>{t('database.searching_ai', 'Recherche Mondiale en cours...')}</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  <span>Recherche IA Mondiale en Direct</span>
+                  <span>{t('database.btn_search_ai', 'Recherche IA Mondiale en Direct')}</span>
                 </>
               )}
             </Button>
@@ -586,8 +586,8 @@ const Database: React.FC = () => {
             >
               <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold">⚠️ Filtre de conformité juridique actif : </span>
-                Seules les requêtes portant strictement sur le droit (textes de loi, jurisprudence, directives, arrêtés, articles de code ou traités internationaux) sont autorisées et traitées par le système.
+                <span className="font-bold">⚠️ {t('database.guardrail_title', 'Filtre de conformité juridique actif :')} </span>
+                {t('database.guardrail_desc', 'Seules les requêtes portant strictly sur le droit (textes de loi, jurisprudence, directives, arrêtés, articles de code ou traités internationaux) sont autorisées et traitées par le système.')}
               </div>
             </motion.div>
           )}
@@ -597,39 +597,39 @@ const Database: React.FC = () => {
             {/* Country / Scope */}
             <div className="flex items-center gap-2 bg-slate-900 px-3 py-2 rounded-xl border border-slate-800">
               <Globe className="w-4 h-4 text-indigo-400" />
-              <span className="text-xs font-semibold text-slate-400">Juridiction :</span>
+              <span className="text-xs font-semibold text-slate-400">{t('database.label_jurisdiction', 'Juridiction :')}</span>
               <select 
                 value={filterCountry} 
                 onChange={(e) => setFilterCountry(e.target.value)}
                 className="bg-transparent text-white text-xs font-bold border-none focus:outline-none cursor-pointer"
               >
-                <option value="Tous" className="bg-slate-900 text-white">Toutes (Monde & Europe)</option>
-                <option value="France" className="bg-slate-900 text-white">🇫🇷 France (Légifrance)</option>
-                <option value="Union Européenne" className="bg-slate-900 text-white">🇪🇺 Union Européenne (EUR-Lex / CEDH)</option>
-                <option value="International & Mondial" className="bg-slate-900 text-white">🌐 International & Mondial (ONU / US Code)</option>
-                <option value="Maroc & Maghreb" className="bg-slate-900 text-white">🇲🇦 Maroc & Maghreb (DOC)</option>
+                <option value="Tous" className="bg-slate-900 text-white">{t('database.opt_all_countries', 'Toutes (Monde & Europe)')}</option>
+                <option value="France" className="bg-slate-900 text-white">🇫🇷 {t('database.opt_france', 'France (Légifrance)')}</option>
+                <option value="Union Européenne" className="bg-slate-900 text-white">🇪🇺 {t('database.opt_eu', 'Union Européenne (EUR-Lex / CEDH)')}</option>
+                <option value="International & Mondial" className="bg-slate-900 text-white">🌐 {t('database.opt_intl', 'International & Mondial (ONU / US Code)')}</option>
+                <option value="Maroc & Maghreb" className="bg-slate-900 text-white">🇲🇦 {t('database.opt_maroc', 'Maroc & Maghreb (DOC)')}</option>
               </select>
             </div>
 
             {/* Category */}
             <div className="flex items-center gap-2 bg-slate-900 px-3 py-2 rounded-xl border border-slate-800">
               <Filter className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-semibold text-slate-400">Type de texte :</span>
+              <span className="text-xs font-semibold text-slate-400">{t('database.label_type', 'Type de texte :')}</span>
               <select 
                 value={filterCategory} 
                 onChange={(e) => setFilterCategory(e.target.value)}
                 className="bg-transparent text-white text-xs font-bold border-none focus:outline-none cursor-pointer"
               >
-                <option value="Tous" className="bg-slate-900 text-white">Tous les types</option>
-                <option value="Codes & Lois" className="bg-slate-900 text-white">Codes & Lois</option>
-                <option value="Jurisprudence & Arrêts" className="bg-slate-900 text-white">Jurisprudence & Arrêts</option>
-                <option value="Directives & Traités" className="bg-slate-900 text-white">Directives & Traités</option>
-                <option value="Décrets & Arrêtés" className="bg-slate-900 text-white">Décrets & Arrêtés</option>
+                <option value="Tous" className="bg-slate-900 text-white">{t('database.opt_all_types', 'Tous les types')}</option>
+                <option value="Codes & Lois" className="bg-slate-900 text-white">{t('database.opt_codes', 'Codes & Lois')}</option>
+                <option value="Jurisprudence & Arrêts" className="bg-slate-900 text-white">{t('database.opt_jurisprudence', 'Jurisprudence & Arrêts')}</option>
+                <option value="Directives & Traités" className="bg-slate-900 text-white">{t('database.opt_directives', 'Directives & Traités')}</option>
+                <option value="Décrets & Arrêtés" className="bg-slate-900 text-white">{t('database.opt_decrets', 'Décrets & Arrêtés')}</option>
               </select>
             </div>
 
             <div className="ml-auto text-xs text-slate-400 font-semibold">
-              {filteredDocs.length} texte(s) juridique(s) disponible(s)
+              {filteredDocs.length} {t('database.count_label', 'texte(s) juridique(s) disponible(s)')}
             </div>
           </div>
         </div>

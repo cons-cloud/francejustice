@@ -7,6 +7,7 @@ import {
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { generatePDF } from '../../lib/pdfUtils';
+import { useTranslation } from '../../i18n';
 
 export interface ScientificReview {
   id: string;
