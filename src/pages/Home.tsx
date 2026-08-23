@@ -229,10 +229,10 @@ const Home: React.FC = () => {
       const { count: docsCount } = await supabase.from('documents_just').select('*', { count: 'exact', head: true });
       
       setStats([
-        { number: '1,500+', label: 'Publications & Textes' },
-        { number: `${(usersCount || 0) + 1200}+`, label: 'Membres & Étudiants' },
-        { number: `${(lawyersCount || 0) + 350}+`, label: 'Avocats & Enseignants' },
-        { number: `${(docsCount || 0) + 4800}+`, label: 'Actes & Contrats Générés' },
+        { number: '1,500+', label: t('home.stats_articles', 'Publications & Textes') },
+        { number: `${(usersCount || 0) + 1200}+`, label: t('home.stats_users', 'Membres & Étudiants') },
+        { number: `${(lawyersCount || 0) + 350}+`, label: t('home.stats_lawyers', 'Avocats & Enseignants') },
+        { number: `${(docsCount || 0) + 4800}+`, label: t('home.stats_documents', 'Actes & Contrats Générés') },
       ]);
     } catch (e) {
       console.error(e);
@@ -391,7 +391,7 @@ const Home: React.FC = () => {
             className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 border border-white/20 text-[11px] sm:text-sm font-bold text-amber-300 backdrop-blur-md shadow-lg max-w-full text-balance"
           >
             <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0 animate-spin" />
-            <span>Plateforme Nationale 100% Synchronisée en Temps Réel • Visioconférences & IA 2026</span>
+            <span>{t('home.hero_badge', 'Plateforme Nationale 100% Synchronisée en Temps Réel • Visioconférences & IA 2026')}</span>
           </motion.div>
 
           <motion.h1
@@ -401,14 +401,14 @@ const Home: React.FC = () => {
             className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-balance font-sans drop-shadow-xl"
           >
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-400 drop-shadow-[0_4px_25px_rgba(59,130,246,0.6)]">
-              La Justice Numérique de Demain,
+              {t('home.hero_title_part1', 'La Justice Numérique de Demain,')}
             </span>{' '}
             <br className="hidden sm:inline" />
             <span className="text-white drop-shadow-[0_4px_25px_rgba(255,255,255,0.8)]">
-              Accessible à Tous les{' '}
+              {t('home.hero_title_part2', 'Accessible à Tous les ')}
             </span>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-red-500 to-red-600 drop-shadow-[0_4px_25px_rgba(239,68,68,0.7)]">
-              Citoyens & Avocats
+              {t('home.hero_title_part3', 'Citoyens & Avocats')}
             </span>
           </motion.h1>
 
@@ -418,11 +418,11 @@ const Home: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-base sm:text-xl md:text-2xl text-white font-extrabold max-w-5xl mx-auto leading-relaxed px-6 py-4 bg-slate-900/90 rounded-2xl border-2 border-indigo-500/60 shadow-[0_0_30px_rgba(99,102,241,0.4)] backdrop-blur-md text-center"
           >
-            <span className="text-cyan-300 font-black">Assistant IA Génia 2026</span> •{' '}
-            <span className="text-emerald-300 font-black">Visioconférences sécurisées en direct</span> •{' '}
-            <span className="text-indigo-300 font-black">Salles de classe virtuelles</span> •{' '}
-            <span className="text-amber-300 font-black">Planning Annuel national</span> •{' '}
-            <span className="text-rose-300 font-black">Centre d'Études Doctrinales & Revues Scientifiques</span> en temps réel.
+            <span className="text-cyan-300 font-black">{t('home.hero_sub1', 'Assistant IA Génia 2026')}</span> •{' '}
+            <span className="text-emerald-300 font-black">{t('home.hero_sub2', 'Visioconférences sécurisées en direct')}</span> •{' '}
+            <span className="text-indigo-300 font-black">{t('home.hero_sub3', 'Salles de classe virtuelles')}</span> •{' '}
+            <span className="text-amber-300 font-black">{t('home.hero_sub4', 'Planning Annuel national')}</span> •{' '}
+            <span className="text-rose-300 font-black">{t('home.hero_sub5', 'Centre d\'Études Doctrinales & Revues Scientifiques')}</span> {t('home.hero_sub6', 'en temps réel.')}
           </motion.p>
 
           <motion.div
@@ -436,7 +436,7 @@ const Home: React.FC = () => {
               className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white shadow-2xl shadow-primary-500/40 transition-all hover:scale-105 active:scale-95 font-black justify-center"
               onClick={() => navigate('/register')}
             >
-              Créer mon Compte Citoyen
+              {t('home.btn_create_account', 'Créer mon Compte Citoyen')}
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
 
@@ -446,7 +446,7 @@ const Home: React.FC = () => {
               className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl border-emerald-400/40 text-emerald-300 bg-emerald-950/30 hover:bg-emerald-900/50 backdrop-blur-md transition-all hover:scale-105 active:scale-95 font-bold justify-center"
               onClick={() => navigate('/login')}
             >
-              Espace Avocat au Barreau
+              {t('home.btn_lawyer_space', 'Espace Avocat au Barreau')}
             </Button>
 
             <Button
@@ -455,7 +455,7 @@ const Home: React.FC = () => {
               className="w-full sm:w-auto text-sm sm:text-lg px-5 sm:px-6 py-4 sm:py-6 rounded-2xl text-cyan-300 hover:bg-white/10 font-semibold justify-center"
               onClick={() => navigate('/classrooms')}
             >
-              <Video className="w-5 h-5 mr-2 text-cyan-400 shrink-0" /> Salles de Classe & Visio en Direct
+              <Video className="w-5 h-5 mr-2 text-cyan-400 shrink-0" /> {t('home.btn_live_rooms', 'Salles de Classe & Visio en Direct')}
             </Button>
           </motion.div>
 
@@ -498,20 +498,20 @@ const Home: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-800 pb-6">
             <div className="space-y-3 max-w-2xl">
               <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-4 py-1.5 rounded-full border border-cyan-500/20 inline-flex items-center gap-1.5">
-                <BookOpen className="w-4 h-4 text-cyan-400" /> Formations Juridiques Inscrites
+                <BookOpen className="w-4 h-4 text-cyan-400" /> {t('home.section_classrooms_badge', 'Formations Juridiques Inscrites')}
               </span>
               <h2 className="text-3xl md:text-5xl font-black tracking-tight">
-                Les Formations & Salles de Classe Virtuelles
+                {t('home.section_classrooms_title', 'Les Formations & Salles de Classe Virtuelles')}
               </h2>
               <p className="text-sm md:text-base text-slate-300">
-                Suivez en direct ou en replay les masterclasses dispensées par les avocats au barreau, professeurs de droit et juristes experts.
+                {t('home.section_classrooms_desc', 'Suivez en direct ou en replay les masterclasses dispensées par les avocats au barreau, professeurs de droit et juristes experts.')}
               </p>
             </div>
             <Button
               onClick={() => navigate('/classrooms')}
               className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-lg shadow-cyan-600/20"
             >
-              Voir Toutes les Formations ({featuredClassrooms.length}+)
+              {t('home.btn_all_classrooms', 'Voir Toutes les Formations')} ({featuredClassrooms.length}+)
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
@@ -525,15 +525,15 @@ const Home: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-lg border border-cyan-800/40">
-                      {cls.category || 'Formation Juridique'}
+                      {cls.category ? t(`classrooms.cat_${cls.category}`, cls.category) : t('classrooms.default_cat', 'Formation Juridique')}
                     </span>
                     {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? (
                       <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
-                        <FileText className="w-3 h-3 text-indigo-400" /> Diplôme Texte & PDF
+                        <FileText className="w-3 h-3 text-indigo-400" /> {t('classrooms.diploma_pdf', 'Diplôme Texte & PDF')}
                       </span>
                     ) : (
                       <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                        <Video className="w-3 h-3 text-emerald-400" /> {cls.type === 'direct' ? 'Live HD' : 'Replay'}
+                        <Video className="w-3 h-3 text-emerald-400" /> {cls.type === 'direct' ? t('classrooms.live_hd', 'Live HD') : t('classrooms.replay', 'Replay')}
                       </span>
                     )}
                   </div>
@@ -543,7 +543,7 @@ const Home: React.FC = () => {
                   </h3>
 
                   <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed">
-                    {cls.description || 'Formation complète sur les textes de loi et la jurisprudence récente.'}
+                    {cls.description || t('classrooms.default_desc', 'Formation complète sur les textes de loi et la jurisprudence récente.')}
                   </p>
                 </div>
 
@@ -551,7 +551,7 @@ const Home: React.FC = () => {
                   <div className="flex items-center justify-between text-xs text-slate-400">
                     <span className="flex items-center gap-1 font-semibold text-slate-200 truncate">
                       <UserCheck className="w-3.5 h-3.5 text-cyan-400 shrink-0" /> 
-                      {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? 'Formation Diplômante Officielle' : cls.lawyer_first_name ? `${cls.lawyer_first_name} ${cls.lawyer_last_name}` : 'Professeur de Droit'}
+                      {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? t('classrooms.official_diploma', 'Formation Diplômante Officielle') : cls.lawyer_first_name ? `${cls.lawyer_first_name} ${cls.lawyer_last_name}` : t('classrooms.law_prof', 'Professeur de Droit')}
                     </span>
                     {!((cls as any).is_pdf_formation || cls.id.startsWith('fede-')) && cls.duration_minutes > 0 && (
                       <span className="flex items-center gap-1 shrink-0">
@@ -564,7 +564,7 @@ const Home: React.FC = () => {
                     onClick={() => navigate(`/classrooms?formation=${cls.id}`)}
                     className="w-full bg-slate-700 hover:bg-cyan-600 text-white font-bold py-2.5 text-xs rounded-xl transition-all"
                   >
-                    {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? '📖 Lire le Contenu' : 'Accéder à la Salle de Classe'}
+                    {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? t('classrooms.btn_read', '📖 Lire le Contenu') : t('classrooms.btn_access', 'Accéder à la Salle de Classe')}
                   </Button>
                 </div>
               </div>
@@ -579,13 +579,13 @@ const Home: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-6">
             <div className="space-y-3 max-w-2xl">
               <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-700 bg-indigo-100 px-4 py-1.5 rounded-full border border-indigo-200 inline-flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-indigo-600" /> Annuaire Officiel des Barreaux
+                <Users className="w-4 h-4 text-indigo-600" /> {t('home.section_lawyers_badge', 'Annuaire Officiel des Barreaux')}
               </span>
               <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-                Les Avocats & Juristes inscrits sur la Plateforme
+                {t('home.section_lawyers_title', 'Les Avocats & Juristes inscrits sur la Plateforme')}
               </h2>
               <p className="text-sm md:text-base text-slate-600">
-                Consultez les profils certifiés des avocats au barreau, vérifiez leurs spécialités et réservez votre consultation en visioconférence direct.
+                {t('home.section_lawyers_desc', 'Consultez les profils certifiés des avocats au barreau, vérifiez leurs spécialités et réservez votre consultation en visioconférence direct.')}
               </p>
             </div>
             <Button
@@ -656,20 +656,20 @@ const Home: React.FC = () => {
               <span className="text-xs font-black uppercase tracking-widest text-emerald-400 bg-emerald-950/80 px-4 py-1.5 rounded-full border border-emerald-800/80 inline-flex items-center gap-2">
                 <Newspaper className="w-4 h-4 text-emerald-400" />
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                Fil d'Actualité Direct & Législation 2026
+                {t('home.news_badge', 'Fil d\'Actualité Direct & Législation 2026')}
               </span>
               <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
-                Toutes les Nouvelles Actualités Juridiques
+                {t('home.news_title', 'Toutes les Nouvelles Actualités Juridiques')}
               </h2>
               <p className="text-base text-slate-200 leading-relaxed font-medium">
-                Suivez l'évolution en temps réel du droit français et européen : décrets au JORF, nouvelles jurisprudences de la Cour de Cassation, AI Act UE 2024/1689 et publications scientifiques.
+                {t('home.news_desc', 'Suivez l\'évolution en temps réel du droit français et européen : décrets au JORF, nouvelles jurisprudences de la Cour de Cassation, AI Act UE 2024/1689 et publications scientifiques.')}
               </p>
             </div>
             <Button
               onClick={() => navigate('/news')}
               className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-black px-8 py-4 rounded-2xl shadow-xl flex items-center gap-2.5 self-start md:self-auto transition-all hover:scale-105"
             >
-              Consulter Toutes les Actualités
+              {t('home.btn_all_news', 'Consulter Toutes les Actualités')}
               <ArrowRight className="w-5 h-5" />
             </Button>
           </div>
@@ -680,18 +680,18 @@ const Home: React.FC = () => {
               <div className="space-y-5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="bg-indigo-950 text-indigo-300 px-3.5 py-1 rounded-full font-black border border-indigo-700/60">
-                    RGPD & Numérique
+                    {t('news.cat_rgpd', 'RGPD & Numérique')}
                   </span>
-                  <span className="text-slate-200 font-bold">Union Européenne</span>
+                  <span className="text-slate-200 font-bold">{t('news.country_eu', 'Union Européenne')}</span>
                 </div>
                 <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors leading-snug">
-                  Entrée en vigueur des premières obligations de l'AI Act européen (Règlement UE 2024/1689)
+                  {t('news.n1_title', 'Entrée en vigueur des premières obligations de l\'AI Act européen (Règlement UE 2024/1689)')}
                 </h3>
                 <p className="text-xs text-slate-100 leading-relaxed line-clamp-4 font-medium">
-                  L'UE déploie son cadre juridique historique encadrant l'IA générative et les systèmes à haut risque. Cartographie des risques, audits de conformité et sanctions financières obligatoires.
+                  {t('news.n1_summary', 'L\'UE déploie son cadre juridique historique encadrant l\'IA générative et les systèmes à haut risque. Cartographie des risques, audits de conformité et sanctions financières obligatoires.')}
                 </p>
                 <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-emerald-300 font-bold">
-                  ⚡ Impact : Audits & Conformité IA obligatoire
+                  {t('news.n1_impact', '⚡ Impact : Audits & Conformité IA obligatoire')}
                 </div>
               </div>
               <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
@@ -700,7 +700,7 @@ const Home: React.FC = () => {
                   onClick={() => navigate('/news')}
                   className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
                 >
-                  Lire l'Article <ArrowRight className="w-3.5 h-3.5" />
+                  {t('news.btn_read_article', 'Lire l\'Article')} <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
@@ -710,18 +710,18 @@ const Home: React.FC = () => {
               <div className="space-y-5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="bg-emerald-950 text-emerald-300 px-3.5 py-1 rounded-full font-black border border-emerald-700/60">
-                    Droit du Travail
+                    {t('news.cat_labor', 'Droit du Travail')}
                   </span>
-                  <span className="text-slate-200 font-bold">France</span>
+                  <span className="text-slate-200 font-bold">{t('news.country_fr', 'France')}</span>
                 </div>
                 <h3 className="text-xl font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug">
-                  Cour de Cassation : Acquisition des congés payés pendant l'arrêt maladie
+                  {t('news.n2_title', 'Cour de Cassation : Acquisition des congés payés pendant l\'arrêt maladie')}
                 </h3>
                 <p className="text-xs text-slate-100 leading-relaxed line-clamp-4 font-medium">
-                  La Chambre Sociale confirme le droit pour les salariés d'acquérir des congés payés durant un arrêt maladie ordinaire, en conformité totale avec la Directive UE 2003/88.
+                  {t('news.n2_summary', 'La Chambre Sociale confirme le droit pour les salariés d\'acquérir des congés payés durant un arrêt maladie ordinaire, en conformité totale avec la Directive UE 2003/88.')}
                 </p>
                 <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-emerald-300 font-bold">
-                  ⚖️ Impact : Conformité Législative & RH
+                  {t('news.n2_impact', '⚖️ Impact : Conformité Législative & RH')}
                 </div>
               </div>
               <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
@@ -730,7 +730,7 @@ const Home: React.FC = () => {
                   onClick={() => navigate('/news')}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
                 >
-                  Lire l'Article <ArrowRight className="w-3.5 h-3.5" />
+                  {t('news.btn_read_article', 'Lire l\'Article')} <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
@@ -740,18 +740,18 @@ const Home: React.FC = () => {
               <div className="space-y-5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="bg-amber-950 text-amber-300 px-3.5 py-1 rounded-full font-black border border-amber-700/60">
-                    Droit des Affaires
+                    {t('news.cat_business', 'Droit des Affaires')}
                   </span>
-                  <span className="text-slate-200 font-bold">Europe</span>
+                  <span className="text-slate-200 font-bold">{t('news.country_europe', 'Europe')}</span>
                 </div>
                 <h3 className="text-xl font-bold text-white group-hover:text-amber-300 transition-colors leading-snug">
-                  Directive UE CS3D & Pappers Entreprise : Devoir de Vigilance des Entreprises
+                  {t('news.n3_title', 'Directive UE CS3D & Pappers Entreprise : Devoir de Vigilance des Entreprises')}
                 </h3>
                 <p className="text-xs text-slate-100 leading-relaxed line-clamp-4 font-medium">
-                  Les grandes sociétés doivent identifier et prévenir les atteintes aux droits humains et environnementaux. Publication officielle au BODACC et registres des entreprises.
+                  {t('news.n3_summary', 'Les grandes sociétés doivent identifier et prévenir les atteintes aux droits humains et environnementaux. Publication officielle au BODACC et registres des entreprises.')}
                 </p>
                 <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-amber-300 font-bold">
-                  🏢 Impact : RSE & Transparence Pappers
+                  {t('news.n3_impact', '🏢 Impact : RSE & Transparence Pappers')}
                 </div>
               </div>
               <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
@@ -760,7 +760,7 @@ const Home: React.FC = () => {
                   onClick={() => navigate('/news')}
                   className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
                 >
-                  Lire l'Article <ArrowRight className="w-3.5 h-3.5" />
+                  {t('news.btn_read_article', 'Lire l\'Article')} <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
@@ -773,13 +773,13 @@ const Home: React.FC = () => {
         <div className="container px-4 mx-auto max-w-7xl space-y-12 relative z-10">
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <span className="text-xs font-extrabold uppercase tracking-widest text-amber-300 bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/20 inline-flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" /> Intelligence Artificielle Juridique 2026
+              <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" /> {t('home.genai_badge', 'Intelligence Artificielle Juridique 2026')}
             </span>
             <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white">
-              Les Assistants IA GÉNIA-L à votre Service
+              {t('home.genai_title', 'Les Assistants IA GÉNIA-L à votre Service')}
             </h2>
             <p className="text-sm md:text-base text-slate-300">
-              Profitez des technologies d'IA générative les plus avancées pour répondre à vos questions, analyser vos contrats et éditer des actes légaux.
+              {t('home.genai_desc', 'Profitez des technologies d\'IA générative les plus avancées pour répondre à vos questions, analyser vos contrats et éditer des actes légaux.')}
             </p>
           </div>
 
@@ -827,20 +827,20 @@ const Home: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-300 pb-6">
             <div className="space-y-3 max-w-2xl">
               <span className="text-xs font-extrabold uppercase tracking-widest text-red-700 bg-red-100 px-4 py-1.5 rounded-full border border-red-200 inline-flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4 text-red-600" /> Dépôt de Plaintes & Mises en Demeure Directes
+                <AlertTriangle className="w-4 h-4 text-red-600" /> {t('home.complaints_badge', 'Dépôt de Plaintes & Mises en Demeure Directes')}
               </span>
               <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-                Les Dépôts de Plaintes & Démarches Juridiques
+                {t('home.complaints_title', 'Les Dépôts de Plaintes & Démarches Juridiques')}
               </h2>
               <p className="text-sm md:text-base text-slate-600">
-                Générez directement le dossier de plainte officielle auprès du Procureur de la République ou la saisine prud'homale en quelques clics.
+                {t('home.complaints_desc', 'Générez directement le dossier de plainte officielle auprès du Procureur de la République ou la saisine prud\'homale en quelques clics.')}
               </p>
             </div>
             <Button
               onClick={() => navigate('/generator')}
               className="bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-lg shadow-red-600/20"
             >
-              Générer une Plainte en Direct
+              {t('home.btn_generate_complaint', 'Générer une Plainte en Direct')}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
@@ -880,7 +880,7 @@ const Home: React.FC = () => {
                     onClick={() => navigate(`/generator?type=${c.docType}`)}
                     className="w-full bg-slate-900 hover:bg-red-600 text-white font-bold py-2.5 text-xs rounded-xl transition-all shadow-sm"
                   >
-                    Démarrer la Plainte
+                    {t('home.btn_start_complaint', 'Démarrer la Plainte')}
                   </Button>
                 </div>
               </div>
@@ -894,13 +894,13 @@ const Home: React.FC = () => {
         <div className="container px-4 mx-auto max-w-7xl relative z-10">
           <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
             <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-4 py-1.5 rounded-full border border-indigo-500/20">
-              Une Architecture Complète & Sur-Mesure
+              {t('home.ecosystem_badge', 'Une Architecture Complète & Sur-Mesure')}
             </span>
             <h2 className="text-3xl md:text-5xl font-black tracking-tight">
-              Découvrez les Fonctionnalités de Chaque Espace
+              {t('home.ecosystem_title', 'Découvrez les Fonctionnalités de Chaque Espace')}
             </h2>
             <p className="text-base text-slate-300">
-              Choisissez un rôle ci-dessous pour explorer l'ensemble des modules interactifs synchronisés en temps réel.
+              {t('home.ecosystem_desc', 'Choisissez un rôle ci-dessous pour explorer l\'ensemble des modules interactifs synchronisés en temps réel.')}
             </p>
 
             {/* Role Switcher Tabs */}
@@ -913,7 +913,7 @@ const Home: React.FC = () => {
                     : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
                 }`}
               >
-                👤 Espace Citoyen
+                👤 {t('home.tab_citizen', 'Espace Citoyen')}
               </button>
               <button
                 onClick={() => setActiveTabEcosystem('student')}
@@ -923,7 +923,7 @@ const Home: React.FC = () => {
                     : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
                 }`}
               >
-                🎓 Espace Étudiant en Droit
+                🎓 {t('home.tab_student', 'Espace Étudiant en Droit')}
               </button>
               <button
                 onClick={() => setActiveTabEcosystem('professor')}
@@ -933,7 +933,7 @@ const Home: React.FC = () => {
                     : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
                 }`}
               >
-                👨‍🏫 Espace Professeur
+                👨‍🏫 {t('home.tab_prof', 'Espace Professeur')}
               </button>
               <button
                 onClick={() => setActiveTabEcosystem('doctorate')}
@@ -943,7 +943,7 @@ const Home: React.FC = () => {
                     : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
                 }`}
               >
-                🔬 Espace Doctorant
+                🔬 {t('home.tab_doc', 'Espace Doctorant')}
               </button>
               <button
                 onClick={() => setActiveTabEcosystem('lawyer')}
@@ -953,7 +953,7 @@ const Home: React.FC = () => {
                     : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
                 }`}
               >
-                ⚖️ Espace Avocat
+                ⚖️ {t('home.tab_lawyer', 'Espace Avocat')}
               </button>
             </div>
           </div>

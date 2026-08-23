@@ -8,10 +8,12 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { FRENCH_LEGAL_DATABASE, generateDynamicLegalSearch, type LegalResource } from '../../data/frenchLegalDatabase';
 import { searchPappersEntreprises } from '../../lib/pappersApi';
+import { useTranslation } from '../../i18n';
 
 type SearchTab = 'decisions' | 'ia_question' | 'codes' | 'conventions' | 'bofip_boss' | 'pappers_entreprises';
 
 export const HeroPappersSearch: React.FC = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<SearchTab>('pappers_entreprises');
   const [query, setQuery] = useState('');
   const [exactMatch, setExactMatch] = useState(false);
@@ -195,7 +197,7 @@ export const HeroPappersSearch: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
             <label htmlFor="search-category-select" className="text-xs sm:text-sm font-extrabold text-amber-300 uppercase tracking-wider flex items-center gap-2">
               <Scale className="w-4 h-4 text-amber-400" />
-              <span>Domaine de Recherche :</span>
+              <span>{t('search.domain_label', 'Domaine de Recherche :')}</span>
             </label>
             
             {/* Dropdown Menu List */}
@@ -211,22 +213,22 @@ export const HeroPappersSearch: React.FC = () => {
                 className="w-full bg-slate-950 text-white font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl border-2 border-indigo-500/60 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 appearance-none cursor-pointer shadow-xl transition-all pr-10"
               >
                 <option value="pappers_entreprises" className="bg-slate-900 text-emerald-300 font-bold py-2">
-                  🏢 Justice & Droit des Entreprises, Salariés & Sociétés (Pappers RNE)
+                  {t('search.opt_pappers', '🏢 Justice & Droit des Entreprises, Salariés & Sociétés (Pappers RNE)')}
                 </option>
                 <option value="decisions" className="bg-slate-900 text-amber-300 font-bold py-2">
-                  ⚖️ Décisions & Jurisprudence
+                  {t('search.opt_decisions', '⚖️ Décisions & Jurisprudence')}
                 </option>
                 <option value="ia_question" className="bg-slate-900 text-indigo-300 font-bold py-2">
-                  ✨ Question Juridique IA (GÉNIA-L)
+                  {t('search.opt_ia', '✨ Question Juridique IA (GÉNIA-L)')}
                 </option>
                 <option value="codes" className="bg-slate-900 text-blue-300 font-bold py-2">
-                  📜 Textes de Loi & Codes Officiels
+                  {t('search.opt_codes', '📜 Textes de Loi & Codes Officiels')}
                 </option>
                 <option value="conventions" className="bg-slate-900 text-emerald-300 font-bold py-2">
-                  🤝 Conventions Collectives (IDCC)
+                  {t('search.opt_conventions', '🤝 Conventions Collectives (IDCC)')}
                 </option>
                 <option value="bofip_boss" className="bg-slate-900 text-cyan-300 font-bold py-2">
-                  💼 BOFiP, BOSS & Conventions Fiscales
+                  {t('search.opt_bofip', '💼 BOFiP, BOSS & Conventions Fiscales')}
                 </option>
               </select>
               <ChevronDown className="w-4 h-4 text-amber-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -235,18 +237,18 @@ export const HeroPappersSearch: React.FC = () => {
 
           {/* Quick Indicator Badge */}
           <div className="flex items-center gap-2 self-end sm:self-center">
-            <span className="text-[11px] font-semibold text-slate-400">Base officielle :</span>
+            <span className="text-[11px] font-semibold text-slate-400">{t('search.official_base', 'Base officielle :')}</span>
             <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-200 border border-emerald-500/40 shadow-sm flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              {activeTab === 'pappers_entreprises' && '🏢 Justice & Droit des Entreprises (Pappers RNE Temps Réel)'}
-              {activeTab === 'decisions' && '⚖️ Jurisprudence Française'}
-              {activeTab === 'ia_question' && '✨ IA Juridique 2026'}
-              {activeTab === 'codes' && '📜 Legifrance Codes'}
-              {activeTab === 'conventions' && '🤝 Conventions IDCC'}
-              {activeTab === 'bofip_boss' && '💼 BOFiP & BOSS'}
+              {activeTab === 'pappers_entreprises' && t('search.base_pappers', '🏢 Justice & Droit des Entreprises (Pappers RNE Temps Réel)')}
+              {activeTab === 'decisions' && t('search.base_decisions', '⚖️ Jurisprudence Française')}
+              {activeTab === 'ia_question' && t('search.base_ia', '✨ IA Juridique 2026')}
+              {activeTab === 'codes' && t('search.base_codes', '📜 Legifrance Codes')}
+              {activeTab === 'conventions' && t('search.base_conventions', '🤝 Conventions IDCC')}
+              {activeTab === 'bofip_boss' && t('search.base_bofip', '💼 BOFiP & BOSS')}
             </span>
           </div>
         </div>
@@ -255,7 +257,7 @@ export const HeroPappersSearch: React.FC = () => {
         {activeTab === 'pappers_entreprises' && (
           <div className="flex flex-wrap items-center gap-2 mb-3 px-1">
             <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
-              <Building2 className="w-3.5 h-3.5 text-emerald-400" /> Sociétés populaires :
+              <Building2 className="w-3.5 h-3.5 text-emerald-400" /> {t('search.popular_companies', 'Sociétés populaires :')}
             </span>
             {quickPappersPresets.map((p) => (
               <button
@@ -292,16 +294,16 @@ export const HeroPappersSearch: React.FC = () => {
                 }}
                 placeholder={
                   activeTab === 'pappers_entreprises'
-                    ? 'Rechercher une entreprise, droit des salariés & dirigeants, SIREN, SIRET, RCS (ex: TotalEnergies, 808741870)...'
+                    ? t('search.ph_pappers', 'Rechercher une entreprise, droit des salariés & dirigeants, SIREN, SIRET, RCS (ex: TotalEnergies, 808741870)...')
                     : activeTab === 'decisions' 
-                    ? 'Mot-clé, référence, arrêt, juridiction (ex: "Cour de cassation harcèlement", "22-18.405")...' 
+                    ? t('search.ph_decisions', 'Mot-clé, référence, arrêt, juridiction (ex: "Cour de cassation harcèlement", "22-18.405")...') 
                     : activeTab === 'ia_question'
-                    ? 'Posez votre question en langage naturel (ex: "Quel est le préavis de démission pour un cadre Syntec ?")...'
+                    ? t('search.ph_ia', 'Posez votre question en langage naturel (ex: "Quel est le préavis de démission pour un cadre Syntec ?")...')
                     : activeTab === 'codes'
-                    ? 'Code civil, Code du travail, Article 1240, CGI...'
+                    ? t('search.ph_codes', 'Code civil, Code du travail, Article 1240, CGI...')
                     : activeTab === 'conventions'
-                    ? 'Nom d\'entreprise, IDCC 1486 (Syntec), HCR 1979, Bâtiment...'
-                    : 'BOFiP frais de déplacement, BOSS avantages en nature, Convention fiscale France-Maroc...'
+                    ? t('search.ph_conventions', 'Nom d\'entreprise, IDCC 1486 (Syntec), HCR 1979, Bâtiment...')
+                    : t('search.ph_bofip', 'BOFiP frais de déplacement, BOSS avantages en nature, Convention fiscale France-Maroc...')
                 }
                 className="w-full bg-transparent text-white placeholder:text-slate-400 text-sm sm:text-base outline-none font-medium"
               />
@@ -330,10 +332,10 @@ export const HeroPappersSearch: React.FC = () => {
                     ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' 
                     : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 border border-slate-700'
                 }`}
-                title="Rechercher l'expression exacte"
+                title={t('search.exact_title', 'Rechercher l\'expression exacte')}
               >
                 <span>"..."</span>
-                <span className="hidden sm:inline">Exacte</span>
+                <span className="hidden sm:inline">{t('search.exact', 'Exacte')}</span>
               </button>
 
               {/* Advanced Filters Button */}
@@ -347,7 +349,7 @@ export const HeroPappersSearch: React.FC = () => {
                 }`}
               >
                 <SlidersHorizontal className="w-4 h-4 text-indigo-400" />
-                <span>Recherche avancée</span>
+                <span>{t('search.advanced_btn', 'Recherche avancée')}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
               </button>
 
@@ -362,7 +364,7 @@ export const HeroPappersSearch: React.FC = () => {
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 text-amber-300" />
-                    <span>Rechercher</span>
+                    <span>{t('search.btn_submit', 'Rechercher')}</span>
                   </>
                 )}
               </button>
