@@ -124,7 +124,7 @@ const Services: React.FC = () => {
               {t('services.hero_title_right', 'modernes')}
             </h1>
 
-            <p className="text-xl text-slate-300 mb-10 leading-relaxed font-medium">
+            <p className="text-xl text-slate-100 mb-10 leading-relaxed font-semibold">
               {t('services.hero_subtitle', 'Just-Law combine intelligence artificielle de pointe et expertise humaine pour simplifier l’accès au droit et accélérer vos démarches.')}
             </p>
 

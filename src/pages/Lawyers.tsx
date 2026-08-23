@@ -410,7 +410,7 @@ const LawyersPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <p className="text-slate-400 line-clamp-3 mb-8 min-h-18">
+                    <p className="text-slate-100 font-medium line-clamp-3 mb-8 min-h-18">
                       {lawyer.bio || t('lawyers.default_bio', "Professionnel dévoué au service du droit, spécialisé dans l'assistance et le conseil juridique pour les particuliers et les entreprises.")}
                     </p>
 
@@ -444,7 +444,7 @@ const LawyersPage: React.FC = () => {
               <div className="col-span-full text-center py-20 bg-slate-900 rounded-3xl border border-slate-800 text-slate-100 shadow-xl">
                 <Users className="h-16 w-16 text-slate-600 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-white">{t('lawyers.no_results', 'Aucun avocat trouvé')}</h3>
-                <p className="text-slate-400">{t('lawyers.no_results_hint', 'Essayez de modifier vos critères de recherche.')}</p>
+                <p className="text-slate-200 font-medium">{t('lawyers.no_results_hint', 'Essayez de modifier vos critères de recherche.')}</p>
               </div>
             )}
           </div>

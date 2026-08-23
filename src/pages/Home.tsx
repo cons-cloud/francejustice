@@ -681,12 +681,12 @@ const Home: React.FC = () => {
                   <span className="bg-indigo-950 text-indigo-300 px-3.5 py-1 rounded-full font-black border border-indigo-700/60">
                     RGPD & Numérique
                   </span>
-                  <span className="text-slate-300 font-bold">Union Européenne</span>
+                  <span className="text-slate-200 font-bold">Union Européenne</span>
                 </div>
                 <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors leading-snug">
                   Entrée en vigueur des premières obligations de l'AI Act européen (Règlement UE 2024/1689)
                 </h3>
-                <p className="text-xs text-slate-300 leading-relaxed line-clamp-4 font-medium">
+                <p className="text-xs text-slate-100 leading-relaxed line-clamp-4 font-medium">
                   L'UE déploie son cadre juridique historique encadrant l'IA générative et les systèmes à haut risque. Cartographie des risques, audits de conformité et sanctions financières obligatoires.
                 </p>
                 <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-emerald-300 font-bold">
@@ -694,7 +694,7 @@ const Home: React.FC = () => {
                 </div>
               </div>
               <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
-                <span className="text-slate-400 font-medium">EUR-Lex / CNIL</span>
+                <span className="text-slate-200 font-semibold">EUR-Lex / CNIL</span>
                 <Button 
                   onClick={() => navigate('/news')}
                   className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
@@ -711,12 +711,12 @@ const Home: React.FC = () => {
                   <span className="bg-emerald-950 text-emerald-300 px-3.5 py-1 rounded-full font-black border border-emerald-700/60">
                     Droit du Travail
                   </span>
-                  <span className="text-slate-300 font-bold">France</span>
+                  <span className="text-slate-200 font-bold">France</span>
                 </div>
                 <h3 className="text-xl font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug">
                   Cour de Cassation : Acquisition des congés payés pendant l'arrêt maladie
                 </h3>
-                <p className="text-xs text-slate-300 leading-relaxed line-clamp-4 font-medium">
+                <p className="text-xs text-slate-100 leading-relaxed line-clamp-4 font-medium">
                   La Chambre Sociale confirme le droit pour les salariés d'acquérir des congés payés durant un arrêt maladie ordinaire, en conformité totale avec la Directive UE 2003/88.
                 </p>
                 <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-emerald-300 font-bold">
@@ -724,7 +724,7 @@ const Home: React.FC = () => {
                 </div>
               </div>
               <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
-                <span className="text-slate-400 font-medium">Légifrance</span>
+                <span className="text-slate-200 font-semibold">Légifrance</span>
                 <Button 
                   onClick={() => navigate('/news')}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
@@ -741,12 +741,12 @@ const Home: React.FC = () => {
                   <span className="bg-amber-950 text-amber-300 px-3.5 py-1 rounded-full font-black border border-amber-700/60">
                     Droit des Affaires
                   </span>
-                  <span className="text-slate-300 font-bold">Europe</span>
+                  <span className="text-slate-200 font-bold">Europe</span>
                 </div>
                 <h3 className="text-xl font-bold text-white group-hover:text-amber-300 transition-colors leading-snug">
                   Directive UE CS3D & Pappers Entreprise : Devoir de Vigilance des Entreprises
                 </h3>
-                <p className="text-xs text-slate-300 leading-relaxed line-clamp-4 font-medium">
+                <p className="text-xs text-slate-100 leading-relaxed line-clamp-4 font-medium">
                   Les grandes sociétés doivent identifier et prévenir les atteintes aux droits humains et environnementaux. Publication officielle au BODACC et registres des entreprises.
                 </p>
                 <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-amber-300 font-bold">
@@ -754,7 +754,7 @@ const Home: React.FC = () => {
                 </div>
               </div>
               <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
-                <span className="text-slate-400 font-medium">Journal Officiel UE / BODACC</span>
+                <span className="text-slate-200 font-semibold">Journal Officiel UE / BODACC</span>
                 <Button 
                   onClick={() => navigate('/news')}
                   className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"

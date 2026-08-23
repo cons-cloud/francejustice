@@ -44,7 +44,7 @@ const About: React.FC = () => {
       id: 'ai-legal',
       title: t('about.service_ai_title', 'IA Juridique & GéniaL\'Avocat'),
       category: 'Intelligence Artificielle',
-      description: t('about.service_ai_desc', 'Moteur de recherche intelligent analysant l\'ensemble des 75+ Codes de loi français, la jurisprudence et les textes officiels avec assistant vocal temps réel.'),
+      description: t('about.service_ai_desc', 'Moteur de recherche intelligent analysant 100% du corpus législatif français, la jurisprudence et les textes officiels avec assistant vocal temps réel.'),
       icon: BrainCircuit,
     },
     {
@@ -113,7 +113,7 @@ const About: React.FC = () => {
     {
       id: 'art-3',
       title: 'Article 3 — Secret Professionnel, Secret de l\'Avocat & Déontologie',
-      content: 'Tous les membres, avocats partenaires et juristes affiliés à l\'ONG FranceJustice s\'engagent au respect absolu du secret professionnel (Article 66-5 de la Loi du 31 décembre 1971). Les échanges entre citoyens et avocats sur la plateforme sont strictement chiffrés et protégés contre toute intrusion ou divulgation à des tiers.'
+      content: 'Tous les membres, avocats partenaires et juristes affiliés à l\'ONG FranceJustice s\'engagent au respect absolu du secret professionnel (Article 66-5 de la Loi du 31 décembre 1971). Les échanges entre citoyens et avocats sur la plateforme sont strictly chiffrés et protégés contre toute intrusion ou divulgation à des tiers.'
     },
     {
       id: 'art-4',
@@ -186,15 +186,15 @@ const About: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-950/80 border border-indigo-800/60 text-indigo-300 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
               <HeartHandshake className="w-4 h-4 text-emerald-400" />
-              ONG Internationale d&apos;Accès au Droit &amp; Écosystème IA
+              ONG Internationale d'Accès au Droit & Écosystème IA
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
-              FranceJustice : <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-emerald-400 bg-clip-text text-transparent">L&apos;ONG Juridique Intelligente</span>
+              FranceJustice : <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-emerald-400 bg-clip-text text-transparent">L'ONG Juridique Intelligente</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed font-normal max-w-2xl">
-              FranceJustice (Just-Law) est une <strong>Organisation Non Gouvernementale (ONG)</strong> internationale indépendante dédiée à la démocratisation de la justice, la protection des libertés fondamentales et la formation académique d&apos;excellence supervisée par le <strong>Dr. Imam Çoban</strong>.
+            <p className="text-lg md:text-xl text-slate-100 mb-8 leading-relaxed font-medium max-w-2xl">
+              FranceJustice (Just-Law) est une <strong className="text-amber-300">Organisation Non Gouvernementale (ONG)</strong> internationale indépendante dédiée à la démocratisation de la justice, la protection des libertés fondamentales et la formation académique d'excellence supervisée par le <strong className="text-indigo-300">Dr. Imam Çoban</strong>.
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -207,7 +207,7 @@ const About: React.FC = () => {
               </Button>
               <a 
                 href="#reglement"
-                className="px-8 py-4 rounded-2xl border border-slate-700 bg-slate-900/90 text-slate-200 hover:bg-slate-800 text-base font-bold transition-all inline-flex items-center gap-2"
+                className="px-8 py-4 rounded-2xl border border-slate-700 bg-slate-900/90 text-slate-100 hover:bg-slate-800 text-base font-bold transition-all inline-flex items-center gap-2"
               >
                 <BookMarked className="w-5 h-5 text-amber-400" /> Consulter le Règlement Intérieur
               </a>
@@ -226,36 +226,36 @@ const About: React.FC = () => {
                   <div className="w-3 h-3 rounded-full bg-red-500" />
                   <div className="w-3 h-3 rounded-full bg-amber-500" />
                   <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span className="text-xs font-mono text-slate-400 ml-2">francejustice.org / status-ong</span>
+                  <span className="text-xs font-mono text-slate-300 ml-2">francejustice.org / status-ong</span>
                 </div>
                 <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
-                  🏛️ ONG Agrée &amp; Souveraine
+                  🏛️ ONG Agrée & Souveraine
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
                   <HeartHandshake className="w-6 h-6 text-emerald-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">ONG d&apos;Intérêt Général</h4>
-                  <p className="text-[11px] text-slate-400 mt-1">Accès gratuit au droit et secours pro bono pour tous.</p>
+                  <h4 className="text-xs font-extrabold text-white">ONG d'Intérêt Général</h4>
+                  <p className="text-xs text-slate-200 font-medium mt-1">Accès gratuit au droit et secours pro bono pour tous.</p>
                 </div>
 
                 <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
                   <Users className="w-6 h-6 text-amber-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">Avocats &amp; Barreaux</h4>
-                  <p className="text-[11px] text-slate-400 mt-1">Praticiens certifiés par les Barreaux de France.</p>
+                  <h4 className="text-xs font-extrabold text-white">Avocats & Barreaux</h4>
+                  <p className="text-xs text-slate-200 font-medium mt-1">Praticiens certifiés par les Barreaux de France.</p>
                 </div>
 
                 <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
                   <GraduationCap className="w-6 h-6 text-violet-400 mb-2" />
                   <h4 className="text-xs font-extrabold text-white">Direction Académique</h4>
-                  <p className="text-[11px] text-slate-400 mt-1">Supervisée par le Fondateur Dr. Imam Çoban.</p>
+                  <p className="text-xs text-slate-200 font-medium mt-1">Supervisée par le Fondateur Dr. Imam Çoban.</p>
                 </div>
 
                 <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
                   <Lock className="w-6 h-6 text-cyan-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">Chiffrement &amp; RGPD</h4>
-                  <p className="text-[11px] text-slate-400 mt-1">PostgreSQL TLS 1.3 / AES-256 &amp; RLS Supabase.</p>
+                  <h4 className="text-xs font-extrabold text-white">Chiffrement & RGPD</h4>
+                  <p className="text-xs text-slate-200 font-medium mt-1">PostgreSQL TLS 1.3 / AES-256 & RLS Supabase.</p>
                 </div>
               </div>
             </div>
@@ -273,7 +273,7 @@ const About: React.FC = () => {
             <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
               Tous les Services Proposés par FranceJustice
             </h2>
-            <p className="text-slate-400 text-base mt-4">
+            <p className="text-slate-100 font-semibold text-base md:text-lg mt-4">
               Une gamme complète de solutions juridiques, technologiques et académiques adaptées aux particuliers, entreprises, étudiants et avocats.
             </p>
           </div>
@@ -288,7 +288,7 @@ const About: React.FC = () => {
                       <div className="w-12 h-12 rounded-2xl bg-indigo-950 border border-indigo-800/60 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
                         <Icon className="w-6 h-6" />
                       </div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-slate-800 text-slate-300">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-slate-800 text-slate-200">
                         {item.category}
                       </span>
                     </div>
@@ -297,7 +297,7 @@ const About: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <p className="text-slate-300 text-xs leading-relaxed">
+                    <p className="text-slate-100 text-sm font-medium leading-relaxed">
                       {item.description}
                     </p>
                   </CardContent>
@@ -316,10 +316,10 @@ const About: React.FC = () => {
               📌 Statuts Officiels
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
-              Règlement Intérieur Complet de l&apos;ONG FranceJustice
+              Règlement Intérieur Complet de l'ONG FranceJustice
             </h2>
-            <p className="text-slate-400 text-base mt-4">
-              Adopté par le Conseil d&apos;Administration de l&apos;ONG et opposable à l&apos;ensemble des membres, praticiens affiliés et utilisateurs de la plateforme.
+            <p className="text-slate-100 font-semibold text-base md:text-lg mt-4">
+              Adopté par le Conseil d'Administration de l'ONG et opposable à l'ensemble des membres, praticiens affiliés et utilisateurs de la plateforme.
             </p>
           </div>
 
@@ -340,9 +340,9 @@ const About: React.FC = () => {
                       {art.title}
                     </span>
                     {isOpen ? (
-                      <ChevronUp className="w-5 h-5 text-slate-400 shrink-0" />
+                      <ChevronUp className="w-5 h-5 text-slate-300 shrink-0" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-slate-400 shrink-0" />
+                      <ChevronDown className="w-5 h-5 text-slate-300 shrink-0" />
                     )}
                   </button>
 
@@ -354,7 +354,7 @@ const About: React.FC = () => {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <div className="p-5 pt-0 border-t border-slate-800/60 text-slate-300 text-sm leading-relaxed bg-slate-950/40">
+                        <div className="p-5 pt-0 border-t border-slate-800/60 text-slate-100 text-sm font-medium leading-relaxed bg-slate-950/40">
                           {art.content}
                         </div>
                       </motion.div>
@@ -372,13 +372,13 @@ const About: React.FC = () => {
         <div className="container max-w-7xl mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-xs font-black uppercase tracking-widest text-indigo-400 bg-indigo-950/80 px-4 py-1.5 rounded-full border border-indigo-800/60 inline-block mb-4">
-              🌐 Transparence &amp; Sources
+              🌐 Transparence & Sources
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
-              Répertoire des Sources Officielles &amp; Sites Gouvernementaux
+              Répertoire des Sources Officielles & Sites Gouvernementaux
             </h2>
-            <p className="text-slate-400 text-base mt-4">
-              Retrouvez l&apos;accès direct aux portails officiels de l&apos;État Français, des juridictions suprêmes, du Conseil National des Barreaux et des instances internationales.
+            <p className="text-slate-100 font-semibold text-base md:text-lg mt-4">
+              Retrouvez l'accès direct aux portails officiels de l'État Français, des juridictions suprêmes, du Conseil National des Barreaux et des instances internationales.
             </p>
           </div>
 
@@ -394,12 +394,12 @@ const About: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <Building2 className="w-5 h-5 text-indigo-400" />
-                    <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 transition-colors" />
+                    <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-indigo-400 transition-colors" />
                   </div>
                   <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors mb-2">
                     {source.name}
                   </h3>
-                  <p className="text-slate-400 text-xs leading-relaxed">
+                  <p className="text-slate-100 text-xs font-medium leading-relaxed">
                     {source.desc}
                   </p>
                 </div>
@@ -431,7 +431,7 @@ const About: React.FC = () => {
                 </div>
                 <h3 className="text-2xl font-black text-white">Dr. Imam Çoban</h3>
                 <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mt-1">
-                  Fondateur &amp; Directeur Pédagogique
+                  Fondateur & Directeur Pédagogique
                 </p>
                 <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-950 text-indigo-300 text-[11px] font-semibold border border-indigo-800">
                   🎓 Docteur en Droit • Enseignant-Chercheur
@@ -440,13 +440,13 @@ const About: React.FC = () => {
 
               <div className="lg:col-span-2 space-y-4">
                 <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-                  Une Direction Académique &amp; Scientifique de Premier Plan
+                  Une Direction Académique & Scientifique de Premier Plan
                 </h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  L&apos;ONG <strong>FranceJustice</strong> a été pensée et fondée par le <strong>Dr. Imam Çoban</strong>, Docteur en Droit et Enseignant-Chercheur, avec une ambition claire : mettre la rigueur de la doctrine juridique universitaire et la puissance des technologies d&apos;Intelligence Artificielle au service des citoyens et des professionnels du droit.
+                <p className="text-slate-100 text-sm font-medium leading-relaxed">
+                  L'ONG <strong>FranceJustice</strong> a été pensée et fondée par le <strong>Dr. Imam Çoban</strong>, Docteur en Droit et Enseignant-Chercheur, avec une ambition claire : mettre la rigueur de la doctrine juridique universitaire et la puissance des technologies d'Intelligence Artificielle au service des citoyens et des professionnels du droit.
                 </p>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Sous sa direction pédagogique, notre centre de formation garantit des programmes certifiants d&apos;une haute précision académique, combinant théorie fondamentale, analyse jurisprudentielle et cas pratiques pratiques.
+                <p className="text-slate-100 text-sm font-medium leading-relaxed">
+                  Sous sa direction pédagogique, notre centre de formation garantit des programmes certifiants d'une haute précision académique, combinant théorie fondamentale, analyse jurisprudentielle et cas pratiques pratiques.
                 </p>
                 
                 <div className="pt-2 flex flex-wrap gap-2">
@@ -457,7 +457,7 @@ const About: React.FC = () => {
                     "Conformité RGPD & Éthique IA",
                     "Directeur des Masterclass"
                   ].map((sk, idx) => (
-                    <span key={idx} className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-950 text-slate-300 border border-slate-800">
+                    <span key={idx} className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-950 text-slate-200 border border-slate-800">
                       ✓ {sk}
                     </span>
                   ))}
@@ -487,7 +487,7 @@ const About: React.FC = () => {
                     <CardTitle className="text-xl font-bold text-white">{item.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-slate-300 text-xs leading-relaxed">
+                    <p className="text-slate-100 text-sm font-medium leading-relaxed">
                       {item.description}
                     </p>
                   </CardContent>
@@ -512,8 +512,8 @@ const About: React.FC = () => {
               Rejoignez la Révolution Juridique
             </h2>
 
-            <p className="text-lg md:text-xl text-slate-300 mb-10 font-medium leading-relaxed">
-              Que vous soyez citoyen à la recherche d&apos;une assistance juridique, étudiant souhaitant valider une formation diplômante, ou avocat désireux d&apos;optimiser votre cabinet.
+            <p className="text-lg md:text-xl text-slate-100 mb-10 font-semibold leading-relaxed">
+              Que vous soyez citoyen à la recherche d'une assistance juridique, étudiant souhaitant valider une formation diplômante, ou avocat désireux d'optimiser votre cabinet.
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
