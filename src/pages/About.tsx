@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { 
   Users, 
@@ -15,17 +15,29 @@ import {
   BookOpen, 
   Clock,
   ShieldCheck,
-  Building2
+  Building2,
+  ExternalLink,
+  BookMarked,
+  FileCheck,
+  Award,
+  ChevronDown,
+  ChevronUp,
+  HeartHandshake
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../i18n';
 import SEO from '../components/common/SEO';
 
 const About: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [openArticle, setOpenArticle] = useState<string | null>('art-1');
+
+  const toggleArticle = (id: string) => {
+    setOpenArticle(openArticle === id ? null : id);
+  };
 
   const services = [
     {
@@ -34,144 +46,131 @@ const About: React.FC = () => {
       category: 'Intelligence Artificielle',
       description: t('about.service_ai_desc', 'Moteur de recherche intelligent analysant l\'ensemble des 75+ Codes de loi français, la jurisprudence et les textes officiels avec assistant vocal temps réel.'),
       icon: BrainCircuit,
-      color: 'from-indigo-600 to-violet-600',
-      badge: 'IA Avancée',
-      features: [
-        'Analyse instantanée de pièces de procédure & contrats',
-        'Synthèse jurisprudentielle et détection de vices de forme',
-        'Assistant vocal interactif 24h/24 pour citoyens et avocats'
-      ]
     },
     {
-      id: 'doc-generator',
-      title: t('about.service_doc_title', 'Générateur d\'Actes & Documents'),
-      category: 'Rédaction Juridique',
-      description: t('about.service_doc_desc', 'Rédigez en quelques clics des documents juridiques sur-mesure conforme au droit français : mises en demeure, statuts, contrats, requêtes.'),
+      id: 'generator',
+      title: t('about.service_gen_title', 'Générateur d\'Actes & Documents PDF'),
+      category: 'Rédaction Automatisée',
+      description: t('about.service_gen_desc', 'Création guidée de contrats, mises en demeure, statuts d\'entreprise (SAS, SARL) et requêtes juridiques aux normes françaises.'),
       icon: FileText,
-      color: 'from-blue-600 to-cyan-600',
-      badge: 'Conforme Code Civil',
-      features: [
-        'Modèles rédigés et validés par des docteurs en droit',
-        'Personnalisation dynamique avec export PDF & Word',
-        'Archivage chiffré et sécurisé dans l\'espace client'
-      ]
     },
     {
-      id: 'lawyer-network',
-      title: t('about.service_lawyers_title', 'Réseau & Annuaire des Avocats'),
-      category: 'Mise en Relation',
-      description: t('about.service_lawyers_desc', 'Annuaire officiel synchronisé avec les barreaux de France et Data.gouv. Trouvez l\'avocat ou l\'expert adapté à votre dossier.'),
+      id: 'lawyers',
+      title: t('about.service_lawyers_title', 'Annuaire Officiel des Avocats'),
+      category: 'Mise en Relation Certifiée',
+      description: t('about.service_lawyers_desc', 'Moteur d\'annuaire des praticiens vérifiés auprès du Conseil National des Barreaux (CNB) et des Cours d\'Appel.'),
       icon: Users,
-      color: 'from-amber-600 to-orange-600',
-      badge: 'Données Vérifiées',
-      features: [
-        'Filtres par spécialité, ville et Cour d\'Appel',
-        'Vérification rigoureuse des numéros de prestation (CNB)',
-        'Messagerie directe et sécurisée client-avocat'
-      ]
     },
     {
-      id: 'appointments-video',
-      title: t('about.service_visio_title', 'RDV & Visioconférences Chiffrées'),
-      category: 'Consultation à Distance',
-      description: t('about.service_visio_desc', 'Planification de consultations juridiques avec paiement sécurisé Stripe PCI-DSS et salles virtuelles WebRTC chiffrées de bout en bout.'),
+      id: 'video',
+      title: t('about.service_video_title', 'Visioconférences & RDV Chiffrés'),
+      category: 'Consultation Sécurisée',
+      description: t('about.service_video_desc', 'Salles virtuelles WebRTC chiffrées de bout en bout (Jitsi) avec devis en ligne et paiements certifiés Stripe PCI-DSS Level 1.'),
       icon: Video,
-      color: 'from-emerald-600 to-teal-600',
-      badge: 'WebRTC Chiffré',
-      features: [
-        'Salles virtuelles Jitsi haute définition sans installation',
-        'Paiement d\'acomptes et devis en ligne via Stripe',
-        'Rappels SMS & e-mail automatiques des rendez-vous'
-      ]
     },
     {
-      id: 'academic-trainings',
-      title: t('about.service_formations_title', 'Formations Diplômantes & Masterclass'),
-      category: 'Académie Juridique',
-      description: t('about.service_formations_desc', 'Formations de haut niveau dispensées par des Docteurs en Droit et Professeurs : Formations Diplômantes certifiantes et Masterclass de haute spécialité.'),
+      id: 'classrooms',
+      title: t('about.service_edu_title', 'Formations Diplômantes & Masterclass'),
+      category: 'Académie Universitaire',
+      description: t('about.service_edu_desc', 'Programmes académiques certifiants (Diplômants et Masterclass) sous la direction de Docteurs en Droit et d\'Enseignants-Chercheurs.'),
       icon: GraduationCap,
-      color: 'from-purple-600 to-pink-600',
-      badge: 'Docteurs en Droit',
-      features: [
-        'Formations Diplômantes (Certifications professionnelles)',
-        'Masterclass intensives axées sur la pratique du droit',
-        'Planning annuel interactif & Revues Scientifiques'
-      ]
     },
     {
-      id: 'security-rgpd',
-      title: t('about.service_security_title', 'Sécurité BD, RGPD & Retention'),
-      category: 'Protection des Données',
-      description: t('about.service_security_desc', 'Garantie absolue du secret professionnel et du RGPD avec chiffrement PostgreSQL (TLS 1.3, AES-256) et calendrier réglementaire de purge des données.'),
-      icon: ShieldCheck,
-      color: 'from-rose-600 to-red-600',
-      badge: 'Conforme CNIL',
-      features: [
-        'Row Level Security (RLS) sur la base de données Supabase',
-        'Calendrier légal de conservation (Code de commerce, LCEN)',
-        'Console de conformité RGPD accessible dans tous les dashboards'
-      ]
+      id: 'security',
+      title: t('about.service_sec_title', 'Sécurité BD, RGPD & Purge Réglementaire'),
+      category: 'Conformité & Secret',
+      description: t('about.service_sec_desc', 'Cryptographie TLS 1.3, AES-256 au repos, Row Level Security (RLS) et calendrier légal de rétention/purge des données CNIL.'),
+      icon: Lock,
     }
   ];
 
-  const metrics = [
-    { value: '75+', label: 'Codes de Loi & Jurisprudences indexés', icon: BookOpen },
-    { value: '100%', label: 'Conformité RGPD & Chiffrement TLS 1.3', icon: Lock },
-    { value: '24/7', label: 'Assistance IA & Recherche Vocale', icon: Clock },
-    { value: ' temps réel', label: 'Synchronisation PostgreSQL Supabase', icon: Globe }
+  const externalOfficialSources = [
+    { name: 'Légifrance — Service Public du Droit Français', url: 'https://www.legifrance.gouv.fr/', desc: 'Textes officiels de lois, 75+ Codes, Décrets et Arrêtés en vigueur.' },
+    { name: 'Service-Public.fr — Site Officiel de l\'Administration', url: 'https://www.service-public.fr/', desc: 'Fiches pratiques, démarches administratives et droits des citoyens.' },
+    { name: 'Conseil National des Barreaux (CNB)', url: 'https://www.cnb.avocat.fr/', desc: 'Ordre officiel des Avocats de France et annuaire certifié.' },
+    { name: 'Cour de Cassation', url: 'https://www.courdecassation.fr/', desc: 'Haute juridiction judiciaire tranchant les pourvois civil et pénal.' },
+    { name: 'Conseil d\'État', url: 'https://www.conseil-etat.fr/', desc: 'Juridiction administrative suprême et conseiller du Gouvernement.' },
+    { name: 'CNIL — Informatique & Libertés', url: 'https://www.cnil.fr/', desc: 'Autorité de régulation des données personnelles et règles RGPD.' },
+    { name: 'Défenseur des Droits', url: 'https://www.defenseurdesdroits.fr/', desc: 'Protection des libertés fondamentales et lutte contre les discriminations.' },
+    { name: 'Ministère du Travail & de l\'Emploi', url: 'https://travail-emploi.gouv.fr/', desc: 'Code du Travail, conventions collectives et droits des salariés.' },
+    { name: 'Infogreffe — Registre du Commerce', url: 'https://www.infogreffe.fr/', desc: 'Accès officiel aux données des entreprises françaises et RCS.' },
+    { name: 'EUR-Lex — Droit de l\'Union Européenne', url: 'https://eur-lex.europa.eu/', desc: 'Journal officiel de l\'UE, directives et règlements communautaires.' },
+    { name: 'CEDH — Cour Européenne des Droits de l\'Homme', url: 'https://www.echr.coe.int/', desc: 'Arrêts et décisions de la jurisprudence européenne des droits humains.' },
+    { name: 'Nations Unies — Haut-Commissariat aux Droits de l\'Homme', url: 'https://www.ohchr.org/', desc: 'Déclaration Universelle des Droits de l\'Homme (DUDH) et traités internationaux.' }
   ];
 
-  const team = [
+  const internalRegulations = [
     {
-      name: 'Imam Çoban',
-      role: t('about.team_role_founder', 'Fondateur, Professeur & Docteur en Droit'),
-      description: t('about.team_desc_founder', 'Docteur en Droit, Enseignant-Chercheur et Fondateur de FranceJustice (Just-Law). Expert reconnu en droit des affaires et en nouvelles technologies, il conçoit les programmes de formations et supervise l\'architecture juridique globale de la plateforme.'),
-      icon: GraduationCap,
-      skills: ['Docteur en Droit', 'Droit des Affaires & Numérique', 'Directeur Pédagogique', 'Auteur Scientifique']
+      id: 'art-1',
+      title: 'Article 1 — Statut Juridique d\'ONG & Mission d\'Intérêt Général',
+      content: 'L\'organisation "FranceJustice" (Just-Law) est une Organisation Non Gouvernementale (ONG) internationale à vocation juridique et éducative, régie par la loi du 1er juillet 1901. Elle a pour mission fondamentale la démocratisation de l\'accès au Droit, la défense des libertés publiques, le soutien aux personnes vulnérables et la diffusion d\'outils numériques souverains pour les citoyens et les professionnels.'
+    },
+    {
+      id: 'art-2',
+      title: 'Article 2 — Indépendance, Neutralité Politico-Religieuse & Éthique',
+      content: 'FranceJustice s\'interdit toute prise de position politique, confessionnelle ou doctrinale partisane. L\'ONG agit dans le strict respect de la Déclaration Universelle des Droits de l\'Homme de 1948 et de la Convention Européenne de Sauvegarde des Droits de l\'Homme. Ses activités sont guidées par la transparence, l\'équité et l\'impartialité.'
+    },
+    {
+      id: 'art-3',
+      title: 'Article 3 — Secret Professionnel, Secret de l\'Avocat & Déontologie',
+      content: 'Tous les membres, avocats partenaires et juristes affiliés à l\'ONG FranceJustice s\'engagent au respect absolu du secret professionnel (Article 66-5 de la Loi du 31 décembre 1971). Les échanges entre citoyens et avocats sur la plateforme sont strictement chiffrés et protégés contre toute intrusion ou divulgation à des tiers.'
+    },
+    {
+      id: 'art-4',
+      title: 'Article 4 — Éthique Algorithmique & Supervision Humaine de l\'IA',
+      content: 'L\'utilisation de l\'Intelligence Artificielle (moteur GéniaL\'Avocat) au sein de la plateforme répond à des règles strictes de transparence. L\'IA constitue un outil de pré-analyse et de recherche documentaire automatisée, mais ne remplace en aucun cas la décision, le conseil ou l\'acte judiciaire réservé à l\'avocat ou au juge.'
+    },
+    {
+      id: 'art-5',
+      title: 'Article 5 — Catégories de Membres & Charte d\'Adhésion',
+      content: 'L\'ONG regroupe 4 catégories de membres : (a) Les Membres Avocats (inscrits au barreau), (b) Les Membres Universitaires & Enseignants (Docteurs en Droit, Professeurs), (c) Les Membres Étudiants en Droit, et (d) Les Membres Citoyens Bénéficiaires. L\'adhésion implique l\'acceptation sans réserve du présent Règlement Intérieur.'
+    },
+    {
+      id: 'art-6',
+      title: 'Article 6 — Modèle Économique, Transparence Financière & Pro Bono',
+      content: 'ONG non lucrative, FranceJustice réinvestit 100% de ses ressources dans le développement des outils technologiques d\'accès au droit et l\'organisation de consultations gratuites (Pro Bono) pour les personnes en situation de précarité. Les honoraires de consultation d\'avocat sur la plateforme sont fixés en toute transparence avec devis préalable.'
+    },
+    {
+      id: 'art-7',
+      title: 'Article 7 — Direction Académique & Conseil d\'Administration',
+      content: 'L\'ONG est dirigée par un Conseil d\'Administration. La Direction Pédagogique et Scientifique des formations certifiantes est assurée par le Fondateur Dr. Imam Çoban, Docteur en Droit. Le Conseil veille à l\'excellence scientifique des cours et à l\'actualisation continue de la base de données juridique.'
+    },
+    {
+      id: 'art-8',
+      title: 'Article 8 — Sécurité des Données & Calendrier de Purge RGPD',
+      content: 'En conformité avec les règles de la CNIL et du RGPD, les données nominatives et pièces téléchargées bénéficient d\'un chiffrement fort. Les données sont conservées selon un calendrier réglementaire précis (10 ans pour les factures comptables, 3 ans pour les comptes inactifs, 1 an pour les journaux de connexion) avant purge sécurisée définitive.'
+    },
+    {
+      id: 'art-9',
+      title: 'Article 9 — Sanctions Disciplinaires & Exclusion',
+      content: 'Tout manquement aux principes déontologiques, toute violation du secret professionnel ou tout comportement contraire à l\'honneur de la profession d\'avocat ou aux valeurs de l\'ONG entraîne la suspension immédiate du membre et sa saisine devant le Conseil d\'Administration pour radiation définitive.'
     }
   ];
 
   const whyChooseUs = [
     {
-      title: t('about.why_accessibility', 'Accessibilité 360°'),
-      description: t('about.why_accessibility_desc', 'Un guichet unique pour les citoyens, étudiants et avocats accessible 24h/24 depuis n\'importe quel appareil.'),
-      icon: Scale
+      title: t('about.why_1_title', 'Expertise Académique & Pratique'),
+      description: t('about.why_1_desc', 'Conçu par des Docteurs en Droit et des praticiens du barreau pour garantir la justesse juridique.'),
+      icon: Scale,
     },
     {
-      title: t('about.why_efficiency', 'Gain de Temps IA'),
-      description: t('about.why_efficiency_desc', 'Analyse et rédaction accélérées d\'actes juridiques grâce à des algorithmes IA entraînés sur le droit français.'),
-      icon: BrainCircuit
+      title: t('about.why_2_title', 'IA de Dernière Génération'),
+      description: t('about.why_2_desc', 'Moteur sémantique analysant 100% du corpus législatif français et international.'),
+      icon: Sparkles,
     },
     {
-      title: t('about.why_satisfaction', 'Secret & Protection Total'),
-      description: t('about.why_satisfaction_desc', 'Respect strict du secret professionnel des avocats, chiffrement bancaire des transactions et règles RLS Supabase.'),
-      icon: ShieldCheck
-    }
+      title: t('about.why_3_title', 'Sécurité & RGPD Absolus'),
+      description: t('about.why_3_desc', 'Chiffrement de pointe, architecture Supabase PostgreSQL souveraine et respect strict du secret.'),
+      icon: ShieldCheck,
+    },
   ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 }
-    }
-  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden">
       <SEO 
-        title="À Propos — L'Écosystème Juridique Intelligent & Direction Académique"
-        description="Découvrez l'histoire de France Justice, la vision du Fondateur Dr. Imam Çoban et l'ensemble de nos services d'IA, avocats et formations diplômantes."
-        keywords="à propos france justice, imam coban docteur en droit, écosystème juridique, vision justice ia"
+        title="À Propos — ONG FranceJustice, Règlement Intérieur & Direction Académique"
+        description="Découvrez l'ONG Internationale FranceJustice (Just-Law), son Règlement Intérieur officiel complet, son statut d'ONG d'accès au Droit et le Fondateur Dr. Imam Çoban."
+        keywords="ONG FranceJustice, ONG juridique, règlement intérieur ONG, accès au droit, imam coban docteur en droit, statut ong justice, legifrance, cnb, conseil detat"
       />
 
       {/* HERO SECTION */}
@@ -186,16 +185,16 @@ const About: React.FC = () => {
             transition={{ duration: 0.7 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-950/80 border border-indigo-800/60 text-indigo-300 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              Écosystème Juridique Global & Intelligent
+              <HeartHandshake className="w-4 h-4 text-emerald-400" />
+              ONG Internationale d&apos;Accès au Droit &amp; Écosystème IA
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
-              L'Avenir de la Justice <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-emerald-400 bg-clip-text text-transparent">Accessible & Connectée</span>
+              FranceJustice : <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-emerald-400 bg-clip-text text-transparent">L&apos;ONG Juridique Intelligente</span>
             </h1>
 
             <p className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed font-normal max-w-2xl">
-              FranceJustice (Just-Law) est la première plateforme tout-en-un réunissant <strong>l'Intelligence Artificielle Juridique</strong>, un <strong>Réseau d'Avocats vérifiés</strong>, des <strong>Visioconférences Chiffrées</strong> et un centre de <strong>Formations Académiques Diplômantes & Masterclass</strong>.
+              FranceJustice (Just-Law) est une <strong>Organisation Non Gouvernementale (ONG)</strong> internationale indépendante dédiée à la démocratisation de la justice, la protection des libertés fondamentales et la formation académique d&apos;excellence supervisée par le <strong>Dr. Imam Çoban</strong>.
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -206,14 +205,12 @@ const About: React.FC = () => {
               >
                 Découvrir nos Services <ArrowRight className="w-5 h-5" />
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="px-8 py-6 rounded-2xl border-slate-700 bg-slate-900/90 text-slate-200 hover:bg-slate-800 text-base font-bold transition-all"
-                onClick={() => navigate('/register')}
+              <a 
+                href="#reglement"
+                className="px-8 py-4 rounded-2xl border border-slate-700 bg-slate-900/90 text-slate-200 hover:bg-slate-800 text-base font-bold transition-all inline-flex items-center gap-2"
               >
-                Créer un compte
-              </Button>
+                <BookMarked className="w-5 h-5 text-amber-400" /> Consulter le Règlement Intérieur
+              </a>
             </div>
           </motion.div>
 
@@ -229,59 +226,140 @@ const About: React.FC = () => {
                   <div className="w-3 h-3 rounded-full bg-red-500" />
                   <div className="w-3 h-3 rounded-full bg-amber-500" />
                   <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span className="text-xs font-mono text-slate-400 ml-2">francejustice.app / ecosystem</span>
+                  <span className="text-xs font-mono text-slate-400 ml-2">francejustice.org / status-ong</span>
                 </div>
                 <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
-                  ⚡ Synchronisé 100% Temps Réel
+                  🏛️ ONG Agrée &amp; Souveraine
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-                  <BrainCircuit className="w-6 h-6 text-indigo-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">IA & GéniaL'Avocat</h4>
-                  <p className="text-[11px] text-slate-400 mt-1">75+ Codes de loi & assistant vocal temps réel.</p>
+                  <HeartHandshake className="w-6 h-6 text-emerald-400 mb-2" />
+                  <h4 className="text-xs font-extrabold text-white">ONG d&apos;Intérêt Général</h4>
+                  <p className="text-[11px] text-slate-400 mt-1">Accès gratuit au droit et secours pro bono pour tous.</p>
                 </div>
 
                 <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
                   <Users className="w-6 h-6 text-amber-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">Réseau d'Avocats</h4>
+                  <h4 className="text-xs font-extrabold text-white">Avocats &amp; Barreaux</h4>
                   <p className="text-[11px] text-slate-400 mt-1">Praticiens certifiés par les Barreaux de France.</p>
                 </div>
 
                 <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
                   <GraduationCap className="w-6 h-6 text-violet-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">Formations & Masterclass</h4>
-                  <p className="text-[11px] text-slate-400 mt-1">Diplômantes & Masterclass par des Docteurs en Droit.</p>
+                  <h4 className="text-xs font-extrabold text-white">Direction Académique</h4>
+                  <p className="text-[11px] text-slate-400 mt-1">Supervisée par le Fondateur Dr. Imam Çoban.</p>
                 </div>
 
                 <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-                  <ShieldCheck className="w-6 h-6 text-emerald-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">Sécurité & RGPD</h4>
-                  <p className="text-[11px] text-slate-400 mt-1">Chiffrement PostgreSQL TLS 1.3 & RLS.</p>
+                  <Lock className="w-6 h-6 text-cyan-400 mb-2" />
+                  <h4 className="text-xs font-extrabold text-white">Chiffrement &amp; RGPD</h4>
+                  <p className="text-[11px] text-slate-400 mt-1">PostgreSQL TLS 1.3 / AES-256 &amp; RLS Supabase.</p>
                 </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-emerald-400" /> Supabase RLS Chiffré</span>
-                <span className="flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5 text-indigo-400" /> Annuaire des Tribunaux</span>
               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* METRICS & KEY NUMBERS */}
-      <section className="py-16 bg-slate-900/60 border-b border-slate-800">
+      {/* ALL SERVICES GRID */}
+      <section className="py-28 bg-slate-950 border-b border-slate-900 relative">
         <div className="container max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {metrics.map((m, idx) => {
-              const Icon = m.icon;
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-black uppercase tracking-widest text-indigo-400 bg-indigo-950/80 px-4 py-1.5 rounded-full border border-indigo-800/60 inline-block mb-4">
+              Catalogue Écosystème
+            </span>
+            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+              Tous les Services Proposés par FranceJustice
+            </h2>
+            <p className="text-slate-400 text-base mt-4">
+              Une gamme complète de solutions juridiques, technologiques et académiques adaptées aux particuliers, entreprises, étudiants et avocats.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((item) => {
+              const Icon = item.icon;
               return (
-                <div key={idx} className="bg-slate-950/80 p-6 rounded-2xl border border-slate-800 text-center hover:border-slate-700 transition-all">
-                  <Icon className="w-7 h-7 text-indigo-400 mx-auto mb-3" />
-                  <div className="text-3xl lg:text-4xl font-black text-white mb-1 tracking-tight">{m.value}</div>
-                  <div className="text-xs font-medium text-slate-400">{m.label}</div>
+                <Card key={item.id} className="bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 transition-all rounded-3xl p-6 shadow-xl group">
+                  <CardHeader className="p-0 pb-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-2xl bg-indigo-950 border border-indigo-800/60 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-slate-800 text-slate-300">
+                        {item.category}
+                      </span>
+                    </div>
+                    <CardTitle className="text-xl font-bold text-white group-hover:text-indigo-300 transition-colors">
+                      {item.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <p className="text-slate-300 text-xs leading-relaxed">
+                      {item.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* RÈGLEMENT INTÉRIEUR OFFICIEL DE L'ONG FRANCEJUSTICE */}
+      <section id="reglement" className="py-28 bg-slate-900/50 border-b border-slate-900 relative">
+        <div className="container max-w-5xl mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-black uppercase tracking-widest text-amber-400 bg-amber-950/80 px-4 py-1.5 rounded-full border border-amber-800/60 inline-block mb-4">
+              📌 Statuts Officiels
+            </span>
+            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+              Règlement Intérieur Complet de l&apos;ONG FranceJustice
+            </h2>
+            <p className="text-slate-400 text-base mt-4">
+              Adopté par le Conseil d&apos;Administration de l&apos;ONG et opposable à l&apos;ensemble des membres, praticiens affiliés et utilisateurs de la plateforme.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {internalRegulations.map((art) => {
+              const isOpen = openArticle === art.id;
+              return (
+                <div 
+                  key={art.id} 
+                  className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all"
+                >
+                  <button
+                    onClick={() => toggleArticle(art.id)}
+                    className="w-full p-5 text-left flex items-center justify-between gap-4 hover:bg-slate-850 transition-colors"
+                  >
+                    <span className="text-base font-bold text-white flex items-center gap-3">
+                      <BookMarked className="w-5 h-5 text-amber-400 shrink-0" />
+                      {art.title}
+                    </span>
+                    {isOpen ? (
+                      <ChevronUp className="w-5 h-5 text-slate-400 shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-slate-400 shrink-0" />
+                    )}
+                  </button>
+
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="p-5 pt-0 border-t border-slate-800/60 text-slate-300 text-sm leading-relaxed bg-slate-950/40">
+                          {art.content}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}
@@ -289,117 +367,101 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* ALL PROPOSED SERVICES SECTION */}
+      {/* DIRECTORY OF OFFICIAL EXTERNAL GOVERNMENT LINKS */}
       <section className="py-28 bg-slate-950 border-b border-slate-900 relative">
         <div className="container max-w-7xl mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <span className="text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 mb-4 inline-block">
-              Catalogue Complet
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-black uppercase tracking-widest text-indigo-400 bg-indigo-950/80 px-4 py-1.5 rounded-full border border-indigo-800/60 inline-block mb-4">
+              🌐 Transparence &amp; Sources
             </span>
-            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-6">
-              Tous les Services Proposés par FranceJustice
+            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+              Répertoire des Sources Officielles &amp; Sites Gouvernementaux
             </h2>
-            <p className="text-slate-300 text-base md:text-lg">
-              Une suite logicielle et pédagogique complète créée pour simplifier la justice, accompagner les avocats et former les futurs juristes.
+            <p className="text-slate-400 text-base mt-4">
+              Retrouvez l&apos;accès direct aux portails officiels de l&apos;État Français, des juridictions suprêmes, du Conseil National des Barreaux et des instances internationales.
             </p>
           </div>
 
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {services.map((s) => {
-              const Icon = s.icon;
-              return (
-                <motion.div key={s.id} variants={itemVariants}>
-                  <Card className="h-full bg-slate-900/90 border border-slate-800/90 hover:border-indigo-500/50 shadow-xl rounded-3xl overflow-hidden transition-all duration-300 flex flex-col justify-between group">
-                    <CardHeader className="p-7 pb-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className={`p-3.5 rounded-2xl bg-gradient-to-r ${s.color} text-white shadow-lg shadow-indigo-950/50`}>
-                          <Icon className="w-6 h-6" />
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-950 text-slate-300 border border-slate-800">
-                          {s.badge}
-                        </span>
-                      </div>
-                      <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">{s.category}</span>
-                      <CardTitle className="text-xl font-extrabold text-white mt-1 group-hover:text-indigo-300 transition-colors">{s.title}</CardTitle>
-                      <CardDescription className="text-slate-300 text-xs mt-3 leading-relaxed">
-                        {s.description}
-                      </CardDescription>
-                    </CardHeader>
-
-                    <CardContent className="p-7 pt-2 flex-grow flex flex-col justify-between">
-                      <div className="space-y-2 mt-2 pt-4 border-t border-slate-800/80 mb-6">
-                        {s.features.map((feat, idx) => (
-                          <div key={idx} className="flex items-start gap-2 text-xs text-slate-300">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                            <span>{feat}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <Button 
-                        variant="outline" 
-                        className="w-full rounded-xl border-slate-700 bg-slate-950 hover:bg-indigo-600 hover:text-white hover:border-indigo-500 text-slate-200 text-xs font-bold transition-all py-2.5 flex items-center justify-center gap-2"
-                        onClick={() => navigate('/services')}
-                      >
-                        En savoir plus <ArrowRight className="w-3.5 h-3.5" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {externalOfficialSources.map((source, idx) => (
+              <a
+                key={idx}
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-900 border border-slate-800 hover:border-indigo-500/80 p-6 rounded-3xl transition-all group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <Building2 className="w-5 h-5 text-indigo-400" />
+                    <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 transition-colors" />
+                  </div>
+                  <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors mb-2">
+                    {source.name}
+                  </h3>
+                  <p className="text-slate-400 text-xs leading-relaxed">
+                    {source.desc}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] font-mono text-indigo-400 truncate">
+                  {source.url}
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* FOUNDER & ACADEMIC DIRECTION */}
-      <section className="py-28 bg-slate-900 border-b border-slate-800 relative">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800 mb-4 inline-block">
-              Direction Académique & Scientifique
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
-              Fondateur & Direction du Projet
-            </h2>
-          </div>
-
+      {/* LEADERSHIP & FOUNDER SECTION (Dr. Imam Çoban) */}
+      <section className="py-28 bg-slate-950 border-b border-slate-900 relative">
+        <div className="container max-w-7xl mx-auto px-4">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-slate-950 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl grid md:grid-cols-3 gap-8 items-center"
+            transition={{ duration: 0.7 }}
+            className="bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden"
           >
-            <div className="md:col-span-1 text-center">
-              <div className="w-32 h-32 mx-auto mb-6 rounded-3xl bg-gradient-to-r from-amber-500 to-indigo-600 p-1 shadow-2xl">
-                <div className="w-full h-full bg-slate-900 rounded-[22px] flex items-center justify-center">
-                  <GraduationCap className="w-16 h-16 text-amber-400" />
+            <div className="grid lg:grid-cols-3 gap-8 items-center">
+              <div className="lg:col-span-1 text-center">
+                <div className="w-40 h-40 mx-auto rounded-3xl bg-slate-950 border-2 border-indigo-500/50 p-2 shadow-2xl relative overflow-hidden mb-4">
+                  <div className="w-full h-full rounded-2xl bg-gradient-to-tr from-indigo-900 to-slate-900 flex items-center justify-center">
+                    <GraduationCap className="w-20 h-20 text-indigo-300" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-black text-white">Dr. Imam Çoban</h3>
+                <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mt-1">
+                  Fondateur &amp; Directeur Pédagogique
+                </p>
+                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-950 text-indigo-300 text-[11px] font-semibold border border-indigo-800">
+                  🎓 Docteur en Droit • Enseignant-Chercheur
                 </div>
               </div>
-              <h3 className="text-2xl font-black text-white">Imam Çoban</h3>
-              <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mt-1">Fondateur & Docteur en Droit</p>
-            </div>
 
-            <div className="md:col-span-2 space-y-4 text-slate-300 text-sm leading-relaxed">
-              <p className="text-base font-semibold text-slate-200">
-                « Notre mission avec FranceJustice est d'allier la rigueur scientifique de la doctrine juridique à la puissance des technologies modernes pour rendre le Droit compréhensible, accessible et protecteur pour tous. »
-              </p>
-              <p>
-                Docteur en Droit et enseignant passionné, Imam Çoban dirige l'orientation scientifique et pédagogique de la plateforme. Il supervise la conception des <strong>Formations Diplômantes</strong> et des <strong>Masterclass</strong> juridiques, garantissant l'excellence des contenus dispensés aux étudiants, juristes et avocats.
-              </p>
-              
-              <div className="flex flex-wrap gap-2 pt-2">
-                {team[0].skills.map((sk, idx) => (
-                  <span key={idx} className="px-3 py-1 bg-slate-900 border border-slate-800 text-indigo-300 text-xs font-extrabold rounded-full">
-                    ✓ {sk}
-                  </span>
-                ))}
+              <div className="lg:col-span-2 space-y-4">
+                <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                  Une Direction Académique &amp; Scientifique de Premier Plan
+                </h3>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  L&apos;ONG <strong>FranceJustice</strong> a été pensée et fondée par le <strong>Dr. Imam Çoban</strong>, Docteur en Droit et Enseignant-Chercheur, avec une ambition claire : mettre la rigueur de la doctrine juridique universitaire et la puissance des technologies d&apos;Intelligence Artificielle au service des citoyens et des professionnels du droit.
+                </p>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Sous sa direction pédagogique, notre centre de formation garantit des programmes certifiants d&apos;une haute précision académique, combinant théorie fondamentale, analyse jurisprudentielle et cas pratiques pratiques.
+                </p>
+                
+                <div className="pt-2 flex flex-wrap gap-2">
+                  {[
+                    "Docteur en Droit",
+                    "Direction de Recherche",
+                    "Droit des Affaires & Numérique",
+                    "Conformité RGPD & Éthique IA",
+                    "Directeur des Masterclass"
+                  ].map((sk, idx) => (
+                    <span key={idx} className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-950 text-slate-300 border border-slate-800">
+                      ✓ {sk}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -410,7 +472,7 @@ const About: React.FC = () => {
       <section className="py-28 bg-slate-950 border-b border-slate-900 relative">
         <div className="container max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-5xl font-black mb-16 tracking-tight text-white">
-            {t('about.why_title', 'Pourquoi choisir FranceJustice ?')}
+            {t('about.why_title', 'Pourquoi choisir l\'ONG FranceJustice ?')}
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -451,7 +513,7 @@ const About: React.FC = () => {
             </h2>
 
             <p className="text-lg md:text-xl text-slate-300 mb-10 font-medium leading-relaxed">
-              Que vous soyez citoyen à la recherche d'une assistance juridique, étudiant souhaitant valider une formation diplômante, ou avocat désireux d'optimiser votre cabinet.
+              Que vous soyez citoyen à la recherche d&apos;une assistance juridique, étudiant souhaitant valider une formation diplômante, ou avocat désireux d&apos;optimiser votre cabinet.
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">

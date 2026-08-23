@@ -713,6 +713,19 @@ const Database: React.FC = () => {
                 </Button>
 
                 <div className="flex items-center gap-2">
+                  {doc.source_url && (
+                    <a
+                      href={doc.source_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-amber-300 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1.5 rounded-lg transition-colors"
+                      title="Source officielle externe (Légifrance, Service-Public...)"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Source Officielle</span>
+                    </a>
+                  )}
+
                   <Button
                     size="sm"
                     variant="ghost"
