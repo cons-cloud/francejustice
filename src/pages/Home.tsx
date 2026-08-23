@@ -292,63 +292,63 @@ const Home: React.FC = () => {
 
   const ecosystemContent = {
     citizen: {
-      title: "Compte Citoyen — Simplifiez toutes vos démarches juridiques",
-      badge: "Pour les Particuliers & Entreprises",
+      title: t('home.ecosystem_citizen_title', 'Compte Citoyen — Simplifiez toutes vos démarches juridiques'),
+      badge: t('home.ecosystem_citizen_badge', 'Pour les Particuliers & Entreprises'),
       features: [
-        { icon: Sparkles, title: "Assistant IA GÉNIA-L 2026", desc: "Analyse instantanée de vos contrats, réponses personnalisées à vos questions de droit 24/7." },
-        { icon: Video, title: "Visioconférences & RDV Directs", desc: "Consultations vidéo HD sécurisées de plus de 2 heures avec des avocats spécialisés." },
-        { icon: BookOpen, title: "Salles de Classe Virtuelles", desc: "Assistez aux séances vidéo en direct avec plus de 100 participants et accès aux résumés." },
-        { icon: Calendar, title: "Planning Annuel & Agenda", desc: "Suivez le calendrier des masterclasses, programmes et actualités législatives." },
-        { icon: FileText, title: "Générateur d'Actes & Devis", desc: "Créez vos courriers juridiques et demandez des devis clairs et transparents aux avocats." },
-        { icon: Lock, title: "Coffre-Fort Documentaire", desc: "Stockage chiffré de tous vos documents et pièces justificatives." }
+        { icon: Sparkles, title: t('home.ecosystem_citizen_f1_t', 'Assistant IA GÉNIA-L 2026'), desc: t('home.ecosystem_citizen_f1_d', 'Analyse instantanée de vos contrats, réponses personnalisées à vos questions de droit 24/7.') },
+        { icon: Video, title: t('home.ecosystem_citizen_f2_t', 'Visioconférences & RDV Directs'), desc: t('home.ecosystem_citizen_f2_d', 'Consultations vidéo HD sécurisées de plus de 2 heures avec des avocats spécialisés.') },
+        { icon: BookOpen, title: t('home.ecosystem_citizen_f3_t', 'Salles de Classe Virtuelles'), desc: t('home.ecosystem_citizen_f3_d', 'Assistez aux séances vidéo en direct avec plus de 100 participants et accès aux résumés.') },
+        { icon: Calendar, title: t('home.ecosystem_citizen_f4_t', 'Planning Annuel & Agenda'), desc: t('home.ecosystem_citizen_f4_d', 'Suivez le calendrier des masterclasses, programmes et actualités législatives.') },
+        { icon: FileText, title: t('home.ecosystem_citizen_f5_t', 'Générateur d\'Actes & Devis'), desc: t('home.ecosystem_citizen_f5_d', 'Créez vos courriers juridiques et demandez des devis clairs et transparents aux avocats.') },
+        { icon: Lock, title: t('home.ecosystem_citizen_f6_t', 'Coffre-Fort Documentaire'), desc: t('home.ecosystem_citizen_f6_d', 'Stockage chiffré de tous vos documents et pièces justificatives.') }
       ]
     },
     student: {
-      title: "Compte Étudiant en Droit — Excellence Académique & Réseau",
-      badge: "Pour les Étudiants en Droit & Écoles d'Avocats",
+      title: t('home.ecosystem_student_title', 'Compte Étudiant en Droit — Excellence Académique & Réseau'),
+      badge: t('home.ecosystem_student_badge', 'Pour les Étudiants en Droit & Écoles d\'Avocats'),
       features: [
-        { icon: BookOpen, title: "Masterclasses & Cours en Live", desc: "Suivez les visioconférences dispensées par des Professeurs de Droit, Doctorants et Avocats." },
-        { icon: Users, title: "Discussions avec les Enseignants", desc: "Posez vos questions et échangez en direct avec vos professeurs et avocats parrains." },
-        { icon: FileText, title: "Centre de Revues Scientifiques", desc: "Accès illimité aux articles de recherche et téléchargement de synthèses en PDF." },
-        { icon: Sparkles, title: "IA GÉNIA-L & Analyse de Code", desc: "Consultez les codes de loi commentés et réalisez des recherches jurisprudentielles ciblées." },
-        { icon: Calendar, title: "Planning Annuel Académique", desc: "Consultez le calendrier complet des examens, concours et webinaires juristes." },
-        { icon: Shield, title: "Profil Étudiant Vérifié", desc: "Mise en avant auprès des cabinets d'avocats pour des stages et opportunités." }
+        { icon: BookOpen, title: t('home.ecosystem_student_f1_t', 'Masterclasses & Cours en Live'), desc: t('home.ecosystem_student_f1_d', 'Suivez les visioconférences dispensées par des Professeurs de Droit, Doctorants et Avocats.') },
+        { icon: Users, title: t('home.ecosystem_student_f2_t', 'Discussions avec les Enseignants'), desc: t('home.ecosystem_student_f2_d', 'Posez vos questions et échangez en direct avec vos professeurs et avocats parrains.') },
+        { icon: FileText, title: t('home.ecosystem_student_f3_t', 'Centre de Revues Scientifiques'), desc: t('home.ecosystem_student_f3_d', 'Accès illimité aux articles de recherche et téléchargement de synthèses en PDF.') },
+        { icon: Sparkles, title: t('home.ecosystem_student_f4_t', 'IA GÉNIA-L & Analyse de Code'), desc: t('home.ecosystem_student_f4_d', 'Consultez les codes de loi commentés et réalisez des recherches jurisprudentielles ciblées.') },
+        { icon: Calendar, title: t('home.ecosystem_student_f5_t', 'Planning Annuel Académique'), desc: t('home.ecosystem_student_f5_d', 'Consultez le calendrier complet des examens, concours et webinaires juristes.') },
+        { icon: Shield, title: t('home.ecosystem_student_f6_t', 'Profil Étudiant Vérifié'), desc: t('home.ecosystem_student_f6_d', 'Mise en avant auprès des cabinets d\'avocats pour des stages et opportunités.') }
       ]
     },
     professor: {
-      title: "Compte Professeur de Droit — Transmission & Rayonnement",
-      badge: "Pour les Professeurs & Maîtres de Conférences",
+      title: t('home.ecosystem_prof_title', 'Compte Professeur de Droit — Transmission & Rayonnement'),
+      badge: t('home.ecosystem_prof_badge', 'Pour les Professeurs & Maîtres de Conférences'),
       features: [
-        { icon: Video, title: "Animation de Visioconférences HD", desc: "Animez des amphithéâtres virtuels (+2h, >100 participants) avec enregistrement et support de cours." },
-        { icon: Calendar, title: "Programmation du Planning Annuel", desc: "Publiez vos modules de cours et conférences au grand planning national interactif." },
-        { icon: BookOpen, title: "Publication de Revues Scientifiques", desc: "Soumettez vos articles et travaux de recherche directement accessibles au grand public." },
-        { icon: Users, title: "Interaction & Accompagnement Étudiants", desc: "Échangez directement avec les étudiants et juristes en formation." },
-        { icon: FileText, title: "Supports de Cours Téléchargeables", desc: "Partagez des fichiers PDF et des exercices d'application pratiques." },
-        { icon: Scale, title: "Écosystème Académique Interconnecté", desc: "Collaborer avec les avocats au barreau et les doctorants-chercheurs." }
+        { icon: Video, title: t('home.ecosystem_prof_f1_t', 'Animation de Visioconférences HD'), desc: t('home.ecosystem_prof_f1_d', 'Animez des amphithéâtres virtuels (+2h, >100 participants) avec enregistrement et support de cours.') },
+        { icon: Calendar, title: t('home.ecosystem_prof_f2_t', 'Programmation du Planning Annuel'), desc: t('home.ecosystem_prof_f2_d', 'Publiez vos modules de cours et conférences au grand planning national interactif.') },
+        { icon: BookOpen, title: t('home.ecosystem_prof_f3_t', 'Publication de Revues Scientifiques'), desc: t('home.ecosystem_prof_f3_d', 'Soumettez vos articles et travaux de recherche directement accessibles au grand public.') },
+        { icon: Users, title: t('home.ecosystem_prof_f4_t', 'Interaction & Accompagnement Étudiants'), desc: t('home.ecosystem_prof_f4_d', 'Échangez directement avec les étudiants et juristes en formation.') },
+        { icon: FileText, title: t('home.ecosystem_prof_f5_t', 'Supports de Cours Téléchargeables'), desc: t('home.ecosystem_prof_f5_d', 'Partagez des fichiers PDF et des exercices d\'application pratiques.') },
+        { icon: Scale, title: t('home.ecosystem_prof_f6_t', 'Écosystème Académique Interconnecté'), desc: t('home.ecosystem_prof_f6_d', 'Collaborer avec les avocats au barreau et les doctorants-chercheurs.') }
       ]
     },
     doctorate: {
-      title: "Compte Doctorant / Chercheur — Recherche & Enseignement",
-      badge: "Pour les Doctorants & Chercheurs en Droit",
+      title: t('home.ecosystem_doc_title', 'Compte Doctorant / Chercheur — Recherche & Enseignement'),
+      badge: t('home.ecosystem_doc_badge', 'Pour les Doctorants & Chercheurs en Droit'),
       features: [
-        { icon: BookOpen, title: "Publication de Thèses & Synthèses", desc: "Publiez vos travaux de doctorat au centre de recherche juridique national." },
-        { icon: Video, title: "Animation de Webinaires & Salles de Classe", desc: "Organisez des ateliers méthodologiques et des séminaires d'actualité juridique." },
-        { icon: Calendar, title: "Insertion au Planning Annuel", desc: "Programmez vos conférences de recherche et colloques académiques." },
-        { icon: Users, title: "Réseau Doctoral & Barreau", desc: "Échangez avec les professeurs de droit et les avocats sur vos domaines de recherche." },
-        { icon: Sparkles, title: "Assistant IA de Recherche GÉNIA-L", desc: "Synthetisez la doctrine française et internationale en un instant." },
-        { icon: Lock, title: "Exportation PDF & Archivage", desc: "Exportez vos publications au format officiel PDF de l'Académie." }
+        { icon: BookOpen, title: t('home.ecosystem_doc_f1_t', 'Publication de Thèses & Synthèses'), desc: t('home.ecosystem_doc_f1_d', 'Publiez vos travaux de doctorat au centre de recherche juridique national.') },
+        { icon: Video, title: t('home.ecosystem_doc_f2_t', 'Animation de Webinaires & Salles de Classe'), desc: t('home.ecosystem_doc_f2_d', 'Organisez des ateliers méthodologiques et des séminaires d\'actualité juridique.') },
+        { icon: Calendar, title: t('home.ecosystem_doc_f3_t', 'Insertion au Planning Annuel'), desc: t('home.ecosystem_doc_f3_d', 'Programmez vos conférences de recherche et colloques académiques.') },
+        { icon: Users, title: t('home.ecosystem_doc_f4_t', 'Réseau Doctoral & Barreau'), desc: t('home.ecosystem_doc_f4_d', 'Échangez avec les professeurs de droit et les avocats sur vos domaines de recherche.') },
+        { icon: Sparkles, title: t('home.ecosystem_doc_f5_t', 'Assistant IA de Recherche GÉNIA-L'), desc: t('home.ecosystem_doc_f5_d', 'Synthetisez la doctrine française et internationale en un instant.') },
+        { icon: Lock, title: t('home.ecosystem_doc_f6_t', 'Exportation PDF & Archivage'), desc: t('home.ecosystem_doc_f6_d', 'Exportez vos publications au format officiel PDF de l\'Académie.') }
       ]
     },
     lawyer: {
-      title: "Compte Avocat — Solution d'Excellence pour votre Cabinet",
-      badge: "Pour les Avocats au Barreau",
+      title: t('home.ecosystem_lawyer_title', 'Compte Avocat — Solution d\'Excellence pour votre Cabinet'),
+      badge: t('home.ecosystem_lawyer_badge', 'Pour les Avocats au Barreau'),
       features: [
-        { icon: Scale, title: "Analyse IA de Pièces & Procédures", desc: "Gagnez du temps dans la rédaction de conclusions et le dépouillement de dossiers complexes." },
-        { icon: Video, title: "Visioconférences & Salles de Classe", desc: "Organisez des consultations privées ou des réunions collectives de formation vidéo en direct." },
-        { icon: Calendar, title: "Programmation du Planning Annuel", desc: "Planifiez vos séances, conférences et actualités sur le calendrier national public." },
-        { icon: BookOpen, title: "Publication de Revues Scientifiques", desc: "Publiez vos articles et thèses de recherche directement au centre scientifique national." },
-        { icon: FileText, title: "Gestion des Devis & Dossiers Clients", desc: "Émettez des devis en temps réel, suivez vos clients et vos honoraires sereinement." },
-        { icon: Shield, title: "Conformité Ordre & Sécurité HDS", desc: "Protection stricte du secret professionnel et chiffrement de bout en bout des réunions." }
+        { icon: Scale, title: t('home.ecosystem_lawyer_f1_t', 'Analyse IA de Pièces & Procédures'), desc: t('home.ecosystem_lawyer_f1_d', 'Gagnez du temps dans la rédaction de conclusions et le dépouillement de dossiers complexes.') },
+        { icon: Video, title: t('home.ecosystem_lawyer_f2_t', 'Visioconférences & Salles de Classe'), desc: t('home.ecosystem_lawyer_f2_d', 'Organisez des consultations privées ou des réunions collectives de formation vidéo en direct.') },
+        { icon: Calendar, title: t('home.ecosystem_lawyer_f3_t', 'Programmation du Planning Annuel'), desc: t('home.ecosystem_lawyer_f3_d', 'Planifiez vos séances, conférences et actualités sur le calendrier national public.') },
+        { icon: BookOpen, title: t('home.ecosystem_lawyer_f4_t', 'Publication de Revues Scientifiques'), desc: t('home.ecosystem_lawyer_f4_d', 'Publiez vos articles et thèses de recherche directement au centre scientifique national.') },
+        { icon: FileText, title: t('home.ecosystem_lawyer_f5_t', 'Gestion des Devis & Dossiers Clients'), desc: t('home.ecosystem_lawyer_f5_d', 'Émettez des devis en temps réel, suivez vos clients et vos honoraires sereinement.') },
+        { icon: Shield, title: t('home.ecosystem_lawyer_f6_t', 'Espace Cabinet Multi-Membres'), desc: t('home.ecosystem_lawyer_f6_d', 'Gérez vos collaborateurs, stagiaires et secrétariat dans un espace d\'équipe sécurisé.') }
       ]
     }
   };
@@ -993,32 +993,32 @@ const Home: React.FC = () => {
         <div className="container px-4 mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <span className="bg-red-50 text-red-700 text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-red-100 inline-flex items-center gap-1.5">
-              <Video className="w-4 h-4 text-red-600 animate-pulse" /> Salles de Classe Virtuelles & Visioconférences 2h+
+              <Video className="w-4 h-4 text-red-600 animate-pulse" /> {t('home.visio_badge', 'Salles de Classe Virtuelles & Visioconférences 2h+')}
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight">
-              Des Consultations & Cours Vidéo HD en Direct 100% Sécurisés
+              {t('home.visio_title', 'Des Consultations & Cours Vidéo HD en Direct 100% Sécurisés')}
             </h2>
             <p className="text-base text-slate-600 leading-relaxed">
-              Assistez à des cours collectifs de plus de 100 personnes ou bénéficiez d'une consultation individuelle en visio HD avec vos avocats. À la fin de chaque séance passée, la vidéo s'archive automatiquement laisse place à un résumé complet écrit ou vidéo.
+              {t('home.visio_desc', 'Assistez à des cours collectifs de plus de 100 personnes ou bénéficiez d\'une consultation individuelle en visio HD avec vos avocats. À la fin de chaque séance passée, la vidéo s\'archive automatiquement laisse place à un résumé complet écrit ou vidéo.')}
             </p>
             <div className="space-y-3 pt-2">
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="text-sm font-semibold text-slate-800">Durée Illimitée (plus de 2 heures par session sans coupure).</span>
+                <span className="text-sm font-semibold text-slate-800">{t('home.visio_bullet1', 'Durée Illimitée (plus de 2 heures par session sans coupure).')}</span>
               </div>
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="text-sm font-semibold text-slate-800">Disparition automatique des séances passées au profit d'un résumé clair.</span>
+                <span className="text-sm font-semibold text-slate-800">{t('home.visio_bullet2', 'Disparition automatique des séances passées au profit d\'un résumé clair.')}</span>
               </div>
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="text-sm font-semibold text-slate-800">Interactivité totale avec chat, questions/réponses et tableau blanc.</span>
+                <span className="text-sm font-semibold text-slate-800">{t('home.visio_bullet3', 'Interactivité totale avec chat, questions/réponses et tableau blanc.')}</span>
               </div>
             </div>
 
             <div className="pt-4">
               <Button onClick={() => navigate('/classrooms')} className="bg-indigo-600 hover:bg-indigo-700 font-bold px-6 py-3 rounded-xl text-sm shadow-md">
-                Rejoindre le Catalogue des Visioconférences
+                {t('home.visio_cta', 'Rejoindre le Catalogue des Visioconférences')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
@@ -1047,9 +1047,9 @@ const Home: React.FC = () => {
             </div>
 
             <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-xs space-y-2">
-              <p className="font-semibold text-amber-300">📝 Résumé Automatique de Séance (IA)</p>
+              <p className="font-semibold text-amber-300">{t('home.visio_summary_title', '📝 Résumé Automatique de Séance (IA)')}</p>
               <p className="text-slate-300 text-[11px] leading-relaxed">
-                Recommandations d'application immédiate concernant l'acquisition des congés durant les arrêts maladie et recours prud'homaux.
+                {t('home.visio_summary_desc', 'À la fin des 2h de direct, la salle s\'archive. Retrouvez ici la synthèse écrite des points de droit abordés, les textes cités et les questions répondues.')}
               </p>
             </div>
           </div>
@@ -1064,10 +1064,10 @@ const Home: React.FC = () => {
               Recherche & Calendrier Officiel
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-              Planning Annuel & Revues Scientifiques Doctrinales
+              {t('home.planning_title', 'Planning Annuel, Mensuel & Hebdomadaire')}
             </h2>
             <p className="text-base text-slate-600">
-              Un agenda annuel complet pour anticiper les formations et un centre de recherche académique alimenté par des juristes et synchronisé avec le Web.
+              {t('home.planning_desc', 'Organisez vos cours, masterclasses et rendez-vous sur un calendrier dynamique interconnecté. Tous les événements passés sont archivés avec leur compte-rendu.')}
             </p>
           </div>
 
@@ -1078,9 +1078,9 @@ const Home: React.FC = () => {
                 <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                   <Calendar className="w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900">Planning Annuel, Mensuel & Hebdomadaire</h3>
+                <h3 className="text-2xl font-bold text-slate-900">{t('home.planning_title', 'Planning Annuel, Mensuel & Hebdomadaire')}</h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Consultez à tout moment les formations à venir, les séminaires juridiques et le calendrier d'actualisation des décrets au Journal Officiel.
+                  {t('home.planning_desc', 'Consultez à tout moment les formations à venir, les séminaires juridiques et le calendrier d\'actualisation des décrets au Journal Officiel.')}
                 </p>
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs">
                   <div className="flex justify-between font-bold text-slate-800">
@@ -1094,7 +1094,7 @@ const Home: React.FC = () => {
                 </div>
               </div>
               <Button onClick={() => navigate('/classrooms')} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 text-xs rounded-xl">
-                Consulter l'Agenda National
+                {t('home.visio_cta', 'Consulter l\'Agenda National')}
               </Button>
             </div>
 
@@ -1104,9 +1104,9 @@ const Home: React.FC = () => {
                 <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                   <BookOpen className="w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900">Revues Scientifiques & Publications PDF</h3>
+                <h3 className="text-2xl font-bold text-slate-900">{t('home.reviews_title', 'Revues Scientifiques & Publications PDF')}</h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Accédez aux thèses de doctorat, chroniques doctrinales et revues juridiques de France, d'Europe et du Monde entier avec téléchargement PDF gratuit.
+                  {t('home.reviews_desc', 'Accédez aux thèses de doctorat, chroniques doctrinales et revues juridiques de France, d\'Europe et du Monde entier avec téléchargement PDF gratuit.')}
                 </p>
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs">
                   <div className="flex justify-between font-bold text-slate-800">
@@ -1120,7 +1120,7 @@ const Home: React.FC = () => {
                 </div>
               </div>
               <Button onClick={() => navigate('/news')} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 text-xs rounded-xl">
-                Consulter les Revues Scientifiques
+                {t('home.reviews_title', 'Consulter les Revues Scientifiques')}
               </Button>
             </div>
           </div>
@@ -1132,9 +1132,9 @@ const Home: React.FC = () => {
         <div className="container px-4 mx-auto max-w-4xl space-y-12">
           <div className="text-center space-y-4">
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-              Foire Aux Questions (FAQ)
+              {t('faq.title', 'Foire Aux Questions (FAQ)')}
             </h2>
-            <p className="text-sm text-slate-500">Tout ce qu'il faut savoir sur l'utilisation de France Justice.</p>
+            <p className="text-sm text-slate-500">{t('faq.subtitle', 'Tout ce qu\'il faut savoir sur l\'utilisation de France Justice.')}</p>
           </div>
 
           <div className="space-y-4">
@@ -1169,10 +1169,10 @@ const Home: React.FC = () => {
       <section className="py-20 relative overflow-hidden bg-gradient-to-r from-primary-700 via-indigo-900 to-slate-950 text-white">
         <div className="container px-4 mx-auto max-w-5xl text-center space-y-8 relative z-10">
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight">
-            Prêt à accéder à votre espace juridique sécurisé ?
+            {t('home.cta_title', 'Prêt à accéder à votre espace juridique sécurisé ?')}
           </h2>
           <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto font-medium">
-            Inscrivez-vous dès aujourd'hui et profitez de l'ensemble des services d'assistant IA, visioconférences et publications.
+            {t('home.cta_subtitle', 'Inscrivez-vous dès aujourd\'hui et profitez de l\'ensemble des services d\'assistant IA, visioconférences et publications.')}
           </p>
 
           <div className="flex flex-wrap gap-4 justify-center pt-4">

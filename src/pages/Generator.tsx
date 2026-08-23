@@ -124,10 +124,10 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
     { id: 'plainte-simple', title: t('generator.type_plainte', 'Plainte simple'), description: t('generator.type_plainte_desc', 'Déposer une plainte auprès du Procureur de la République'), icon: FileText },
     { id: 'pre-plainte', title: t('generator.type_preplainte', 'Pré-plainte en ligne'), description: t('generator.type_preplainte_desc', 'Démarche préalable officielle avant convocation'), icon: FileText },
     { id: 'main-courante', title: t('generator.type_maincourante', 'Main courante'), description: t('generator.type_maincourante_desc', 'Consigner officiellement des faits sans plainte'), icon: FileText },
-    { id: 'signalement-ong-police-citoyenne', title: 'Fiche de Signalement — ONG Police Citoyenne Europe', description: 'Formulaire officiel d\'ouverture d\'enquête opposable aux Ministères et Cours d\'Appel', icon: FileText },
+    { id: 'signalement-ong-police-citoyenne', title: t('generator.type_signalement', 'Fiche de Signalement — ONG Police Citoyenne Europe'), description: t('generator.type_signalement_desc', 'Formulaire officiel d\'ouverture d\'enquête opposable aux Ministères et Cours d\'Appel'), icon: FileText },
     { id: 'recours-gracieux', title: t('generator.type_recours', 'Recours gracieux & Administratif'), description: t('generator.type_recours_desc', "Demande d'annulation ou de révision d'une décision"), icon: FileText },
-    { id: 'contrat-prestation', title: 'Contrat de Prestation / Convention', description: "Rédaction d'un accord commercial ou convention d'honoraires", icon: FileText },
-    { id: 'conclusions-anonymisees', title: 'Conclusions & Actes Judiciaires Anonymisés', description: 'Trame de conclusions avec occultation RGPD automatique des données', icon: FileText },
+    { id: 'contrat-prestation', title: t('generator.type_prestation', 'Contrat de Prestation / Convention'), description: t('generator.type_prestation_desc', "Rédaction d'un accord commercial ou convention d'honoraires"), icon: FileText },
+    { id: 'conclusions-anonymisees', title: t('generator.type_conclusions', 'Conclusions & Actes Judiciaires Anonymisés'), description: t('generator.type_conclusions_desc', 'Trame de conclusions avec occultation RGPD automatique des données'), icon: FileText },
   ];
 
   const steps = [

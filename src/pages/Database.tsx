@@ -359,7 +359,7 @@ function isStrictLegalQuery(query: string): boolean {
 }
 
 const Database: React.FC = () => {
-  useTranslation();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
 
   const getCategoryFromQuery = (param: string | null): string => {

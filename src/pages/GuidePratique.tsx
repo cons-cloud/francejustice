@@ -7,6 +7,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { generatePDF } from '../lib/pdfUtils';
+import { useTranslation } from '../i18n';
 
 interface LegalGuideItem {
   id: string;
@@ -321,6 +322,7 @@ const GUIDES_DATABASE: LegalGuideItem[] = [
 
 const GuidePratique: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Tous');
