@@ -71,7 +71,7 @@ export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Rechercher par nom de Premier Président, Cour d'Appel ou Ville..."
+              placeholder={t('database.search_courts', "Rechercher par nom de Premier Président, Cour d'Appel ou Ville...")}
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"

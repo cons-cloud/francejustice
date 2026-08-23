@@ -248,13 +248,13 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
           <div>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 mb-2">
-              <Calendar className="w-3.5 h-3.5" /> Agenda Officiel France Justice
+              <Calendar className="w-3.5 h-3.5" /> {t('planning.badge', 'Agenda Officiel France Justice')}
             </span>
             <h2 className="text-2xl font-extrabold text-slate-900">
-              Planning Annuel & Calendrier des Formations
+              {t('planning.title', 'Planning Annuel & Calendrier des Formations')}
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Consultez le calendrier prévisionnel des masterclasses, actualités juridiques et programmes académiques dispensés par nos avocats partenaires.
+              {t('planning.subtitle', 'Consultez le calendrier prévisionnel des masterclasses, actualités juridiques et programmes académiques dispensés par nos avocats partenaires.')}
             </p>
           </div>
 

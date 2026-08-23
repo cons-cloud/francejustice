@@ -1,5 +1,5 @@
 import React from 'react';
-import { Scale, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, ExternalLink, Shield, Building2, Gavel, FileText } from 'lucide-react';
+import { Scale, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, ExternalLink, Building2 } from 'lucide-react';
 import { useTranslation } from '../../i18n';
 
 const Footer: React.FC = () => {

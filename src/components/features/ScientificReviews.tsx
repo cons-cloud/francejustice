@@ -102,6 +102,7 @@ export const ScientificReviews: React.FC<ScientificReviewsProps> = ({
   mode = 'public',
   onPublishClick
 }) => {
+  const { t } = useTranslation();
   const [reviews, setReviews] = useState<ScientificReview[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -237,7 +238,7 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
             <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
             <input
               type="text"
-              placeholder="Rechercher par titre, auteur, revue scientifique ou mot-clé..."
+              placeholder={t('reviews.search_placeholder', 'Rechercher par titre, auteur, revue scientifique ou mot-clé...')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full bg-white/10 border border-white/20 text-white text-xs rounded-2xl pl-10 pr-4 py-2.5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400"

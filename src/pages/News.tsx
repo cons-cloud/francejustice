@@ -250,7 +250,7 @@ const categoryStyles: Record<string, { badge: string; border: string; glow: stri
 };
 
 const News: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   const [news, setNews] = useState<LegalNews[]>(INITIAL_REALTIME_NEWS);
   const [selectedCategory, setSelectedCategory] = useState<string>('Tous');

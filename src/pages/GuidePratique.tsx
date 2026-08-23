@@ -345,7 +345,7 @@ const GuidePratique: React.FC = () => {
       summary: t(`guide.${guide.id}.summary`, guide.summary),
       legalBasis: t(`guide.${guide.id}.legalBasis`, guide.legalBasis),
       estimatedTime: t(`guide.${guide.id}.estimatedTime`, guide.estimatedTime),
-      difficulty: t(`guide.diff_${guide.difficulty.toLowerCase()}`, guide.difficulty),
+      difficulty: (t(`guide.diff_${guide.difficulty.toLowerCase()}`, guide.difficulty) || guide.difficulty) as LegalGuideItem['difficulty'],
       requiredDocuments: guide.requiredDocuments.map((doc, idx) => t(`guide.${guide.id}.doc_${idx}`, doc)),
       steps: guide.steps.map((step) => ({
         ...step,

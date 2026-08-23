@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { 
   Users, 
   Scale, 
@@ -9,17 +9,11 @@ import {
   Video, 
   GraduationCap, 
   Lock, 
-  CheckCircle2, 
-  Globe, 
   ArrowRight, 
-  BookOpen, 
-  Clock,
   ShieldCheck,
   Building2,
   ExternalLink,
   BookMarked,
-  FileCheck,
-  Award,
   ChevronDown,
   ChevronUp,
   HeartHandshake

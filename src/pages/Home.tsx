@@ -374,6 +374,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-slate-50 font-sans">
+      <SEO title="FranceJustice — ONG Internationale & Droit IA" description="FranceJustice : Plateforme souveraine d'accès au droit français, recherche IA et consultations." />
 
       {/* HERO SECTION */}
       <section className="relative min-h-[92vh] flex items-center justify-center bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 pt-20 pb-28 text-white overflow-hidden">
