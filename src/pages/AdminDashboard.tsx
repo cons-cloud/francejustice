@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar, AlertCircle, Lock, Scale } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar, AlertCircle, Lock } from 'lucide-react';
 import { DATA_RETENTION_SCHEDULE, DATABASE_SECURITY_INFO, getSecurityStatusBadge } from '../lib/dataSecurityUtils';
 import { cn } from '../lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';

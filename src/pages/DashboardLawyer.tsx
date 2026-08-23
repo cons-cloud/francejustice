@@ -737,6 +737,7 @@ const DashboardLawyer: React.FC = () => {
           title: '',
           description: '',
           type: 'direct',
+          course_category: 'masterclass',
           scheduled_at: '',
           duration_minutes: 60,
           max_members: 100,
@@ -801,6 +802,7 @@ const DashboardLawyer: React.FC = () => {
       setNewFormation({
         title: '',
         category: 'Droit des Contrats',
+        course_category: 'masterclass',
         level: 'Débutant',
         duration: '2h 00',
         description: '',

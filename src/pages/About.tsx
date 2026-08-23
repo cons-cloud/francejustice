@@ -3,26 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 import { 
   Users, 
   Scale, 
-  Shield, 
-  MessageSquare, 
   Sparkles, 
   BrainCircuit, 
   FileText, 
   Video, 
   GraduationCap, 
-  Award, 
-  Calendar, 
   Lock, 
   CheckCircle2, 
   Globe, 
   ArrowRight, 
   BookOpen, 
-  Search, 
-  Receipt,
   Clock,
   ShieldCheck,
-  Building2,
-  FileCheck
+  Building2
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
