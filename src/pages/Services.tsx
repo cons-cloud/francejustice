@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../i18n';
+import SEO from '../components/common/SEO';
 
 const Services: React.FC = () => {
   const navigate = useNavigate();
@@ -102,6 +103,11 @@ const Services: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden">
+      <SEO 
+        title="Services Juridiques IA & Consultations Avocats" 
+        description="Découvrez tous nos services juridiques : recherche IA, visioconférence chiffrée avec avocats, générateur de documents et formations certifiantes."
+        keywords="services juridiques, avocat en ligne, consultation avocat, générateur contrat, IA droit, visioconférence avocat"
+      />
 
       {/* HERO PRO */}
       <section className="py-24 bg-slate-950 relative overflow-hidden border-b border-slate-900">

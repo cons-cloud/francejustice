@@ -1,8 +1,33 @@
-# robots.txt for France Justice — AI & Search Engine Optimization (SEO / GEO)
+# robots.txt for France Justice (Just-Law) — AI & Search Engine Optimization (SEO / GEO)
 User-agent: *
 Allow: /
+Disallow: /admin-dashboard
+Disallow: /lawyer-dashboard
+Disallow: /dashboard
 
-# Dedicated AI Engine Crawlers (ChatGPT, Gemini, Claude, Perplexity, DeepSeek, Mistral)
+# Dedicated Search Engine & AI Engines Indexing
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# Dedicated AI Crawlers (ChatGPT, Gemini, Claude, Perplexity, DeepSeek, ByteDance, Mistral)
 User-agent: GPTBot
 Allow: /
 

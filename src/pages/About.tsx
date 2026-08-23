@@ -21,6 +21,7 @@ import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../i18n';
+import SEO from '../components/common/SEO';
 
 const About: React.FC = () => {
   const navigate = useNavigate();
@@ -167,6 +168,11 @@ const About: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden">
+      <SEO 
+        title="À Propos — L'Écosystème Juridique Intelligent & Direction Académique"
+        description="Découvrez l'histoire de France Justice, la vision du Fondateur Dr. Imam Çoban et l'ensemble de nos services d'IA, avocats et formations diplômantes."
+        keywords="à propos france justice, imam coban docteur en droit, écosystème juridique, vision justice ia"
+      />
 
       {/* HERO SECTION */}
       <section className="py-24 md:py-32 bg-slate-950 relative border-b border-slate-900 overflow-hidden">

@@ -1,69 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  <!-- Core Home & Navigation -->
   <url>
     <loc>https://francejustice.org/</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <priority>1.00</priority>
   </url>
   <url>
     <loc>https://francejustice.org/database</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>always</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://francejustice.org/assistant</loc>
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>always</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://francejustice.org/genia-l</loc>
-    <lastmod>2026-07-28</lastmod>
+    <loc>https://francejustice.org/services</loc>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://francejustice.org/services</loc>
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <loc>https://francejustice.org/lawyers</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://francejustice.org/lawyers</loc>
-    <lastmod>2026-07-28</lastmod>
+    <loc>https://francejustice.org/genia-l</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://francejustice.org/assistant</loc>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://francejustice.org/generator</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://francejustice.org/news</loc>
-    <lastmod>2026-07-28</lastmod>
+    <loc>https://francejustice.org/classrooms</loc>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://francejustice.org/guide</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://francejustice.org/faq</loc>
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://francejustice.org/news</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Informational & Legal Pages -->
+  <url>
+    <loc>https://francejustice.org/about</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://francejustice.org/about</loc>
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
+    <loc>https://francejustice.org/legal</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://francejustice.org/faq</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
   </url>
   <url>
     <loc>https://francejustice.org/contact</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
+  </url>
+
+  <!-- User Portals & Registrations -->
+  <url>
+    <loc>https://francejustice.org/login</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://francejustice.org/register</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://francejustice.org/register/lawyer</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://francejustice.org/register/academic</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
 </urlset>
