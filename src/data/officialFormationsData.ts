@@ -30,6 +30,7 @@ export interface OfficialFormation {
   duration_minutes: number;
   lawyer_first_name: string;
   lawyer_last_name: string;
+  course_category: 'masterclass' | 'diplomante';
 }
 
 export const OFFICIAL_FEDE_FORMATIONS: OfficialFormation[] = [
@@ -42,9 +43,10 @@ export const OFFICIAL_FEDE_FORMATIONS: OfficialFormation[] = [
     ects: 120,
     duration: '2 ans (Initial ou Alternance)',
     category: 'Droit Européen & des Affaires',
-    certifier: 'FEDE - Fédération Européenne des Écoles',
+    course_category: 'diplomante',
+    certifier: 'Commission Européenne & Nationale Diplômante',
     pdfUrl: '/assets/pdf/MASTER DROIT DES AFFAIRES .pdf',
-    pdfName: 'MASTER_EUROPEN_JURISTE_ENTREPRISE_FEDE.pdf',
+    pdfName: 'MASTER_EUROPEN_JURISTE_ENTREPRISE_DIPLOMANTE.pdf',
     pdfSize: '412 KB',
     description: `Le Mastère européen juriste d'entreprise, spécialité droit européen et international des affaires, forme des professionnels immédiatement opérationnels. Le juriste d'entreprise protège les intérêts de son organisation en gérant les contrats, les contentieux, et en veillant à la légalité des décisions. En contexte international, il négocie et rédigé en anglais. Associé aux prises de décisions, il évalue les risques et propose des montages juridiques avantageux. Dans une PME, il peut coordonner des avocats extérieurs. Dans un grand groupe, il est souvent rattaché à la direction générale. Ses missions incluent l'analyse, la négociation et la rédaction de contrats, la gestion des contentieux et le conseil en droit des affaires.`,
     objectives: [
@@ -105,8 +107,8 @@ export const OFFICIAL_FEDE_FORMATIONS: OfficialFormation[] = [
     is_pdf_formation: true,
     format: 'texte_pdf',
     duration_minutes: 0,
-    lawyer_first_name: 'FEDE - Fédération Européenne',
-    lawyer_last_name: 'des Écoles'
+    lawyer_first_name: 'Formation Diplômante',
+    lawyer_last_name: 'Officielle'
   },
 
   // ── 2. MASTÈRE EUROPÉEN EXPERT IT - IA & BIG DATA (BAC+5) ──
@@ -118,9 +120,10 @@ export const OFFICIAL_FEDE_FORMATIONS: OfficialFormation[] = [
     ects: 120,
     duration: '2 ans (Initial ou Alternance)',
     category: 'Intelligence Artificielle & Big Data',
-    certifier: 'FEDE - Fédération Européenne des Écoles',
+    course_category: 'diplomante',
+    certifier: 'Commission Européenne & Nationale Diplômante',
     pdfUrl: '/assets/pdf/master IA .pdf',
-    pdfName: 'MASTER_EUROPEN_EXPERT_IT_IA_BIGDATA_FEDE.pdf',
+    pdfName: 'MASTER_EUROPEN_EXPERT_IT_IA_BIGDATA_DIPLOMANTE.pdf',
     pdfSize: '250 KB',
     description: `Les projets de développement d'applications intelligentes, axés sur la Big Data ou non, se multiplient avec la digitalisation dans les secteurs tels que les télécoms, l'E-Commerce, l'industrie, les services, les loisirs, l'éducation, la formation, l'agriculture ou encore l'agroalimentaire. Les entreprises recherchent des professionnels aux capacités techniques solides, experts dans la digitalisation intelligente et sécurisée. Ils doivent être capables de piloter des équipes, gérer des projets dans leur ensemble et répondre aux besoins spécifiques des clients. Cette formation prépare les apprenants à concevoir des projets digitaux complexes avec compétence et autonomie.`,
     objectives: [
@@ -182,8 +185,8 @@ export const OFFICIAL_FEDE_FORMATIONS: OfficialFormation[] = [
     is_pdf_formation: true,
     format: 'texte_pdf',
     duration_minutes: 0,
-    lawyer_first_name: 'FEDE - Fédération Européenne',
-    lawyer_last_name: 'des Écoles'
+    lawyer_first_name: 'Formation Diplômante',
+    lawyer_last_name: 'Officielle'
   },
 
   // ── 3. BACHELOR EUROPÉEN IMMOBILIER (BAC+3) ──
@@ -195,9 +198,10 @@ export const OFFICIAL_FEDE_FORMATIONS: OfficialFormation[] = [
     ects: 60,
     duration: '1 an (Initial ou Alternance)',
     category: 'Droit & Gestion Immobilière',
-    certifier: 'FEDE - Fédération Européenne des Écoles',
+    course_category: 'diplomante',
+    certifier: 'Commission Européenne & Nationale Diplômante',
     pdfUrl: '/assets/pdf/LICENCE IMMOBILIER .pdf',
-    pdfName: 'BACHELOR_EUROPEN_IMMOBILIER_FEDE.pdf',
+    pdfName: 'BACHELOR_EUROPEN_IMMOBILIER_DIPLOMANTE.pdf',
     pdfSize: '618 KB',
     description: `Le Bachelor européen immobilier est ouvert aux titulaires d'un premier diplôme ou aux personnes bénéficiant d'une expérience significative dans le secteur immobilier de se spécialiser en transaction ou gestion immobilière. Bien qu'il ne permette pas directement l'obtention d'une carte professionnelle, ce programme constitue un tremplin théorique, juridique et technique pour évoluer dans l'immobilier, en apportant les connaissances théoriques fondamentales aux futurs professionnels. Le programme laisse le choix aux apprenants de s'orienter vers une spécialisation en transaction immobilière ou en gestion immobilière.`,
     objectives: [
@@ -260,13 +264,15 @@ export const OFFICIAL_FEDE_FORMATIONS: OfficialFormation[] = [
     is_pdf_formation: true,
     format: 'texte_pdf',
     duration_minutes: 0,
-    lawyer_first_name: 'FEDE - Fédération Européenne',
-    lawyer_last_name: 'des Écoles'
+    lawyer_first_name: 'Formation Diplômante',
+    lawyer_last_name: 'Officielle'
   }
 ];
 
+export const OFFICIAL_DIPLOMANTE_FORMATIONS = OFFICIAL_FEDE_FORMATIONS;
+
 /**
- * Returns the 3 official FEDE diploma courses formatted as Classrooms for public/student view
+ * Returns the 3 official diploma courses formatted as Classrooms for public/student view
  */
 export function getOfficialFormationsAsClassrooms() {
   return OFFICIAL_FEDE_FORMATIONS.map(f => ({
@@ -276,7 +282,8 @@ export function getOfficialFormationsAsClassrooms() {
     type: f.type,
     is_pdf_formation: true,
     format: 'texte_pdf' as const,
-    lawyer_id: 'lawyer-fede',
+    course_category: 'diplomante' as const,
+    lawyer_id: 'lawyer-diplomante',
     lawyer_first_name: f.lawyer_first_name,
     lawyer_last_name: f.lawyer_last_name,
     duration_minutes: f.duration_minutes,
@@ -302,17 +309,18 @@ export function getOfficialFormationsAsClassrooms() {
 }
 
 /**
- * Returns the 3 official FEDE diploma courses formatted as Admin Formation items
+ * Returns the 3 official diploma courses formatted as Admin Formation items
  */
 export function getOfficialFormationsAsAdminItems() {
   return OFFICIAL_FEDE_FORMATIONS.map(f => ({
     id: f.id,
     title: f.title,
     category: f.category,
+    course_category: 'diplomante' as const,
     level: f.level,
     duration: f.duration,
     description: f.description,
-    author_name: `${f.certifier} (Diplôme Européen)`,
+    author_name: `${f.certifier} (Formation Diplômante)`,
     status: 'Publié',
     format: 'texte_pdf' as const,
     is_pdf_formation: true,

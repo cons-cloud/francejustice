@@ -550,7 +550,7 @@ const Home: React.FC = () => {
                   <div className="flex items-center justify-between text-xs text-slate-400">
                     <span className="flex items-center gap-1 font-semibold text-slate-200 truncate">
                       <UserCheck className="w-3.5 h-3.5 text-cyan-400 shrink-0" /> 
-                      {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? 'Fédération Européenne des Écoles (FEDE)' : cls.lawyer_first_name ? `${cls.lawyer_first_name} ${cls.lawyer_last_name}` : 'Professeur de Droit'}
+                      {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? 'Formation Diplômante Officielle' : cls.lawyer_first_name ? `${cls.lawyer_first_name} ${cls.lawyer_last_name}` : 'Professeur de Droit'}
                     </span>
                     {!((cls as any).is_pdf_formation || cls.id.startsWith('fede-')) && cls.duration_minutes > 0 && (
                       <span className="flex items-center gap-1 shrink-0">

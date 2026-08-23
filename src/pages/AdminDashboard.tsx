@@ -70,6 +70,7 @@ const AdminDashboard: React.FC = () => {
   const [newFormation, setNewFormation] = useState({
     title: '',
     category: 'Droit des Contrats',
+    course_category: 'masterclass' as 'masterclass' | 'diplomante',
     level: 'Débutant',
     duration: '2h 00',
     description: '',
@@ -577,6 +578,7 @@ const AdminDashboard: React.FC = () => {
       setNewFormation({
         title: '',
         category: 'Droit des Contrats',
+        course_category: 'masterclass',
         level: 'Débutant',
         duration: '2h 00',
         description: '',

@@ -46,6 +46,7 @@ interface Classroom {
   lawyer_last_name?: string;
   curriculum?: CurriculumSection[];
   category?: string;
+  course_category?: 'masterclass' | 'diplomante';
   attachments?: FormationAttachment[];
 }
 
@@ -626,6 +627,8 @@ ${curriculumText}`;
     });
   };
 
+  const [groupFilter, setGroupFilter] = useState<"all" | "masterclass" | "diplomante">("all");
+
   const filtered = classrooms.filter((r) => {
     const q = searchQuery.toLowerCase();
     const match = r.title.toLowerCase().includes(q) || r.description.toLowerCase().includes(q);
@@ -638,8 +641,13 @@ ${curriculumText}`;
     if (statusFilter === 'upcoming') statusMatch = isSessionUpcoming(r);
     else if (statusFilter === 'in_progress') statusMatch = isSessionInProgress(r);
     else if (statusFilter === 'finished') statusMatch = isSessionPassed(r);
+
+    const isDiplomante = r.course_category === 'diplomante' || isTextPdf || r.id.startsWith('diplomante-');
+    const groupMatch = groupFilter === "all" ? true :
+      groupFilter === "diplomante" ? isDiplomante :
+      !isDiplomante;
     
-    return match && typeMatch && statusMatch;
+    return match && typeMatch && statusMatch && groupMatch;
   });
 
   if (isInMeeting && activeClassroom) {
@@ -734,6 +742,40 @@ ${curriculumText}`;
         ) : (
           <>
 
+        {/* 🎓 DEUX GROUPES MAJEURS : FORMATIONS DIPLÔMANTES vs MASTERCLASS */}
+        <div className="flex flex-wrap items-center gap-3 p-2.5 bg-slate-900/90 rounded-2xl border border-slate-800 mb-6 shadow-lg">
+          <button
+            onClick={() => setGroupFilter('all')}
+            className={`px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-2 ${
+              groupFilter === 'all'
+                ? 'bg-gradient-to-r from-indigo-600 to-primary-600 text-white shadow-md'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            🌟 Tous les Programmes (Masterclass & Diplômes)
+          </button>
+          <button
+            onClick={() => setGroupFilter('diplomante')}
+            className={`px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-2 ${
+              groupFilter === 'diplomante'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                : 'text-emerald-400 hover:bg-emerald-950/40 hover:text-emerald-300'
+            }`}
+          >
+            🎓 Formations Diplômantes (PDF & Programmes Officiels)
+          </button>
+          <button
+            onClick={() => setGroupFilter('masterclass')}
+            className={`px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-2 ${
+              groupFilter === 'masterclass'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                : 'text-indigo-300 hover:bg-indigo-950/40 hover:text-indigo-200'
+            }`}
+          >
+            ⭐ Formations Masterclass (Direct Visio & Replay)
+          </button>
+        </div>
+
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8">
           <div className="flex flex-wrap gap-2">
             {filters.map((f) => (
@@ -793,21 +835,29 @@ ${curriculumText}`;
             {filtered.map((room) => {
               const displayDesc = getRichDescription(room.title, room.description);
               const displayCurriculum = getRichCurriculum(room.title, room.curriculum);
+              const isDiplomante = room.course_category === 'diplomante' || (room as any).is_pdf_formation || room.id.startsWith('fede-') || room.id.startsWith('diplomante-');
 
               return (
                 <Card key={room.id} className="overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-800 shadow-md flex flex-col bg-slate-900 text-slate-100 group">
                   <div className={`h-2 bg-gradient-to-r ${
+                    isDiplomante ? "from-emerald-500 via-teal-400 to-cyan-500" :
                     room.type === "direct" ? "from-red-500 to-orange-400" :
                     room.type === "video" ? "from-indigo-600 to-blue-500" :
-                    "from-emerald-500 to-teal-400"
+                    "from-indigo-500 to-purple-400"
                   }`} />
                   <CardContent className="p-6 flex-1 flex flex-col gap-4">
                     <div className="flex justify-between items-start gap-2">
-                      <span className="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">
-                        {room.category || 'Formation Avocat'}
-                      </span>
-                      <span className="text-xs text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium whitespace-nowrap">
-                        <Users className="w-3.5 h-3.5" /> {(room as any).registered_count || 18} / {room.max_members}
+                      {isDiplomante ? (
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center gap-1 shadow-sm">
+                          🎓 Formation Diplômante
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 flex items-center gap-1 shadow-sm">
+                          ⭐ Masterclass
+                        </span>
+                      )}
+                      <span className="text-xs text-slate-400 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium whitespace-nowrap">
+                        <Users className="w-3.5 h-3.5 text-slate-400" /> {(room as any).registered_count || 18} / {room.max_members}
                       </span>
                     </div>
 
