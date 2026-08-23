@@ -406,7 +406,7 @@
   "lawyers": {
     "title": "Avukatlarımız",
     "subtitle": "Durumunuza uygun avukatı bulun",
-    "search_placeholder": "Avukat ara…",
+    "search_placeholder": "İsim, üniversite, baro veya uzmanlık ile arayın...",
     "speciality": "Uzmanlık",
     "contact_btn": "İletişime geç",
     "verified": "Doğrulanmış",
@@ -415,13 +415,13 @@
     "hero_title": "Resmi Kayıtlı Avukatlar Rehberi",
     "hero_subtitle": "Barolar ve İstinaf Mahkemeleri tarafından doğrulanmış avukatları bulun.",
     "no_results_hint": "Arama kriterlerinizi veya şehir seçiminizi değiştirmeyi deneyin.",
-    "location_filters": "Konum ve Baro Filtreleri",
+    "location_filters": "Konum Filtreleri",
     "region": "Bölge",
-    "all_regions": "Tüm Bölgeler",
-    "bar_association": "Baro",
-    "all_barreaux": "Tüm Barolar",
+    "all_regions": "Tüm bölgeler",
+    "bar_association": "Baro Kaydı",
+    "all_barreaux": "Tüm barolar",
     "city": "Büro Şehri",
-    "all_cities": "Tüm Şehirler",
+    "all_cities": "Tüm şehirler",
     "reset_filters": "Filtreleri Sıfırla",
     "available": "Görüşmeye Uygun",
     "unavailable": "Şu An Meşgul",
@@ -432,7 +432,10 @@
     "load_more": "Daha Fazla Avukat Yükle",
     "cta_title": "Avukat veya Hukuk Profesörü müsünüz?",
     "cta_subtitle": "FranceJustice STK platformuna katılarak müvekkil ağınızı büyütün ve ders verin.",
-    "cta_btn": "Avukat Olarak Kaydol"
+    "cta_btn": "Avukat Olarak Kaydol",
+    "filter_all_members": "Tüm Katılımcılar",
+    "cour_appel": "İstinaf Mahkemesi Şehri",
+    "all_cours_appel": "Tüm İstinaf Mahkemeleri (36)"
   },
   "news": {
     "title": "Hukuki Haberler",
@@ -456,7 +459,15 @@
     "n3_title": "AB CS3D Yönergesi: Şirketlerin Özen Yükümlülüğü",
     "n3_summary": "Büyük şirketler insan hakları ve çevre ihlallerini tespit etmek ve önlemekle yükümlüdür.",
     "n3_impact": "🏢 Etki: KSS ve Şeffaflık",
-    "btn_read_article": "Makaleyi Oku"
+    "btn_read_article": "Makaleyi Oku",
+    "searching_web": "Google Web takibi yapılıyor...",
+    "btn_search_web": "Web'de Canlı Arama",
+    "label_fields": "Hukuk Alanları:",
+    "label_jurisdiction": "Yargı Yetkisi:",
+    "opt_all_jurisdictions": "Tümü (Fransa ve AB)",
+    "label_format": "Biçim:",
+    "opt_all_formats": "Tüm biçimler",
+    "cat_all": "Tümü"
   },
   "classrooms": {
     "title": "Eğitim Alanı",
@@ -478,7 +489,11 @@
     "official_diploma": "Resmi Sertifikalı Eğitim",
     "law_prof": "Hukuk Profesörü",
     "btn_read": "📖 İçeriği Oku",
-    "btn_access": "Sanal Sınıfa Katıl"
+    "btn_access": "Sanal Sınıfa Katıl",
+    "search_placeholder": "Eğitim programı arayın...",
+    "loading": "Programlar yükleniyor...",
+    "empty_title": "Eğitim bulunamadı",
+    "empty_desc": "Aramayı veya filtreleri değiştirmeyi deneyin."
   },
   "generator": {
     "title": "Belge Oluşturucu",
@@ -778,7 +793,20 @@
   },
   "guide": {
     "title": "Pratik Rehber",
-    "subtitle": "Haklarınızı savunmak için bilmeniz gereken her şey"
+    "subtitle": "Haklarınızı savunmak için bilmeniz gereken her şey",
+    "read_full": "Rehberin tamamını okuyun",
+    "empty_title": "Aramanıza uygun hukuki rehber bulunamadı",
+    "empty_desc": "Anahtar kelimenizi değiştirmeyi veya filtreleri sıfırlamayı deneyin.",
+    "reset_filters": "Filtreleri Sıfırla",
+    "difficulty_label": "Zorluk:",
+    "legal_basis_title": "Hukuki dayanak ve referans metinler:",
+    "summary_title": "Rehberin amacı ve özeti:",
+    "documents_title": "Gerekli zorunlu belgeler:",
+    "steps_title": "Prosedürün kronolojik adımları:",
+    "tip_label": "Pratik İpucu:",
+    "errors_title": "Kaçınılması gereken hatalar:",
+    "generate_linked": "Bağlantılı belge modeli oluştur",
+    "export_pdf": "Rehberi PDF olarak indir"
   },
   "academic": {
     "student_title": "Hukuk Öğrencisi Alanı",

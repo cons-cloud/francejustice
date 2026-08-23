@@ -549,12 +549,12 @@ INSTRUCTIONS :
               {isAiSearching ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Veille Google en cours...</span>
+                  <span>{t('news.searching_web', 'Veille Google en cours...')}</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>Chercher en Direct sur le Web</span>
+                  <span>{t('news.btn_search_web', 'Chercher en Direct sur le Web')}</span>
                 </>
               )}
             </button>
@@ -564,7 +564,7 @@ INSTRUCTIONS :
           <div className="space-y-2.5">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
               <Filter className="w-4 h-4 text-primary-400" />
-              <span>Domaines juridiques :</span>
+              <span>{t('news.label_fields', 'Domaines juridiques :')}</span>
             </div>
             <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
               {[
@@ -586,7 +586,7 @@ INSTRUCTIONS :
                       : 'bg-slate-950 border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-500'
                   }`}
                 >
-                  {cat}
+                  {cat === 'Tous' ? t('news.cat_all', 'Tous') : cat}
                 </button>
               ))}
             </div>
@@ -598,13 +598,13 @@ INSTRUCTIONS :
               {/* Jurisdiction */}
               <div className="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-700">
                 <Globe className="w-4 h-4 text-indigo-400" />
-                <span className="text-slate-200 font-bold">Juridiction :</span>
+                <span className="text-slate-200 font-bold">{t('news.label_jurisdiction', 'Juridiction :')}</span>
                 <select
                   value={selectedCountry}
                   onChange={(e) => setSelectedCountry(e.target.value)}
                   className="bg-transparent text-white font-extrabold border-none focus:outline-none cursor-pointer"
                 >
-                  <option value="Tous" className="bg-slate-900 text-white">Toutes (France & UE)</option>
+                  <option value="Tous" className="bg-slate-900 text-white">{t('news.opt_all_jurisdictions', 'Toutes (France & UE)')}</option>
                   <option value="France" className="bg-slate-900 text-white">🇫🇷 France</option>
                   <option value="Union Européenne" className="bg-slate-900 text-white">🇪🇺 Union Européenne</option>
                   <option value="International & Mondial" className="bg-slate-900 text-white">🌐 International</option>
@@ -614,13 +614,13 @@ INSTRUCTIONS :
               {/* Format */}
               <div className="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-700">
                 <Tv className="w-4 h-4 text-emerald-400" />
-                <span className="text-slate-200 font-bold">Format :</span>
+                <span className="text-slate-200 font-bold">{t('news.label_format', 'Format :')}</span>
                 <select
                   value={selectedMediaType}
                   onChange={(e) => setSelectedMediaType(e.target.value)}
                   className="bg-transparent text-white font-extrabold border-none focus:outline-none cursor-pointer"
                 >
-                  <option value="Tous" className="bg-slate-900 text-white">Tous les formats</option>
+                  <option value="Tous" className="bg-slate-900 text-white">{t('news.opt_all_formats', 'Tous les formats')}</option>
                   <option value="Article" className="bg-slate-900 text-white">📰 Articles & Analyses</option>
                   <option value="Décret & Loi" className="bg-slate-900 text-white">📜 Décrets & Lois (JORF)</option>
                   <option value="Arrêt & Jurisprudence" className="bg-slate-900 text-white">⚖️ Jurisprudence</option>

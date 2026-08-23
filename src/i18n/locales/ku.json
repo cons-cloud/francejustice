@@ -406,7 +406,7 @@
   "lawyers": {
     "title": "Parêzerên Me",
     "subtitle": "Parêzerê ku li gorî rewşa we ye bibînin",
-    "search_placeholder": "Li parêzerek bigere…",
+    "search_placeholder": "Bi nav, zanîngeh an baroyê lêgerîn bikin...",
     "speciality": "Pisporî",
     "contact_btn": "Têkilî",
     "verified": "Piştrastkirî",
@@ -415,13 +415,13 @@
     "hero_title": "Rêbernameya Fermî ya Parêzeran",
     "hero_subtitle": "Parêzerên piştrastkirî yên baroyê bibîne.",
     "no_results_hint": "Bajar an cihê lêgerînê biguherîne.",
-    "location_filters": "Fîlterên Cih û Baroyê",
+    "location_filters": "Fîlterên Cihê Geografî",
     "region": "Herêm",
-    "all_regions": "Hemû Herêm",
-    "bar_association": "Baro",
-    "all_barreaux": "Hemû Baro",
+    "all_regions": "Hemû herêm",
+    "bar_association": "Baroya Parêzeran",
+    "all_barreaux": "Hemû baroyî",
     "city": "Bajarê Ofîsê",
-    "all_cities": "Hemû Bajar",
+    "all_cities": "Hemû bajar",
     "reset_filters": "Fîlteran Nû Bike",
     "available": "Ji bo Şêwirmendiyê Amade ye",
     "unavailable": "Naha Mijûl e",
@@ -432,7 +432,10 @@
     "load_more": "Parêzerên Zêdetir Bîne",
     "cta_title": "Tû Parêzer an Profesor î?",
     "cta_subtitle": "Tevlî platforma FranceJustice bibe û dersan bide.",
-    "cta_btn": "Wekî Parêzer Qeyd Bibe"
+    "cta_btn": "Wekî Parêzer Qeyd Bibe",
+    "filter_all_members": "Hemû Endam",
+    "cour_appel": "Dadgeha İstînafê",
+    "all_cours_appel": "Hemû Dadgehên İstînafê (36)"
   },
   "news": {
     "title": "Nûçeyên Hiqûqî",
@@ -456,7 +459,15 @@
     "n3_title": "Rêbernameya Ewropî ji bo Berpirsiyariya Kompaniyan",
     "n3_summary": "Kompaniyên mezin divê zirarên li ser mafên mirovan bisekinînin.",
     "n3_impact": "🏢 Bandor: Şefafiyeta Kompaniyan",
-    "btn_read_article": "Nûçeyê Bixwîne"
+    "btn_read_article": "Nûçeyê Bixwîne",
+    "searching_web": "Lêgerîna Google Web...",
+    "btn_search_web": "Lêgerîna Zindî ya Webê",
+    "label_fields": "Beşên Yasayî:",
+    "label_jurisdiction": "Dadwerî:",
+    "opt_all_jurisdictions": "Hemû (Fransa û EU)",
+    "label_format": "Format:",
+    "opt_all_formats": "Hemû format",
+    "cat_all": "Hemû"
   },
   "classrooms": {
     "title": "Qada Perwerdeyê",
@@ -478,7 +489,11 @@
     "official_diploma": "Dersa bi Sertîfîkaya Fermî",
     "law_prof": "Mamosteyê Yasayê",
     "btn_read": "📖 Naverokê Bixwîne",
-    "btn_access": "Werin Pola Virtual"
+    "btn_access": "Werin Pola Virtual",
+    "search_placeholder": "Li perwerdeyê lêgerîn bikin...",
+    "loading": "Tê barkirin...",
+    "empty_title": "Perwerde nehate dîtin",
+    "empty_desc": "Fîlteran biguherînin."
   },
   "generator": {
     "title": "Afirînerê Belgeyan",
@@ -778,7 +793,20 @@
   },
   "guide": {
     "title": "Rênîşanderê Pratîk",
-    "subtitle": "Her tiştê ku hûn hewce ne bizanibin da ku mafên xwe biparêzin"
+    "subtitle": "Her tiştê ku hûn hewce ne bizanibin da ku mafên xwe biparêzin",
+    "read_full": "Rêberê temam bixwînin",
+    "empty_title": "Tişteke lihevhatî nehate dîtin",
+    "empty_desc": "Peyva lêgerînê biguherînin.",
+    "reset_filters": "Fîlteran Nû Bikin",
+    "difficulty_label": "Ast:",
+    "legal_basis_title": "Çavkaniya yasayî:",
+    "summary_title": "Armanca rêberê:",
+    "documents_title": "Pêdiviyên ferz:",
+    "steps_title": "Pêngavên demî:",
+    "tip_label": "Şîreta Pratîkî:",
+    "errors_title": "Çewtiyên mezin:",
+    "generate_linked": "Belgeya girêdayî biafirînin",
+    "export_pdf": "Rêber wekî PDF daxînin"
   },
   "academic": {
     "student_title": "Cihê Xwendekarên Yasayê",

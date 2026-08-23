@@ -510,7 +510,7 @@ const GuidePratique: React.FC = () => {
                   onClick={() => setSelectedGuide(guide)}
                   className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-primary-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-all shadow-md group-hover:bg-primary-600"
                 >
-                  <span>Consulter le guide complet</span>
+                  <span>{t('guide.read_full', 'Consulter le guide complet')}</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -523,16 +523,16 @@ const GuidePratique: React.FC = () => {
           <div className="text-center py-20 bg-slate-900 rounded-3xl border border-dashed border-slate-800 p-8 space-y-4">
             <BookOpen className="h-16 w-16 text-slate-600 mx-auto" />
             <h3 className="text-xl font-bold text-slate-300">
-              Aucun guide juridique ne correspond à votre recherche
+              {t('guide.empty_title', 'Aucun guide juridique ne correspond à votre recherche')}
             </h3>
             <p className="text-slate-400 text-sm max-w-md mx-auto">
-              Essayez de modifier votre mot-clé ou réinitialisez les filtres par catégorie.
+              {t('guide.empty_desc', 'Essayez de modifier votre mot-clé ou réinitialisez les filtres par catégorie.')}
             </p>
             <button
               onClick={() => { setSelectedCategory('Tous'); setSearchQuery(''); }}
               className="bg-primary-600 hover:bg-primary-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition-all"
             >
-              Réinitialiser les filtres
+              {t('guide.reset_filters', 'Réinitialiser les filtres')}
             </button>
           </div>
         )}
@@ -559,7 +559,7 @@ const GuidePratique: React.FC = () => {
                         {selectedGuide.estimatedTime}
                       </span>
                       <span className="px-3 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded-lg text-xs font-bold">
-                        Difficulté : {selectedGuide.difficulty}
+                        {t('guide.difficulty_label', 'Difficulté :')} {selectedGuide.difficulty}
                       </span>
                     </div>
                     <h2 className="text-xl md:text-2xl font-black text-white leading-tight">
@@ -582,7 +582,7 @@ const GuidePratique: React.FC = () => {
                   <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 flex items-center gap-3">
                     <Scale className="w-6 h-6 text-indigo-400 shrink-0" />
                     <div>
-                      <strong className="text-white text-xs block font-bold">Fondement légal et textes de référence :</strong>
+                      <strong className="text-white text-xs block font-bold">{t('guide.legal_basis_title', 'Fondement légal et textes de référence :')}</strong>
                       <span className="text-indigo-200 text-xs font-mono">{selectedGuide.legalBasis}</span>
                     </div>
                   </div>
@@ -591,7 +591,7 @@ const GuidePratique: React.FC = () => {
                   <div className="space-y-2">
                     <h4 className="text-white font-extrabold text-base flex items-center gap-2">
                       <BookOpen className="w-4 h-4 text-primary-400" />
-                      <span>Présentation et objectifs du guide :</span>
+                      <span>{t('guide.summary_title', 'Présentation et objectifs du guide :')}</span>
                     </h4>
                     <p className="text-slate-200 text-sm leading-relaxed bg-slate-950 p-4 rounded-2xl border border-slate-800">
                       {selectedGuide.summary}
@@ -602,7 +602,7 @@ const GuidePratique: React.FC = () => {
                   <div className="space-y-3">
                     <h4 className="text-white font-extrabold text-base flex items-center gap-2">
                       <FileCheck className="w-4 h-4 text-emerald-400" />
-                      <span>Pièces et documents obligatoires à réunir :</span>
+                      <span>{t('guide.documents_title', 'Pièces et documents obligatoires à réunir :')}</span>
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {selectedGuide.requiredDocuments.map((doc, i) => (
@@ -618,7 +618,7 @@ const GuidePratique: React.FC = () => {
                   <div className="space-y-4 pt-2">
                     <h4 className="text-white font-extrabold text-base flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-amber-400" />
-                      <span>Étapes chronologiques de la procédure :</span>
+                      <span>{t('guide.steps_title', 'Étapes chronologiques de la procédure :')}</span>
                     </h4>
 
                     <div className="space-y-4">
@@ -638,7 +638,7 @@ const GuidePratique: React.FC = () => {
                           {step.tip && (
                             <div className="ml-10 p-3 rounded-xl bg-indigo-950/60 border border-indigo-800/40 text-indigo-200 text-xs flex items-start gap-2">
                               <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                              <span><strong>Conseil Pratique :</strong> {step.tip}</span>
+                              <span><strong>{t('guide.tip_label', 'Conseil Pratique :')}</strong> {step.tip}</span>
                             </div>
                           )}
                         </div>
@@ -650,7 +650,7 @@ const GuidePratique: React.FC = () => {
                   <div className="p-5 rounded-2xl bg-rose-950/30 border border-rose-500/40 space-y-3">
                     <div className="flex items-center gap-2 text-rose-400 font-extrabold text-sm">
                       <AlertTriangle className="w-5 h-5" />
-                      <span>Erreurs fatales à éviter obligatoirement :</span>
+                      <span>{t('guide.errors_title', 'Erreurs fatales à éviter obligatoirement :')}</span>
                     </div>
                     <ul className="space-y-2 text-xs text-rose-200">
                       {selectedGuide.errorsToAvoid.map((err, i) => (
@@ -670,7 +670,7 @@ const GuidePratique: React.FC = () => {
                     className="flex items-center gap-2 text-white bg-slate-800 hover:bg-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                   >
                     <FileText className="w-4 h-4 text-primary-400" />
-                    <span>Générer un modèle de document lié</span>
+                    <span>{t('guide.generate_linked', 'Générer un modèle de document lié')}</span>
                   </button>
 
                   <div className="flex items-center gap-3">
@@ -679,14 +679,14 @@ const GuidePratique: React.FC = () => {
                       className="flex items-center gap-2 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-md cursor-pointer"
                     >
                       <Download className="w-4 h-4" />
-                      <span>Exporter le Guide en PDF</span>
+                      <span>{t('guide.export_pdf', 'Exporter le Guide en PDF')}</span>
                     </button>
 
                     <button
                       onClick={() => setSelectedGuide(null)}
                       className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
                     >
-                      Fermer
+                      {t('common.close', 'Fermer')}
                     </button>
                   </div>
                 </div>

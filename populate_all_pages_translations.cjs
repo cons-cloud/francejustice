@@ -77,6 +77,50 @@ const pageTranslations = {
       disc_eu: "European & International Law",
       disc_penal: "Criminal Law & Criminology",
       disc_ai: "Digital Law & AI"
+    },
+    lawyers: {
+      search_placeholder: "Search by name, university, bar, or specialty...",
+      filter_all_members: "All Interveners",
+      location_filters: "Location Filters",
+      region: "Region",
+      all_regions: "All regions",
+      bar_association: "Bar Association",
+      all_barreaux: "All bars",
+      city: "Office City",
+      all_cities: "All cities",
+      cour_appel: "Court of Appeal City",
+      all_cours_appel: "All Courts of Appeal (36)"
+    },
+    guide: {
+      read_full: "Consult full guide",
+      empty_title: "No legal guide matches your search",
+      empty_desc: "Try modifying your keyword or reset filters by category.",
+      reset_filters: "Reset filters",
+      difficulty_label: "Difficulty:",
+      legal_basis_title: "Legal basis & reference texts:",
+      summary_title: "Overview & objectives:",
+      documents_title: "Mandatory documents to gather:",
+      steps_title: "Chronological steps of procedure:",
+      tip_label: "Practical Tip:",
+      errors_title: "Fatal errors to avoid:",
+      generate_linked: "Generate linked document model",
+      export_pdf: "Export Guide as PDF"
+    },
+    classrooms: {
+      search_placeholder: "Search for a course...",
+      loading: "Loading programs...",
+      empty_title: "No course found",
+      empty_desc: "Try modifying your search or filters."
+    },
+    news: {
+      searching_web: "Google Web monitoring in progress...",
+      btn_search_web: "Live Search on Web",
+      label_fields: "Legal Fields:",
+      label_jurisdiction: "Jurisdiction:",
+      opt_all_jurisdictions: "All (France & EU)",
+      label_format: "Format:",
+      opt_all_formats: "All formats",
+      cat_all: "All"
     }
   },
   ar: {
@@ -115,7 +159,7 @@ const pageTranslations = {
       ong_general_desc: "وصول مجاني للقانون واستشارات مجانية للجميع.",
       lawyers_bar: "المحامون والهيئات",
       lawyers_desc: "محامون معتمدون لدى الهيئات ومحاكم الاستئناف.",
-      academic_dir: "الدارة الأكاديمية",
+      academic_dir: "الإدارة الأكاديمية",
       academic_desc: "تحت إشراف المؤسس الدكتور إمام جوبان.",
       security_rgpd: "التشفير وحماية البيانات",
       security_desc: "تشفير عالي وحماية المعطيات الشخصية.",
@@ -152,6 +196,50 @@ const pageTranslations = {
       disc_eu: "القانون الأوروبي والدولي",
       disc_penal: "القانون الجنائي وعلم الإجرام",
       disc_ai: "القانون الرقمي والذكاء الاصطناعي"
+    },
+    lawyers: {
+      search_placeholder: "ابحث بالاسم أو الجامعة أو الهيئة أو التخصص...",
+      filter_all_members: "جميع الأعضاء والخبراء",
+      location_filters: "فلاتر الموقع الجغرافي",
+      region: "الجهة / المنطقة",
+      all_regions: "جميع المناطق",
+      bar_association: "هيئة المحامين",
+      all_barreaux: "جميع الهيئات",
+      city: "مدينة المكتب",
+      all_cities: "جميع المدن",
+      cour_appel: "محكمة الاستئناف بالمدينة",
+      all_cours_appel: "جميع محاكم الاستئناف (36)"
+    },
+    guide: {
+      read_full: "قراءة الدليل الكامل",
+      empty_title: "لا يوجد دليل قانوني يطابق بحثك",
+      empty_desc: "جرب تغيير الكلمة المفتاحية أو إعادة ضبط الفلاتر حسب الفئة.",
+      reset_filters: "إعادة ضبط الفلاتر",
+      difficulty_label: "مستوى الصعوبة:",
+      legal_basis_title: "المرجع القانوني والنصوص المعتمدة:",
+      summary_title: "عرض وأهداف الدليل:",
+      documents_title: "الوثائق والمستندات المطلوبة:",
+      steps_title: "المراحل الزمنية للإجراءات:",
+      tip_label: "نصيحة عملية:",
+      errors_title: "أخطاء جسيمة يجب تجنبها:",
+      generate_linked: "إنشاء نموذج وثيقة مرتبطة",
+      export_pdf: "تحميل الدليل بصيغة PDF"
+    },
+    classrooms: {
+      search_placeholder: "ابحث عن برنامج تكويني...",
+      loading: "جاري تحميل البرامج...",
+      empty_title: "لم يتم العثور على أي دورة",
+      empty_desc: "جرب تعديل بحثك أو الفلاتر."
+    },
+    news: {
+      searching_web: "جاري الرصد التلقائي عبر ويب جوجل...",
+      btn_search_web: "بحث حي ومباشر في الويب",
+      label_fields: "التخصصات القانونية:",
+      label_jurisdiction: "النطاق القضائي:",
+      opt_all_jurisdictions: "الكل (فرنسا والاتحاد الأوروبي)",
+      label_format: "الصيغة:",
+      opt_all_formats: "جميع الصيغ",
+      cat_all: "الكل"
     }
   },
   es: {
@@ -227,6 +315,50 @@ const pageTranslations = {
       disc_eu: "Derecho Europeo e Internacional",
       disc_penal: "Derecho Penal y Criminología",
       disc_ai: "Derecho Digital e IA"
+    },
+    lawyers: {
+      search_placeholder: "Buscar por nombre, universidad, colegio o especialidad...",
+      filter_all_members: "Todos los Miembros",
+      location_filters: "Filtros de Ubicación",
+      region: "Región",
+      all_regions: "Todas las regiones",
+      bar_association: "Colegio de Abogados",
+      all_barreaux: "Todos los colegios",
+      city: "Ciudad de la Oficina",
+      all_cities: "Todas las ciudades",
+      cour_appel: "Tribunal de Apelación",
+      all_cours_appel: "Todos los Tribunales de Apelación (36)"
+    },
+    guide: {
+      read_full: "Consultar guía completa",
+      empty_title: "Ninguna guía legal coincide con su búsqueda",
+      empty_desc: "Intente modificar su palabra clave o reinicie los filtros por categoría.",
+      reset_filters: "Reiniciar filtros",
+      difficulty_label: "Dificultad:",
+      legal_basis_title: "Fundamento legal y textos de referencia:",
+      summary_title: "Presentación y objetivos:",
+      documents_title: "Documentos obligatorios:",
+      steps_title: "Etapas cronológicas del procedimiento:",
+      tip_label: "Consejo Práctico:",
+      errors_title: "Errores fatales a evitar:",
+      generate_linked: "Generar modelo de documento vinculado",
+      export_pdf: "Exportar Guía en PDF"
+    },
+    classrooms: {
+      search_placeholder: "Buscar un curso...",
+      loading: "Cargando programas...",
+      empty_title: "Ningún curso encontrado",
+      empty_desc: "Intente modificar su búsqueda o filtros."
+    },
+    news: {
+      searching_web: "Monitoreo Google Web en curso...",
+      btn_search_web: "Búsqueda en Vivo en la Web",
+      label_fields: "Campos Jurídicos:",
+      label_jurisdiction: "Jurisdicción:",
+      opt_all_jurisdictions: "Todas (Francia y UE)",
+      label_format: "Formato:",
+      opt_all_formats: "Todos los formatos",
+      cat_all: "Todos"
     }
   },
   tr: {
@@ -302,6 +434,50 @@ const pageTranslations = {
       disc_eu: "Avrupa ve Uluslararası Hukuk",
       disc_penal: "Ceza Hukuku ve Kriminoloji",
       disc_ai: "Dijital Hukuk ve YZ"
+    },
+    lawyers: {
+      search_placeholder: "İsim, üniversite, baro veya uzmanlık ile arayın...",
+      filter_all_members: "Tüm Katılımcılar",
+      location_filters: "Konum Filtreleri",
+      region: "Bölge",
+      all_regions: "Tüm bölgeler",
+      bar_association: "Baro Kaydı",
+      all_barreaux: "Tüm barolar",
+      city: "Büro Şehri",
+      all_cities: "Tüm şehirler",
+      cour_appel: "İstinaf Mahkemesi Şehri",
+      all_cours_appel: "Tüm İstinaf Mahkemeleri (36)"
+    },
+    guide: {
+      read_full: "Rehberin tamamını okuyun",
+      empty_title: "Aramanıza uygun hukuki rehber bulunamadı",
+      empty_desc: "Anahtar kelimenizi değiştirmeyi veya filtreleri sıfırlamayı deneyin.",
+      reset_filters: "Filtreleri Sıfırla",
+      difficulty_label: "Zorluk:",
+      legal_basis_title: "Hukuki dayanak ve referans metinler:",
+      summary_title: "Rehberin amacı ve özeti:",
+      documents_title: "Gerekli zorunlu belgeler:",
+      steps_title: "Prosedürün kronolojik adımları:",
+      tip_label: "Pratik İpucu:",
+      errors_title: "Kaçınılması gereken hatalar:",
+      generate_linked: "Bağlantılı belge modeli oluştur",
+      export_pdf: "Rehberi PDF olarak indir"
+    },
+    classrooms: {
+      search_placeholder: "Eğitim programı arayın...",
+      loading: "Programlar yükleniyor...",
+      empty_title: "Eğitim bulunamadı",
+      empty_desc: "Aramayı veya filtreleri değiştirmeyi deneyin."
+    },
+    news: {
+      searching_web: "Google Web takibi yapılıyor...",
+      btn_search_web: "Web'de Canlı Arama",
+      label_fields: "Hukuk Alanları:",
+      label_jurisdiction: "Yargı Yetkisi:",
+      opt_all_jurisdictions: "Tümü (Fransa ve AB)",
+      label_format: "Biçim:",
+      opt_all_formats: "Tüm biçimler",
+      cat_all: "Tümü"
     }
   },
   ku: {
@@ -377,6 +553,50 @@ const pageTranslations = {
       disc_eu: "Yasaya Ewropî û Nêvdewletî",
       disc_penal: "Yasaya Ceza",
       disc_ai: "Yasaya Dîjîtal û AI"
+    },
+    lawyers: {
+      search_placeholder: "Bi nav, zanîngeh an baroyê lêgerîn bikin...",
+      filter_all_members: "Hemû Endam",
+      location_filters: "Fîlterên Cihê Geografî",
+      region: "Herêm",
+      all_regions: "Hemû herêm",
+      bar_association: "Baroya Parêzeran",
+      all_barreaux: "Hemû baroyî",
+      city: "Bajarê Ofîsê",
+      all_cities: "Hemû bajar",
+      cour_appel: "Dadgeha İstînafê",
+      all_cours_appel: "Hemû Dadgehên İstînafê (36)"
+    },
+    guide: {
+      read_full: "Rêberê temam bixwînin",
+      empty_title: "Tişteke lihevhatî nehate dîtin",
+      empty_desc: "Peyva lêgerînê biguherînin.",
+      reset_filters: "Fîlteran Nû Bikin",
+      difficulty_label: "Ast:",
+      legal_basis_title: "Çavkaniya yasayî:",
+      summary_title: "Armanca rêberê:",
+      documents_title: "Pêdiviyên ferz:",
+      steps_title: "Pêngavên demî:",
+      tip_label: "Şîreta Pratîkî:",
+      errors_title: "Çewtiyên mezin:",
+      generate_linked: "Belgeya girêdayî biafirînin",
+      export_pdf: "Rêber wekî PDF daxînin"
+    },
+    classrooms: {
+      search_placeholder: "Li perwerdeyê lêgerîn bikin...",
+      loading: "Tê barkirin...",
+      empty_title: "Perwerde nehate dîtin",
+      empty_desc: "Fîlteran biguherînin."
+    },
+    news: {
+      searching_web: "Lêgerîna Google Web...",
+      btn_search_web: "Lêgerîna Zindî ya Webê",
+      label_fields: "Beşên Yasayî:",
+      label_jurisdiction: "Dadwerî:",
+      opt_all_jurisdictions: "Hemû (Fransa û EU)",
+      label_format: "Format:",
+      opt_all_formats: "Hemû format",
+      cat_all: "Hemû"
     }
   },
   ru: {
@@ -452,6 +672,50 @@ const pageTranslations = {
       disc_eu: "Европейское и международное право",
       disc_penal: "Уголовное право и криминология",
       disc_ai: "Цифровое право и ИИ"
+    },
+    lawyers: {
+      search_placeholder: "Поиск по имени, университету, коллегии...",
+      filter_all_members: "Все участники",
+      location_filters: "Географические фильтры",
+      region: "Регион",
+      all_regions: "Все регионы",
+      bar_association: "Коллегия адвокатов",
+      all_barreaux: "Все коллегии",
+      city: "Город офиса",
+      all_cities: "Все города",
+      cour_appel: "Апелляционный суд",
+      all_cours_appel: "Все апелляционные суды (36)"
+    },
+    guide: {
+      read_full: "Читать полное руководство",
+      empty_title: "Руководство не найдено",
+      empty_desc: "Попробуйте изменить ключевое слово или сбросить фильтры.",
+      reset_filters: "Сбросить фильтры",
+      difficulty_label: "Сложность:",
+      legal_basis_title: "Правовая основа и нормативные акты:",
+      summary_title: "Обзор и цели:",
+      documents_title: "Обязательные документы:",
+      steps_title: "Хронологические этапы процедуры:",
+      tip_label: "Практический совет:",
+      errors_title: "Критические ошибки, которых следует избегать:",
+      generate_linked: "Создать шаблон связанного документа",
+      export_pdf: "Скачать руководство в PDF"
+    },
+    classrooms: {
+      search_placeholder: "Поиск учебных программ...",
+      loading: "Загрузка программ...",
+      empty_title: "Курсы не найдены",
+      empty_desc: "Попробуйте изменить поиск или фильтры."
+    },
+    news: {
+      searching_web: "Мониторинг веб-новостей Google...",
+      btn_search_web: "Живой поиск в Интернете",
+      label_fields: "Правовые области:",
+      label_jurisdiction: "Юрисдикция:",
+      opt_all_jurisdictions: "Все (Франция и ЕС)",
+      label_format: "Формат:",
+      opt_all_formats: "Все форматы",
+      cat_all: "Все"
     }
   }
 };

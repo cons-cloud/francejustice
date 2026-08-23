@@ -406,7 +406,7 @@
   "lawyers": {
     "title": "Our Lawyers",
     "subtitle": "Find the lawyer that matches your situation",
-    "search_placeholder": "Search for a lawyer…",
+    "search_placeholder": "Search by name, university, bar, or specialty...",
     "speciality": "Speciality",
     "contact_btn": "Contact",
     "verified": "Verified",
@@ -415,13 +415,13 @@
     "hero_title": "Official Directory of Affiliated Lawyers",
     "hero_subtitle": "Find certified lawyers verified by National Bar Councils and Courts of Appeal.",
     "no_results_hint": "Try modifying your location or specialty search criteria.",
-    "location_filters": "Location & Bar Filters",
+    "location_filters": "Location Filters",
     "region": "Region",
-    "all_regions": "All Regions",
+    "all_regions": "All regions",
     "bar_association": "Bar Association",
-    "all_barreaux": "All Bars",
-    "city": "City of Office",
-    "all_cities": "All Cities",
+    "all_barreaux": "All bars",
+    "city": "Office City",
+    "all_cities": "All cities",
     "reset_filters": "Reset Filters",
     "available": "Available for Consultation",
     "unavailable": "Currently Busy",
@@ -432,7 +432,10 @@
     "load_more": "Load More Lawyers",
     "cta_title": "Are you a Lawyer or Law Professor?",
     "cta_subtitle": "Join the FranceJustice NGO platform to expand your practice and teach in virtual masterclasses.",
-    "cta_btn": "Register as Lawyer"
+    "cta_btn": "Register as Lawyer",
+    "filter_all_members": "All Interveners",
+    "cour_appel": "Court of Appeal City",
+    "all_cours_appel": "All Courts of Appeal (36)"
   },
   "news": {
     "title": "Legal News",
@@ -456,7 +459,15 @@
     "n3_title": "EU CS3D Directive & Pappers Corporate: Corporate Due Diligence",
     "n3_summary": "Large companies must identify and prevent human rights and environmental harms. Official publication in BODACC and business registers.",
     "n3_impact": "🏢 Impact: CSR & Pappers Transparency",
-    "btn_read_article": "Read Article"
+    "btn_read_article": "Read Article",
+    "searching_web": "Google Web monitoring in progress...",
+    "btn_search_web": "Live Search on Web",
+    "label_fields": "Legal Fields:",
+    "label_jurisdiction": "Jurisdiction:",
+    "opt_all_jurisdictions": "All (France & EU)",
+    "label_format": "Format:",
+    "opt_all_formats": "All formats",
+    "cat_all": "All"
   },
   "classrooms": {
     "title": "Training Center",
@@ -478,7 +489,11 @@
     "official_diploma": "Official Diploma Course",
     "law_prof": "Law Professor",
     "btn_read": "📖 Read Content",
-    "btn_access": "Access Virtual Classroom"
+    "btn_access": "Access Virtual Classroom",
+    "search_placeholder": "Search for a course...",
+    "loading": "Loading programs...",
+    "empty_title": "No course found",
+    "empty_desc": "Try modifying your search or filters."
   },
   "generator": {
     "title": "Document Generator",
@@ -780,7 +795,20 @@
   },
   "guide": {
     "title": "Practical Guide",
-    "subtitle": "Everything you need to know to defend your rights"
+    "subtitle": "Everything you need to know to defend your rights",
+    "read_full": "Consult full guide",
+    "empty_title": "No legal guide matches your search",
+    "empty_desc": "Try modifying your keyword or reset filters by category.",
+    "reset_filters": "Reset filters",
+    "difficulty_label": "Difficulty:",
+    "legal_basis_title": "Legal basis & reference texts:",
+    "summary_title": "Overview & objectives:",
+    "documents_title": "Mandatory documents to gather:",
+    "steps_title": "Chronological steps of procedure:",
+    "tip_label": "Practical Tip:",
+    "errors_title": "Fatal errors to avoid:",
+    "generate_linked": "Generate linked document model",
+    "export_pdf": "Export Guide as PDF"
   },
   "academic": {
     "student_title": "Law Student Space",

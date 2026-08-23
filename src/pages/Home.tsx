@@ -606,11 +606,11 @@ const Home: React.FC = () => {
                 <div className="space-y-4 text-center">
                   <div className="relative inline-block mx-auto">
                     <img 
-                      src={lawyer.avatar_url || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80'} 
+                      src={lawyer.avatar_url || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'} 
                       alt={`Me ${lawyer.first_name} ${lawyer.last_name}`} 
                       className="w-20 h-20 rounded-2xl object-cover shadow-md mx-auto border-2 border-indigo-500/30 group-hover:scale-105 transition-transform"
                     />
-                    <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full" title="Disponible pour rendez-vous" />
+                    <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full" title={t('home.available_appoint', 'Disponible pour rendez-vous')} />
                   </div>
 
                   <div>
@@ -631,7 +631,7 @@ const Home: React.FC = () => {
                 <div className="pt-4 border-t border-slate-200/80 space-y-2">
                   <div className="flex items-center justify-between text-[11px] text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-xl">
                     <span className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Profil Certifié
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> {t('home.certified_profile', 'Profil Certifié')}
                     </span>
                     <span>Visio 2h+</span>
                   </div>

@@ -811,7 +811,7 @@ ${curriculumText}`;
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Rechercher une formation..."
+              placeholder={t('classrooms.search_placeholder', 'Rechercher une formation...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
@@ -822,13 +822,13 @@ ${curriculumText}`;
         {loading ? (
           <div className="flex justify-center items-center gap-3 py-24 text-slate-400">
             <Loader2 className="animate-spin h-8 w-8" />
-            <span className="text-sm font-medium">Chargement des programmes...</span>
+            <span className="text-sm font-medium">{t('classrooms.loading', 'Chargement des programmes...')}</span>
           </div>
         ) : filtered.length === 0 ? (
           <div className="bg-slate-900 rounded-3xl border border-slate-800 p-16 text-center max-w-xl mx-auto shadow-sm text-slate-100">
             <BookOpen className="h-14 w-14 text-slate-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-slate-100 mb-2">Aucune formation trouvée</h3>
-            <p className="text-slate-400 text-sm">Essayez de modifier votre recherche ou vos filtres.</p>
+            <h3 className="text-xl font-bold text-slate-100 mb-2">{t('classrooms.empty_title', 'Aucune formation trouvée')}</h3>
+            <p className="text-slate-400 text-sm">{t('classrooms.empty_desc', 'Essayez de modifier votre recherche ou vos filtres.')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">

@@ -169,7 +169,7 @@ const LawyersPage: React.FC = () => {
             <Search className="absolute left-4 top-4 h-6 w-6 text-slate-400" />
             <Input 
               className="pl-12 h-14 text-lg bg-slate-900 border-slate-800 text-white placeholder-slate-400 focus:ring-2 focus:ring-primary-500 shadow-2xl"
-              placeholder="Rechercher par nom, université, barreau ou spécialité..."
+              placeholder={t('lawyers.search_placeholder', 'Rechercher par nom, université, barreau ou spécialité...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -184,7 +184,7 @@ const LawyersPage: React.FC = () => {
                   : 'bg-slate-900/60 text-slate-300 hover:bg-slate-800 border border-slate-800'
               }`}
             >
-              Tous les Intervenants ({lawyers.length})
+              {t('lawyers.filter_all_members', 'Tous les Intervenants')} ({lawyers.length})
             </button>
             <button
               onClick={() => setRoleFilter('lawyer')}
@@ -194,7 +194,7 @@ const LawyersPage: React.FC = () => {
                   : 'bg-slate-900/60 text-purple-300 hover:bg-slate-800 border border-slate-800'
               }`}
             >
-              ⚖️ Avocats au Barreau ({lawyers.filter(l => l.role === 'lawyer').length})
+              ⚖️ {t('home.tab_lawyer', 'Espace Avocat')} ({lawyers.filter(l => l.role === 'lawyer').length})
             </button>
             <button
               onClick={() => setRoleFilter('professor')}
@@ -204,7 +204,7 @@ const LawyersPage: React.FC = () => {
                   : 'bg-slate-900/60 text-amber-300 hover:bg-slate-800 border border-slate-800'
               }`}
             >
-              👨‍🏫 Professeurs de Droit ({lawyers.filter(l => l.role === 'professor').length})
+              👨‍🏫 {t('home.tab_prof', 'Professeurs de Droit')} ({lawyers.filter(l => l.role === 'professor').length})
             </button>
             <button
               onClick={() => setRoleFilter('doctorate')}
@@ -214,7 +214,7 @@ const LawyersPage: React.FC = () => {
                   : 'bg-slate-900/60 text-teal-300 hover:bg-slate-800 border border-slate-800'
               }`}
             >
-              🔬 Doctorants & Chercheurs ({lawyers.filter(l => l.role === 'doctorate').length})
+              🔬 {t('home.tab_doc', 'Doctorants & Chercheurs')} ({lawyers.filter(l => l.role === 'doctorate').length})
             </button>
           </div>
         </div>
@@ -285,13 +285,13 @@ const LawyersPage: React.FC = () => {
 
                 {/* Cour d'Appel Select */}
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">Cour d'Appel de la ville</label>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">{t('lawyers.cour_appel', "Cour d'Appel de la ville")}</label>
                   <select
                     value={selectedCourDAppel}
                     onChange={(e) => setSelectedCourDAppel(e.target.value)}
                     className="w-full h-11 px-3 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
                   >
-                    <option value="">Toutes les Cours d'Appel (36)</option>
+                    <option value="">{t('lawyers.all_cours_appel', "Toutes les Cours d'Appel (36)")}</option>
                     {COURS_D_APPEL_LIST.filter(c => c.type !== 'CSM').map(ca => (
                       <option key={ca.id} value={ca.name}>{ca.name} ({ca.ville})</option>
                     ))}
