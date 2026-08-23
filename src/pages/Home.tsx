@@ -415,9 +415,13 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-sm sm:text-lg md:text-xl text-slate-300 max-w-4xl mx-auto leading-relaxed font-medium px-2"
+            className="text-base sm:text-xl md:text-2xl text-white font-extrabold max-w-5xl mx-auto leading-relaxed px-6 py-4 bg-slate-900/90 rounded-2xl border-2 border-indigo-500/60 shadow-[0_0_30px_rgba(99,102,241,0.4)] backdrop-blur-md text-center"
           >
-            Assistant IA Génia 2026, Visioconférences sécurisées en direct, Salles de classe virtuelles, Planning Annuel national, et Centre d'Études Doctrinales & Revues Scientifiques en temps réel.
+            <span className="text-cyan-300 font-black">Assistant IA Génia 2026</span> •{' '}
+            <span className="text-emerald-300 font-black">Visioconférences sécurisées en direct</span> •{' '}
+            <span className="text-indigo-300 font-black">Salles de classe virtuelles</span> •{' '}
+            <span className="text-amber-300 font-black">Planning Annuel national</span> •{' '}
+            <span className="text-rose-300 font-black">Centre d'Études Doctrinales & Revues Scientifiques</span> en temps réel.
           </motion.p>
 
           <motion.div

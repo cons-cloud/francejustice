@@ -46,12 +46,12 @@ export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen
                 Haute Magistrature de France
               </span>
               <span className="bg-indigo-500/20 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full border border-indigo-500/30">
-                36 Cours d'Appel Synchronisées
+                36 Cours d&apos;Appel Synchronisées
               </span>
             </div>
             <h2 className="text-2xl font-black tracking-tight text-white mt-2 flex items-center gap-2.5">
               <Building2 className="h-6 w-6 text-indigo-400" />
-              Annuaire Officiel des 36 Premiers Présidents de la Cour d'Appel
+              Annuaire Officiel des 36 Premiers Présidents de la Cour d&apos;Appel
             </h2>
           </div>
 
