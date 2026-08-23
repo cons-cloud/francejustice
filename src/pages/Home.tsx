@@ -12,6 +12,7 @@ import AnimatedCounter from '../components/ui/AnimatedCounter';
 import { useTranslation } from '../i18n';
 import { HeroPappersSearch } from '../components/features/HeroPappersSearch';
 import { getDeletedUserEmails } from '../lib/avocatsDataGouvSync';
+import { getMergedOfficialClassrooms } from '../data/officialFormationsData';
 import SEO from '../components/common/SEO';
 
 // Fallback datasets for immediate vibrant render if database is initializing
