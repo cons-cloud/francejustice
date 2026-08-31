@@ -117,27 +117,14 @@ vi.mock('../lib/supabase', () => {
 })
 
 // Mock complet pour lucide-react (ESM compatible)
-const icons = [
-  'Users', 'Search', 'Phone', 'Mail', 'MapPin', 'CheckCircle', 'RefreshCw',
-  'Database', 'FileText', 'Activity', 'Briefcase', 'TrendingUp', 'BarChart3',
-  'Calendar', 'AlertCircle', 'Scale', 'TrendingDown', 'Plus', 'Trash', 'Clock',
-  'Sparkles', 'ArrowRight', 'Lock', 'ShieldAlert', 'FileDown', 'UserCheck',
-  'Bookmark', 'Sparkle', 'ArrowUpRight', 'HelpCircle', 'LogOut', 'Menu', 'X',
-  'ChevronDown', 'ChevronUp', 'Upload', 'BookOpen', 'Heart', 'ScaleAlert',
-  'Trash2', 'History', 'User', 'PlusCircle', 'Download', 'LayoutDashboard', 'Shield',
-  'Check', 'ChevronRight', 'UserX', 'CheckSquare', 'FileSignature', 'Receipt',
-  'PenTool', 'Bell', 'ExternalLink', 'CreditCard', 'Settings', 'MessageSquare',
-  'Mic', 'MicOff', 'Volume2', 'VolumeX', 'CornerDownLeft', 'Loader2', 'AlertTriangle',
-  'Home', 'CheckCircle2', 'Info', 'Save', 'Brain', 'EyeOff', 'FileJson', 'FileSpreadsheet',
-  'Edit', 'UserPlus', 'DollarSign', 'Globe', 'ArrowLeft', 'Eye', 'Video'
-];
-
-const mockLucide: Record<string, React.ComponentType<Record<string, unknown>>> = {};
-icons.forEach(icon => {
-  mockLucide[icon] = (props: Record<string, unknown>) => React.createElement('span', { 'data-testid': `icon-${icon.toLowerCase()}`, ...props }, icon);
+// Dynamic Proxy mock for lucide-react so all icons render without missing export errors
+vi.mock('lucide-react', async () => {
+  return new Proxy({}, {
+    get: (_target, prop: string) => {
+      return (props: Record<string, unknown>) => React.createElement('span', { 'data-testid': `icon-${prop.toLowerCase()}`, ...props }, prop);
+    }
+  });
 });
-
-vi.mock('lucide-react', () => mockLucide);
 
 // Mock heavy feature components to avoid OOM in Dashboard/DashboardLawyer tests
 vi.mock('../components/features/LawCodes', () => ({

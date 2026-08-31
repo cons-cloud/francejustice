@@ -178,9 +178,9 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm font-bold text-white focus:ring-2 focus:ring-primary-500 focus:outline-none"
               >
                 <option value="user">👤 Citoyen / Particulier</option>
-                <option value="student">🎓 Étudiant en Droit (Dossier complet 5 pièces)</option>
-                <option value="professor">👨‍🏫 Professeur de Droit (Dossier complet 5 pièces)</option>
-                <option value="doctorate">🔬 Doctorant / Chercheur (Dossier complet 5 pièces)</option>
+                <option value="student">🎓 Étudiant en Droit</option>
+                <option value="professor">👨‍🏫 Professeur de Droit</option>
+                <option value="doctorate">🔬 Doctorant / Chercheur en Droit</option>
                 <option value="lawyer">⚖️ Avocat au Barreau</option>
               </select>
             </div>

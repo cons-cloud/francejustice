@@ -114,18 +114,17 @@ export const ScientificReviews: React.FC<ScientificReviewsProps> = ({
   const fetchReviews = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('scientific_reviews_just')
         .select('*')
         .order('published_year', { ascending: false });
 
-      if (data && data.length > 0) {
+      if (!error && data && data.length > 0) {
         setReviews(data);
       } else {
         setReviews(INITIAL_SCIENTIFIC_REVIEWS);
       }
-    } catch (e) {
-      console.error("Error fetching scientific reviews:", e);
+    } catch {
       setReviews(INITIAL_SCIENTIFIC_REVIEWS);
     } finally {
       setLoading(false);

@@ -184,7 +184,7 @@ const About: React.FC = () => {
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
-              FranceJustice : <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-emerald-400 bg-clip-text text-transparent">L'ONG Juridique Intelligente</span>
+              ONG: France Justice ; <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-emerald-400 bg-clip-text text-transparent">justice intelligente pour tous</span>
             </h1>
 
             <p className="text-lg md:text-xl text-slate-100 mb-8 leading-relaxed font-medium max-w-2xl">
@@ -220,7 +220,7 @@ const About: React.FC = () => {
                   <div className="w-3 h-3 rounded-full bg-red-500" />
                   <div className="w-3 h-3 rounded-full bg-amber-500" />
                   <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span className="text-xs font-mono text-slate-300 ml-2">francejustice.org / status-ong</span>
+                  <span className="text-xs font-mono text-slate-300 ml-2">francejustice.com / status-ong</span>
                 </div>
                 <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
                   🏛️ ONG Agrée & Souveraine

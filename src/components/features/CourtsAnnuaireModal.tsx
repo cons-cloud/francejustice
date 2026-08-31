@@ -1,17 +1,25 @@
-import React, { useState, useMemo } from 'react';
-import { Building2, UserCheck, Mail, Phone, MapPin, Search, X, Award } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Building2, UserCheck, Mail, Phone, MapPin, Search, X, Award, Briefcase, GraduationCap } from 'lucide-react';
 import { COURS_D_APPEL_LIST } from '../../lib/jurisdictions';
+import { ANNUAIRE_AVOCATS_FRANCE_DATA } from '../../data/annuaireAvocatsFrance';
 import { useTranslation } from '../../i18n';
 
 interface CourtsAnnuaireModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialSearch?: string;
 }
 
-export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen, onClose }) => {
+export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen, onClose, initialSearch = '' }) => {
   const { t } = useTranslation();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearch);
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
+
+  useEffect(() => {
+    if (initialSearch) {
+      setSearch(initialSearch);
+    }
+  }, [initialSearch]);
 
   const filteredCourts = useMemo(() => {
     return COURS_D_APPEL_LIST.filter(court => {
@@ -33,10 +41,21 @@ export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen
     return Array.from(new Set(COURS_D_APPEL_LIST.filter(c => c.type !== 'CSM').map(c => c.region))).sort();
   }, []);
 
+  // Map court city to lawyers from official dataset
+  const lawyersByCourt = useMemo(() => {
+    const map: Record<string, typeof ANNUAIRE_AVOCATS_FRANCE_DATA> = {};
+    ANNUAIRE_AVOCATS_FRANCE_DATA.forEach(av => {
+      const barreau = av.NomBarreau || 'Paris';
+      if (!map[barreau]) map[barreau] = [];
+      map[barreau].push(av);
+    });
+    return map;
+  }, []);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
       <div className="bg-slate-900 text-white rounded-3xl border border-slate-800 shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden relative">
         
         {/* Header */}
@@ -45,15 +64,15 @@ export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen
             <div className="flex items-center gap-2">
               <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5">
                 <Award className="h-3.5 w-3.5 text-amber-400" />
-                Haute Magistrature de France
+                Haute Magistrature & Avocats de France
               </span>
               <span className="bg-indigo-500/20 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full border border-indigo-500/30">
-                36 Cours d&apos;Appel Synchronisées
+                36 Cours d'Appel & Barreaux Synchronisés
               </span>
             </div>
             <h2 className="text-2xl font-black tracking-tight text-white mt-2 flex items-center gap-2.5">
               <Building2 className="h-6 w-6 text-indigo-400" />
-              Annuaire Officiel des 36 Premiers Présidents de la Cour d&apos;Appel
+              Annuaire des 36 Premiers Présidents & Avocats du Barreau
             </h2>
           </div>
 
@@ -71,11 +90,19 @@ export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
-              placeholder={t('database.search_courts', "Rechercher par nom de Premier Président, Cour d'Appel ou Ville...")}
+              placeholder={t('database.search_courts', "Rechercher par nom de Premier Président, Cour d'Appel, Barreau ou Ville...")}
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
             />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
 
           <select
@@ -90,71 +117,106 @@ export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen
           </select>
         </div>
 
-        {/* Grid List of 36 Cours d'Appel */}
+        {/* Grid List of 36 Cours d'Appel & Associated Lawyers */}
         <div className="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 scrollbar-thin">
-          {filteredCourts.map((court, idx) => (
-            <div
-              key={court.id}
-              className="bg-slate-950/70 border border-slate-800/90 rounded-2xl p-4 hover:border-indigo-500/50 transition-all group flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div>
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                      N° {idx + 1} • Dept {court.code}
+          {filteredCourts.map((court, idx) => {
+            const barKey = court.ville || court.name.replace("Cour d'Appel de ", "");
+            const lawyersList = lawyersByCourt[barKey] || lawyersByCourt[court.ville] || lawyersByCourt['Paris'] || [];
+
+            return (
+              <div
+                key={court.id}
+                className="bg-slate-950/70 border border-slate-800/90 rounded-2xl p-4 hover:border-indigo-500/50 transition-all group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div>
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                        N° {idx + 1} • Dept {court.code}
+                      </span>
+                      <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors mt-1">
+                        {court.name}
+                      </h3>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 shrink-0">
+                      {court.region}
                     </span>
-                    <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors mt-1">
-                      {court.name}
-                    </h3>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 shrink-0">
-                    {court.region}
-                  </span>
-                </div>
 
-                {/* Premier Président Box */}
-                <div className="bg-indigo-950/30 border border-indigo-500/20 rounded-xl p-3 my-2.5 space-y-1">
-                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-                    <UserCheck className="h-3.5 w-3.5 text-amber-400" />
-                    Premier Président de la Cour d'Appel
+                  {/* Premier Président Box */}
+                  <div className="bg-indigo-950/30 border border-indigo-500/20 rounded-xl p-3 my-2.5 space-y-1">
+                    <div className="text-[10px] font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                      <UserCheck className="h-3.5 w-3.5 text-amber-400" />
+                      Premier Président de la Cour d'Appel
+                    </div>
+                    <div className="text-sm font-black text-white">
+                      {court.premierPresident}
+                    </div>
+                    <div className="text-[11px] text-slate-300 pt-1 border-t border-indigo-500/10">
+                      <span className="text-slate-400 font-semibold">Procureur Général :</span> {court.procureurGeneral}
+                    </div>
                   </div>
-                  <div className="text-sm font-black text-white">
-                    {court.premierPresident}
-                  </div>
-                  <div className="text-[11px] text-slate-300 pt-1 border-t border-indigo-500/10">
-                    <span className="text-slate-400 font-semibold">Procureur Général :</span> {court.procureurGeneral}
-                  </div>
-                </div>
 
-                {/* Location & Details */}
-                <div className="space-y-1 text-xs text-slate-400 mt-2">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
-                    <span className="truncate">{court.adresse || court.ville}</span>
+                  {/* Registered Lawyers List Preview */}
+                  <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-3 my-2.5 space-y-2">
+                    <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Briefcase className="h-3.5 w-3.5 text-emerald-400" />
+                        Avocats inscrits au Barreau
+                      </span>
+                      <span className="px-1.5 py-0.2 bg-emerald-500/20 text-emerald-300 rounded-full font-bold">
+                        {lawyersList.length} avocats
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1 text-xs">
+                      {lawyersList.map((av, avIdx) => (
+                        <div key={avIdx} className="p-1.5 rounded-lg bg-slate-950/50 border border-slate-800/80 flex items-center justify-between">
+                          <div>
+                            <div className="font-bold text-white">
+                              Me {av.avPrenom} {av.avNom}
+                            </div>
+                            <div className="text-[10px] text-slate-400">
+                              {av.spLibelle1 || 'Droit général'} • {av.cbVille}
+                            </div>
+                          </div>
+                          <span className="text-[10px] text-amber-300 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                            {av.phone || 'Contact direct'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  {court.telephone && (
+
+                  {/* Location & Details */}
+                  <div className="space-y-1 text-xs text-slate-400 mt-2">
                     <div className="flex items-center gap-2">
-                      <Phone className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                      <span>{court.telephone}</span>
+                      <MapPin className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                      <span className="truncate">{court.adresse || court.ville}</span>
                     </div>
-                  )}
-                  {court.email && (
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-3.5 w-3.5 text-sky-400 shrink-0" />
-                      <span className="truncate">{court.email}</span>
-                    </div>
-                  )}
+                    {court.telephone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        <span>{court.telephone}</span>
+                      </div>
+                    )}
+                    {court.email && (
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-3.5 w-3.5 text-sky-400 shrink-0" />
+                        <span className="truncate">{court.email}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Footer */}
         <div className="p-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between text-xs text-slate-400">
           <span>
-            Affichage de <strong className="text-white">{filteredCourts.length}</strong> sur <strong className="text-white">36 Cours d'Appel</strong> de France
+            Affichage de <strong className="text-white">{filteredCourts.length}</strong> sur <strong className="text-white">36 Cours d'Appel & Barreaux</strong> de France
           </span>
           <button
             onClick={onClose}

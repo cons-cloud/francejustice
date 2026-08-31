@@ -20,6 +20,7 @@ const resources: Record<string, any> = {
 
 // Helper for text direction & SEO meta attributes
 const updateDocAttributes = (lng: string, tFunc?: (key: string, defaultValue?: string) => string) => {
+  if (typeof document === 'undefined') return;
   const isRtl = lng === 'ar' || lng === 'ku';
   document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
   document.documentElement.lang = lng;
@@ -45,8 +46,9 @@ const updateDocAttributes = (lng: string, tFunc?: (key: string, defaultValue?: s
   }
 };
 
-// Initial language detection
-const detectLanguage = (): string => {
+// Initial language detection with localStorage & browser persistence
+export const detectLanguage = (): string => {
+  if (typeof window === 'undefined') return 'fr';
   const saved = localStorage.getItem('i18nextLng');
   if (saved && resources[saved]) return saved;
   const navLang = navigator.language.split('-')[0];
@@ -89,14 +91,37 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return typeof current === 'string' ? current : (defaultValue || key);
   }, [language]);
 
+  // Sync language with localStorage, DOM attributes, and custom broadcast events
   useEffect(() => {
     updateDocAttributes(language, t);
     localStorage.setItem('i18nextLng', language);
   }, [language, t]);
 
+  // Listen for real-time language change events from other components/windows
+  useEffect(() => {
+    const handleGlobalLangChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const newLng = customEvent.detail || localStorage.getItem('i18nextLng');
+      if (newLng && resources[newLng] && newLng !== language) {
+        setLanguage(newLng);
+      }
+    };
+
+    window.addEventListener('app_language_change', handleGlobalLangChange);
+    window.addEventListener('storage', handleGlobalLangChange);
+
+    return () => {
+      window.removeEventListener('app_language_change', handleGlobalLangChange);
+      window.removeEventListener('storage', handleGlobalLangChange);
+    };
+  }, [language]);
+
   const changeLanguage = (lng: string) => {
     if (resources[lng]) {
       setLanguage(lng);
+      localStorage.setItem('i18nextLng', lng);
+      updateDocAttributes(lng, t);
+      window.dispatchEvent(new CustomEvent('app_language_change', { detail: lng }));
     }
   };
 
@@ -107,13 +132,33 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// Hook matching react-i18next API signature
+// Hook matching react-i18next API signature with full fallback and real-time sync
 export const useTranslation = () => {
   const context = useContext(I18nContext);
+  const [currentLang, setCurrentLang] = useState<string>(detectLanguage);
+
+  useEffect(() => {
+    const handleSync = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const newLng = customEvent.detail || localStorage.getItem('i18nextLng') || 'fr';
+      if (newLng && resources[newLng]) {
+        setCurrentLang(newLng);
+      }
+    };
+
+    window.addEventListener('app_language_change', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('app_language_change', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
+  }, []);
+
   if (!context) {
+    const activeLng = currentLang || detectLanguage();
     const defaultT = (key: string, defaultValue?: string) => {
       const keys = key.split('.');
-      let current: any = fr;
+      let current: any = resources[activeLng] || resources['fr'];
       for (const k of keys) {
         if (current && typeof current === 'object' && k in current) {
           current = current[k];
@@ -123,14 +168,25 @@ export const useTranslation = () => {
       }
       return typeof current === 'string' ? current : (defaultValue || key);
     };
+
+    const changeLanguage = (lng: string) => {
+      if (resources[lng]) {
+        localStorage.setItem('i18nextLng', lng);
+        setCurrentLang(lng);
+        updateDocAttributes(lng, defaultT);
+        window.dispatchEvent(new CustomEvent('app_language_change', { detail: lng }));
+      }
+    };
+
     return {
       t: defaultT,
       i18n: {
-        language: 'fr',
-        changeLanguage: () => {},
+        language: activeLng,
+        changeLanguage,
       },
     };
   }
+
   return {
     t: context.t,
     i18n: {
@@ -140,13 +196,17 @@ export const useTranslation = () => {
   };
 };
 
-// Mock global object for compat with any direct imports
 const i18nMock = {
-  language: 'fr',
-  changeLanguage: (lng: string) => updateDocAttributes(lng),
+  language: detectLanguage(),
+  changeLanguage: (lng: string) => {
+    localStorage.setItem('i18nextLng', lng);
+    updateDocAttributes(lng);
+    window.dispatchEvent(new CustomEvent('app_language_change', { detail: lng }));
+  },
   t: (key: string, defaultValue?: string) => {
+    const lng = detectLanguage();
     const keys = key.split('.');
-    let current: any = resources['fr'];
+    let current: any = resources[lng] || resources['fr'];
     for (const k of keys) {
       if (current && typeof current === 'object' && k in current) {
         current = current[k];
@@ -156,10 +216,7 @@ const i18nMock = {
     }
     return typeof current === 'string' ? current : (defaultValue || key);
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  on: (_event: string, _callback: (lng: string) => void) => {
-    // language-change event registration placeholder
-  }
+  on: (_event: string, _callback: (lng: string) => void) => {},
 };
 
 export default i18nMock;

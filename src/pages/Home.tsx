@@ -14,6 +14,7 @@ import { HeroPappersSearch } from '../components/features/HeroPappersSearch';
 import { getDeletedUserEmails } from '../lib/avocatsDataGouvSync';
 import { getMergedOfficialClassrooms } from '../data/officialFormationsData';
 import SEO from '../components/common/SEO';
+import { OfficialGovernmentLinks } from '../components/ui/OfficialGovernmentLinks';
 
 // Fallback datasets for immediate vibrant render if database is initializing
 const defaultLawyers = [
@@ -377,11 +378,11 @@ const Home: React.FC = () => {
       <SEO title="FranceJustice — ONG Internationale & Droit IA" description="FranceJustice : Plateforme souveraine d'accès au droit français, recherche IA et consultations." />
 
       {/* HERO SECTION */}
-      <section className="relative min-h-[92vh] flex items-center justify-center bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 pt-20 pb-28 text-white overflow-hidden">
+      <section className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 pt-20 pb-16 text-slate-100 overflow-hidden">
         {/* Background glow animations */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-indigo-600/20 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
-        <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-10 left-10 w-[450px] h-[450px] bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-blue-900/10 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
+        <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-red-950/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-10 left-10 w-[450px] h-[450px] bg-blue-950/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Content */}
         <div className="relative z-10 text-center px-3 sm:px-6 max-w-6xl mx-auto space-y-6 sm:space-y-8 w-full">
@@ -389,9 +390,9 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 border border-white/20 text-[11px] sm:text-sm font-bold text-amber-300 backdrop-blur-md shadow-lg max-w-full text-balance"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-slate-900/80 border border-slate-700/60 text-[11px] sm:text-sm font-bold text-slate-300 backdrop-blur-md shadow-sm max-w-full text-balance"
           >
-            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0 animate-spin" />
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0 animate-spin" />
             <span>{t('home.hero_badge', 'Plateforme Nationale 100% Synchronisée en Temps Réel • Visioconférences & IA 2026')}</span>
           </motion.div>
 
@@ -399,16 +400,16 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-balance font-sans drop-shadow-xl"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-balance font-sans"
           >
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-400 drop-shadow-[0_4px_25px_rgba(59,130,246,0.6)]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-400 to-blue-500">
               {t('home.hero_title_part1', 'La Justice Numérique de Demain,')}
             </span>{' '}
             <br className="hidden sm:inline" />
-            <span className="text-white drop-shadow-[0_4px_25px_rgba(255,255,255,0.8)]">
+            <span className="text-slate-200">
               {t('home.hero_title_part2', 'Accessible à Tous les ')}
             </span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-red-500 to-red-600 drop-shadow-[0_4px_25px_rgba(239,68,68,0.7)]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-700 to-rose-900">
               {t('home.hero_title_part3', 'Citoyens & Avocats')}
             </span>
           </motion.h1>
@@ -417,13 +418,14 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-base sm:text-xl md:text-2xl text-white font-extrabold max-w-5xl mx-auto leading-relaxed px-6 py-4 bg-slate-900/90 rounded-2xl border-2 border-indigo-500/60 shadow-[0_0_30px_rgba(99,102,241,0.4)] backdrop-blur-md text-center"
+            className="text-base sm:text-xl md:text-2xl text-slate-300 font-extrabold max-w-5xl mx-auto leading-relaxed text-center"
           >
-            <span className="text-cyan-300 font-black">{t('home.hero_sub1', 'Assistant IA Génia 2026')}</span> •{' '}
-            <span className="text-emerald-300 font-black">{t('home.hero_sub2', 'Visioconférences sécurisées en direct')}</span> •{' '}
-            <span className="text-indigo-300 font-black">{t('home.hero_sub3', 'Salles de classe virtuelles')}</span> •{' '}
-            <span className="text-amber-300 font-black">{t('home.hero_sub4', 'Planning Annuel national')}</span> •{' '}
-            <span className="text-rose-300 font-black">{t('home.hero_sub5', 'Centre d\'Études Doctrinales & Revues Scientifiques')}</span> {t('home.hero_sub6', 'en temps réel.')}
+            <span className="text-blue-400 font-black">{t('home.hero_sub1', 'Assistant IA Génia 2026')}</span> •{' '}
+            <span className="text-slate-200 font-black">{t('home.hero_sub2', 'Visioconférences sécurisées en direct')}</span> •{' '}
+            <span className="text-blue-400 font-black">{t('home.hero_sub3', 'Salles de classe virtuelles')}</span> •{' '}
+            <span className="text-slate-200 font-black">{t('home.hero_sub4', 'Planning Annuel national')}</span> •{' '}
+            <span className="text-red-400 font-black">{t('home.hero_sub5', 'Centre d\'Études Doctrinales & Revues Scientifiques')}</span>{' '}
+            <span className="text-slate-300">{t('home.hero_sub6', 'en temps réel.')}</span>
           </motion.p>
 
           <motion.div
@@ -434,7 +436,7 @@ const Home: React.FC = () => {
           >
             <Button
               size="lg"
-              className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white shadow-2xl shadow-primary-500/40 transition-all hover:scale-105 active:scale-95 font-black justify-center"
+              className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl bg-blue-700 hover:bg-blue-800 text-slate-100 shadow-lg transition-all hover:scale-105 active:scale-95 font-black justify-center"
               onClick={() => navigate('/register')}
             >
               {t('home.btn_create_account', 'Créer mon Compte Citoyen')}
@@ -444,27 +446,33 @@ const Home: React.FC = () => {
             <Button
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl border-emerald-400/40 text-emerald-300 bg-emerald-950/30 hover:bg-emerald-900/50 backdrop-blur-md transition-all hover:scale-105 active:scale-95 font-bold justify-center"
+              className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl border-slate-600 text-slate-200 bg-slate-800/60 hover:bg-slate-800 backdrop-blur-md transition-all hover:scale-105 active:scale-95 font-bold justify-center"
               onClick={() => navigate('/login')}
             >
               {t('home.btn_lawyer_space', 'Espace Avocat au Barreau')}
             </Button>
 
             <Button
-              variant="ghost"
+              variant="outline"
               size="lg"
-              className="w-full sm:w-auto text-sm sm:text-lg px-5 sm:px-6 py-4 sm:py-6 rounded-2xl text-cyan-300 hover:bg-white/10 font-semibold justify-center"
+              className="w-full sm:w-auto text-sm sm:text-lg px-5 sm:px-6 py-4 sm:py-6 rounded-2xl border-red-900/60 text-red-300 bg-red-950/40 hover:bg-red-900/50 backdrop-blur-md transition-all hover:scale-105 active:scale-95 font-semibold justify-center"
               onClick={() => navigate('/classrooms')}
             >
-              <Video className="w-5 h-5 mr-2 text-cyan-400 shrink-0" /> {t('home.btn_live_rooms', 'Salles de Classe & Visio en Direct')}
+              <Video className="w-5 h-5 mr-2 text-red-400 shrink-0" /> {t('home.btn_live_rooms', 'Salles de Classe & Visio en Direct')}
             </Button>
           </motion.div>
+        </div>
+      </section>
 
-          {/* Pappers Justice Inspired Search Engine */}
+      {/* RECHERCHE JURIDIQUE & DOMAINES DE RECHERCHE */}
+      <section className="relative py-12 bg-slate-900 border-t border-b border-indigo-900/40 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/40 via-slate-900 to-slate-950 pointer-events-none" />
+        <div className="relative z-10 container px-3 sm:px-6 max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
             <HeroPappersSearch />
           </motion.div>
@@ -1165,6 +1173,9 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* OFFICIAL GOVERNMENT LINKS & LEGAL PORTALS SECTION */}
+      <OfficialGovernmentLinks />
 
       {/* CTA FINAL SECTION */}
       <section className="py-20 relative overflow-hidden bg-gradient-to-r from-primary-700 via-indigo-900 to-slate-950 text-white">

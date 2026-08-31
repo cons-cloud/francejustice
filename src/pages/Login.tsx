@@ -117,7 +117,22 @@ const LoginPage: React.FC = () => {
     setResetLoading(true);
     setResetError(null);
 
-    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+    const cleanEmail = resetEmail.trim().toLowerCase();
+
+    // Check user role to prohibit Admin Password Reset
+    const { data: profile } = await supabase
+      .from('profiles_just')
+      .select('role')
+      .eq('email', cleanEmail)
+      .maybeSingle();
+
+    if (profile?.role === 'admin' || cleanEmail.includes('admin@francejustice.com')) {
+      setResetLoading(false);
+      setResetError(t('forgot_password.admin_forbidden', '⚠️ Sécurité : Les comptes administrateurs ne peuvent pas réinitialiser leur mot de passe en ligne. Veuillez contacter la direction technique.'));
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
 
@@ -126,6 +141,12 @@ const LoginPage: React.FC = () => {
     if (error) {
       setResetError(error.message);
     } else {
+      await supabase.from('password_resets_just').insert([{
+        email: cleanEmail,
+        user_role: profile?.role || 'user',
+        requested_at: new Date().toISOString(),
+        status: 'pending'
+      }]);
       setView('forgot_sent');
     }
   };

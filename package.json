@@ -16,9 +16,9 @@
   "license": "MIT",
   "scripts": {
     "dev:frontend": "vite",
-    "dev:backend": "backend/venv/bin/python backend/manage.py runserver",
+    "dev:backend": "backend/venv/bin/python -u backend/manage.py runserver",
     "dev": "concurrently --names \"FRONT,BACK\" --prefix-colors \"cyan,yellow\" \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",

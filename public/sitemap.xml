@@ -4,7 +4,7 @@
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <!-- Core Home & Navigation -->
   <url>
-    <loc>https://francejustice.org/</loc>
+    <loc>https://francejustice.com/</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>

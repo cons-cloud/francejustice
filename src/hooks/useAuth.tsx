@@ -45,6 +45,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fetchProfile(session.user.id);
       }
       setLoading(false);
+    }).catch((err) => {
+      console.warn('Supabase getSession failed/timed out:', err);
+      setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {

@@ -59,4 +59,4 @@ User-agent: FacebookExternalHit
 Allow: /
 
 # Sitemap Location
-Sitemap: https://francejustice.org/sitemap.xml
+Sitemap: https://francejustice.com/sitemap.xml

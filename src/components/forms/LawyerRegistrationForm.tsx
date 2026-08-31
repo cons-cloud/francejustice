@@ -45,11 +45,6 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
       return;
     }
 
-    if (!files || files.length === 0) {
-      setError("L'importation de vos documents justificatifs est obligatoire pour valider votre statut d'avocat.");
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -268,7 +263,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
                 <Briefcase className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
                 <Input
                   required
-                  placeholder="Barreau (Casablanca...)"
+                  placeholder="Barreau de rattachement (ex: Paris, Lyon...)"
                   className="!pl-14"
                   value={form.barAssociation}
                   onChange={(e) => setForm({ ...form, barAssociation: e.target.value })}

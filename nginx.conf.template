@@ -28,8 +28,9 @@ http {
     limit_conn_zone $binary_remote_addr zone=addr_limit:10m;
 
     server {
-        listen 80;
-        server_name francejustice.org www.francejustice.org francejustice.com www.francejustice.com francejusticejust.com www.francejusticejust.com;
+        # Bind dynamically to Railway's $PORT or default to 80
+        listen ${PORT};
+        server_name _;
         root /usr/share/nginx/html;
         index index.html;
 
@@ -43,7 +44,6 @@ http {
         add_header X-XSS-Protection "1; mode=block" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
         add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
-        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
         # Cache static assets
         location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
@@ -60,7 +60,6 @@ http {
         location /api/ {
             limit_req zone=api_limit burst=20 nodelay;
             limit_conn addr_limit 20;
-            resolver [fd12::10] ipv6=on valid=30s;
             set $upstream_backend ${BACKEND_UPSTREAM};
             proxy_pass http://$upstream_backend;
             proxy_set_header Host $host;
@@ -97,18 +96,6 @@ http {
         location /logs/access {
             access_log off;
             alias /tmp/nginx_access.log;
-            default_type text/plain;
-        }
-
-        location /logs/gunicorn/error {
-            access_log off;
-            alias /tmp/gunicorn_error.log;
-            default_type text/plain;
-        }
-
-        location /logs/gunicorn/access {
-            access_log off;
-            alias /tmp/gunicorn_access.log;
             default_type text/plain;
         }
     }

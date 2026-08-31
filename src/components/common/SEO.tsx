@@ -14,7 +14,7 @@ export const SEO: React.FC<SEOProps> = ({
   description,
   keywords,
   canonical,
-  ogImage = 'https://francejustice.org/og-image.jpg',
+  ogImage = 'https://francejustice.com/og-image.jpg',
   jsonLd
 }) => {
   const defaultTitle = "France Justice | N°1 Plateforme Juridique IA, Avocats, Droit du Travail & Entreprises en France";
@@ -24,7 +24,7 @@ export const SEO: React.FC<SEOProps> = ({
   const siteTitle = title ? `${title} | France Justice` : defaultTitle;
   const metaDesc = description || defaultDesc;
   const metaKeywords = keywords ? `${keywords}, ${defaultKeywords}` : defaultKeywords;
-  const canonicalUrl = canonical || 'https://francejustice.org' + (typeof window !== 'undefined' ? window.location.pathname : '');
+  const canonicalUrl = canonical || 'https://francejustice.com' + (typeof window !== 'undefined' ? window.location.pathname : '');
 
   useEffect(() => {
     // 1. Update Title

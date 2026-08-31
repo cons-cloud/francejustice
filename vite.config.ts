@@ -22,6 +22,9 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    watch: {
+      ignored: ['**/backend/venv/**', '**/backend/**/db.sqlite3', '**/backend/__pycache__/**'],
+    },
   },
   build: {
     outDir: 'dist',

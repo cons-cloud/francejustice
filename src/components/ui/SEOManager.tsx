@@ -21,7 +21,7 @@ export const SEOManager: React.FC<SEOProps> = ({
   schemaData
 }) => {
   const location = useLocation();
-  const currentUrl = canonicalUrl || `https://francejustice.org${location.pathname}`;
+  const currentUrl = canonicalUrl || `https://francejustice.com${location.pathname}`;
 
   useEffect(() => {
     // 1. Dynamic Title

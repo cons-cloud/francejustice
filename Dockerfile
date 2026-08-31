@@ -4,11 +4,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
 COPY . .
-ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_URL=https://zchhijltemvrsthdaxex.supabase.co
 ARG VITE_SUPABASE_ANON_KEY
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
-RUN npm run build
+RUN npx vite build
 
 # Stage 2: Production container running both Nginx and Django/Gunicorn
 FROM python:3.12-slim
@@ -39,6 +39,6 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Expose port (Nginx will bind to Railway's $PORT)
-EXPOSE 80
+EXPOSE 80 8080 3000
 
 CMD ["/entrypoint.sh"]

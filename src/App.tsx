@@ -12,7 +12,7 @@ import FloatingChatBot from './components/ui/FloatingChatBot';
 // Each page is loaded only when the user navigates to that route.
 // Heavy dashboards (DashboardLawyer 161 kB, Dashboard 95 kB, AdminDashboard 75 kB)
 // are never bundled into the initial load.
-const Home                 = lazy(() => import('./pages/Home'));
+import Home from './pages/Home';
 const SearchPage           = lazy(() => import('./pages/Search'));
 const GeneratorPage        = lazy(() => import('./pages/Generator'));
 const DashboardPage        = lazy(() => import('./pages/Dashboard'));
@@ -35,6 +35,7 @@ const Database             = lazy(() => import('./pages/Database'));
 const GeniaLAvocat         = lazy(() => import('./pages/GeniaLAvocat'));
 const ClassroomsPage       = lazy(() => import('./pages/Classrooms'));
 const ResetPasswordPage    = lazy(() => import('./pages/ResetPassword'));
+const ForgotPasswordPage   = lazy(() => import('./pages/ForgotPassword'));
 
 // ─── Lightweight page-level fallback ─────────────────────────────────────────
 function PageLoader() {
@@ -67,7 +68,7 @@ function RequireRole({ allowedRoles, children }: { allowedRoles: string[]; child
 
 function AppContent() {
   const { pathname } = useLocation();
-  const isAuthPage = ['/login', '/register', '/register/lawyer', '/register/student', '/register/professor', '/register/doctorate', '/register/etudiant', '/register/professeur', '/register/doctorat', '/reset-password'].includes(pathname);
+  const isAuthPage = ['/login', '/register', '/register/lawyer', '/register/student', '/register/professor', '/register/doctorate', '/register/etudiant', '/register/professeur', '/register/doctorat', '/forgot-password', '/reset-password'].includes(pathname);
   const isDashboardPage = pathname.startsWith('/dashboard');
   const hideLayout = isAuthPage || isDashboardPage;
 
@@ -81,6 +82,7 @@ function AppContent() {
             <Route path="/search"          element={<SearchPage />} />
             <Route path="/generator"       element={<GeneratorPage />} />
             <Route path="/login"           element={<LoginPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/assistant"       element={<AssistantPage />} />
             <Route path="/contact"         element={<ContactPage />} />
             <Route path="/services"        element={<ServicesPage />} />

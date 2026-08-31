@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { smartGlobalLegalAssistantQuery } from '../../lib/gemini';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from '../../i18n';
 
 interface Message {
   id: string;
@@ -23,6 +24,7 @@ interface Message {
 export const FloatingChatBot: React.FC = () => {
   const navigate = useNavigate();
   const { user: _user, profile } = useAuth();
+  const { t, i18n } = useTranslation();
   
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -36,7 +38,7 @@ export const FloatingChatBot: React.FC = () => {
     {
       id: 'welcome-1',
       sender: 'assistant',
-      text: "👋 **Bonjour ! Je suis l'Assistant IA en direct de FranceJustice.**\n\nJe suis connecté en temps réel aux **Codes de lois officiels**, à la **Jurisprudence Légifrance**, à notre **Annuaire d'Avocats & Enseignants**, et à l'ensemble de la base de données juridiques.\n\n*Comment puis-je vous aider aujourd'hui ?*",
+      text: t('chatbot.welcome', "👋 **Bonjour ! Je suis l'Assistant IA en direct de FranceJustice.**\n\nJe suis connecté en temps réel aux **Codes de lois officiels**, à la **Jurisprudence Légifrance**, à notre **Annuaire d'Avocats & Enseignants**, et à l'ensemble de la base de données juridiques.\n\n*Comment puis-je vous aider aujourd'hui ?*"),
       timestamp: new Date()
     }
   ]);
@@ -59,7 +61,7 @@ export const FloatingChatBot: React.FC = () => {
     }
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = 'fr-FR';
+    recognition.lang = i18n.language === 'en' ? 'en-US' : i18n.language === 'es' ? 'es-ES' : i18n.language === 'ar' ? 'ar-SA' : 'fr-FR';
     recognition.continuous = false;
     recognition.interimResults = false;
 
@@ -87,13 +89,11 @@ export const FloatingChatBot: React.FC = () => {
       setIsSpeaking(false);
       return;
     }
-    const cleanText = text.replace(/[*#_`]/g, '');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'fr-FR';
-    utterance.rate = 1.0;
+    const utterance = new SpeechSynthesisUtterance(text.replace(/[*#`_-]/g, ''));
+    utterance.lang = i18n.language === 'en' ? 'en-US' : i18n.language === 'es' ? 'es-ES' : i18n.language === 'ar' ? 'ar-SA' : 'fr-FR';
+    utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
-    setIsSpeaking(true);
     window.speechSynthesis.speak(utterance);
   };
 
@@ -114,7 +114,7 @@ export const FloatingChatBot: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await smartGlobalLegalAssistantQuery(promptToSend, (profile as any)?.role || 'public');
+      const response = await smartGlobalLegalAssistantQuery(promptToSend, (profile as any)?.role || 'public', i18n.language);
       
       const assistantMsg: Message = {
         id: `assistant-${Date.now()}`,

@@ -3,6 +3,7 @@ import { Send, User as UserIcon, RefreshCw } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
+import { useTranslation } from '../../i18n';
 
 interface ChatProps {
   roomId: string;
@@ -12,6 +13,7 @@ interface ChatProps {
 }
 
 export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, recipientName, isAdmin }) => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -74,7 +76,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, recipientName
           <div className="h-8 w-8 bg-primary-900/60 border border-primary-700/50 rounded-full flex items-center justify-center">
             <UserIcon className="h-4 w-4 text-primary-400" />
           </div>
-          <span className="font-bold text-white">{recipientName || 'Discussion'}</span>
+          <span className="font-bold text-white">{recipientName || t('chat.discussion', 'Discussion')}</span>
         </div>
         {loading && <RefreshCw className="h-4 w-4 animate-spin text-slate-400" />}
       </div>
@@ -102,7 +104,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, recipientName
         ))}
         {messages.length === 0 && !loading && (
           <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-2">
-            <p className="text-sm italic">Aucun message pour le moment.</p>
+            <p className="text-sm italic">{t('chat.empty', 'Aucun message pour le moment.')}</p>
           </div>
         )}
       </div>
@@ -112,7 +114,7 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, recipientName
           <Input 
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Écrivez votre message..."
+            placeholder={t('chat.placeholder', 'Écrivez votre message...')}
             className="flex-1"
           />
           <Button type="submit" size="sm">
@@ -121,8 +123,8 @@ export const Chat: React.FC<ChatProps> = ({ roomId, currentUserId, recipientName
         </form>
       )}
       {isAdmin && (
-        <div className="p-4 border-t bg-yellow-50 text-[10px] text-yellow-700 italic text-center">
-          Mode Observation Admin - Envoi de messages désactivé
+        <div className="p-4 border-t bg-yellow-500/10 border-yellow-500/20 text-[10px] text-yellow-400 italic text-center">
+          {t('chat.admin_mode', 'Mode Observation Admin - Envoi de messages désactivé')}
         </div>
       )}
     </div>

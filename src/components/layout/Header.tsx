@@ -15,6 +15,7 @@ import superieurImg from '../../assets/images/superieur.png';
 import travailImg from '../../assets/images/travail.png';
 import justeImg from '../../assets/images/juste.webp';
 import legifranceImg from '../../assets/images/legifrance.svg';
+import parquetImg from '../../assets/images/parquet.png';
 
 interface BannerImage {
   src: string;
@@ -27,6 +28,7 @@ const ministryImages: BannerImage[] = [
   { src: educationImg, alt: 'Ministère de l\'Éducation', href: 'https://www.education.gouv.fr/' },
   { src: travailImg, alt: 'Ministère du Travail', href: 'https://travail-emploi.gouv.fr/' },
   { src: justeImg, alt: 'Ministère de la Justice', href: 'https://www.justice.fr/' },
+  { src: parquetImg, alt: 'Parquet — Ministère de la Justice', href: 'https://www.justice.fr/' },
   { src: interieurImg, alt: 'Ministère de l\'Intérieur', href: 'https://www.interieur.gouv.fr/' },
 ];
 

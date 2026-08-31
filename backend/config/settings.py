@@ -101,27 +101,39 @@ if 'test' in sys.argv:
         }
     }
 else:
-    db_config = dj_database_url.config(
-        default=env('DATABASE_URL', default='sqlite:///' + str(BASE_DIR / 'db.sqlite3')),
-        conn_max_age=600
-    )
-    if db_config and db_config.get('ENGINE') == 'django.db.backends.postgresql':
-        try:
-            conn = psycopg2.connect(
-                dbname=db_config.get('NAME'),
-                user=db_config.get('USER'),
-                password=db_config.get('PASSWORD'),
-                host=db_config.get('HOST'),
-                port=db_config.get('PORT') or 5432,
-                connect_timeout=3
-            )
-            conn.close()
-        except Exception as err:
-            print(f"⚠️ [DATABASE] Supabase Postgres connection unreachable ({err}). Falling back to local SQLite (db.sqlite3)...")
-            db_config = {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
+    use_local_env = env.bool('USE_LOCAL_DB', default=False)
+    if use_local_env:
+        db_config = {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    else:
+        db_config = dj_database_url.config(
+            default=env('DATABASE_URL', default='sqlite:///' + str(BASE_DIR / 'db.sqlite3')),
+            conn_max_age=600
+        )
+        if db_config and db_config.get('ENGINE') == 'django.db.backends.postgresql':
+            use_local = False
+            try:
+                conn_params = {
+                    'dbname': db_config.get('NAME'),
+                    'user': db_config.get('USER'),
+                    'password': db_config.get('PASSWORD'),
+                    'host': db_config.get('HOST'),
+                    'port': db_config.get('PORT') or 5432,
+                    'connect_timeout': 3,
+                }
+                conn = psycopg2.connect(**conn_params)
+                conn.close()
+            except Exception as err:
+                use_local = True
+                print(f"⚠️ [DATABASE] Supabase Postgres connection failed ({err}). Falling back to local SQLite (db.sqlite3)...", flush=True)
+
+            if use_local:
+                db_config = {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': BASE_DIR / 'db.sqlite3',
+                }
 
     DATABASES = {'default': db_config}
 
@@ -174,14 +186,28 @@ JAAS_PRIVATE_KEY = env('JAAS_PRIVATE_KEY', default='').replace('\\n', '\n')
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/1')
 REDIS_URL = env('REDIS_URL', default=CELERY_BROKER_URL)
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': REDIS_URL,
-    } if REDIS_URL and 'redis' in REDIS_URL else {
+def _get_cache_backend():
+    if REDIS_URL and 'redis' in REDIS_URL:
+        try:
+            import socket, urllib.parse
+            parsed = urllib.parse.urlparse(REDIS_URL)
+            host = parsed.hostname or '127.0.0.1'
+            port = parsed.port or 6379
+            s = socket.create_connection((host, port), timeout=0.5)
+            s.close()
+            return {
+                'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+                'LOCATION': REDIS_URL,
+            }
+        except Exception:
+            pass
+    return {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'france-justice-cache',
     }
+
+CACHES = {
+    'default': _get_cache_backend()
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

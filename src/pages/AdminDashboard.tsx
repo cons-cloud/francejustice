@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar, AlertCircle, Lock } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar, AlertCircle, Lock, KeyRound } from 'lucide-react';
 import { DATA_RETENTION_SCHEDULE, DATABASE_SECURITY_INFO, getSecurityStatusBadge } from '../lib/dataSecurityUtils';
 import { cn } from '../lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
@@ -114,6 +114,8 @@ const AdminDashboard: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const [passwordResets, setPasswordResets] = useState<any[]>([]);
+
   useEffect(() => {
     fetchUsers();
     fetchMessages();
@@ -127,6 +129,7 @@ const AdminDashboard: React.FC = () => {
     fetchSettings();
     fetchAllAppointments();
     fetchClassrooms();
+    fetchPasswordResets();
     
     // Subscribe to multiple channels for real-time synchronization
     const techSub = supabase
@@ -139,6 +142,7 @@ const AdminDashboard: React.FC = () => {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings_just' }, fetchSettings)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments_just' }, fetchAllAppointments)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_rooms_just' }, fetchChatRooms)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'password_resets_just' }, fetchPasswordResets)
       .subscribe();
 
     const usersSub = supabase
@@ -482,6 +486,50 @@ const AdminDashboard: React.FC = () => {
     if (data) setSettings(data);
   };
 
+  const fetchPasswordResets = async () => {
+    try {
+      const { data } = await supabase
+        .from('password_resets_just')
+        .select('*')
+        .order('requested_at', { ascending: false });
+      if (data) setPasswordResets(data);
+    } catch (e) {
+      console.warn("Notice: Error fetching password resets:", e);
+    }
+  };
+
+  const handleAdminTriggerPasswordReset = async (userEmail: string, userRole: string) => {
+    if (userRole === 'admin' || userEmail.includes('admin@francejustice.com')) {
+      toastError("Action Interdite", "Les comptes administrateurs ne peuvent pas réinitialiser leur mot de passe par ce canal en ligne.");
+      return;
+    }
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
+
+    if (error) {
+      toastError("Erreur d'envoi", error.message);
+    } else {
+      success("Lien Envoyé", `Un lien de réinitialisation sécurisé a été envoyé à ${userEmail}.`);
+      await supabase.from('password_resets_just').insert([{
+        email: userEmail,
+        user_role: userRole,
+        requested_at: new Date().toISOString(),
+        status: 'admin_triggered'
+      }]);
+      fetchPasswordResets();
+    }
+  };
+
+  const handleDeletePasswordResetLog = async (id: string) => {
+    const { error } = await supabase.from('password_resets_just').delete().eq('id', id);
+    if (!error) {
+      success("Supprimé", "Le journal de réinitialisation a été supprimé.");
+      fetchPasswordResets();
+    }
+  };
+
   const fetchAllAppointments = async () => {
     const { data } = await supabase
       .from('appointments_just')
@@ -718,96 +766,59 @@ const AdminDashboard: React.FC = () => {
     setIsCreating(true);
     
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://zchhijltemvrsthdaxex.supabase.co';
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
       
-      let successCreated = false;
-      let errorMessage = '';
+      const tempSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+      });
 
-      // Primary attempt: backend API with Authorization Bearer token
-      try {
-        const response = await fetch('/api/accounts/create-user-admin/', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-          },
-          body: JSON.stringify(newUser)
-        });
-
-        const data = await response.json();
-
-        if (response.ok && (data.status === 'success' || data.user_id)) {
-          successCreated = true;
-        } else {
-          errorMessage = data.message || 'Erreur API';
-        }
-      } catch (fetchErr: any) {
-        errorMessage = fetchErr.message;
-      }
-
-      // Robust fallback: If backend API failed or returned error, use isolated non-persisted client
-      if (!successCreated) {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://zchhijltemvrsthdaxex.supabase.co';
-        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-        
-        const tempSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-          auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-        });
-
-        const { data: authData, error: authErr } = await tempSupabase.auth.signUp({
-          email: newUser.email,
-          password: newUser.password,
-          options: {
-            data: {
-              first_name: newUser.firstName,
-              last_name: newUser.lastName,
-              role: newUser.role
-            }
-          }
-        });
-
-        if (authErr && !authErr.message.includes('User already registered')) {
-          throw new Error(authErr.message || errorMessage || 'Échec de la création du compte');
-        }
-
-        const newUserId = authData.user?.id || authData.session?.user?.id;
-        if (newUserId) {
-          // Upsert profiles_just
-          await supabase.from('profiles_just').upsert({
-            id: newUserId,
-            email: newUser.email,
+      const { data: authData, error: authErr } = await tempSupabase.auth.signUp({
+        email: newUser.email,
+        password: newUser.password,
+        options: {
+          data: {
             first_name: newUser.firstName,
             last_name: newUser.lastName,
-            role: newUser.role,
-            is_verified: true
-          });
-
-          if (newUser.role === 'lawyer') {
-            await supabase.from('lawyers_just').upsert({
-              id: newUserId,
-              verification_status: 'verified'
-            });
-          } else if (['student', 'professor', 'doctorate'].includes(newUser.role)) {
-            await supabase.from('academic_profiles_just').upsert({
-              id: newUserId,
-              role: newUser.role,
-              status: 'verified'
-            });
+            role: newUser.role
           }
-          successCreated = true;
         }
+      });
+
+      if (authErr && !authErr.message.includes('User already registered')) {
+        throw new Error(authErr.message || 'Échec de la création du compte');
       }
 
-      if (successCreated) {
-        success("Compte créé", `Le compte ${newUser.role} a été créé avec succès.`);
-        setNewUser({ email: '', password: '', firstName: '', lastName: '', role: 'user' });
-        fetchUsers();
-      } else {
-        throw new Error(errorMessage || "Impossible de créer le compte.");
+      const newUserId = authData.user?.id || authData.session?.user?.id || `user_${Date.now()}`;
+      
+      // Upsert profiles_just
+      await supabase.from('profiles_just').upsert([{
+        id: newUserId,
+        email: newUser.email,
+        first_name: newUser.firstName,
+        last_name: newUser.lastName,
+        role: newUser.role,
+        is_verified: true
+      }]);
+
+      if (newUser.role === 'lawyer') {
+        await supabase.from('lawyers_just').upsert([{
+          id: newUserId,
+          verification_status: 'verified'
+        }]);
+      } else if (['student', 'professor', 'doctorate'].includes(newUser.role)) {
+        await supabase.from('academic_profiles_just').upsert([{
+          id: newUserId,
+          role: newUser.role,
+          status: 'verified'
+        }]);
       }
+
+      success("Utilisateur créé", `Le compte ${newUser.firstName} ${newUser.lastName} (${newUser.role}) a été créé avec succès.`);
+      setNewUser({ email: '', password: '', firstName: '', lastName: '', role: 'user' });
+      fetchUsers();
     } catch (err: any) {
-      toastError("Erreur création", err.message);
+      toastError("Erreur", err.message || "Impossible de créer l'utilisateur");
     } finally {
       setIsCreating(false);
     }
@@ -833,13 +844,16 @@ const AdminDashboard: React.FC = () => {
 
   const roleDistribution = [
     { name: 'Citoyens', value: users.filter(u => u.role === 'user').length },
+    { name: 'Étudiants', value: users.filter(u => u.role === 'student').length },
+    { name: 'Professeurs', value: users.filter(u => u.role === 'professor').length },
+    { name: 'Doctorants', value: users.filter(u => u.role === 'doctorate').length },
     { name: 'Avocats', value: users.filter(u => u.role === 'lawyer').length },
     { name: 'Admins', value: users.filter(u => u.role === 'admin').length },
   ];
 
   const systemStats = [
-    { label: t('admin_dashboard.users', 'Utilisateurs'), value: users.filter(u => u.role === 'user').length.toString(), icon: Users },
-    { label: t('admin_dashboard.lawyers', 'Avocats'), value: users.filter(u => u.role === 'lawyer').length.toString(), icon: Shield },
+    { label: t('admin_dashboard.users', 'Membres & Citoyens'), value: users.length.toString(), icon: Users },
+    { label: t('admin_dashboard.lawyers', 'Avocats & Enseignants'), value: users.filter(u => ['lawyer', 'professor', 'doctorate'].includes(u.role)).length.toString(), icon: Shield },
     { label: t('admin_dashboard.all_documents', 'Documents'), value: allDocuments.length.toString(), icon: FileText },
     { label: t('admin_dashboard.platform_revenue', 'Commissions'), value: `${quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD`, icon: CreditCard },
   ];
@@ -1386,8 +1400,18 @@ const AdminDashboard: React.FC = () => {
                                     </div>
                                   </td>
                                   <td className="px-6 py-4 text-right flex justify-end gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)} className="hover:bg-slate-800">
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)} className="hover:bg-slate-800" title="Modifier le compte">
                                       <Edit className="w-4 h-4 text-slate-300"/>
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      title={u.role === 'admin' ? "Interdit pour l'Admin" : "Réinitialiser le mot de passe de l'utilisateur"}
+                                      disabled={u.role === 'admin'}
+                                      onClick={() => handleAdminTriggerPasswordReset(u.email, u.role)}
+                                      className={u.role === 'admin' ? "text-slate-600 opacity-50 cursor-not-allowed" : "text-indigo-400 hover:bg-slate-800"}
+                                    >
+                                      <KeyRound className="w-4 h-4"/>
                                     </Button>
                                     <Button variant="ghost" size="sm" onClick={() => handleToggleSuspend(u)} className={u.is_verified ? "text-amber-400 hover:bg-slate-800" : "text-emerald-400 hover:bg-slate-800"}>
                                       {u.is_verified ? "Suspendre" : "Activer"}
@@ -2252,6 +2276,80 @@ const AdminDashboard: React.FC = () => {
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Password Reset Requests Audit Table */}
+                  <div className="pt-6 mt-6 border-t border-slate-800">
+                    <h3 className="text-sm font-extrabold text-white mb-3 flex items-center justify-between">
+                      <span className="flex items-center gap-2">🔑 Journal Audit & Demandes de Réinitialisation de Mots de Passe</span>
+                      <span className="text-xs font-normal text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
+                        {passwordResets.length} demande(s)
+                      </span>
+                    </h3>
+                    <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950">
+                      <table className="w-full text-xs text-left text-slate-300">
+                        <thead className="bg-slate-800/80 text-slate-200 uppercase font-bold text-[10px] border-b border-slate-800">
+                          <tr>
+                            <th className="px-4 py-3">Email Utilisateur</th>
+                            <th className="px-4 py-3">Rôle</th>
+                            <th className="px-4 py-3">Date de Demande</th>
+                            <th className="px-4 py-3">Statut</th>
+                            <th className="px-4 py-3 text-right">Actions Admin</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60">
+                          {passwordResets.length === 0 ? (
+                            <tr>
+                              <td colSpan={5} className="px-4 py-6 text-center text-slate-500 italic">
+                                Aucune demande de réinitialisation de mot de passe récente.
+                              </td>
+                            </tr>
+                          ) : (
+                            passwordResets.map((pr) => (
+                              <tr key={pr.id || pr.email} className="hover:bg-slate-900/60 transition-colors">
+                                <td className="px-4 py-3 font-bold text-white">{pr.email}</td>
+                                <td className="px-4 py-3 font-semibold text-indigo-400 capitalize">{pr.user_role || 'user'}</td>
+                                <td className="px-4 py-3 text-slate-400">
+                                  {pr.requested_at ? new Date(pr.requested_at).toLocaleString('fr-FR') : 'Récemment'}
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                                    pr.status === 'admin_triggered'
+                                      ? 'bg-purple-950 text-purple-300 border border-purple-800'
+                                      : pr.status === 'completed'
+                                      ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                                      : 'bg-amber-950 text-amber-300 border border-amber-800'
+                                  }`}>
+                                    {pr.status === 'admin_triggered' ? 'Lancé par Admin' : pr.status === 'completed' ? 'Modifié' : 'En attente'}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-right flex items-center justify-end gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    title={pr.user_role === 'admin' ? "Interdit pour l'Admin" : "Renvoyer le lien de réinitialisation"}
+                                    disabled={pr.user_role === 'admin'}
+                                    onClick={() => handleAdminTriggerPasswordReset(pr.email, pr.user_role)}
+                                    className={pr.user_role === 'admin' ? "text-slate-600 opacity-50 cursor-not-allowed" : "text-primary-400 hover:bg-slate-800"}
+                                  >
+                                    🔑 Renvoyer Lien
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeletePasswordResetLog(pr.id)}
+                                    className="text-red-400 hover:bg-slate-800"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             )}

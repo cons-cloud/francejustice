@@ -380,7 +380,7 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
 
     try {
       const chatHistory = [...history];
-      const aiResponseResult = await chatWithAI(promptContext, chatHistory, true);
+      const aiResponseResult = await chatWithAI(promptContext, chatHistory, true, i18n.language);
       
       const aiResponse = typeof aiResponseResult === 'string' ? aiResponseResult : aiResponseResult.text;
       const extractedWebSources = typeof aiResponseResult === 'string' ? [] : (aiResponseResult.sources_web || []);
