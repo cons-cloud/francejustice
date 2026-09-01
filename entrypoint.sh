@@ -10,13 +10,13 @@ chmod 666 /tmp/nginx_access.log /tmp/nginx_error.log /tmp/gunicorn_access.log /t
 
 cd /app/backend
 
-echo "=== Starting Gunicorn on 127.0.0.1:8000 ==="
+echo "=== Starting Gunicorn on 0.0.0.0:8000 ==="
 gunicorn config.wsgi:application \
-    --bind 127.0.0.1:8000 \
+    --bind 0.0.0.0:8000 \
     --workers 2 \
     --timeout 120 \
-    --access-logfile /tmp/gunicorn_access.log \
-    --error-logfile /tmp/gunicorn_error.log &
+    --access-logfile - \
+    --error-logfile - &
 
 echo "=== Running Migrations & Collectstatic in background ==="
 (

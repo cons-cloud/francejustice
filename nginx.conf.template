@@ -6,9 +6,14 @@ http {
     include       /etc/nginx/mime.types;
     default_type  application/octet-stream;
 
-    # Logging
-    access_log /tmp/nginx_access.log;
-    error_log /tmp/nginx_error.log;
+    # Stream logs to stdout and stderr so Railway shows them in real-time
+    access_log /dev/stdout;
+    error_log /dev/stderr info;
+
+    # Real IP resolution behind Railway / Reverse Proxy
+    set_real_ip_from 0.0.0.0/0;
+    real_ip_header X-Forwarded-For;
+    real_ip_recursive on;
 
     gzip on;
     gzip_vary on;
@@ -21,11 +26,6 @@ http {
         application/javascript
         application/xml+rss
         application/json;
-
-    # Rate Limiting Zones (DDoS & Brute Force protection)
-    limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
-    limit_req_zone $binary_remote_addr zone=login_limit:10m rate=5r/m;
-    limit_conn_zone $binary_remote_addr zone=addr_limit:10m;
 
     server {
         # Bind dynamically to Railway's $PORT or default to 80
@@ -56,10 +56,8 @@ http {
             try_files $uri $uri/ /index.html;
         }
 
-        # Proxy API requests to backend with Rate Limiting
+        # Proxy API requests to backend
         location /api/ {
-            limit_req zone=api_limit burst=20 nodelay;
-            limit_conn addr_limit 20;
             proxy_pass http://${BACKEND_UPSTREAM};
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
@@ -84,7 +82,7 @@ http {
             proxy_send_timeout 86400s;
         }
 
-        # Health check
+        # Health check for Railway
         location /health {
             access_log off;
             return 200 "healthy\n";
@@ -96,19 +94,6 @@ http {
             access_log off;
             return 200 "BACKEND_UPSTREAM: ${BACKEND_UPSTREAM}\n";
             add_header Content-Type text/plain;
-        }
-
-        # Logs debug
-        location /logs/error {
-            access_log off;
-            alias /tmp/nginx_error.log;
-            default_type text/plain;
-        }
-
-        location /logs/access {
-            access_log off;
-            alias /tmp/nginx_access.log;
-            default_type text/plain;
         }
     }
 }
