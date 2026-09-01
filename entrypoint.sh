@@ -27,5 +27,8 @@ echo "=== Running Migrations & Collectstatic in background ==="
 echo "Substituting PORT=${PORT} and BACKEND_UPSTREAM=${BACKEND_UPSTREAM} in nginx.conf.template"
 envsubst '${PORT} ${BACKEND_UPSTREAM}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
+echo "Validating Nginx configuration..."
+nginx -t -c /etc/nginx/nginx.conf
+
 echo "Starting Nginx on port ${PORT}..."
 exec nginx -g "daemon off;"
