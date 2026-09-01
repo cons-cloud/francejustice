@@ -113,6 +113,22 @@ else:
             conn_max_age=600
         )
         if db_config and db_config.get('ENGINE') == 'django.db.backends.postgresql':
+            host = db_config.get('HOST', '')
+            user = db_config.get('USER', '')
+            supabase_url = env('SUPABASE_URL', default='')
+            
+            # Supabase pooler (e.g. pooler.supabase.com) requires user in format: postgres.[PROJECT_REF]
+            if ('pooler.supabase.com' in host or 'supabase.co' in host) and user and '.' not in user:
+                project_ref = ''
+                if supabase_url:
+                    import urllib.parse
+                    try:
+                        project_ref = urllib.parse.urlparse(supabase_url).netloc.split('.')[0]
+                    except Exception:
+                        pass
+                if project_ref:
+                    db_config['USER'] = f"{user}.{project_ref}"
+
             use_local = False
             try:
                 conn_params = {
@@ -121,10 +137,11 @@ else:
                     'password': db_config.get('PASSWORD'),
                     'host': db_config.get('HOST'),
                     'port': db_config.get('PORT') or 5432,
-                    'connect_timeout': 3,
+                    'connect_timeout': 5,
                 }
                 conn = psycopg2.connect(**conn_params)
                 conn.close()
+                print(f"✅ [DATABASE] Connected successfully to Supabase Postgres ({db_config.get('HOST')}).", flush=True)
             except Exception as err:
                 use_local = True
                 print(f"⚠️ [DATABASE] Supabase Postgres connection failed ({err}). Falling back to local SQLite (db.sqlite3)...", flush=True)
