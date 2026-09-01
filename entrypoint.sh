@@ -1,8 +1,18 @@
 #!/bin/sh
 
-# Set default PORT if not provided by Railway (Dockerfile exposes port 80)
+# Set default PORT if not provided by Railway (Dockerfile exposes ports 80, 8080, 3000)
 export PORT="${PORT:-80}"
 export BACKEND_UPSTREAM="127.0.0.1:8001"
+
+# Generate Nginx listen directives dynamically for $PORT, 80, 8080, 3000
+LISTEN_PORTS="listen ${PORT} default_server;"
+for p in 80 8080 3000; do
+    if [ "$p" != "$PORT" ]; then
+        LISTEN_PORTS="${LISTEN_PORTS}
+        listen ${p};"
+    fi
+done
+export LISTEN_PORTS
 
 # Touch log files
 touch /tmp/nginx_access.log /tmp/nginx_error.log /tmp/gunicorn_access.log /tmp/gunicorn_error.log
@@ -24,11 +34,11 @@ echo "=== Running Migrations & Collectstatic in background ==="
     python manage.py collectstatic --noinput || echo "Notice: Collectstatic completed."
 ) &
 
-echo "Substituting PORT=${PORT} and BACKEND_UPSTREAM=${BACKEND_UPSTREAM} in nginx.conf.template"
-envsubst '${PORT} ${BACKEND_UPSTREAM}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+echo "Substituting LISTEN_PORTS and BACKEND_UPSTREAM in nginx.conf.template"
+envsubst '${LISTEN_PORTS} ${BACKEND_UPSTREAM}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
 echo "Validating Nginx configuration..."
 nginx -t -c /etc/nginx/nginx.conf
 
-echo "Starting Nginx on port ${PORT}..."
+echo "Starting Nginx on ports (${PORT}, 80, 8080, 3000)..."
 exec nginx -g "daemon off;"
