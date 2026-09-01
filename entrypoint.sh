@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Set default PORT if not provided by Railway
-export PORT="${PORT:-80}"
-export BACKEND_UPSTREAM="127.0.0.1:8000"
+export PORT="${PORT:-8080}"
+export BACKEND_UPSTREAM="127.0.0.1:8001"
 
 # Touch log files
 touch /tmp/nginx_access.log /tmp/nginx_error.log /tmp/gunicorn_access.log /tmp/gunicorn_error.log
@@ -10,9 +10,9 @@ chmod 666 /tmp/nginx_access.log /tmp/nginx_error.log /tmp/gunicorn_access.log /t
 
 cd /app/backend
 
-echo "=== Starting Gunicorn on 0.0.0.0:8000 ==="
+echo "=== Starting Gunicorn on 127.0.0.1:8001 ==="
 gunicorn config.wsgi:application \
-    --bind 0.0.0.0:8000 \
+    --bind 127.0.0.1:8001 \
     --workers 2 \
     --timeout 120 \
     --access-logfile - \

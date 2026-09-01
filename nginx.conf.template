@@ -28,8 +28,9 @@ http {
         application/json;
 
     server {
-        # Bind dynamically to Railway's $PORT or default to 80
-        listen ${PORT};
+        # Bind dynamically to Railway's $PORT on both IPv4 and IPv6
+        listen ${PORT} default_server;
+        listen [::]:${PORT} default_server;
         server_name _;
         root /usr/share/nginx/html;
         index index.html;
