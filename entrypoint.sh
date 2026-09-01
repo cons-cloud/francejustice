@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Set default PORT if not provided by Railway
-export PORT="${PORT:-8080}"
+# Set default PORT if not provided by Railway (Dockerfile exposes port 80)
+export PORT="${PORT:-80}"
 export BACKEND_UPSTREAM="127.0.0.1:8001"
 
 # Touch log files
