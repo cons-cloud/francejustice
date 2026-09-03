@@ -591,38 +591,38 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
 
       {/* Voice Assistant Glassmorphism Panel */}
       {isOpen && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-xl bg-gradient-to-b from-[#0f172a] to-[#080d16] border border-white/10 rounded-3xl shadow-2xl shadow-black/80 overflow-hidden flex flex-col max-h-[85vh] animate-slide-up">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-lg animate-fade-in">
+          <div className="w-full max-w-xl bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 border-2 border-indigo-500/30 rounded-3xl shadow-2xl shadow-black overflow-hidden flex flex-col max-h-[88vh] animate-slide-up">
             
             {/* Header */}
-            <div className="px-6 py-4.5 bg-white/5 border-b border-white/5 flex items-center justify-between">
+            <div className="px-6 py-4 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-tr from-primary-600 to-accent-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+                <div className="p-2.5 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-md shadow-indigo-500/30">
                   <Sparkles className="h-5 w-5 text-white animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-lg flex items-center gap-1.5">
+                  <h3 className="font-extrabold text-white text-lg tracking-tight flex items-center gap-2">
                     IA Vocale Law Just
-                    <span className="text-[10px] uppercase font-mono tracking-widest px-2 py-0.5 bg-accent-500/20 text-accent-400 rounded-full border border-accent-500/20 animate-pulse">
-                      Live
+                    <span className="text-[10px] uppercase font-mono tracking-widest px-2.5 py-0.5 bg-purple-500/20 text-purple-300 rounded-full border border-purple-500/30 font-bold animate-pulse">
+                      En Direct
                     </span>
                   </h3>
-                  <p className="text-xs text-secondary-300">
-                    Accès direct aux législations FR et UE par Gemini
+                  <p className="text-xs text-slate-300 font-medium">
+                    Assistant Juridique & Recherche Légifrance / UE par Gemini
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={toggleMute}
-                  className={`p-2 rounded-xl transition-all duration-200 cursor-pointer ${
+                  className={`p-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
                     isMuted 
-                      ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
-                      : 'bg-white/5 text-secondary-300 hover:bg-white/10'
+                      ? 'bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/30' 
+                      : 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700'
                   }`}
                   title={isMuted ? "Activer le son" : "Désactiver le son"}
                 >
-                  {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  {isMuted ? <VolumeX className="h-4.5 w-4.5" /> : <Volume2 className="h-4.5 w-4.5" />}
                 </button>
                 <button
                   onClick={() => {
@@ -630,9 +630,10 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
                     setIsOpen(false);
                     playChime(392, 'sine', 0.08);
                   }}
-                  className="p-2 bg-white/5 text-secondary-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 cursor-pointer"
+                  className="p-2.5 bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-700 rounded-xl transition-all duration-200 cursor-pointer"
+                  title="Fermer"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4.5 w-4.5" />
                 </button>
               </div>
             </div>
@@ -640,30 +641,30 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
             {/* Conversation Area */}
             <div 
               ref={scrollRef}
-              className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin"
+              className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 scrollbar-thin bg-slate-900/60"
             >
               {/* Informative Welcome */}
               {history.length === 0 && !transcript && (
-                <div className="bg-[#1a2236] border border-secondary-700/50 rounded-2xl p-5 space-y-4">
-                  <p className="text-white/90 text-sm leading-relaxed">
-                    Bonjour ! Je suis votre assistant juridique vocal. J'ai accès à l'ensemble de votre tableau de bord, ainsi qu'aux dernières bases juridiques françaises et européennes via Google Search.
+                <div className="bg-slate-800/90 border border-indigo-500/30 rounded-2xl p-5 space-y-4 shadow-lg">
+                  <p className="text-white text-sm sm:text-base leading-relaxed font-normal">
+                    Bonjour ! Je suis votre Assistant Juridique Vocal. J'analyse vos pièces jointes, réponds à vos questions juridiques et exécute vos instructions en direct.
                   </p>
-                  <div className="space-y-2.5">
-                    <p className="text-xs font-semibold text-secondary-300 uppercase tracking-wider">
-                      Exemples d'instructions :
+                  <div className="space-y-2.5 pt-1 border-t border-slate-700/60">
+                    <p className="text-xs font-bold text-indigo-300 uppercase tracking-wider">
+                      Exemples d'instructions à dicter ou écrire :
                     </p>
-                    <ul className="text-xs text-white/80 space-y-2">
-                      <li className="flex items-center gap-2 bg-white/5 p-2 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition-colors" onClick={() => handleVoiceCommand("Affiche mes rendez-vous")}>
-                        <ArrowRight className="h-3 w-3 text-accent-400" />
-                        <span className="text-white/80">"Va sur l'onglet rendez-vous"</span>
+                    <ul className="text-xs sm:text-sm text-slate-200 space-y-2">
+                      <li className="flex items-center gap-2.5 bg-indigo-950/60 hover:bg-indigo-900/80 p-2.5 rounded-xl border border-indigo-500/30 cursor-pointer transition-colors shadow-sm" onClick={() => handleVoiceCommand("Affiche mes rendez-vous")}>
+                        <ArrowRight className="h-4 w-4 text-purple-400 shrink-0" />
+                        <span className="text-white font-medium">"Affiche mes rendez-vous de la semaine"</span>
                       </li>
-                      <li className="flex items-center gap-2 bg-white/5 p-2 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition-colors" onClick={() => handleVoiceCommand("Qu'est ce que l'article 1240 du Code Civil ?")}>
-                        <ArrowRight className="h-3 w-3 text-accent-400" />
-                        <span className="text-white/80">"Qu'est ce que l'article 1240 du Code Civil ?"</span>
+                      <li className="flex items-center gap-2.5 bg-indigo-950/60 hover:bg-indigo-900/80 p-2.5 rounded-xl border border-indigo-500/30 cursor-pointer transition-colors shadow-sm" onClick={() => handleVoiceCommand("Qu'est ce que l'article 1240 du Code Civil ?")}>
+                        <ArrowRight className="h-4 w-4 text-purple-400 shrink-0" />
+                        <span className="text-white font-medium">"Qu'est-ce que l'article 1240 du Code Civil ?"</span>
                       </li>
-                      <li className="flex items-center gap-2 bg-white/5 p-2 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition-colors" onClick={() => handleVoiceCommand("Explique-moi le RGPD européen en matière de données")}>
-                        <ArrowRight className="h-3 w-3 text-accent-400" />
-                        <span className="text-white/80">"Quelles sont les obligations du RGPD européen ?"</span>
+                      <li className="flex items-center gap-2.5 bg-indigo-950/60 hover:bg-indigo-900/80 p-2.5 rounded-xl border border-indigo-500/30 cursor-pointer transition-colors shadow-sm" onClick={() => handleVoiceCommand("Explique-moi le RGPD européen en matière de données")}>
+                        <ArrowRight className="h-4 w-4 text-purple-400 shrink-0" />
+                        <span className="text-white font-medium">"Quelles sont les obligations du RGPD européen ?"</span>
                       </li>
                     </ul>
                   </div>
@@ -673,9 +674,9 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
               {/* Transcript bubble (User input) */}
               {transcript && (
                 <div className="flex items-start justify-end gap-3 animate-fade-in">
-                  <div className="bg-gradient-to-tr from-primary-700 to-primary-800 border border-primary-600/30 rounded-2xl rounded-tr-none px-4 py-3 max-w-[85%] text-white text-sm shadow-md">
-                    <p className="font-semibold text-[10px] text-blue-200 uppercase tracking-wider mb-1">Vous</p>
-                    <p className="leading-relaxed text-white">{transcript}</p>
+                  <div className="bg-gradient-to-r from-indigo-600 to-blue-600 border border-indigo-400/30 rounded-2xl rounded-tr-none px-4 py-3.5 max-w-[88%] text-white text-sm sm:text-base shadow-md">
+                    <p className="font-bold text-[11px] text-indigo-200 uppercase tracking-wider mb-1">Vous</p>
+                    <p className="leading-relaxed text-white font-medium">{transcript}</p>
                   </div>
                 </div>
               )}
@@ -683,24 +684,24 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
               {/* Response bubble (AI Reply) */}
               {response && (
                 <div className="flex items-start gap-3 animate-fade-in">
-                  <div className="bg-[#1a2236] border border-secondary-700/40 rounded-2xl rounded-tl-none p-5 max-w-[90%] text-white text-sm shadow-md space-y-3">
-                    <p className="font-bold text-[10px] text-accent-400 uppercase tracking-wider flex items-center gap-1">
-                      <Sparkles className="h-3.5 w-3.5" />
+                  <div className="bg-slate-800/95 border border-slate-700/80 rounded-2xl rounded-tl-none p-5 max-w-[92%] text-white text-sm sm:text-base shadow-xl space-y-3.5">
+                    <p className="font-extrabold text-xs text-purple-300 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-700/60 pb-2">
+                      <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />
                       Assistant Juridique Law Just
                     </p>
                     
-                    <p className="leading-relaxed whitespace-pre-line text-white/95">{response}</p>
+                    <p className="leading-relaxed whitespace-pre-line text-slate-100 font-sans">{response}</p>
 
                     {/* Extracted references/sources badge display */}
                     {sources.length > 0 && (
-                      <div className="pt-3.5 border-t border-white/10 flex flex-wrap gap-2 items-center">
-                        <span className="text-[10px] font-semibold text-secondary-300 uppercase flex items-center gap-1 mr-1">
-                          <BookOpen className="h-3 w-3" /> Sources détectées :
+                      <div className="pt-3 border-t border-slate-700/60 flex flex-wrap gap-2 items-center">
+                        <span className="text-xs font-bold text-slate-300 uppercase flex items-center gap-1 mr-1">
+                          <BookOpen className="h-3.5 w-3.5 text-purple-400" /> Textes détectés :
                         </span>
                         {sources.map((src, i) => (
                           <span 
                             key={i}
-                            className="text-[10px] bg-secondary-700 text-white border border-secondary-600 px-2 py-0.5 rounded-full font-medium"
+                            className="text-xs bg-indigo-950 text-indigo-200 border border-indigo-500/40 px-2.5 py-1 rounded-full font-semibold shadow-sm"
                           >
                             {src}
                           </span>
@@ -710,9 +711,9 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
 
                     {/* Real-time Google Search sources & articles display */}
                     {webSources && webSources.length > 0 && (
-                      <div className="pt-3.5 border-t border-white/10 space-y-2.5">
-                        <span className="text-[10px] font-bold text-accent-400 uppercase flex items-center gap-1">
-                          <Sparkles className="h-3.5 w-3.5 text-accent-400 animate-pulse" /> Articles & Sources Web (Google Search) :
+                      <div className="pt-3.5 border-t border-slate-700/60 space-y-2.5">
+                        <span className="text-xs font-bold text-purple-300 uppercase flex items-center gap-1">
+                          <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" /> Articles & Jurisprudences (Google Search) :
                         </span>
                         <div className="grid grid-cols-1 gap-2">
                           {webSources.slice(0, 4).map((source: any, i: number) => (
@@ -721,18 +722,18 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
                               href={source.uri}
                               target="_blank"
                               rel="noreferrer"
-                              className="flex items-center justify-between gap-3 bg-[#1e293b] hover:bg-[#263348] border border-secondary-600/40 rounded-xl p-2.5 transition-colors group cursor-pointer"
+                              className="flex items-center justify-between gap-3 bg-slate-900 hover:bg-slate-950 border border-slate-700 hover:border-purple-400 rounded-xl p-3 transition-all group cursor-pointer shadow-sm"
                             >
-                              <div className="flex items-center gap-2">
-                                <div className="bg-secondary-700 border border-secondary-600 p-1.5 rounded-lg group-hover:border-accent-500/30 transition-colors">
-                                  <BookOpen className="h-3.5 w-3.5 text-secondary-300 group-hover:text-accent-400" />
+                              <div className="flex items-center gap-2.5">
+                                <div className="bg-purple-950 border border-purple-500/40 p-2 rounded-lg group-hover:border-purple-400 transition-colors">
+                                  <BookOpen className="h-4 w-4 text-purple-300" />
                                 </div>
-                                <span className="text-xs text-white font-medium line-clamp-1 group-hover:text-accent-200 transition-colors">
-                                  {source.title || "Article Juridique"}
+                                <span className="text-xs sm:text-sm text-white font-semibold line-clamp-1 group-hover:text-purple-200 transition-colors">
+                                  {source.title || "Source Juridique Officielle"}
                                 </span>
                               </div>
-                              <span className="text-[10px] text-accent-400 font-medium group-hover:underline flex items-center gap-0.5 whitespace-nowrap shrink-0">
-                                Lire <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                              <span className="text-xs text-purple-300 font-bold group-hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
+                                Lire <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                               </span>
                             </a>
                           ))}
@@ -742,37 +743,37 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
 
                     {/* Dynamic PDF generation card widget */}
                     {generatedDoc && (
-                      <div className="mt-4 bg-gradient-to-br from-[#4a1254]/50 to-[#0f1d3a]/60 border border-accent-500/30 rounded-xl p-4.5 space-y-3 shadow-lg backdrop-blur-md">
+                      <div className="mt-4 bg-gradient-to-br from-purple-950/80 via-slate-900 to-indigo-950 border border-purple-400/40 rounded-2xl p-4.5 space-y-3.5 shadow-xl">
                         <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-center gap-2.5">
-                            <div className="bg-accent-500/10 p-2.5 rounded-lg border border-accent-500/20">
-                              <FileText className="h-5.5 w-5.5 text-accent-400" />
+                          <div className="flex items-center gap-3">
+                            <div className="bg-purple-500/20 p-3 rounded-xl border border-purple-400/30">
+                              <FileText className="h-6 w-6 text-purple-300" />
                             </div>
                             <div className="space-y-0.5">
-                              <h4 className="text-[10px] font-bold text-accent-400 uppercase tracking-wide">Document PDF Prêt</h4>
-                              <p className="text-xs text-white font-medium line-clamp-1">{generatedDoc.title}</p>
+                              <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wide">Document PDF Prêt</h4>
+                              <p className="text-sm text-white font-bold line-clamp-1">{generatedDoc.title}</p>
                             </div>
                           </div>
-                          <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-                            <Check className="h-2.5 w-2.5" /> Enregistré
+                          <span className="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
+                            <Check className="h-3 w-3" /> Enregistré
                           </span>
                         </div>
                         
-                        <div className="flex gap-2">
+                        <div className="flex gap-2.5">
                           <button 
                             type="button"
                             onClick={() => downloadDocAsPDF(generatedDoc)}
-                            className="flex-1 bg-accent-600 hover:bg-accent-500 active:bg-accent-700 text-white text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
+                            className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
                           >
-                            <Download className="h-3.5 w-3.5" />
+                            <Download className="h-4 w-4" />
                             Télécharger PDF
                           </button>
                           <button 
                             type="button"
                             onClick={() => setPreviewDoc(generatedDoc)}
-                            className="bg-white/5 hover:bg-white/10 text-white border border-white/10 text-xs font-medium py-2 px-3 rounded-lg flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                            className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 text-xs sm:text-sm font-semibold py-2.5 px-3.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                           >
-                            <Eye className="h-3.5 w-3.5" />
+                            <Eye className="h-4 w-4" />
                             Aperçu
                           </button>
                         </div>
@@ -784,10 +785,10 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
 
               {/* Error messages if any */}
               {errorMsg && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex gap-3 text-red-200 text-xs">
-                  <AlertTriangle className="h-4.5 w-4.5 text-red-400 shrink-0" />
+                <div className="bg-red-950/80 border border-red-500/40 rounded-2xl p-4 flex gap-3 text-red-200 text-xs sm:text-sm shadow-md">
+                  <AlertTriangle className="h-5 w-5 text-red-400 shrink-0" />
                   <div className="space-y-1">
-                    <p className="font-semibold">Une erreur est survenue</p>
+                    <p className="font-bold">Une remarque est survenue</p>
                     <p>{errorMsg}</p>
                   </div>
                 </div>
@@ -795,66 +796,66 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
 
               {/* Processing/Listening States */}
               {isListening && (
-                <div className="flex flex-col items-center justify-center py-6 gap-3">
+                <div className="flex flex-col items-center justify-center py-6 gap-3 bg-slate-950/60 rounded-2xl border border-indigo-500/20">
                   <div className="flex gap-1.5 items-center justify-center h-8">
                     {[1, 2, 3, 4, 5].map((bar) => (
                       <div
                         key={bar}
-                        className="w-1 bg-accent-500 rounded-full animate-wave"
+                        className="w-1.5 bg-purple-400 rounded-full animate-wave"
                         style={{
                           animationDelay: `${bar * 0.15}s`,
-                          height: '24px'
+                          height: '28px'
                         }}
                       ></div>
                     ))}
                   </div>
-                  <p className="text-xs text-accent-400 animate-pulse font-medium">
-                    Parlez maintenant, je vous écoute...
+                  <p className="text-sm text-purple-300 animate-pulse font-bold">
+                    Écoute en cours... Dites votre question juridique.
                   </p>
                 </div>
               )}
 
               {isProcessing && (
-                <div className="flex items-center gap-3 py-2 text-secondary-400 text-xs font-medium">
-                  <Loader2 className="h-4.5 w-4.5 text-accent-500 animate-spin" />
-                  <span>Recherche législative et analyse en cours...</span>
+                <div className="flex items-center gap-3 py-3 px-4 bg-slate-800/80 rounded-xl border border-slate-700 text-slate-200 text-xs sm:text-sm font-semibold">
+                  <Loader2 className="h-4.5 w-4.5 text-purple-400 animate-spin" />
+                  <span>Recherche juridique et analyse en cours...</span>
                 </div>
               )}
 
               {isSpeaking && (
-                <div className="flex items-center gap-3 py-2 text-accent-400 text-xs font-medium">
-                  <Activity className="h-4.5 w-4.5 text-accent-400 animate-pulse" />
-                  <span>Narration de la réponse juridique en cours...</span>
+                <div className="flex items-center gap-3 py-3 px-4 bg-indigo-950/80 rounded-xl border border-indigo-500/30 text-purple-300 text-xs sm:text-sm font-semibold">
+                  <Activity className="h-4.5 w-4.5 text-purple-400 animate-pulse" />
+                  <span>Narration vocale de la réponse...</span>
                   <button 
                     onClick={stopSpeaking}
-                    className="ml-auto text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded-md text-secondary-300 hover:text-white cursor-pointer"
+                    className="ml-auto text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 rounded-lg text-slate-200 hover:text-white cursor-pointer font-bold"
                   >
-                    Arrêter la lecture
+                    Arrêter
                   </button>
                 </div>
               )}
             </div>
 
             {/* Input Controls Bar */}
-            <div className="p-4 bg-[#0a0e17] border-t border-secondary-800 space-y-3">
+            <div className="p-4 bg-slate-950 border-t border-slate-800 space-y-3">
               
               {/* Attachment Chip List */}
               {attachedFiles.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-1 pb-2 border-b border-white/5">
-                  <span className="text-[10px] font-bold text-accent-400 uppercase tracking-wider flex items-center gap-1 w-full">
-                    <Paperclip className="h-3 w-3 text-accent-400" /> {attachedFiles.length} Document(s) / Pièce(s) Jointe(s) chargée(s) :
+                <div className="flex flex-wrap gap-2 pt-1 pb-2 border-b border-slate-800">
+                  <span className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1 w-full">
+                    <Paperclip className="h-3.5 w-3.5 text-purple-400" /> {attachedFiles.length} Document(s) / Pièce(s) chargée(s) :
                   </span>
                   {attachedFiles.map((file, idx) => (
-                    <div key={idx} className="flex items-center gap-1.5 bg-[#1e293b] border border-accent-500/30 text-white text-xs px-2.5 py-1 rounded-lg shadow-sm">
-                      <FileText className="h-3.5 w-3.5 text-accent-400 shrink-0" />
-                      <span className="line-clamp-1 max-w-[160px] font-medium">{file.name}</span>
+                    <div key={idx} className="flex items-center gap-2 bg-indigo-950 border border-indigo-400/40 text-white text-xs px-3 py-1.5 rounded-xl shadow-sm">
+                      <FileText className="h-4 w-4 text-purple-400 shrink-0" />
+                      <span className="line-clamp-1 max-w-[170px] font-semibold">{file.name}</span>
                       <button
                         type="button"
                         onClick={() => removeAttachedFile(idx)}
-                        className="text-secondary-400 hover:text-red-400 transition-colors ml-1 p-0.5"
+                        className="text-slate-400 hover:text-red-400 transition-colors ml-1 p-0.5"
                         title="Supprimer la pièce jointe"
                       >
-                        <X className="h-3.5 w-3.5" />
+                        <X className="h-4 w-4" />
                       </button>
                     </div>
                   ))}
@@ -867,18 +868,18 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
                   <button
                     onClick={isListening ? () => recognitionRef.current?.stop() : startListening}
                     disabled={isProcessing}
-                    className={`p-5 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all duration-300 scale-100 hover:scale-105 ${
+                    className={`p-4 sm:p-5 rounded-full shadow-xl flex items-center justify-center cursor-pointer transition-all duration-300 scale-100 hover:scale-105 ${
                       isListening
-                        ? 'bg-red-500 text-white animate-pulse shadow-red-500/20'
-                        : 'bg-gradient-to-tr from-accent-500 to-accent-600 hover:from-accent-600 hover:to-accent-700 text-white shadow-accent-500/10'
+                        ? 'bg-red-500 text-white animate-pulse shadow-red-500/30 border-2 border-white'
+                        : 'bg-gradient-to-tr from-indigo-600 via-purple-600 to-indigo-600 text-white shadow-indigo-500/30 border border-white/20'
                     }`}
                     title={isListening ? "Arrêter l'écoute" : "Démarrer l'écoute vocale"}
                   >
-                    {isListening ? <MicOff className="h-6.5 w-6.5" /> : <Mic className="h-6.5 w-6.5" />}
+                    {isListening ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
                   </button>
                 ) : (
-                  <p className="text-xs text-red-400 text-center font-medium bg-red-500/10 border border-red-500/20 px-3.5 py-2 rounded-xl">
-                    La reconnaissance vocale n'est pas supportée sur ce navigateur. Vous pouvez utiliser le clavier ci-dessous.
+                  <p className="text-xs text-red-300 text-center font-semibold bg-red-950/60 border border-red-500/30 px-3.5 py-2 rounded-xl">
+                    La reconnaissance vocale n'est pas supportée sur ce navigateur. Utilisez le clavier ci-dessous.
                   </p>
                 )}
               </div>
@@ -886,10 +887,10 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
               {/* Manual Keyboard input & Paperclip Attachment button */}
               <form onSubmit={handleManualSubmit} className="flex gap-2 items-center">
                 <label 
-                  className="p-2.5 bg-[#1b253b] hover:bg-[#25334e] text-accent-400 hover:text-accent-300 border border-[#334155] hover:border-accent-500/40 rounded-xl cursor-pointer transition-all flex items-center justify-center shrink-0 shadow-sm"
+                  className="p-2.5 sm:p-3 bg-slate-900 hover:bg-slate-800 text-purple-300 hover:text-purple-200 border border-slate-700 hover:border-purple-400/50 rounded-xl cursor-pointer transition-all flex items-center justify-center shrink-0 shadow-sm"
                   title="Ajouter des pièces jointes / dossiers juridiques (PDF, TXT, images)"
                 >
-                  <Paperclip className="h-4.5 w-4.5" />
+                  <Paperclip className="h-5 w-5" />
                   <input
                     type="file"
                     multiple
@@ -905,20 +906,20 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
                     name="manualCommand"
                     placeholder={attachedFiles.length > 0 ? `Posez votre question sur les ${attachedFiles.length} document(s)...` : "Posez votre question juridique ici..."}
                     disabled={isProcessing}
-                    className="w-full bg-[#1b253b] border border-[#334155] text-white placeholder-secondary-400 text-xs sm:text-sm rounded-xl pl-3.5 pr-8 py-2.5 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/20 transition-all disabled:opacity-50 font-medium"
+                    className="w-full bg-slate-900 border border-slate-700 text-white placeholder-slate-400 text-xs sm:text-sm rounded-xl pl-3.5 pr-8 py-2.5 sm:py-3 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400/20 transition-all disabled:opacity-50 font-medium"
                   />
-                  <span className="absolute right-2.5 top-3 text-secondary-400 text-xs font-semibold flex items-center gap-1">
-                    <CornerDownLeft className="h-3 w-3" />
+                  <span className="absolute right-2.5 top-3 sm:top-3.5 text-slate-400 text-xs font-semibold flex items-center gap-1">
+                    <CornerDownLeft className="h-3.5 w-3.5" />
                   </span>
                 </div>
 
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="bg-gradient-to-r from-accent-600 to-accent-500 hover:from-accent-500 hover:to-accent-400 active:from-accent-700 text-white border border-accent-400/30 px-3.5 py-2.5 rounded-xl cursor-pointer text-xs font-bold shadow-md shadow-accent-900/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center gap-1.5 shrink-0"
+                  className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-purple-500 active:from-indigo-700 text-white border border-purple-400/40 px-4 py-2.5 sm:py-3 rounded-xl cursor-pointer text-xs sm:text-sm font-bold shadow-md shadow-indigo-900/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center gap-1.5 shrink-0"
                 >
                   <span>Envoyer</span>
-                  <Send className="h-3.5 w-3.5" />
+                  <Send className="h-4 w-4" />
                 </button>
               </form>
             </div>
