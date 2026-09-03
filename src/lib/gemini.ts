@@ -100,37 +100,37 @@ function getLocalAIFallback(prompt: string, targetLang?: string) {
     const fullContent = (clean + ' ' + fileSnippet.toLowerCase()).trim();
     let domain = 'Droit des Obligations & Responsabilité Civile';
     let articles = [
-      '- **Article 1103 du Code Civil** : Les contrats légalement formés tiennent lieu de loi à ceux qui les ont faits.',
-      '- **Article 1240 du Code Civil** : Tout fait quelconque de l'homme qui cause à autrui un dommage oblige celui par la faute duquel il est arrivé à le réparer.'
+      "- **Article 1103 du Code Civil** : Les contrats légalement formés tiennent lieu de loi à ceux qui les ont faits.",
+      "- **Article 1240 du Code Civil** : Tout fait quelconque de l'homme qui cause à autrui un dommage oblige celui par la faute duquel il est arrivé à le réparer."
     ];
 
     if (fullContent.includes('travail') || fullContent.includes('licenciement') || fullContent.includes('salaire') || fullContent.includes('employeur') || fullContent.includes('prud\'homme') || fullContent.includes('rupture')) {
       domain = 'Droit du Travail & Relations Sociales';
       articles = [
-        '- **Article L1232-1 du Code du Travail** : Tout licenciement pour motif personnel doit être justifié par une cause réelle et sérieuse.',
-        '- **Article L1235-3 du Code du Travail** : Barème des indemnités pour licenciement sans cause réelle et sérieuse.',
-        '- **Article 1104 du Code Civil** : Les contrats doivent être négociés, formés et exécutés de bonne foi.'
+        "- **Article L1232-1 du Code du Travail** : Tout licenciement pour motif personnel doit être justifié par une cause réelle et sérieuse.",
+        "- **Article L1235-3 du Code du Travail** : Barème des indemnités pour licenciement sans cause réelle et sérieuse.",
+        "- **Article 1104 du Code Civil** : Les contrats doivent être négociés, formés et exécutés de bonne foi."
       ];
     } else if (fullContent.includes('bail') || fullContent.includes('loyer') || fullContent.includes('logement') || fullContent.includes('locataire') || fullContent.includes('propriétaire') || fullContent.includes('dépôt de garantie')) {
-      domain = 'Droit Immobilier & Baux d\'Habitation';
+      domain = "Droit Immobilier & Baux d'Habitation";
       articles = [
-        '- **Loi n° 89-462 du 6 juillet 1989 (Article 7)** : Obligation du locataire de payer le loyer et les charges aux termes convenus.',
-        '- **Article 1719 du Code Civil** : Le bailleur est tenu de délivrer au preneur la chose louée en bon état d\'usage.',
-        '- **Article 22 de la Loi du 6 juillet 1989** : Le dépôt de garantie doit être restitué dans un délai maximal de 1 à 2 mois.'
+        "- **Loi n° 89-462 du 6 juillet 1989 (Article 7)** : Obligation du locataire de payer le loyer et les charges aux termes convenus.",
+        "- **Article 1719 du Code Civil** : Le bailleur est tenu de délivrer au preneur la chose louée en bon état d'usage.",
+        "- **Article 22 de la Loi du 6 juillet 1989** : Le dépôt de garantie doit être restitué dans un délai maximal de 1 à 2 mois."
       ];
     } else if (fullContent.includes('achat') || fullContent.includes('vente') || fullContent.includes('garantie') || fullContent.includes('remboursement') || fullContent.includes('consommateur') || fullContent.includes('vice caché')) {
       domain = 'Droit de la Consommation & Vente';
       articles = [
-        '- **Article L217-4 du Code de la Consommation** : Le vendeur livre un bien conforme au contrat et répond des défauts de conformité.',
-        '- **Article 1641 du Code Civil** : Le vendeur est tenu de la garantie à raison des défauts cachés de la chose vendue.',
-        '- **Article L221-18 du Code de la Consommation** : Droit de rétractation de 14 jours pour les achats à distance.'
+        "- **Article L217-4 du Code de la Consommation** : Le vendeur livre un bien conforme au contrat et répond des défauts de conformité.",
+        "- **Article 1641 du Code Civil** : Le vendeur est tenu de la garantie à raison des défauts cachés de la chose vendue.",
+        "- **Article L221-18 du Code de la Consommation** : Droit de rétractation de 14 jours pour les achats à distance."
       ];
     } else if (fullContent.includes('facture') || fullContent.includes('société') || fullContent.includes('commercial') || fullContent.includes('prestataire') || fullContent.includes('client') || fullContent.includes('impayé')) {
       domain = 'Droit Commercial & Inexécution Contractuelle';
       articles = [
-        '- **Article L441-10 du Code de Commerce** : Les pénalités de retard sont exigibles sans qu\'un rappel soit nécessaire.',
-        '- **Article 1231-1 du Code Civil** : Le débiteur est condamné au paiement de dommages et intérêts à raison de l\'inexécution de l\'obligation.',
-        '- **Article 1217 du Code Civil** : La partie envers laquelle l'engagement n'a pas été exécuté peut refuser d\'exécuter sa propre obligation.'
+        "- **Article L441-10 du Code de Commerce** : Les pénalités de retard sont exigibles sans qu'un rappel soit nécessaire.",
+        "- **Article 1231-1 du Code Civil** : Le débiteur est condamné au paiement de dommages et intérêts à raison de l'inexécution de l'obligation.",
+        "- **Article 1217 du Code Civil** : La partie envers laquelle l'engagement n'a pas été exécuté peut refuser d'exécuter sa propre obligation."
       ];
     }
 
