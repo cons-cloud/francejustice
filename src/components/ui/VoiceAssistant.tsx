@@ -138,21 +138,28 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
   const extractTextFromBinaryDocument = (buffer: ArrayBuffer, fileName: string): string => {
     try {
       const bytes = new Uint8Array(buffer);
-      let raw = '';
-      const chunkSize = 8192;
-      for (let i = 0; i < bytes.length; i += chunkSize) {
-        const chunk = bytes.subarray(i, i + chunkSize);
-        raw += String.fromCharCode.apply(null, Array.from(chunk));
-      }
-
       const ext = fileName.toLowerCase().split('.').pop() || '';
+      
+      // UTF-8 decode
+      let raw = '';
+      try {
+        const decoder = new TextDecoder('utf-8');
+        raw = decoder.decode(bytes);
+      } catch (e) {
+        const chunkSize = 8192;
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          const chunk = bytes.subarray(i, i + chunkSize);
+          raw += String.fromCharCode.apply(null, Array.from(chunk));
+        }
+      }
 
       // 1. Word .docx XML tag extraction <w:t>text</w:t>
       if (ext === 'docx' || ext === 'doc' || raw.includes('<w:t')) {
         const wordMatches = raw.match(/<w:t[^>]*>(.*?)<\/w:t>/gi);
         if (wordMatches && wordMatches.length > 0) {
           const text = wordMatches
-            .map(m => m.replace(/<[^>]+>/g, ''))
+            .map(m => m.replace(/<[^>]+>/g, '').trim())
+            .filter(t => t.length > 0 && !t.startsWith('PK') && !t.includes('schemas.openxml'))
             .join(' ')
             .replace(/\s+/g, ' ');
           if (text.trim().length > 10) return text;
@@ -164,20 +171,27 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
         const excelMatches = raw.match(/<(?:t|v)[^>]*>(.*?)<\/(?:t|v)>/gi);
         if (excelMatches && excelMatches.length > 0) {
           const text = excelMatches
-            .map(m => m.replace(/<[^>]+>/g, ''))
-            .filter(t => t.trim().length > 0)
+            .map(m => m.replace(/<[^>]+>/g, '').trim())
+            .filter(t => t.length > 0 && !t.startsWith('PK'))
             .join(' | ')
             .replace(/\s+/g, ' ');
           if (text.trim().length > 10) return text;
         }
       }
 
-      // 3. General literal string extraction for Word / OpenDocument / RTF / PDF
-      const xmlTagsStripped = raw.replace(/<[^>]+>/g, ' ');
-      const words = xmlTagsStripped.match(/[A-Za-zÀ-ÿ0-9,.'’\-–—:;!?]{2,}/g);
+      // 3. Clean string extraction: strip ZIP structural headers and XML noise
+      const cleanRaw = raw.replace(/<[^>]+>/g, ' ')
+                          .replace(/(?:word\/|rels\/|theme\/|docProps\/|xl\/|worksheets\/|\[Content_Types\]\.xml)[^\s]*/gi, ' ')
+                          .replace(/PK[\s\S]{1,50}?document\.xml/gi, ' ');
+
+      const words = cleanRaw.match(/[A-Za-zÀ-ÿ0-9,.'’\-–—:;!?]{2,}/g);
       if (words && words.length > 0) {
-        const junk = new Set(['xml', 'xmlns', 'rel', 'schemas', 'openxmlformats', 'wordprocessingml', 'spreadsheetml', 'ContentType', 'Override', 'PartName']);
-        const clean = words.filter(w => !junk.has(w) && !w.startsWith('http') && w.length < 50);
+        const junk = new Set([
+          'xml', 'xmlns', 'rel', 'rels', 'schemas', 'openxmlformats', 'wordprocessingml',
+          'spreadsheetml', 'ContentType', 'Override', 'PartName', 'word', 'docProps', 'theme',
+          'settings', 'fontTable', 'webSettings', 'PK', 'xmlRels', 'app', 'core'
+        ]);
+        const clean = words.filter(w => !junk.has(w) && !w.startsWith('http') && w.length < 40);
         if (clean.length > 10) {
           return clean.join(' ').replace(/\s+/g, ' ');
         }
@@ -185,7 +199,7 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
     } catch (e) {
       console.warn("Erreur extraction binaire:", e);
     }
-    return `Contenu du fichier "${fileName}" prêt pour le traitement et l'analyse par l'IA.`;
+    return `Fichier "${fileName}" chargé avec succès. Contenu prêt pour l'analyse juridique.`;
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

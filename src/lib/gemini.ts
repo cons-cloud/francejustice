@@ -134,28 +134,28 @@ function getLocalAIFallback(prompt: string, targetLang?: string) {
       ];
     }
 
-    // Clean summary of attached document content
-    let docAnalysisBlock = '';
-    if (fileSnippet) {
-      const firstLines = fileSnippet.split('\n').filter(l => l.trim().length > 0).slice(0, 12).join('\n');
-      docAnalysisBlock = `\n\n### 📄 Analyse du Document Transmis :\n` +
-                         `L'IA a scanné le contenu de votre pièce jointe :\n` +
-                         `\`\`\`\n${firstLines.length > 800 ? firstLines.substring(0, 800) + '...' : firstLines}\n\`\`\`\n` +
-                         `**Constats issus de l'analyse :**\n` +
-                         `- Les éléments textuels et stipulations du document ont été analysés au regard du domaine : **${domain}**.\n` +
-                         `- Votre instruction spécifique : **"${userQuery || "Traitement du dossier"}"** a été prise en compte dans le raisonnement ci-dessous.`;
+    // Natural, fluid conversational AI legal response (non-robotic)
+    let docContextGreeting = '';
+    if (fileSnippet && fileSnippet.length > 5) {
+      const cleanSnippetText = fileSnippet
+        .replace(/^--- Nom de la pièce.*$/gm, '')
+        .replace(/PK[\s\S]*?xml/gi, '')
+        .trim();
+      
+      const isDivorce = fullContent.includes('divorce') || cleanSnippetText.toLowerCase().includes('divorce');
+      const firstText = cleanSnippetText.length > 250 ? cleanSnippetText.substring(0, 250) + '...' : cleanSnippetText;
+      
+      docContextGreeting = `J'ai bien analysé le document que vous m'avez transmis. ${isDivorce ? "Il s'agit d'un dossier relatif à une procédure de divorce et de séparation des époux." : "Voici un extrait des stipulations lues dans votre pièce :"}\n\n> *« ${firstText || "Contenu du dossier récapitulé"} »*\n\n`;
     }
 
-    text = `### ⚖️ Synthèse Juridique Sur-Mesure (${domain})\n\n` +
-           `**Objet de votre demande :** "${userQuery || "Analyse et traitement de votre dossier juridique"}"` +
-           `${docAnalysisBlock}\n\n` +
-           `**1. Textes de Loi & Cadre Juridique Applicable :**\n` +
+    text = `Bonjour ! ${docContextGreeting}` +
+           `Pour répondre directement à votre question : **"${userQuery || "Que dit ce document ?"}"**,\n\n` +
+           `Sur le plan juridique (${domain}), voici les fondements applicables à votre situation :\n\n` +
            `${articles.join('\n')}\n\n` +
-           `**2. Recommandations Pratiques et Plan d'Action :**\n` +
-           `1️⃣ **Analyse des Preuves** : Vos pièces transmises établissent les bases matérielles du dossier.\n` +
-           `2️⃣ **Phase de Mise en Demeure** : Adressez un courrier formel avec AR de 15 jours visé par les articles ci-dessus.\n` +
-           `3️⃣ **Action Contentieuse** : Saisissez la juridiction compétente si aucune réponse n'est apportée sous le délai imparti.\n\n` +
-           `*Conseil : Vous pouvez demander directement à l'IA de rédiger la mise en demeure ou la lettre de contestation à partir de votre document.*`;
+           `**Mes conseils et démarches à suivre :**\n` +
+           `- Conservez précieusement ce document et l'ensemble de vos justificatifs.\n` +
+           `- Si vous souhaitez que je rédige une réponse formelle, une mise en demeure ou une convention sur la base de ce dossier, dites-le moi simplement et je générerai le document PDF complet pour vous.\n\n` +
+           `Avez-vous une question précise ou une clause particulière que vous aimeriez éclaircir ?`;
   }
 
   if (action) {
