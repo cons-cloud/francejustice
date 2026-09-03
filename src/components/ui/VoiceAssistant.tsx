@@ -18,7 +18,8 @@ import {
   Eye,
   Download,
   Paperclip,
-  Trash2
+  Trash2,
+  Send
 } from 'lucide-react';
 import { chatWithAI } from '../../lib/gemini';
 import { Button } from './Button';
@@ -885,10 +886,10 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
               {/* Manual Keyboard input & Paperclip Attachment button */}
               <form onSubmit={handleManualSubmit} className="flex gap-2 items-center">
                 <label 
-                  className="p-3.5 bg-[#1b253b] hover:bg-[#25334e] text-accent-400 hover:text-accent-300 border-2 border-[#334155] hover:border-accent-500/40 rounded-xl cursor-pointer transition-all flex items-center justify-center shrink-0 shadow-md"
+                  className="p-2.5 bg-[#1b253b] hover:bg-[#25334e] text-accent-400 hover:text-accent-300 border border-[#334155] hover:border-accent-500/40 rounded-xl cursor-pointer transition-all flex items-center justify-center shrink-0 shadow-sm"
                   title="Ajouter des pièces jointes / dossiers juridiques (PDF, TXT, images)"
                 >
-                  <Paperclip className="h-5 w-5" />
+                  <Paperclip className="h-4.5 w-4.5" />
                   <input
                     type="file"
                     multiple
@@ -902,20 +903,22 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
                   <input
                     type="text"
                     name="manualCommand"
-                    placeholder={attachedFiles.length > 0 ? `Analysez les ${attachedFiles.length} document(s) joint(s)...` : "Écrivez ou posez votre question juridique ici..."}
+                    placeholder={attachedFiles.length > 0 ? `Posez votre question sur les ${attachedFiles.length} document(s)...` : "Posez votre question juridique ici..."}
                     disabled={isProcessing}
-                    className="w-full bg-[#1b253b] border-2 border-[#334155] text-white placeholder-secondary-400 text-sm rounded-xl pl-4 pr-10 py-3.5 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 transition-all disabled:opacity-50 font-medium"
+                    className="w-full bg-[#1b253b] border border-[#334155] text-white placeholder-secondary-400 text-xs sm:text-sm rounded-xl pl-3.5 pr-8 py-2.5 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/20 transition-all disabled:opacity-50 font-medium"
                   />
-                  <span className="absolute right-3.5 top-4 text-secondary-400 text-xs font-semibold flex items-center gap-1">
-                    <CornerDownLeft className="h-3.5 w-3.5" />
+                  <span className="absolute right-2.5 top-3 text-secondary-400 text-xs font-semibold flex items-center gap-1">
+                    <CornerDownLeft className="h-3 w-3" />
                   </span>
                 </div>
+
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="bg-accent-600 hover:bg-accent-500 active:bg-accent-700 text-white border-2 border-accent-500/40 px-6 py-3.5 rounded-xl cursor-pointer text-sm font-bold shadow-lg shadow-accent-900/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
+                  className="bg-gradient-to-r from-accent-600 to-accent-500 hover:from-accent-500 hover:to-accent-400 active:from-accent-700 text-white border border-accent-400/30 px-3.5 py-2.5 rounded-xl cursor-pointer text-xs font-bold shadow-md shadow-accent-900/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center gap-1.5 shrink-0"
                 >
-                  Envoyer
+                  <span>Envoyer</span>
+                  <Send className="h-3.5 w-3.5" />
                 </button>
               </form>
             </div>
