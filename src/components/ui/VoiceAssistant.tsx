@@ -16,7 +16,9 @@ import {
   FileText,
   Check,
   Eye,
-  Download
+  Download,
+  Paperclip,
+  Trash2
 } from 'lucide-react';
 import { chatWithAI } from '../../lib/gemini';
 import { Button } from './Button';
@@ -57,6 +59,35 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
   const [generatedDoc, setGeneratedDoc] = useState<{ title: string; content: string } | null>(null);
   const [previewDoc, setPreviewDoc] = useState<{ title: string; content: string } | null>(null);
   const [webSources, setWebSources] = useState<any[]>([]);
+  const [attachedFiles, setAttachedFiles] = useState<{ name: string; content: string; type: string }[]>([]);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result;
+        if (typeof result === 'string') {
+          setAttachedFiles((prev) => [
+            ...prev,
+            {
+              name: file.name,
+              content: result.length > 15000 ? result.substring(0, 15000) + "\n...[Contenu du document tronqué pour l'IA]" : result,
+              type: file.type || 'application/octet-stream'
+            }
+          ]);
+        }
+      };
+      reader.readAsText(file);
+    });
+    e.target.value = '';
+  };
+
+  const removeAttachedFile = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const downloadDocAsPDF = (doc: { title: string; content: string }) => {
     const printWindow = window.open('', '_blank');
@@ -373,6 +404,11 @@ ${mode === 'citizen' ? `
 
 Recherche en temps réel : Vous disposez d'un accès complet à Internet pour toutes les informations juridiques françaises (Code Civil, Code Pénal, droit du travail...) et européennes (Directives, Règlements, CJUE).
 Répondez de manière structurée et professionnelle. Citez les lois applicables (par exemple: "Article 1240 du Code Civil") et donnez les sources ou liens vers Légifrance/Europa si nécessaire.
+
+${attachedFiles.length > 0 ? `
+=== PIÈCES JOINTES & DOSSIERS JURIDIQUES SOUMIS PAR L'UTILISATEUR ===
+${attachedFiles.map((f, idx) => `--- Pièce [${idx + 1}]: ${f.name} ---\n${f.content}`).join('\n\n')}
+` : ''}
 
 ATTENTION: Puisque votre réponse sera énoncée oralement par synthèse vocale, gardez le texte général court, fluide et clair. Évitez les formules de code complexes en dehors du bloc \`\`\`action.
 
@@ -801,6 +837,29 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
             {/* Input Controls Bar */}
             <div className="p-4 bg-[#0a0e17] border-t border-secondary-800 space-y-3">
               
+              {/* Attachment Chip List */}
+              {attachedFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1 pb-2 border-b border-white/5">
+                  <span className="text-[10px] font-bold text-accent-400 uppercase tracking-wider flex items-center gap-1 w-full">
+                    <Paperclip className="h-3 w-3 text-accent-400" /> {attachedFiles.length} Document(s) / Pièce(s) Jointe(s) chargée(s) :
+                  </span>
+                  {attachedFiles.map((file, idx) => (
+                    <div key={idx} className="flex items-center gap-1.5 bg-[#1e293b] border border-accent-500/30 text-white text-xs px-2.5 py-1 rounded-lg shadow-sm">
+                      <FileText className="h-3.5 w-3.5 text-accent-400 shrink-0" />
+                      <span className="line-clamp-1 max-w-[160px] font-medium">{file.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeAttachedFile(idx)}
+                        className="text-secondary-400 hover:text-red-400 transition-colors ml-1 p-0.5"
+                        title="Supprimer la pièce jointe"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Speech recognition triggers & information */}
               <div className="flex items-center justify-center gap-4">
                 {recognitionSupported ? (
@@ -823,13 +882,27 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
                 )}
               </div>
 
-              {/* Manual Keyboard input fallback (always elegant, fits any device/a11y) */}
-              <form onSubmit={handleManualSubmit} className="flex gap-2">
+              {/* Manual Keyboard input & Paperclip Attachment button */}
+              <form onSubmit={handleManualSubmit} className="flex gap-2 items-center">
+                <label 
+                  className="p-3.5 bg-[#1b253b] hover:bg-[#25334e] text-accent-400 hover:text-accent-300 border-2 border-[#334155] hover:border-accent-500/40 rounded-xl cursor-pointer transition-all flex items-center justify-center shrink-0 shadow-md"
+                  title="Ajouter des pièces jointes / dossiers juridiques (PDF, TXT, images)"
+                >
+                  <Paperclip className="h-5 w-5" />
+                  <input
+                    type="file"
+                    multiple
+                    accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg,.json,.csv"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </label>
+
                 <div className="relative flex-1">
                   <input
                     type="text"
                     name="manualCommand"
-                    placeholder="Écrivez ou posez votre question juridique ici..."
+                    placeholder={attachedFiles.length > 0 ? `Analysez les ${attachedFiles.length} document(s) joint(s)...` : "Écrivez ou posez votre question juridique ici..."}
                     disabled={isProcessing}
                     className="w-full bg-[#1b253b] border-2 border-[#334155] text-white placeholder-secondary-400 text-sm rounded-xl pl-4 pr-10 py-3.5 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 transition-all disabled:opacity-50 font-medium"
                   />
