@@ -115,6 +115,7 @@ function getLocalAIFallback(prompt: string, targetLang?: string) {
     }
 
     // Determine legal domain, specific text of law, and tailored advice for the user's precise topic
+    const fullContent = (clean + ' ' + fileSnippet.toLowerCase()).trim();
     let domain = 'Droit des Obligations & Contentieux Civil';
     let legalGrounds = '';
     let adviceSteps = '';
