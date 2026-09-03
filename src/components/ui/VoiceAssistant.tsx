@@ -72,7 +72,9 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
         raw += String.fromCharCode.apply(null, Array.from(chunk));
       }
 
-      // Extract literal text strings in PDF stream blocks (parenthesized strings)
+      const extractedBlocks: string[] = [];
+
+      // 1. Extract literal text strings in PDF stream blocks (parenthesized strings)
       const matches = raw.match(/\(([^()]{2,})\)/g);
       if (matches && matches.length > 0) {
         const extracted = matches
@@ -81,21 +83,50 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
           .join(' ')
           .replace(/\s+/g, ' ');
         if (extracted.trim().length > 20) {
-          return extracted;
+          extractedBlocks.push(extracted);
         }
       }
 
-      // Fallback extraction: extract French words and numbers
+      // 2. Extract hex-encoded text strings <48656c6c6f>
+      const hexMatches = raw.match(/<([0-9A-Fa-f]{4,})>/g);
+      if (hexMatches && hexMatches.length > 0) {
+        try {
+          const hexDecoded = hexMatches
+            .map(h => {
+              const hex = h.slice(1, -1);
+              let str = '';
+              for (let i = 0; i < hex.length; i += 2) {
+                const code = parseInt(hex.substr(i, 2), 16);
+                if (code >= 32 && code <= 255) str += String.fromCharCode(code);
+              }
+              return str;
+            })
+            .filter(s => /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]{2,}/i.test(s))
+            .join(' ');
+          if (hexDecoded.trim().length > 20) {
+            extractedBlocks.push(hexDecoded);
+          }
+        } catch (e) {}
+      }
+
+      // 3. Fallback extraction: extract French words, numbers, and legal clauses
       const words = raw.match(/[A-Za-zÀ-ÿ0-9,.'’\-–—:;!?]{2,}/g);
       if (words && words.length > 0) {
         const pdfKeywords = new Set(['obj', 'endobj', 'stream', 'endstream', 'Catalog', 'Pages', 'Page', 'MediaBox', 'Resources', 'Font', 'Type', 'Subtype', 'BaseFont', 'Length', 'Filter', 'FlateDecode', 'ProcSet']);
         const cleanWords = words.filter(w => !pdfKeywords.has(w) && !w.startsWith('/'));
-        return cleanWords.join(' ').replace(/\s+/g, ' ');
+        const wordText = cleanWords.join(' ').replace(/\s+/g, ' ');
+        if (wordText.trim().length > 20) {
+          extractedBlocks.push(wordText);
+        }
+      }
+
+      if (extractedBlocks.length > 0) {
+        return extractedBlocks.join('\n\n');
       }
     } catch (err) {
       console.warn("Erreur d'extraction du PDF:", err);
     }
-    return "Document PDF importé avec succès. Prêt pour l'analyse juridique.";
+    return "Document PDF importé avec succès. Contenu prêt pour l'analyse et la traitement juridique.";
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,48 +224,42 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
     }
   };
 
-  // Initialize Speech Recognition
   useEffect(() => {
     if (SpeechRecognition) {
       setRecognitionSupported(true);
       const rec = new SpeechRecognition();
       rec.continuous = false;
-      rec.interimResults = false;
+      rec.interimResults = true;
       rec.lang = mapLangToSpeech(i18n.language);
 
       rec.onstart = () => {
         setIsListening(true);
         setErrorMsg('');
-        setTranscript(t('voice.listening', 'Écoute en cours...'));
-        playChime(440, 'sine', 0.08); // Friendly "start" chime
       };
 
-      rec.onerror = (e: any) => {
-        console.error('Speech Recognition Error:', e);
-        setIsListening(false);
-        if (e.error === 'no-speech') {
-          setErrorMsg(t('voice.no_speech', "Aucune parole n'a été détectée."));
-        } else if (e.error === 'not-allowed') {
-          setErrorMsg(t('voice.not_allowed', "Permission d'accès au micro refusée."));
-        } else {
-          setErrorMsg(t('voice.error', "Erreur lors de l'écoute."));
+      rec.onresult = (event: any) => {
+        let currentTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          currentTranscript += event.results[i][0].transcript;
         }
+        setTranscript(currentTranscript);
+      };
+
+      rec.onerror = (event: any) => {
+        console.warn('Speech recognition error:', event.error);
+        setIsListening(false);
       };
 
       rec.onend = () => {
         setIsListening(false);
-      };
-
-      rec.onresult = (event: any) => {
-        const resultText = event.results[0][0].transcript;
-        setTranscript(resultText);
-        handleVoiceCommand(resultText);
+        if (transcript.trim()) {
+           handleVoiceCommand(transcript);
+        }
       };
 
       recognitionRef.current = rec;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, activeTab, stateContext, i18n.language, t]);
+  }, [i18n.language]);
 
   // Handle auto-scroll in responses
   useEffect(() => {
@@ -255,7 +280,6 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
            null;
   };
 
-  // Synthesize beautiful Web Audio API sound effects for activation chimes
   const playChime = (freq: number, type: OscillatorType, duration: number) => {
     try {
       if (typeof window === 'undefined') return;
@@ -296,11 +320,10 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
 
     stopSpeaking();
 
-    // Strip HTML and special markdown format for speech narration
     const cleanSpeechText = text
-      .replace(/```[^`]*```/g, '') // Remove JSON/code action blocks
-      .replace(/[*#`_-]/g, '') // Remove markdown formatting
-      .replace(/\[\d+\]/g, '') // Remove references
+      .replace(/```[^`]*```/g, '')
+      .replace(/[*#`_-]/g, '')
+      .replace(/\[\d+\]/g, '')
       .trim();
 
     if (!cleanSpeechText) return;
@@ -311,42 +334,23 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
     if (activeVoice) {
       utterance.voice = activeVoice;
     }
-    utterance.rate = 1.05; // Slightly faster to be responsive
+    utterance.rate = 1.05;
     utterance.pitch = 1.0;
 
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-    };
-
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-    };
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
 
     speechUttRef.current = utterance;
     window.speechSynthesis.speak(utterance);
   };
 
-  // Local rule-based command interpreter for rapid zero-latency reactions
-  const interpretLocalCommand = (text: string): boolean => {
-    const clean = text.toLowerCase().trim();
-
-    // CRITICAL: If the user is asking an informational/legal question, let Gemini handle it
-    // Only intercept clear navigation commands like "va dans", "ouvre", "montre", "affiche"
-    const hasNavigationVerb = /(\bva\b|\bouvre\b|\baffiche\b|\bmontre\b|\bbascule\b|\bnavigue\b|\baller\b|\baller sur\b|\baller à\b|\baccède\b|\baccéder\b|\bmontre-moi l'onglet|\bnavigue vers|\bva sur|\bva à|\bouvre l'onglet|\baffiche l'onglet)/.test(clean);
-    const isInformationalQuery = /(\bdonne|\bexpliq|\bqu'est|\bquelles?\b|\bcomment\b|\bpourquoi\b|\bc'est quoi|\bdéfini|\bdis-moi|\bparle|\binforme|\bdétaille|\bdécris|\brésume|\banalyse|\brecherche|\btrouves?-moi|\bjurisprudence|\barrêt|\bdécision|\bdroit\b|\beuropé|\bcour de justice|\bcjue|\bcedh|\bconventions?\b|\btraité|\bdirective|\brègle|\bqu'est-ce|\bdonnes?-moi|\bcite|\bquels? sont|\bquelle est)/.test(clean);
-
-    // If it's clearly a question/research request (not just a navigation command), skip local routing
-    if (isInformationalQuery && !hasNavigationVerb) {
-      return false;
-    }
+  const interpretLocalCommand = (rawText: string): boolean => {
+    const clean = rawText.toLowerCase().trim();
     
     if (mode === 'citizen') {
       const citizenTabs: Record<string, string[]> = {
-        overview: ['accueil', 'tableau', 'dashboard', 'principale', 'vue d\'ensemble'],
+        overview: ['accueil', 'tableau', 'dashboard', 'vue d\'ensemble'],
         appointments: ['rendez-vous', 'rdv', 'planning', 'calendrier', 'réserver', 'agenda', 'consultation'],
         documents: ['document', 'justificatif', 'pièce', 'télécharger', 'fichier', 'pdf', 'coffre-fort'],
         avocats: ['annuaire', 'avocat', 'rechercher', 'trouver', 'spécialiste'],
@@ -400,75 +404,61 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
     
     stopSpeaking();
     setIsProcessing(true);
-    setResponse('Analyse et recherche juridique en cours...');
+    setResponse('Analyse et traitement juridique du dossier en cours...');
     setSources([]);
-    setGeneratedDoc(null); // Reset generated document on new command
+    setGeneratedDoc(null);
 
-    playChime(600, 'sine', 0.12); // "processing" chime
+    playChime(600, 'sine', 0.12);
 
-    // Instant local routing if matched
     const handledLocally = interpretLocalCommand(commandText);
 
-    // Build advanced contextual prompts for Gemini to enable dynamic reads, writes, and modifications
     const availableTabs = mode === 'citizen' 
       ? ['overview', 'appointments', 'generator', 'documents', 'quotes', 'chat', 'searches', 'codes', 'procedures', 'analyse', 'formations', 'avocats', 'profile']
       : ['overview', 'appointments', 'cases', 'quotes', 'messages', 'searches', 'avocats', 'codes', 'procedures', 'analyse', 'formations', 'outils', 'assistance', 'profil'];
 
     const promptContext = `
-Vous êtes l'assistant vocal ultra-intelligent et réactif de Law Just, la plateforme juridique française de pointe.
-Vous avez un accès de lecture et modification total aux fonctionnalités du tableau de bord.
+Vous êtes l'assistant IA juridique expert de France Justice.
+Vous avez un accès total en lecture et modification aux fonctionnalités du tableau de bord.
 Le mode actuel du dashboard est: "${mode === 'citizen' ? 'Citoyen' : 'Avocat'}".
 L'onglet actuellement actif sur l'écran de l'utilisateur est: "${activeTab}".
-Les onglets disponibles pour ce mode sont: ${JSON.stringify(availableTabs)}.
+Les onglets disponibles sont: ${JSON.stringify(availableTabs)}.
 
-Si l'utilisateur vous demande d'effectuer une action (ex: changer d'onglet, réserver un rdv, chercher un avocat, modifier des infos, rédiger un document/contrat/lettre/plainte/PDF), vous DEVEZ ajouter à la toute fin de votre réponse textuelle un bloc JSON d'action délimité de cette manière exacte (c'est indispensable pour modifier dynamiquement l'interface):
+${attachedFiles.length > 0 ? `
+=== DOSSIERS ET PIÈCES JOINTES SOUMIS PAR L'UTILISATEUR (${attachedFiles.length} FICHIER(S)) ===
+${attachedFiles.map((f, idx) => `--- Nom de la pièce [${idx + 1}]: ${f.name} ---\n${f.content}`).join('\n\n')}
+
+EXIGENCE STRICTE DE TRAITEMENT DU DOSSIER :
+Vous DEVEZ lire attentivement le contenu ci-dessus de chaque pièce jointe.
+L'utilisateur vous demande l'instruction suivante concernant son/ses document(s) : "${commandText}".
+Vous DEVEZ exécuter EXACTEMENT l'instruction demandée (ex: réviser le contrat, rédiger une lettre de réponse, relever les clauses abusives, calculer les préjudices, etc.).
+Si l'utilisateur vous demande de rédiger, générer ou modifier un document/lettre/contrat/plainte sur la base des pièces jointes, VOUS DEVEZ OBLIGATOIREMENT renvoyer le bloc d'action CREATE_DOCUMENT avec le texte intégral et formel du document.
+` : ''}
+
+Si l'utilisateur vous demande d'effectuer une action (ex: changer d'onglet, réserver un rdv, chercher un avocat, modifier des infos, rédiger un document/contrat/lettre/plainte/PDF), vous DEVEZ ajouter à la toute fin de votre réponse un bloc JSON d'action de cette forme exacte :
 \`\`\`action
 {
   "type": "SWITCH_TAB" | "SEARCH_LAWYER" | "PREFILL_APPOINTMENT" | "CREATE_DOCUMENT",
   "payload": { ... }
 }
 \`\`\`
-Par exemple, s'il dit "Va dans mes documents", retournez :
-\`\`\`action
-{
-  "type": "SWITCH_TAB",
-  "payload": { "tab": "documents" }
-}
-\`\`\`
 
-S'il dit "Rédige une plainte pour nuisance sonore" ou tout autre document juridique ou PDF à créer, rédigez le document entier de façon très rigoureuse et professionnelle, puis retournez :
+S'il s'agit d'une rédaction ou modification de document juridique, utilisez :
 \`\`\`action
 {
   "type": "CREATE_DOCUMENT",
   "payload": { 
-    "title": "Mise en demeure pour nuisances sonores",
-    "content": "Contenu complet et formel rédigé avec rigueur..."
+    "title": "Nom du document juridique",
+    "content": "Contenu juridique complet, formel et rigoureusement rédigé..."
   }
 }
 \`\`\`
 
-Contexte utilisateur et système en cours :
+Contexte utilisateur :
 - Infos profil: ${JSON.stringify(stateContext?.profile || {})}
-${mode === 'citizen' ? `
-- Liste d'avocats disponibles: ${JSON.stringify((stateContext?.availableLawyers || []).map((l: any) => ({ id: l.id, name: `${l.first_name} ${l.last_name}`, specialty: l.specialty })))}
-- Nombre de documents dans le coffre-fort: ${stateContext?.documents?.length || 0}
-` : `
-- Nombre de dossiers clients / documents gérés: ${stateContext?.cases?.length || 0}
-- Nombre de devis émis: ${stateContext?.quotes?.length || 0}
-`}
-- Nombre de rendez-vous enregistrés: ${stateContext?.appointments?.length || 0}
+- Rendez-vous: ${stateContext?.appointments?.length || 0}
+- Recherche Internet en temps réel (Légifrance, Code Civil, Code du Travail, jurisprudence) : ACTIVE.
 
-Recherche en temps réel : Vous disposez d'un accès complet à Internet pour toutes les informations juridiques françaises (Code Civil, Code Pénal, droit du travail...) et européennes (Directives, Règlements, CJUE).
-Répondez de manière structurée et professionnelle. Citez les lois applicables (par exemple: "Article 1240 du Code Civil") et donnez les sources ou liens vers Légifrance/Europa si nécessaire.
-
-${attachedFiles.length > 0 ? `
-=== PIÈCES JOINTES & DOSSIERS JURIDIQUES SOUMIS PAR L'UTILISATEUR ===
-${attachedFiles.map((f, idx) => `--- Pièce [${idx + 1}]: ${f.name} ---\n${f.content}`).join('\n\n')}
-` : ''}
-
-ATTENTION: Puisque votre réponse sera énoncée oralement par synthèse vocale, gardez le texte général court, fluide et clair. Évitez les formules de code complexes en dehors du bloc \`\`\`action.
-
-L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
+INSTRUCTION DE L'UTILISATEUR : "${commandText}"
 `;
 
     try {
