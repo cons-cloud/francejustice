@@ -196,7 +196,7 @@ export async function chatWithAI(
     const { data: edgeData, error: edgeError } = await supabase.functions.invoke('ai-legal-search', {
       body: { query: fullPromptWithLang }
     });
-    if (!edgeError && edgeData && edgeData.text && !edgeData.is_fallback_trigger) {
+    if (!edgeError && edgeData && edgeData.text && !edgeData.is_fallback_trigger && edgeData.text !== "Erreur de génération" && !edgeData.text.toLowerCase().includes("erreur de génération")) {
       return {
         text: edgeData.text,
         sources_web: edgeData.sources_web || []

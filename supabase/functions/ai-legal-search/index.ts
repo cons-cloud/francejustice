@@ -29,7 +29,14 @@ Cite les articles de loi exacts (Code Civil, Code du Travail, etc.) et jurisprud
     );
 
     const data = await response.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Erreur de génération";
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text || text === "Erreur de génération") {
+      return new Response(
+        JSON.stringify({ text: "", is_fallback_trigger: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     return new Response(
       JSON.stringify({ text, is_fallback_trigger: false }),
