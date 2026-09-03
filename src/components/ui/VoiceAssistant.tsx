@@ -294,6 +294,7 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
   const speechUttRef = useRef<SpeechSynthesisUtterance | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const voiceFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const mapLangToSpeech = (lang: string): string => {
     switch (lang) {
@@ -1021,19 +1022,23 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
 
               {/* Manual Keyboard input & Paperclip Attachment button */}
               <form onSubmit={handleManualSubmit} className="flex gap-1.5 sm:gap-2 items-center">
-                <label 
+                <button 
+                  type="button"
+                  onClick={() => voiceFileInputRef.current?.click()}
                   className="p-2 sm:p-3 bg-[#131c2e] hover:bg-[#1c2942] text-amber-400 hover:text-amber-300 border border-slate-700 hover:border-amber-400/50 rounded-xl cursor-pointer transition-all flex items-center justify-center shrink-0 shadow-sm"
-                  title="Ajouter des pièces jointes / dossiers juridiques (PDF, TXT, images)"
+                  title="Joindre un document ou dossier"
                 >
                   <Paperclip className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
                   <input
+                    ref={voiceFileInputRef}
                     type="file"
                     multiple
-                    accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg,.json,.csv"
+                    accept=".pdf,.txt,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg,.json,.csv,.odt,.ods,.rtf"
                     onChange={handleFileUpload}
+                    style={{ display: 'none' }}
                     className="hidden"
                   />
-                </label>
+                </button>
 
                 <div className="relative flex-1 min-w-0">
                   <input
