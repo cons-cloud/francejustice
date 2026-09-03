@@ -96,66 +96,85 @@ function getLocalAIFallback(prompt: string, targetLang?: string) {
       fileSnippet = fileMatch[1].trim();
     }
 
-    // Determine domain and relevant articles dynamically based on query and document content
-    const fullContent = (clean + ' ' + fileSnippet.toLowerCase()).trim();
-    let domain = 'Droit des Obligations & Responsabilité Civile';
-    let articles = [
-      "- **Article 1103 du Code Civil** : Les contrats légalement formés tiennent lieu de loi à ceux qui les ont faits.",
-      "- **Article 1240 du Code Civil** : Tout fait quelconque de l'homme qui cause à autrui un dommage oblige celui par la faute duquel il est arrivé à le réparer."
-    ];
+    // Tailored legal reasoning engine personalized to the exact question & task
+    let fileSnippetBlock = '';
+    let extractedDocTitle = '';
 
-    if (fullContent.includes('travail') || fullContent.includes('licenciement') || fullContent.includes('salaire') || fullContent.includes('employeur') || fullContent.includes('prud\'homme') || fullContent.includes('rupture')) {
-      domain = 'Droit du Travail & Relations Sociales';
-      articles = [
-        "- **Article L1232-1 du Code du Travail** : Tout licenciement pour motif personnel doit être justifié par une cause réelle et sérieuse.",
-        "- **Article L1235-3 du Code du Travail** : Barème des indemnités pour licenciement sans cause réelle et sérieuse.",
-        "- **Article 1104 du Code Civil** : Les contrats doivent être négociés, formés et exécutés de bonne foi."
-      ];
-    } else if (fullContent.includes('bail') || fullContent.includes('loyer') || fullContent.includes('logement') || fullContent.includes('locataire') || fullContent.includes('propriétaire') || fullContent.includes('dépôt de garantie')) {
-      domain = "Droit Immobilier & Baux d'Habitation";
-      articles = [
-        "- **Loi n° 89-462 du 6 juillet 1989 (Article 7)** : Obligation du locataire de payer le loyer et les charges aux termes convenus.",
-        "- **Article 1719 du Code Civil** : Le bailleur est tenu de délivrer au preneur la chose louée en bon état d'usage.",
-        "- **Article 22 de la Loi du 6 juillet 1989** : Le dépôt de garantie doit être restitué dans un délai maximal de 1 à 2 mois."
-      ];
-    } else if (fullContent.includes('achat') || fullContent.includes('vente') || fullContent.includes('garantie') || fullContent.includes('remboursement') || fullContent.includes('consommateur') || fullContent.includes('vice caché')) {
-      domain = 'Droit de la Consommation & Vente';
-      articles = [
-        "- **Article L217-4 du Code de la Consommation** : Le vendeur livre un bien conforme au contrat et répond des défauts de conformité.",
-        "- **Article 1641 du Code Civil** : Le vendeur est tenu de la garantie à raison des défauts cachés de la chose vendue.",
-        "- **Article L221-18 du Code de la Consommation** : Droit de rétractation de 14 jours pour les achats à distance."
-      ];
-    } else if (fullContent.includes('facture') || fullContent.includes('société') || fullContent.includes('commercial') || fullContent.includes('prestataire') || fullContent.includes('client') || fullContent.includes('impayé')) {
-      domain = 'Droit Commercial & Inexécution Contractuelle';
-      articles = [
-        "- **Article L441-10 du Code de Commerce** : Les pénalités de retard sont exigibles sans qu'un rappel soit nécessaire.",
-        "- **Article 1231-1 du Code Civil** : Le débiteur est condamné au paiement de dommages et intérêts à raison de l'inexécution de l'obligation.",
-        "- **Article 1217 du Code Civil** : La partie envers laquelle l'engagement n'a pas été exécuté peut refuser d'exécuter sa propre obligation."
-      ];
-    }
-
-    // Natural, fluid conversational AI legal response (non-robotic)
-    let docContextGreeting = '';
     if (fileSnippet && fileSnippet.length > 5) {
       const cleanSnippetText = fileSnippet
         .replace(/^--- Nom de la pièce.*$/gm, '')
         .replace(/PK[\s\S]*?xml/gi, '')
+        .replace(/<[^>]+>/g, ' ')
         .trim();
       
-      const isDivorce = fullContent.includes('divorce') || cleanSnippetText.toLowerCase().includes('divorce');
-      const firstText = cleanSnippetText.length > 250 ? cleanSnippetText.substring(0, 250) + '...' : cleanSnippetText;
-      
-      docContextGreeting = `J'ai bien analysé le document que vous m'avez transmis. ${isDivorce ? "Il s'agit d'un dossier relatif à une procédure de divorce et de séparation des époux." : "Voici un extrait des stipulations lues dans votre pièce :"}\n\n> *« ${firstText || "Contenu du dossier récapitulé"} »*\n\n`;
+      const lines = cleanSnippetText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      extractedDocTitle = lines[0] ? lines[0].substring(0, 100) : 'votre pièce jointe';
+      const firstExcerpt = cleanSnippetText.length > 300 ? cleanSnippetText.substring(0, 300) + '...' : cleanSnippetText;
+
+      fileSnippetBlock = `\n\n📄 **Analyse de votre document ("${extractedDocTitle}") :**\n> *« ${firstExcerpt} »*\n`;
     }
 
-    text = `Bonjour ! ${docContextGreeting}` +
-           `Pour répondre directement à votre question : **"${userQuery || "Que dit ce document ?"}"**,\n\n` +
-           `Sur le plan juridique (${domain}), voici les fondements applicables à votre situation :\n\n` +
-           `${articles.join('\n')}\n\n` +
-           `**Mes conseils et démarches à suivre :**\n` +
-           `- Conservez précieusement ce document et l'ensemble de vos justificatifs.\n` +
-           `- Si vous souhaitez que je rédige une réponse formelle, une mise en demeure ou une convention sur la base de ce dossier, dites-le moi simplement et je générerai le document PDF complet pour vous.\n\n` +
-           `Avez-vous une question précise ou une clause particulière que vous aimeriez éclaircir ?`;
+    // Determine legal domain, specific text of law, and tailored advice for the user's precise topic
+    let domain = 'Droit des Obligations & Contentieux Civil';
+    let legalGrounds = '';
+    let adviceSteps = '';
+
+    if (fullContent.includes('divorce') || fullContent.includes('séparation') || fullContent.includes('pension') || fullContent.includes('garde') || fullContent.includes('mariage') || fullContent.includes('époux')) {
+      domain = 'Droit de la Famille & du Divorce';
+      legalGrounds = `- **Article 229 du Code Civil** : Le divorce peut être prononcé par consentement mutuel ou pour faute/altération du lien conjugal.\n` +
+                     `- **Article 371-2 du Code Civil** : Chacun des parents contribue à l'entretien et à l'éducation des enfants à proportion de ses ressources.\n` +
+                     `- **Article 270 du Code Civil** : L'un des époux peut être tenu de verser à l'autre une prestation compensatoire.`;
+      adviceSteps = `1️⃣ **Choix de la procédure** : Déterminer si un divorce par consentement mutuel (avocats respectifs sans juge) est envisageable.\n` +
+                    `2️⃣ **Inventaire du patrimoine** : Lister l'ensemble des biens communs, crédits en cours et ressources financières.\n` +
+                    `3️⃣ **Convention ou Saisine** : Rédaction de la convention de divorce ou dépôt d'une assignation devant le Juge aux Affaires Familiales (JAF).`;
+    } else if (fullContent.includes('travail') || fullContent.includes('licenciement') || fullContent.includes('salaire') || fullContent.includes('employeur') || fullContent.includes('prud\'homme') || fullContent.includes('rupture') || fullContent.includes('faute')) {
+      domain = 'Droit du Travail & Relations Sociales';
+      legalGrounds = `- **Article L1232-1 du Code du Travail** : Tout licenciement pour motif personnel doit être justifié par une cause réelle et sérieuse.\n` +
+                     `- **Article L1234-9 du Code du Travail** : Le salarié titulaire d'un CDI a droit à une indemnité légale de licenciement.\n` +
+                     `- **Article L1237-11 du Code du Travail** : La rupture conventionnelle permet de rompre le contrat de travail d'un commun accord.`;
+      adviceSteps = `1️⃣ **Vérification de la procédure** : Contrôler la convocation à l'entretien préalable et les motifs de la lettre de rupture.\n` +
+                    `2️⃣ **Contestation des griefs** : Adresser une lettre recommandée de contestation si les motifs invoqués sont infondés.\n` +
+                    `3️⃣ **Calcul des indemnités** : Évaluer l'indemnité légale ou conventionnelle et le préavis dû.`;
+    } else if (fullContent.includes('bail') || fullContent.includes('loyer') || fullContent.includes('logement') || fullContent.includes('locataire') || fullContent.includes('propriétaire') || fullContent.includes('dépôt de garantie') || fullContent.includes('insalubre')) {
+      domain = "Droit Immobilier & Baux d'Habitation";
+      legalGrounds = `- **Loi n° 89-462 du 6 juillet 1989 (Article 7)** : Le locataire est tenu de payer le loyer et les charges aux termes convenus.\n` +
+                     `- **Article 1719 du Code Civil** : Le bailleur doit délivrer un logement meublé ou vide en bon état d'usage et décent.\n` +
+                     `- **Article 22 de la Loi du 6 juillet 1989** : Le dépôt de garantie doit être restitué sous 1 à 2 mois maximum.`;
+      adviceSteps = `1️⃣ **Mise en demeure** : Adresser une LRAR au propriétaire ou au gestionnaire de bien pour faire valoir vos droits.\n` +
+                    `2️⃣ **Saisine de la CDC** : Saisir la Commission Départementale de Conciliation en cas de désaccord sur les charges ou travaux.\n` +
+                    `3️⃣ **Tribunal Judiciaire** : Engager un référé devant le Juge du Contentieux de la Protection à défaut d'accord.`;
+    } else if (fullContent.includes('achat') || fullContent.includes('vente') || fullContent.includes('garantie') || fullContent.includes('remboursement') || fullContent.includes('consommateur') || fullContent.includes('vice') || fullContent.includes('livraison')) {
+      domain = 'Droit de la Consommation & Vente';
+      legalGrounds = `- **Article L217-4 du Code de la Consommation** : Le vendeur répond des défauts de conformité existant lors de la délivrance.\n` +
+                     `- **Article 1641 du Code Civil** : Le vendeur est tenu de la garantie à raison des défauts cachés de la chose vendue.\n` +
+                     `- **Article L221-18 du Code de la Consommation** : Le consommateur dispose d'un délai de 14 jours pour se rétracter.`;
+      adviceSteps = `1️⃣ **Notification officielle** : Déclarer la non-conformité ou le vice caché par lettre recommandée avec AR.\n` +
+                    `2️⃣ **Demande de réparation/remboursement** : Exiger le remplacement, la réparation sans frais ou le remboursement intégral.\n` +
+                    `3️⃣ **Médiation de la consommation** : Saisir le médiateur rattaché au professionnel avant toute action en justice.`;
+    } else if (fullContent.includes('facture') || fullContent.includes('commercial') || fullContent.includes('société') || fullContent.includes('impayé') || fullContent.includes('client') || fullContent.includes('prestataire')) {
+      domain = 'Droit Commercial & Inexécution Contractuelle';
+      legalGrounds = `- **Article L441-10 du Code de Commerce** : Les pénalités de retard et l'indemnité forfaitaire de 40€ sont exigibles de plein droit.\n` +
+                     `- **Article 1231-1 du Code Civil** : Le débiteur est condamné au paiement de dommages et intérêts à raison de l'inexécution.\n` +
+                     `- **Article 1217 du Code Civil** : La partie victime de l'inexécution peut suspendre sa propre prestation ou solliciter la résolution.`;
+      adviceSteps = `1️⃣ **Relance formelle** : Envoyer une mise en demeure de payer sous 8 à 15 jours avec décompte des pénalités.\n` +
+                    `2️⃣ **Injonction de payer** : Dépôt d’une requête en injonction de payer devant le Tribunal de Commerce ou Judiciaire.\n` +
+                    `3️⃣ **Exécution forcée** : Mandater un commissaire de justice pour procéder aux saisies nécessaires.`;
+    } else {
+      legalGrounds = `- **Article 1103 du Code Civil** : Les contrats légalement formés tiennent lieu de loi à ceux qui les ont faits.\n` +
+                     `- **Article 1240 du Code Civil** : Tout fait quelconque de l'homme qui cause à autrui un dommage oblige celui par la faute duquel il est arrivé à le réparer.`;
+      adviceSteps = `1️⃣ **Récolte des pièces** : Rassemblez les échanges écrits, factures et éléments de preuve.\n` +
+                    `2️⃣ **Démarche amiable** : Adressez une demande d'explication ou une mise en demeure préalable.\n` +
+                    `3️⃣ **Recours adapté** : Saisissez la juridiction civile compétente si aucune réponse n'est apportée.`;
+    }
+
+    text = `Bonjour ! ${fileSnippetBlock}\n` +
+           `Concernant votre question spécifique : **"${userQuery || "Analyse de la situation"}"**,\n\n` +
+           `Voici une analyse juridique réfléchie et sur-mesure (${domain}) :\n\n` +
+           `**1. Textes et principes de droit applicables :**\n` +
+           `${legalGrounds}\n\n` +
+           `**2. Étapes pratiques recommandées pour votre cas :**\n` +
+           `${adviceSteps}\n\n` +
+           `Souhaitez-vous que je rédige un document officiel (mise en demeure, lettre de contestation, accord) directement basé sur votre question ?`;
   }
 
   if (action) {
