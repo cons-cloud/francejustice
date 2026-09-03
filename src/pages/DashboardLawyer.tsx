@@ -64,6 +64,7 @@ import { Input } from "../components/ui/Input"
 import { VoiceAssistant } from "../components/ui/VoiceAssistant"
 import NotificationBell from '../components/ui/NotificationBell';
 import LiveSyncBadge from '../components/ui/LiveSyncBadge';
+import LegalAIDiagnostic from '../components/features/LegalAIDiagnostic';
 import { cn } from "../lib/utils";
 import { createCheckoutSession } from "../lib/api";
 import { filterActiveSessions } from '../lib/classroomUtils';
@@ -1267,6 +1268,7 @@ const DashboardLawyer: React.FC = () => {
 
   const tabs = [
     { id: "overview", name: t('dashboard.overview', "Vue d'ensemble"), icon: BarChart3 },
+    { id: "diagnostic", name: "Diagnostic IA & Appel", icon: Sparkles },
     { id: "appointments", name: t('dashboard.appointments', "Rendez-vous"), icon: Calendar },
     { id: "cases", name: t('lawyer_dashboard.my_cases', "Dossiers"), icon: FileText },
     { id: "quotes", name: t('lawyer_dashboard.quote_request', "Gestion Devis"), icon: Receipt },
@@ -2105,6 +2107,7 @@ const DashboardLawyer: React.FC = () => {
                     </Card>
                   </div>
                 )}
+                {(activeTab === 'diagnostic' || activeTab === 'analyse') && <LegalAIDiagnostic roleMode="lawyer" />}
                 {activeTab === 'avocats' && (
                   <div className={cn('space-y-6', 'animate-fade-in')}>
                     <h2 className={cn('text-2xl', 'font-semibold', 'text-secondary-900')}>Réseau des Avocats</h2>

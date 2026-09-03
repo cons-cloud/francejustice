@@ -23,6 +23,7 @@ import {
   OFFICIAL_FEDE_FORMATIONS,
   getOfficialFormationsAsClassrooms
 } from "../data/officialFormationsData";
+import LegalAIDiagnostic from "../components/features/LegalAIDiagnostic";
 
 interface CurriculumSection {
   title: string;
@@ -447,7 +448,7 @@ const ClassroomsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | "direct" | "differe" | "video" | "texte">("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all_status');
-  const [mainTab, setMainTab] = useState<'catalog' | 'planning'>('catalog');
+  const [mainTab, setMainTab] = useState<'catalog' | 'planning' | 'diagnostic'>('catalog');
   const [activeClassroom, setActiveClassroom] = useState<Classroom | null>(null);
   const [isInMeeting, setIsInMeeting] = useState(false);
   const [selectedFormationModal, setSelectedFormationModal] = useState<Classroom | null>(null);
@@ -719,11 +720,23 @@ ${curriculumText}`;
               >
                 📅 Planning Annuel & Agenda
               </button>
+              <button
+                onClick={() => setMainTab('diagnostic')}
+                className={`px-5 py-2.5 rounded-xl font-extrabold text-sm transition-all border ${
+                  mainTab === 'diagnostic'
+                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg'
+                    : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                }`}
+              >
+                ✨ Diagnostic IA & Cas Pratiques
+              </button>
             </div>
           </div>
         </div>
 
-        {mainTab === 'planning' ? (
+        {mainTab === 'diagnostic' ? (
+          <LegalAIDiagnostic roleMode="academic" />
+        ) : mainTab === 'planning' ? (
           <AnnualPlanning mode="public" onEventClick={(evt) => setSelectedFormationModal({
             id: evt.id,
             title: evt.title,

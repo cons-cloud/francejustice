@@ -62,6 +62,7 @@ import AssistantPage from './Assistant';
 import NotificationBell from '../components/ui/NotificationBell';
 import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import StripePaymentModal from '../components/ui/StripePaymentModal';
+import LegalAIDiagnostic from '../components/features/LegalAIDiagnostic';
 import { useTranslation } from '../i18n';
 
 const DashboardPage: React.FC = () => {
@@ -866,6 +867,7 @@ Ce document est généré par la plateforme France Justice.
 
   const tabs = [
     { id: 'overview', name: t('dashboard.overview', "Vue d'ensemble"), icon: BarChart3 },
+    { id: 'diagnostic', name: "Diagnostic IA & Appel", icon: Sparkles },
     { id: 'appointments', name: t('dashboard.appointments', 'Rendez-vous'), icon: Calendar },
     { id: 'assistant', name: t('nav.genia', 'Assistant IA'), icon: Sparkles },
     { id: 'generator', name: t('dashboard.generator_tab', 'Générateur IA'), icon: Shield },
@@ -1552,6 +1554,7 @@ Ce document est généré par la plateforme France Justice.
               <>
                 {activeTab === 'legal' && renderLegalComplianceTab()}
                 {activeTab === 'overview' && renderOverview()}
+                {(activeTab === 'diagnostic' || activeTab === 'analyse') && <LegalAIDiagnostic roleMode="citizen" />}
                 {activeTab === 'appointments' && renderAppointments()}
                 {activeTab === 'generator' && (
                   <div className="space-y-4 animate-fade-in">
