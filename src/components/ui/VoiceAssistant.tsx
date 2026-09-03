@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Mic, 
   MicOff, 
@@ -552,9 +553,9 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
       )}
 
       {/* Voice Assistant Glassmorphism Panel */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-xl bg-gradient-to-b from-[#0f172a] to-[#080d16] border border-white/10 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden flex flex-col max-h-[85vh] animate-slide-up">
+      {isOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-xl bg-gradient-to-b from-[#0f172a] to-[#080d16] border border-white/10 rounded-3xl shadow-2xl shadow-black/80 overflow-hidden flex flex-col max-h-[85vh] animate-slide-up">
             
             {/* Header */}
             <div className="px-6 py-4.5 bg-white/5 border-b border-white/5 flex items-center justify-between">
@@ -846,12 +847,13 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
               </form>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Floating preview modal for AI-generated document */}
-      {previewDoc && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+      {previewDoc && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
           <div className="bg-[#0f172a] border border-secondary-700/50 rounded-2xl max-w-2xl w-full p-6 flex flex-col max-h-[85vh] shadow-2xl animate-slide-up backdrop-blur-lg">
             <div className="flex items-center justify-between pb-4 border-b border-secondary-700/50 mb-4">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
@@ -892,7 +894,8 @@ L'utilisateur vous dit (commande vocale ou écrite) : "${commandText}"
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Styled Custom Waveform Animation CSS in style tag */}
