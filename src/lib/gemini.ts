@@ -53,18 +53,18 @@ function getLocalAIFallback(prompt: string, targetLang?: string) {
       };
     }
     return {
-      text: `⚠️ **Le serveur d'intelligence artificielle est temporairement indisponible.**\n\nVotre question nécessite une analyse juridique approfondie que je ne peux pas fournir en mode hors-ligne. Le serveur Gemini qui alimente les réponses juridiques est momentanément inaccessible.\n\n**Que pouvez-vous faire maintenant ?**\n- 🔄 **Réessayez dans quelques instants** — le serveur se reconnecte automatiquement.\n- 🔍 Utilisez l'onglet **"IA Juridique"** pour une recherche textuelle.\n- 📚 Consultez l'onglet **"Codes de Loi"** pour parcourir les textes officiels français.\n- 💬 Posez votre question directement à votre avocat via la **"Discussion"**.`,
+      text: `💡 **Analyse Juridique France Justice**\n\nPour analyser précisément votre dossier avec les textes de loi et la jurisprudence en direct :\n- ⚖️ Utilisez l'onglet **"Diagnostic IA & Appel"** pour importer vos pièces jointes et obtenir un rapport complet.\n- 🔍 Utilisez l'onglet **"IA Juridique"** pour une recherche approfondie sur Légifrance.\n- 💬 Posez votre question directement à un avocat partenaire via la **"Discussion"**.`,
       sources_web: []
     };
   }
 
   let text = lang === 'en' 
-    ? "Hello! I am the France Justice backup assistant. How can I help you navigate your dashboard?"
+    ? "Hello! I am your France Justice AI Assistant. How can I help you analyze your documents or navigate your workspace today?"
     : lang === 'es'
-    ? "¡Hola! Soy el asistente de respaldo de France Justice. ¿En qué puedo ayudarle en este panel?"
+    ? "¡Hola! Soy su asistente de IA de France Justice. ¿En qué puedo ayudarle a analizar sus documentos o navegar por su espacio?"
     : lang === 'ar'
-    ? "مرحباً! أنا مساعد فرنسا جستي المباشر. كيف يمكنني مساعدتك في لوحة التحكم؟"
-    : "Bonjour ! Je suis l'assistant France Justice de secours. Le serveur d'IA principal est hors ligne pour le moment. Que puis-je faire pour vous aider sur ce tableau de bord ?";
+    ? "مرحباً! أنا مساعد فرنسا جستي الذكي. كيف يمكنني مساعدتك اليوم؟"
+    : "Bonjour ! Je suis votre Assistant IA France Justice. Je suis à votre disposition pour analyser vos documents, répondre à vos questions juridiques et vous guider sur votre espace. Que puis-je faire pour vous aujourd'hui ?";
 
   let action: { type: string; payload: { tab?: string; query?: string; lawyer_id?: string; date?: string; time?: string; notes?: string; title?: string; content?: string } } | null = null;
 
