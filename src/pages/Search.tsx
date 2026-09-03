@@ -89,21 +89,20 @@ Réponds de manière structurée et complète.`;
   if (skipAuthCheck) {
     return (
       <div className="space-y-6">
-        <div className="flex gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-3.5 h-5 w-5 text-secondary-400" />
-            <form onSubmit={handleSubmit} className="flex gap-4">
-              <Input
-                className="pl-12 h-12 text-base flex-1"
-                placeholder={t('search.placeholder_example', 'Ex: licenciement, pension alimentaire, héritage...')}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <Button type="submit" className="h-12 px-6 font-bold" disabled={loading}>
-                {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : t('search.btn')}
+        <div className="w-full">
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <textarea
+              className="w-full min-h-[140px] sm:min-h-[180px] bg-slate-900 border-2 border-slate-700 focus:border-amber-400 text-white placeholder-slate-400 text-base sm:text-lg rounded-2xl p-4 font-medium focus:ring-2 focus:ring-amber-400/20 transition-all leading-relaxed"
+              placeholder={t('search.placeholder_example', 'Posez votre question juridique complète ou décrivez votre litige... Ex: Licenciement abusif, succession, vice caché...')}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <div className="flex justify-end">
+              <Button type="submit" className="h-12 px-8 font-black text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 rounded-xl shadow-md cursor-pointer flex items-center gap-2" disabled={loading}>
+                {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : <><span>Rechercher avec l'IA Juridique</span> <Search className="h-4 w-4" /></>}
               </Button>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
 
         {loading && (
