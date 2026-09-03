@@ -36,25 +36,29 @@ function getLocalAIFallback(prompt: string, targetLang?: string) {
 
   const hasFiles = prompt.includes('=== PIÈCES JOINTES') || prompt.includes('=== DOSSIERS ET PIÈCES JOINTES');
 
-  // Navigation tab detection
-  if (clean.includes('rendez-vous') || clean.includes('rdv') || clean.includes('agenda') || clean.includes('appointment')) {
-    text = "Très bien, je bascule sur l'onglet de vos rendez-vous.";
-    action = { type: 'SWITCH_TAB', payload: { tab: 'appointments' } };
-  } else if (clean.includes('document') || clean.includes('coffre-fort') || clean.includes('justificatif')) {
-    text = "Je vous dirige vers l'espace de vos documents sécurisés.";
-    action = { type: 'SWITCH_TAB', payload: { tab: isLawyer ? 'cases' : 'documents' } };
-  } else if (clean.includes('avocat') || clean.includes('annuaire') || clean.includes('lawyer')) {
-    text = "Je vous oriente vers l'annuaire des avocats partenaires.";
-    action = { type: 'SWITCH_TAB', payload: { tab: 'avocats' } };
-  } else if (clean.includes('devis') || clean.includes('facture') || clean.includes('tarif')) {
-    text = "Je vous redirige vers l'espace devis & honoraires.";
-    action = { type: 'SWITCH_TAB', payload: { tab: 'quotes' } };
-  } else if (clean.includes('profil') || clean.includes('compte') || clean.includes('mon profil')) {
-    text = "J'affiche la gestion de votre profil.";
-    action = { type: 'SWITCH_TAB', payload: { tab: isLawyer ? 'profil' : 'profile' } };
-  } else if (clean.includes('discussion') || clean.includes('message') || clean.includes('chat')) {
-    text = "Je vous ouvre la messagerie en temps réel.";
-    action = { type: 'SWITCH_TAB', payload: { tab: isLawyer ? 'messages' : 'chat' } };
+  // Navigation tab detection ONLY if explicit navigation verbs are used AND no files are attached
+  const hasExplicitNavVerb = /^(\bva\b|\bouvre\b|\baffiche\b|\bmontre\b|\bbascule\b|\bnavigue\b|\baller\b|\baccède\b)/.test(clean);
+
+  if (hasExplicitNavVerb && !hasFiles) {
+    if (clean.includes('rendez-vous') || clean.includes('rdv') || clean.includes('agenda') || clean.includes('appointment')) {
+      text = "Très bien, je bascule sur l'onglet de vos rendez-vous.";
+      action = { type: 'SWITCH_TAB', payload: { tab: 'appointments' } };
+    } else if (clean.includes('document') || clean.includes('coffre-fort') || clean.includes('justificatif')) {
+      text = "Je vous dirige vers l'espace de vos documents sécurisés.";
+      action = { type: 'SWITCH_TAB', payload: { tab: isLawyer ? 'cases' : 'documents' } };
+    } else if (clean.includes('avocat') || clean.includes('annuaire') || clean.includes('lawyer')) {
+      text = "Je vous oriente vers l'annuaire des avocats partenaires.";
+      action = { type: 'SWITCH_TAB', payload: { tab: 'avocats' } };
+    } else if (clean.includes('devis') || clean.includes('facture') || clean.includes('tarif')) {
+      text = "Je vous redirige vers l'espace devis & honoraires.";
+      action = { type: 'SWITCH_TAB', payload: { tab: 'quotes' } };
+    } else if (clean.includes('profil') || clean.includes('compte') || clean.includes('mon profil')) {
+      text = "J'affiche la gestion de votre profil.";
+      action = { type: 'SWITCH_TAB', payload: { tab: isLawyer ? 'profil' : 'profile' } };
+    } else if (clean.includes('discussion') || clean.includes('message') || clean.includes('chat')) {
+      text = "Je vous ouvre la messagerie en temps réel.";
+      action = { type: 'SWITCH_TAB', payload: { tab: isLawyer ? 'messages' : 'chat' } };
+    }
   }
 
   // Document generation request detection
