@@ -225,7 +225,7 @@ Réponds de manière structurée et professionnelle.`;
                   ref={fileInputRef} 
                   type="file" 
                   multiple 
-                  accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg,.json,.csv" 
+                  accept=".pdf,.txt,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg,.json,.csv,.odt,.ods,.rtf" 
                   onChange={handleFileUpload} 
                   className="hidden" 
                 />
@@ -233,10 +233,10 @@ Réponds de manière structurée et professionnelle.`;
                   type="button" 
                   variant="outline" 
                   onClick={() => fileInputRef.current?.click()} 
-                  className="bg-[#131c2e] hover:bg-[#1c2942] text-amber-300 border-slate-700 hover:border-amber-400 font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+                  className="bg-[#131c2e] hover:bg-[#1c2942] text-amber-400 hover:text-amber-300 border-slate-700 hover:border-amber-400 p-2.5 rounded-xl cursor-pointer shadow-sm flex items-center justify-center shrink-0"
+                  title="Joindre un document ou dossier (Word, Excel, PDF, Image, Texte)"
                 >
-                  <Paperclip className="h-4 w-4 mr-1.5 text-amber-400" />
-                  Joindre des dossiers PDF
+                  <Paperclip className="h-5 w-5 text-amber-400" />
                 </Button>
 
                 {(query || attachedFiles.length > 0) && (
@@ -352,7 +352,7 @@ Réponds de manière structurée et professionnelle.`;
                     ref={fileInputRef} 
                     type="file" 
                     multiple 
-                    accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg,.json,.csv" 
+                    accept=".pdf,.txt,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg,.json,.csv,.odt,.ods,.rtf" 
                     onChange={handleFileUpload} 
                     className="hidden" 
                   />
@@ -360,10 +360,10 @@ Réponds de manière structurée et professionnelle.`;
                     type="button" 
                     variant="outline" 
                     onClick={() => fileInputRef.current?.click()} 
-                    className="bg-[#131c2e] hover:bg-[#1c2942] text-amber-300 border-slate-700 hover:border-amber-400 font-bold text-xs sm:text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+                    className="bg-[#131c2e] hover:bg-[#1c2942] text-amber-400 hover:text-amber-300 border-slate-700 hover:border-amber-400 p-2.5 rounded-xl cursor-pointer shadow-sm flex items-center justify-center shrink-0"
+                    title="Joindre un document ou dossier (Word, Excel, PDF, Image, Texte)"
                   >
-                    <Paperclip className="h-4 w-4 mr-1.5 text-amber-400" />
-                    Joindre des dossiers PDF
+                    <Paperclip className="h-5 w-5 text-amber-400" />
                   </Button>
 
                   {(query || attachedFiles.length > 0) && (

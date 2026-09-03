@@ -546,11 +546,11 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
                 {/* Control Action Toolbar */}
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                   <div className="flex items-center gap-2">
-                    <Input 
+                    <input 
                       ref={fileInputRef} 
                       type="file" 
                       multiple 
-                      accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg,.json,.csv" 
+                      accept=".pdf,.txt,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg,.json,.csv,.odt,.ods,.rtf" 
                       onChange={handleFileUpload} 
                       className="hidden" 
                     />
@@ -558,10 +558,10 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
                       type="button" 
                       variant="outline" 
                       onClick={() => fileInputRef.current?.click()} 
-                      className="bg-[#131c2e] hover:bg-[#1c2942] text-amber-300 border-slate-700 hover:border-amber-400 font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl cursor-pointer"
+                      className="bg-[#131c2e] hover:bg-[#1c2942] text-amber-400 hover:text-amber-300 border-slate-700 hover:border-amber-400 p-3 rounded-xl cursor-pointer shadow-sm flex items-center justify-center shrink-0"
+                      title="Joindre un document ou dossier (Word, Excel, PDF, Image, Texte)"
                     >
-                      <Paperclip className="h-4 w-4 mr-2 text-amber-400" />
-                      {t('assistant.attach', 'Joindre des fichiers / PDF')}
+                      <Paperclip className="h-5 w-5 text-amber-400" />
                     </Button>
 
                     {(input || attachedFiles.length > 0) && (
