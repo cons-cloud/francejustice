@@ -62,6 +62,12 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
   const [webSources, setWebSources] = useState<any[]>([]);
   const [attachedFiles, setAttachedFiles] = useState<{ name: string; content: string; type: string }[]>([]);
 
+  const recognitionRef = useRef<any>(null);
+  const speechUttRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const voiceFileInputRef = useRef<HTMLInputElement | null>(null);
+
   const extractTextFromPDFBuffer = (buffer: ArrayBuffer): string => {
     try {
       const bytes = new Uint8Array(buffer);
@@ -290,11 +296,7 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
     }
   };
 
-  const recognitionRef = useRef<any>(null);
-  const speechUttRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const voiceFileInputRef = useRef<HTMLInputElement | null>(null);
+
 
   const mapLangToSpeech = (lang: string): string => {
     switch (lang) {
@@ -610,10 +612,14 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
       setResponse(cleanTextResponse);
       setSources(extractedSources);
       
-      // Update history in Gemini standard structure
+      // Store user prompt with linked attached document references in conversation history
+      const userDisplayMsg = attachedFiles.length > 0
+        ? `[📎 Dossier: ${attachedFiles.map(f => f.name).join(', ')}]\n${commandText}`
+        : commandText;
+
       setHistory(prev => [
         ...prev,
-        { role: 'user', parts: [{ text: commandText }] },
+        { role: 'user', parts: [{ text: promptContext }] },
         { role: 'model', parts: [{ text: aiResponse }] }
       ]);
 
