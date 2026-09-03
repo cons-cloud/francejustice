@@ -9,10 +9,7 @@ import SEOManager from './components/ui/SEOManager';
 import FloatingChatBot from './components/ui/FloatingChatBot';
 
 // ─── Lazy-loaded pages (code-split per route) ────────────────────────────────
-// Each page is loaded only when the user navigates to that route.
-// Heavy dashboards (DashboardLawyer 161 kB, Dashboard 95 kB, AdminDashboard 75 kB)
-// are never bundled into the initial load.
-import Home from './pages/Home';
+const Home                 = lazy(() => import('./pages/Home'));
 const SearchPage           = lazy(() => import('./pages/Search'));
 const GeneratorPage        = lazy(() => import('./pages/Generator'));
 const DashboardPage        = lazy(() => import('./pages/Dashboard'));
@@ -37,14 +34,11 @@ const ClassroomsPage       = lazy(() => import('./pages/Classrooms'));
 const ResetPasswordPage    = lazy(() => import('./pages/ResetPassword'));
 const ForgotPasswordPage   = lazy(() => import('./pages/ForgotPassword'));
 
-// ─── Lightweight page-level fallback ─────────────────────────────────────────
+// ─── Fast, non-blocking page transition loader ──────────────────────────
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-full border-4 border-slate-800 border-t-primary-500 animate-spin" />
-        <span className="text-sm text-slate-400 font-medium tracking-wide">Chargement de France Justice…</span>
-      </div>
+    <div className="w-full h-1 bg-slate-900 overflow-hidden relative">
+      <div className="w-1/2 h-full bg-gradient-to-r from-amber-400 to-indigo-500 animate-pulse transition-all duration-300" />
     </div>
   );
 }

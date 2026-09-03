@@ -567,18 +567,15 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
     }
   };
 
-  const toggleMute = () => {
-    if (!isMuted) {
-      stopSpeaking();
-    }
-    setIsMuted(!isMuted);
-  };
-
-  const handleManualSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const inputEl = e.currentTarget.elements.namedItem('manualCommand') as HTMLInputElement;
-    if (inputEl && inputEl.value.trim()) {
-      const val = inputEl.value;
+    const form = e.target as HTMLFormElement;
+    const inputEl = form.elements.namedItem('manualCommand') as HTMLInputElement;
+
+    const val = inputEl ? inputEl.value.trim() : '';
+
+    if (val || attachedFiles.length > 0) {
+      const commandToExecute = val || "Analysez et traitez l'ensemble des dossiers et pièces jointes fournis ci-dessus.";
 
       // Prime the speech synthesis engine for async playback
       if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -591,13 +588,20 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
         }
       }
 
-      setTranscript(val);
+      setTranscript(commandToExecute);
       if (isListening && recognitionRef.current) {
         recognitionRef.current.stop();
       }
-      handleVoiceCommand(val);
-      inputEl.value = '';
+      handleVoiceCommand(commandToExecute);
+      if (inputEl) inputEl.value = '';
     }
+  };
+
+  const toggleMute = () => {
+    if (!isMuted) {
+      stopSpeaking();
+    }
+    setIsMuted(!isMuted);
   };
 
   return (
@@ -884,20 +888,21 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
             {/* Input Controls Bar */}
             <div className="p-3 sm:p-4 bg-slate-950 border-t border-slate-800 space-y-2.5 sm:space-y-3 shrink-0">
               
-              {/* Attachment Chip List */}
+              {/* Attachment Chip List - Compact Icon Only */}
               {attachedFiles.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 pt-0.5 pb-1 border-b border-slate-800 max-h-20 overflow-y-auto">
-                  <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1 w-full">
-                    <Paperclip className="h-3 w-3 text-amber-400" /> {attachedFiles.length} Pièce(s) jointe(s) :
-                  </span>
+                <div className="flex flex-wrap items-center gap-1.5 pt-0.5 pb-1 border-b border-slate-800 max-h-16 overflow-y-auto">
+                  <div className="flex items-center gap-1 bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0 shadow-sm" title={`${attachedFiles.length} fichier(s) joint(s)`}>
+                    <Paperclip className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                    <span>{attachedFiles.length}</span>
+                  </div>
                   {attachedFiles.map((file, idx) => (
-                    <div key={idx} className="flex items-center gap-1 bg-[#141d30] border border-amber-400/30 text-white text-[10px] sm:text-[11px] px-2 py-0.5 rounded-lg shadow-sm">
+                    <div key={idx} className="flex items-center gap-1 bg-[#141d30] border border-amber-400/30 text-white text-[10px] sm:text-[11px] px-2 py-0.5 rounded-lg shadow-sm max-w-[140px] sm:max-w-[180px]">
                       <FileText className="h-3 w-3 text-amber-400 shrink-0" />
-                      <span className="line-clamp-1 max-w-[90px] sm:max-w-[130px] font-medium">{file.name}</span>
+                      <span className="truncate font-medium">{file.name}</span>
                       <button
                         type="button"
                         onClick={() => removeAttachedFile(idx)}
-                        className="text-slate-400 hover:text-red-400 transition-colors ml-0.5 p-0.5"
+                        className="text-slate-400 hover:text-red-400 transition-colors ml-0.5 p-0.5 shrink-0"
                         title="Supprimer"
                       >
                         <X className="h-3 w-3" />

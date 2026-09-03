@@ -28,9 +28,8 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
-    // Raise warning threshold — pages are now lazy-loaded so individual chunks
-    // can legitimately be larger (they are loaded on-demand, not at startup).
+    sourcemap: false,
+    cssCodeSplit: true,
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
