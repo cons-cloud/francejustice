@@ -129,14 +129,68 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
     return "Document PDF importé avec succès. Contenu prêt pour l'analyse et la traitement juridique.";
   };
 
+  const extractTextFromBinaryDocument = (buffer: ArrayBuffer, fileName: string): string => {
+    try {
+      const bytes = new Uint8Array(buffer);
+      let raw = '';
+      const chunkSize = 8192;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        raw += String.fromCharCode.apply(null, Array.from(chunk));
+      }
+
+      const ext = fileName.toLowerCase().split('.').pop() || '';
+
+      // 1. Word .docx XML tag extraction <w:t>text</w:t>
+      if (ext === 'docx' || ext === 'doc' || raw.includes('<w:t')) {
+        const wordMatches = raw.match(/<w:t[^>]*>(.*?)<\/w:t>/gi);
+        if (wordMatches && wordMatches.length > 0) {
+          const text = wordMatches
+            .map(m => m.replace(/<[^>]+>/g, ''))
+            .join(' ')
+            .replace(/\s+/g, ' ');
+          if (text.trim().length > 10) return text;
+        }
+      }
+
+      // 2. Excel .xlsx XML cell extraction <t>text</t> or <v>value</v>
+      if (ext === 'xlsx' || ext === 'xls' || raw.includes('sheet') || raw.includes('<worksheet')) {
+        const excelMatches = raw.match(/<(?:t|v)[^>]*>(.*?)<\/(?:t|v)>/gi);
+        if (excelMatches && excelMatches.length > 0) {
+          const text = excelMatches
+            .map(m => m.replace(/<[^>]+>/g, ''))
+            .filter(t => t.trim().length > 0)
+            .join(' | ')
+            .replace(/\s+/g, ' ');
+          if (text.trim().length > 10) return text;
+        }
+      }
+
+      // 3. General literal string extraction for Word / OpenDocument / RTF / PDF
+      const xmlTagsStripped = raw.replace(/<[^>]+>/g, ' ');
+      const words = xmlTagsStripped.match(/[A-Za-zÀ-ÿ0-9,.'’\-–—:;!?]{2,}/g);
+      if (words && words.length > 0) {
+        const junk = new Set(['xml', 'xmlns', 'rel', 'schemas', 'openxmlformats', 'wordprocessingml', 'spreadsheetml', 'ContentType', 'Override', 'PartName']);
+        const clean = words.filter(w => !junk.has(w) && !w.startsWith('http') && w.length < 50);
+        if (clean.length > 10) {
+          return clean.join(' ').replace(/\s+/g, ' ');
+        }
+      }
+    } catch (e) {
+      console.warn("Erreur extraction binaire:", e);
+    }
+    return `Contenu du fichier "${fileName}" prêt pour le traitement et l'analyse par l'IA.`;
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     Array.from(files).forEach((file) => {
       const reader = new FileReader();
+      const lowerName = file.name.toLowerCase();
 
-      if (file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf') {
+      if (lowerName.endsWith('.pdf') || file.type === 'application/pdf') {
         reader.onload = (event) => {
           const buffer = event.target?.result as ArrayBuffer;
           if (buffer) {
@@ -145,13 +199,44 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
               ...prev,
               {
                 name: file.name,
-                content: extractedText.length > 25000 ? extractedText.substring(0, 25000) + "\n...[Document juridique PDF tronqué]" : extractedText,
+                content: extractedText.length > 25000 ? extractedText.substring(0, 25000) + "\n...[Document PDF tronqué]" : extractedText,
                 type: 'application/pdf'
               }
             ]);
           }
         };
         reader.readAsArrayBuffer(file);
+      } else if (lowerName.endsWith('.docx') || lowerName.endsWith('.doc') || lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls') || lowerName.endsWith('.odt') || lowerName.endsWith('.ods') || lowerName.endsWith('.rtf')) {
+        reader.onload = (event) => {
+          const buffer = event.target?.result as ArrayBuffer;
+          if (buffer) {
+            const extractedText = extractTextFromBinaryDocument(buffer, file.name);
+            setAttachedFiles((prev) => [
+              ...prev,
+              {
+                name: file.name,
+                content: extractedText.length > 25000 ? extractedText.substring(0, 25000) + "\n...[Document Word/Excel tronqué]" : extractedText,
+                type: file.type || 'application/msword'
+              }
+            ]);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      } else if (file.type.startsWith('image/')) {
+        reader.onload = (event) => {
+          const result = event.target?.result;
+          if (typeof result === 'string') {
+            setAttachedFiles((prev) => [
+              ...prev,
+              {
+                name: file.name,
+                content: `=== PIÈCE IMAGE JOINTE : ${file.name} ===\nL'utilisateur a transmis l'image / pièce visuelle "${file.name}" pour analyse du dossier.`,
+                type: file.type
+              }
+            ]);
+          }
+        };
+        reader.readAsDataURL(file);
       } else {
         reader.onload = (event) => {
           const result = event.target?.result;
@@ -160,7 +245,7 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
               ...prev,
               {
                 name: file.name,
-                content: result.length > 25000 ? result.substring(0, 25000) + "\n...[Contenu du document tronqué pour l'IA]" : result,
+                content: result.length > 25000 ? result.substring(0, 25000) + "\n...[Contenu tronqué]" : result,
                 type: file.type || 'text/plain'
               }
             ]);
@@ -347,6 +432,12 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
 
   const interpretLocalCommand = (rawText: string): boolean => {
     const clean = rawText.toLowerCase().trim();
+
+    // NEVER switch tabs if files are attached or if the user asks for analysis/processing
+    if (attachedFiles.length > 0) return false;
+
+    const hasExplicitNavVerb = /^(\bva\b|\bouvre\b|\baffiche\b|\bmontre\b|\bbascule\b|\bnavigue\b|\baller\b|\baller sur\b|\baller à\b|\baccède\b|\baccéder\b)/.test(clean);
+    if (!hasExplicitNavVerb) return false;
     
     if (mode === 'citizen') {
       const citizenTabs: Record<string, string[]> = {
@@ -418,23 +509,20 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
 
     const promptContext = `
 Vous êtes l'assistant IA juridique expert de France Justice.
-Vous avez un accès total en lecture et modification aux fonctionnalités du tableau de bord.
-Le mode actuel du dashboard est: "${mode === 'citizen' ? 'Citoyen' : 'Avocat'}".
-L'onglet actuellement actif sur l'écran de l'utilisateur est: "${activeTab}".
-Les onglets disponibles sont: ${JSON.stringify(availableTabs)}.
+Vous traitez et analysez TOUTES les demandes de l'utilisateur DIRECTEMENT au sein de cette interface d'assistant IA.
 
 ${attachedFiles.length > 0 ? `
 === DOSSIERS ET PIÈCES JOINTES SOUMIS PAR L'UTILISATEUR (${attachedFiles.length} FICHIER(S)) ===
 ${attachedFiles.map((f, idx) => `--- Nom de la pièce [${idx + 1}]: ${f.name} ---\n${f.content}`).join('\n\n')}
 
 EXIGENCE STRICTE DE TRAITEMENT DU DOSSIER :
-Vous DEVEZ lire attentivement le contenu ci-dessus de chaque pièce jointe.
-L'utilisateur vous demande l'instruction suivante concernant son/ses document(s) : "${commandText}".
-Vous DEVEZ exécuter EXACTEMENT l'instruction demandée (ex: réviser le contrat, rédiger une lettre de réponse, relever les clauses abusives, calculer les préjudices, etc.).
-Si l'utilisateur vous demande de rédiger, générer ou modifier un document/lettre/contrat/plainte sur la base des pièces jointes, VOUS DEVEZ OBLIGATOIREMENT renvoyer le bloc d'action CREATE_DOCUMENT avec le texte intégral et formel du document.
+Vous DEVEZ analyser minutieusement les pièces jointes ci-dessus.
+L'utilisateur vous demande l'instruction suivante : "${commandText}".
+Vous DEVEZ exécuter L'INTÉGRALITÉ du traitement demandé directement dans votre réponse (analyse, révision, réponse aux clauses, rédaction de document, calculs, etc.). Ne redirigez pas l'utilisateur vers un autre onglet.
+Si une création ou modification de document est demandée, renvoyez l'action CREATE_DOCUMENT avec le texte complet du document.
 ` : ''}
 
-Si l'utilisateur vous demande d'effectuer une action (ex: changer d'onglet, réserver un rdv, chercher un avocat, modifier des infos, rédiger un document/contrat/lettre/plainte/PDF), vous DEVEZ ajouter à la toute fin de votre réponse un bloc JSON d'action de cette forme exacte :
+Si l'utilisateur demande explicitement de basculer vers un autre onglet du dashboard, ou de générer un document PDF, renvoyez un bloc action à la toute fin :
 \`\`\`action
 {
   "type": "SWITCH_TAB" | "SEARCH_LAWYER" | "PREFILL_APPOINTMENT" | "CREATE_DOCUMENT",
@@ -442,21 +530,16 @@ Si l'utilisateur vous demande d'effectuer une action (ex: changer d'onglet, rés
 }
 \`\`\`
 
-S'il s'agit d'une rédaction ou modification de document juridique, utilisez :
+S'il s'agit d'une création de document :
 \`\`\`action
 {
   "type": "CREATE_DOCUMENT",
   "payload": { 
-    "title": "Nom du document juridique",
-    "content": "Contenu juridique complet, formel et rigoureusement rédigé..."
+    "title": "Titre du document rédigé",
+    "content": "Texte formel et complet rédigé avec rigueur..."
   }
 }
 \`\`\`
-
-Contexte utilisateur :
-- Infos profil: ${JSON.stringify(stateContext?.profile || {})}
-- Rendez-vous: ${stateContext?.appointments?.length || 0}
-- Recherche Internet en temps réel (Légifrance, Code Civil, Code du Travail, jurisprudence) : ACTIVE.
 
 INSTRUCTION DE L'UTILISATEUR : "${commandText}"
 `;
@@ -489,9 +572,11 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
             }
           }
 
-          // Execute dynamic UI action callback
+          // Execute action callback (only switch tab if explicitly requested and no files attached)
           if (actionJson && actionJson.type) {
-            onAction(actionJson);
+            if (actionJson.type !== 'SWITCH_TAB' || (attachedFiles.length === 0 && /^(va|ouvre|navigue|bascule)/i.test(commandText))) {
+              onAction(actionJson);
+            }
             if (actionJson.type === 'CREATE_DOCUMENT') {
               setGeneratedDoc({
                 title: actionJson.payload.title || 'Document Juridique',
