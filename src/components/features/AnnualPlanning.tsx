@@ -222,11 +222,11 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
   const getCategoryBadge = (cat: string) => {
     switch (cat) {
       case 'formation':
-        return <span className="bg-indigo-100 text-indigo-800 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full flex items-center gap-1"><BookOpen className="w-3 h-3" /> Formation</span>;
+        return <span className="bg-cyan-50 text-cyan-800 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full flex items-center gap-1 border border-cyan-200"><BookOpen className="w-3 h-3 text-cyan-600" /> Formation</span>;
       case 'actualite':
-        return <span className="bg-amber-100 text-amber-800 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full flex items-center gap-1"><Newspaper className="w-3 h-3" /> Actualité</span>;
+        return <span className="bg-amber-50 text-amber-800 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full flex items-center gap-1 border border-amber-200"><Newspaper className="w-3 h-3 text-amber-600" /> Actualité</span>;
       case 'programme':
-        return <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full flex items-center gap-1"><Sparkles className="w-3 h-3" /> Programme</span>;
+        return <span className="bg-emerald-50 text-emerald-800 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full flex items-center gap-1 border border-emerald-200"><Sparkles className="w-3 h-3 text-emerald-600" /> Programme</span>;
       default:
         return <span className="bg-slate-100 text-slate-700 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full">Événement</span>;
     }
@@ -247,19 +247,19 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
       <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
           <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 mb-2">
-              <Calendar className="w-3.5 h-3.5" /> {t('planning.badge', 'Agenda Officiel France Justice')}
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-cyan-50 text-cyan-800 border border-cyan-200 mb-2">
+              <Calendar className="w-3.5 h-3.5 text-cyan-600" /> {t('planning.badge', 'Agenda Officiel France Justice')}
             </span>
             <h2 className="text-2xl font-extrabold text-slate-900">
               {t('planning.title', 'Planning Annuel & Calendrier des Formations')}
             </h2>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               {t('planning.subtitle', 'Consultez le calendrier prévisionnel des masterclasses, actualités juridiques et programmes académiques dispensés par nos avocats partenaires.')}
             </p>
           </div>
 
           {(mode === 'lawyer' || mode === 'admin') && onAddEventClick && (
-            <Button variant="primary" size="sm" onClick={onAddEventClick} className="whitespace-nowrap font-bold shadow-md">
+            <Button variant="primary" size="sm" onClick={onAddEventClick} className="whitespace-nowrap font-bold shadow-md bg-cyan-600 hover:bg-cyan-700 text-white">
               <Plus className="w-4 h-4 mr-1.5" /> Programmer un événement
             </Button>
           )}
@@ -270,19 +270,19 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
           <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl w-full sm:w-auto">
             <button
               onClick={() => setViewType('month')}
-              className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all ${viewType === 'month' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all ${viewType === 'month' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
             >
               🗓️ Vue Mensuelle
             </button>
             <button
               onClick={() => setViewType('year')}
-              className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all ${viewType === 'year' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all ${viewType === 'year' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
             >
               📅 Vue Annuelle ({selectedYear})
             </button>
             <button
               onClick={() => setViewType('week')}
-              className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all ${viewType === 'week' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all ${viewType === 'week' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
             >
               📋 Liste Agenda
             </button>
@@ -307,13 +307,13 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
           <div className="flex flex-wrap items-center gap-1.5">
             <button
               onClick={() => setCategoryFilter('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${categoryFilter === 'all' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${categoryFilter === 'all' ? 'bg-cyan-600 text-white border-cyan-600 shadow-sm shadow-cyan-600/20' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
             >
               Tous
             </button>
             <button
               onClick={() => setCategoryFilter('formation')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${categoryFilter === 'formation' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${categoryFilter === 'formation' ? 'bg-cyan-600 text-white border-cyan-600' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
             >
               🎓 Formations
             </button>
@@ -335,12 +335,12 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
 
       {/* Grid of Events */}
       {loading ? (
-        <div className="text-center py-16 bg-white rounded-3xl border border-slate-100 shadow-sm text-slate-400">
-          <Clock className="w-8 h-8 mx-auto mb-2 animate-spin text-indigo-500" />
+        <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 shadow-sm text-slate-400">
+          <Clock className="w-8 h-8 mx-auto mb-2 animate-spin text-cyan-600" />
           <p className="text-xs font-semibold">Chargement du planning annuel en temps réel...</p>
         </div>
       ) : filteredEvents.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-3xl border border-slate-100 shadow-sm">
+        <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 shadow-sm">
           <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
           <h3 className="text-base font-bold text-slate-800">Aucun événement dans le planning</h3>
           <p className="text-xs text-slate-400 mt-1">Aucune formation ou actualité n'est programmée pour la période sélectionnée.</p>
@@ -356,7 +356,7 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
             const isSuspended = evt.is_active === false;
 
             return (
-              <Card key={evt.id} className={`overflow-hidden hover:shadow-xl transition-all duration-300 border-slate-100 bg-white flex flex-col justify-between group ${isSuspended ? 'opacity-60' : ''}`}>
+              <Card key={evt.id} className={`overflow-hidden hover:shadow-lg transition-all duration-300 border-slate-200 bg-white flex flex-col justify-between group ${isSuspended ? 'opacity-60' : ''}`}>
                 <div className="p-5 space-y-4">
                   <div className="flex items-start justify-between gap-2">
                     {getCategoryBadge(evt.category)}
@@ -366,30 +366,30 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2">
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-cyan-700 transition-colors line-clamp-2">
                       {evt.title}
                     </h3>
-                    <p className="text-xs text-slate-500 mt-2 line-clamp-3 leading-relaxed">
+                    <p className="text-xs text-slate-600 mt-2 line-clamp-3 leading-relaxed">
                       {evt.description}
                     </p>
                   </div>
                 </div>
 
                 <div className="p-5 pt-0 space-y-4">
-                  <div className="bg-slate-50 rounded-2xl p-3 space-y-2 border border-slate-100 text-xs text-slate-600 font-medium">
+                  <div className="bg-slate-50 rounded-2xl p-3 space-y-2 border border-slate-200 text-xs text-slate-600 font-medium">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-3.5 h-3.5 text-indigo-500" />
+                      <Calendar className="w-3.5 h-3.5 text-cyan-600" />
                       <span className="capitalize">{formattedDate}</span>
                     </div>
                     {evt.event_time && (
                       <div className="flex items-center gap-2">
-                        <Clock className="w-3.5 h-3.5 text-indigo-500" />
+                        <Clock className="w-3.5 h-3.5 text-cyan-600" />
                         <span>{evt.event_time} ({evt.duration_minutes || 60} min)</span>
                       </div>
                     )}
                     {(evt.lawyer_first_name || evt.lawyer_last_name) && (
                       <div className="flex items-center gap-2">
-                        <Users className="w-3.5 h-3.5 text-indigo-500" />
+                        <Users className="w-3.5 h-3.5 text-cyan-600" />
                         <span>Me {evt.lawyer_first_name} {evt.lawyer_last_name}</span>
                       </div>
                     )}
@@ -399,7 +399,7 @@ export const AnnualPlanning: React.FC<AnnualPlanningProps> = ({
                     <Button
                       variant="primary"
                       size="sm"
-                      className="flex-1 text-xs font-bold shadow-sm"
+                      className="flex-1 text-xs font-bold shadow-sm bg-cyan-600 hover:bg-cyan-700 text-white"
                       onClick={() => onEventClick ? onEventClick(evt) : window.location.href = '/classrooms'}
                       disabled={isSuspended}
                     >

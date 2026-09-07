@@ -60,6 +60,7 @@ import { VoiceAssistant } from '../components/ui/VoiceAssistant';
 import { Sparkles } from 'lucide-react';
 import AssistantPage from './Assistant';
 import NotificationBell from '../components/ui/NotificationBell';
+import SessionTimeoutManager from '../components/ui/SessionTimeoutManager';
 import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import StripePaymentModal from '../components/ui/StripePaymentModal';
 import LegalAIDiagnostic from '../components/features/LegalAIDiagnostic';
@@ -1010,26 +1011,27 @@ Ce document est généré par la plateforme France Justice.
         </div>
 
         {/* Upload form */}
-        <Card className="bg-primary-50/10 border border-primary-100">
+        <Card className="bg-cyan-50/20 border border-cyan-100 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-primary-900">{t('dashboard.add_to_safe', 'Ajouter un document au coffre-fort')}</CardTitle>
-            <CardDescription>{t('dashboard.safe_security', 'Vos documents sont protégés par chiffrement et la sécurité au niveau des lignes (RLS).')}</CardDescription>
+            <CardTitle className="text-base font-semibold text-slate-900">{t('dashboard.add_to_safe', 'Ajouter un document au coffre-fort')}</CardTitle>
+            <CardDescription className="text-slate-600">{t('dashboard.safe_security', 'Vos documents sont protégés par chiffrement et la sécurité au niveau des lignes (RLS).')}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUploadDocument} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
               <div>
-                <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.doc_name', 'Nom du document')}</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('dashboard.doc_name', 'Nom du document')}</label>
                 <Input 
                   value={uploadDocName} 
                   onChange={e => setUploadDocName(e.target.value)} 
                   placeholder={t('dashboard.doc_name_placeholder', 'Ex: CNI Recto Verso, Contrat de Bail...')} 
                   required 
+                  className="bg-white border-slate-200 focus:border-cyan-500 focus:ring-cyan-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.doc_type', 'Classification / Type')}</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('dashboard.doc_type', 'Classification / Type')}</label>
                 <select 
-                  className="w-full flex h-10 rounded-md border border-slate-700 bg-slate-800 text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" 
+                  className="w-full flex h-10 rounded-md border border-slate-200 bg-white text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" 
                   value={uploadDocType} 
                   onChange={e => setUploadDocType(e.target.value)}
                 >
@@ -1039,7 +1041,7 @@ Ce document est généré par la plateforme France Justice.
                   <option value="client_document">{t('dashboard.doc_client', '📁 Pièce de dossier / Justificatif')}</option>
                 </select>
               </div>
-              <Button type="submit" disabled={isUploading} className="w-full">
+              <Button type="submit" disabled={isUploading} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold">
                 {isUploading ? t('common.loading', 'Enregistrement...') : t('dashboard.save_to_safe', 'Enregistrer dans le coffre-fort')}
               </Button>
             </form>
@@ -1054,8 +1056,8 @@ Ce document est généré par la plateforme France Justice.
               onClick={() => setDocFilterType(type)}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
                 docFilterType === type 
-                  ? 'bg-primary-600 text-white shadow-sm' 
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                  ? 'bg-cyan-600 text-white shadow-sm' 
+                  : 'bg-white text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 border border-slate-200'
               }`}
             >
               {type === 'all' ? 'Tous les documents' : (docTypeLabels[type] || type)}
@@ -1065,17 +1067,17 @@ Ce document est généré par la plateforme France Justice.
 
         <div className="grid gap-4">
           {filteredDocs.map((doc) => (
-            <Card key={doc.id} className="hover:shadow-sm transition-shadow">
+            <Card key={doc.id} className="hover:shadow-sm transition-shadow border-slate-200 bg-white">
               <CardContent className="p-5">
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex items-center space-x-4">
-                    <div className="p-3 bg-primary-50 rounded-xl text-primary-600">
+                    <div className="p-3 bg-cyan-50 rounded-xl text-cyan-600">
                       <FileText className="h-6 w-6" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-secondary-900">{doc.name}</h3>
-                      <p className="text-xs text-secondary-500 mt-1">
-                        <span className="bg-secondary-100 text-secondary-700 px-2 py-0.5 rounded font-medium">
+                      <h3 className="text-base font-bold text-slate-900">{doc.name}</h3>
+                      <p className="text-xs text-slate-500 mt-1">
+                        <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
                           {docTypeLabels[doc.type] || doc.type}
                         </span>
                         <span className="mx-2">•</span>
@@ -1086,14 +1088,14 @@ Ce document est généré par la plateforme France Justice.
                   <div className="flex items-center space-x-2">
                     {doc.file_url ? (
                       <a href={doc.file_url} target="_blank" rel="noreferrer">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="hover:border-cyan-500 hover:text-cyan-700">
                           <Download className="h-4 w-4 mr-2" />
                           Télécharger / Visualiser
                         </Button>
                       </a>
                     ) : doc.metadata?.content ? (
-                      <Button variant="outline" size="sm" onClick={() => setSelectedIADoc(doc)}>
-                        <Eye className="h-4.5 w-4.5 mr-2 text-primary-600" />
+                      <Button variant="outline" size="sm" onClick={() => setSelectedIADoc(doc)} className="hover:border-cyan-500 hover:text-cyan-700">
+                        <Eye className="h-4.5 w-4.5 mr-2 text-cyan-600" />
                         Visualiser / Télécharger
                       </Button>
                     ) : null}
@@ -1103,8 +1105,8 @@ Ce document est généré par la plateforme France Justice.
             </Card>
           ))}
           {filteredDocs.length === 0 && (
-            <div className="text-center py-12 bg-slate-900 text-slate-100 rounded-2xl border border-dashed border-slate-800">
-              <FileText className="h-10 w-10 mx-auto mb-2 text-secondary-200" />
+            <div className="text-center py-12 bg-white text-slate-800 rounded-2xl border border-dashed border-slate-200 shadow-sm">
+              <FileText className="h-10 w-10 mx-auto mb-2 text-slate-300" />
               Aucun document dans cette catégorie.
             </div>
           )}
@@ -1115,41 +1117,41 @@ Ce document est généré par la plateforme France Justice.
 
   const renderAppointments = () => {
     const statusLabels: Record<string, { text: string; color: string }> = {
-      pending: { text: t('dashboard.status_pending', 'En attente'), color: "bg-yellow-100 text-yellow-700" },
-      confirmed: { text: t('dashboard.status_confirmed', 'Confirmé'), color: "bg-green-100 text-green-700" },
-      cancelled: { text: t('dashboard.status_cancelled', 'Annulé'), color: "bg-red-100 text-red-700" },
-      completed: { text: t('dashboard.status_completed', 'Terminé'), color: "bg-primary-100 text-primary-700" }
+      pending: { text: t('dashboard.status_pending', 'En attente'), color: "bg-amber-100 text-amber-800" },
+      confirmed: { text: t('dashboard.status_confirmed', 'Confirmé'), color: "bg-emerald-100 text-emerald-800" },
+      cancelled: { text: t('dashboard.status_cancelled', 'Annulé'), color: "bg-rose-100 text-rose-800" },
+      completed: { text: t('dashboard.status_completed', 'Terminé'), color: "bg-cyan-100 text-cyan-800" }
     };
 
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center flex-wrap gap-4">
           <div>
-            <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.my_appointments', 'Mes Rendez-vous')}</h2>
-            <p className="text-sm text-secondary-500 mt-1">{t('dashboard.appointments_desc', 'Planifiez des téléconsultations et suivez vos échanges avec les avocats de la plateforme.')}</p>
+            <h2 className="text-2xl font-semibold text-slate-900">{t('dashboard.my_appointments', 'Mes Rendez-vous')}</h2>
+            <p className="text-sm text-slate-600 mt-1">{t('dashboard.appointments_desc', 'Planifiez des téléconsultations et suivez vos échanges avec les avocats de la plateforme.')}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Reservation Form */}
-          <Card className="lg:col-span-1 border border-secondary-200">
+          <Card className="lg:col-span-1 border border-slate-200 bg-white shadow-sm">
             <CardHeader>
-              <CardTitle className="text-base font-semibold">{t('dashboard.book_consultation', 'Réserver une consultation')}</CardTitle>
-              <CardDescription>{t('dashboard.book_desc', "Choisissez un avocat vérifié et planifiez votre créneau d'assistance.")}</CardDescription>
+              <CardTitle className="text-base font-semibold text-slate-900">{t('dashboard.book_consultation', 'Réserver une consultation')}</CardTitle>
+              <CardDescription className="text-slate-600">{t('dashboard.book_desc', "Choisissez un avocat vérifié et planifiez votre créneau d'assistance.")}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleBookAppointment} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-secondary-600 mb-1">{t('dashboard.available_lawyer', 'Avocat disponible')}</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">{t('dashboard.available_lawyer', 'Avocat disponible')}</label>
                   <select
-                    className="w-full flex h-10 rounded-md border border-slate-800 bg-slate-900 text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full flex h-10 rounded-md border border-slate-200 bg-white text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                     value={selectedLawyerForRDV}
                     onChange={e => setSelectedLawyerForRDV(e.target.value)}
                     required
                   >
-                    <option value="" className="bg-slate-900 text-slate-100">{t('dashboard.select_lawyer', 'Sélectionnez un avocat...')}</option>
+                    <option value="" className="bg-white text-slate-900">{t('dashboard.select_lawyer', 'Sélectionnez un avocat...')}</option>
                     {availableLawyers.map(l => (
-                      <option key={l.id} value={l.id} className="bg-slate-900 text-slate-100">
+                      <option key={l.id} value={l.id} className="bg-white text-slate-900">
                         Me. {l.first_name} {l.last_name} ({l.specialty || 'Généraliste'}) - {l.city}
                       </option>
                     ))}
@@ -1157,38 +1159,38 @@ Ce document est généré par la plateforme France Justice.
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">{t('dashboard.date', 'Date')}</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">{t('dashboard.date', 'Date')}</label>
                     <Input 
                       type="date" 
                       value={rdvDate} 
                       onChange={e => setRdvDate(e.target.value)} 
                       min={new Date().toISOString().split('T')[0]} 
                       required 
-                      className="bg-slate-900 border-slate-800 text-slate-100"
+                      className="bg-white border-slate-200 text-slate-900 focus:border-cyan-500 focus:ring-cyan-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">{t('dashboard.time', 'Heure')}</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">{t('dashboard.time', 'Heure')}</label>
                     <Input 
                       type="time" 
                       value={rdvTime} 
                       onChange={e => setRdvTime(e.target.value)} 
                       required 
-                      className="bg-slate-900 border-slate-800 text-slate-100"
+                      className="bg-white border-slate-200 text-slate-900 focus:border-cyan-500 focus:ring-cyan-500"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">{t('dashboard.notes', 'Description / Notes préliminaires')}</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">{t('dashboard.notes', 'Description / Notes préliminaires')}</label>
                   <textarea
                     value={rdvNotes}
                     onChange={e => setRdvNotes(e.target.value)}
                     placeholder={t('dashboard.notes_placeholder', 'Expliquez brièvement votre dossier ou vos questions...')}
                     rows={4}
-                    className="w-full rounded-md border border-slate-800 bg-slate-900 text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-slate-500"
+                    className="w-full rounded-md border border-slate-200 bg-white text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 placeholder-slate-400"
                   />
                 </div>
-                <Button type="submit" disabled={isBooking} className="w-full">
+                <Button type="submit" disabled={isBooking} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold">
                   {isBooking ? t('common.loading', 'Enregistrement...') : t('dashboard.book_appointment', 'Prendre rendez-vous')}
                 </Button>
               </form>
@@ -1197,23 +1199,23 @@ Ce document est généré par la plateforme France Justice.
 
           {/* Appointments List */}
           <div className="lg:col-span-2 space-y-4">
-            <h3 className="font-semibold text-secondary-800">{t('dashboard.planned_consultations', 'Mes consultations planifiées')}</h3>
+            <h3 className="font-semibold text-slate-900">{t('dashboard.planned_consultations', 'Mes consultations planifiées')}</h3>
             <div className="space-y-4">
               {appointments.map((appt) => {
-                const label = statusLabels[appt.status] || { text: appt.status, color: "bg-secondary-100 text-secondary-600" };
+                const label = statusLabels[appt.status] || { text: appt.status, color: "bg-slate-100 text-slate-700" };
                 return (
-                  <Card key={appt.id} className="hover:shadow-sm transition-shadow">
+                  <Card key={appt.id} className="hover:shadow-sm transition-shadow border-slate-200 bg-white">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-4 flex-wrap">
                         <div className="flex gap-4">
-                          <div className="p-3 bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-indigo-400">
+                          <div className="p-3 bg-cyan-50 border border-cyan-100 rounded-xl text-cyan-600">
                             <Calendar className="h-6 w-6" />
                           </div>
                           <div>
-                            <h4 className="font-bold text-white">
+                            <h4 className="font-bold text-slate-900">
                               Consultation avec Me. {appt.profiles?.first_name} {appt.profiles?.last_name}
                             </h4>
-                            <p className="text-xs text-slate-400 mt-1 font-semibold">
+                            <p className="text-xs text-slate-500 mt-1 font-semibold">
                               {new Date(appt.scheduled_at).toLocaleDateString('fr-FR', {
                                 weekday: 'long',
                                 day: 'numeric',
@@ -1224,7 +1226,7 @@ Ce document est généré par la plateforme France Justice.
                               })}
                             </p>
                             {appt.notes && (
-                              <p className="text-sm text-slate-300 bg-slate-950 rounded-lg p-3 mt-3 border border-slate-800 max-w-lg italic">
+                              <p className="text-sm text-slate-700 bg-slate-50 rounded-lg p-3 mt-3 border border-slate-200 max-w-lg italic">
                                 "{appt.notes}"
                               </p>
                             )}
@@ -1252,8 +1254,8 @@ Ce document est généré par la plateforme France Justice.
               })}
 
               {appointments.length === 0 && (
-                <div className="text-center py-20 bg-slate-900 text-slate-100 rounded-2xl border border-dashed border-slate-800">
-                  <Calendar className="h-10 w-10 mx-auto mb-2 text-secondary-200" />
+                <div className="text-center py-20 bg-white text-slate-800 rounded-2xl border border-dashed border-slate-200 shadow-sm">
+                  <Calendar className="h-10 w-10 mx-auto mb-2 text-slate-300" />
                   {t('dashboard.no_appointments', 'Aucune consultation planifiée pour le moment.')}
                 </div>
               )}
@@ -1265,24 +1267,24 @@ Ce document est généré par la plateforme France Justice.
   };
 
   const renderLegalComplianceTab = () => (
-    <div className="space-y-6 animate-fade-in text-slate-100">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5 mb-6">
+    <div className="space-y-6 animate-fade-in text-slate-900">
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5 mb-6">
           <div>
-            <span className="text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
+            <span className="text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
               {getSecurityStatusBadge().label}
             </span>
-            <h2 className="text-2xl font-black text-white mt-2">Conformité RGPD, Mentions Légales & Sécurité</h2>
-            <p className="text-slate-400 text-xs mt-1">Transparence totale, protection des données et respect des normes juridiques françaises.</p>
+            <h2 className="text-2xl font-black text-slate-900 mt-2">Conformité RGPD, Mentions Légales & Sécurité</h2>
+            <p className="text-slate-600 text-xs mt-1">Transparence totale, protection des données et respect des normes juridiques françaises.</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <a href="/legal#legal" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all">
+            <a href="/legal#legal" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-50 hover:bg-cyan-50 text-slate-700 hover:text-cyan-700 text-xs font-bold rounded-xl border border-slate-200 flex items-center gap-1.5 transition-all">
               ⚖️ Mentions Légales
             </a>
-            <a href="/legal#privacy" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all">
+            <a href="/legal#privacy" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-50 hover:bg-cyan-50 text-slate-700 hover:text-cyan-700 text-xs font-bold rounded-xl border border-slate-200 flex items-center gap-1.5 transition-all">
               🔒 Confidentialité
             </a>
-            <a href="/legal#cgv" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition-all">
+            <a href="/legal#cgv" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all">
               📜 CGV / CGU
             </a>
           </div>
@@ -1290,11 +1292,11 @@ Ce document est généré par la plateforme France Justice.
 
         {/* Database Security Specs */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-            <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Lock className="w-4 h-4 text-indigo-400" /> Chiffrement & Sécurité de la Base de Données
+          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+            <h4 className="text-xs font-bold text-cyan-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Lock className="w-4 h-4 text-cyan-600" /> Chiffrement & Sécurité de la Base de Données
             </h4>
-            <ul className="text-xs text-slate-300 space-y-1.5">
+            <ul className="text-xs text-slate-700 space-y-1.5">
               <li>• <strong>Chiffrement en Transit :</strong> {DATABASE_SECURITY_INFO.encryptionTransit}</li>
               <li>• <strong>Chiffrement au Repos :</strong> {DATABASE_SECURITY_INFO.encryptionRest}</li>
               <li>• <strong>Contrôle d'Accès :</strong> {DATABASE_SECURITY_INFO.accessControl}</li>
@@ -1302,11 +1304,11 @@ Ce document est généré par la plateforme France Justice.
             </ul>
           </div>
 
-          <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-            <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Shield className="w-4 h-4 text-emerald-400" /> Conformité Financière & RGPD
+          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+            <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Shield className="w-4 h-4 text-emerald-600" /> Conformité Financière & RGPD
             </h4>
-            <ul className="text-xs text-slate-300 space-y-1.5">
+            <ul className="text-xs text-slate-700 space-y-1.5">
               <li>• <strong>Supervision :</strong> {DATABASE_SECURITY_INFO.complianceStandard}</li>
               <li>• <strong>Realtime Engine :</strong> {DATABASE_SECURITY_INFO.realtimeSync}</li>
               <li>• <strong>Paiements Sécurisés :</strong> Cartes bleues traitées 100% via Stripe PCI-DSS Level 1</li>
@@ -1316,12 +1318,12 @@ Ce document est généré par la plateforme France Justice.
         </div>
 
         {/* Retention Schedule */}
-        <h3 className="text-sm font-extrabold text-white mb-3 flex items-center gap-2">
+        <h3 className="text-sm font-extrabold text-slate-900 mb-3 flex items-center gap-2">
           📅 Durées de Conservation des Données (Délai de Purge & Archivage)
         </h3>
-        <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950">
-          <table className="w-full text-xs text-left text-slate-300">
-            <thead className="bg-slate-800/80 text-slate-200 uppercase font-bold text-[10px] border-b border-slate-800">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <table className="w-full text-xs text-left text-slate-700">
+            <thead className="bg-slate-50 text-slate-700 uppercase font-bold text-[10px] border-b border-slate-200">
               <tr>
                 <th className="px-4 py-3">Catégorie</th>
                 <th className="px-4 py-3">Durée de Conservation</th>
@@ -1329,13 +1331,13 @@ Ce document est généré par la plateforme France Justice.
                 <th className="px-4 py-3">Action Purge</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {DATA_RETENTION_SCHEDULE.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-900/60">
-                  <td className="px-4 py-3 font-bold text-white">{item.dataType}</td>
-                  <td className="px-4 py-3 text-amber-300 font-semibold">{item.retentionPeriod}</td>
-                  <td className="px-4 py-3 text-slate-400">{item.legalBasis}</td>
-                  <td className="px-4 py-3 text-emerald-400 font-semibold">{item.actionAfterExpiry}</td>
+                <tr key={item.id} className="hover:bg-cyan-50/40 transition-colors">
+                  <td className="px-4 py-3 font-bold text-slate-900">{item.dataType}</td>
+                  <td className="px-4 py-3 text-amber-700 font-semibold">{item.retentionPeriod}</td>
+                  <td className="px-4 py-3 text-slate-600">{item.legalBasis}</td>
+                  <td className="px-4 py-3 text-emerald-700 font-semibold">{item.actionAfterExpiry}</td>
                 </tr>
               ))}
             </tbody>
@@ -1346,52 +1348,53 @@ Ce document est généré par la plateforme France Justice.
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pt-20 pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-50/40 via-white to-slate-50 text-slate-900 pt-20 pb-16">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Modern Hero Glassmorphism Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 p-6 sm:p-8 text-white shadow-2xl mb-8 border border-indigo-800/40">
-          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 p-6 sm:p-8 text-white shadow-lg mb-8 border border-cyan-400/30">
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-teal-400/20 blur-3xl pointer-events-none" />
           
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2.5">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-indigo-200 border border-white/10 backdrop-blur-md">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/20 text-white border border-white/20 backdrop-blur-md">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-300" />
                   Espace Officiel
                 </span>
                 {(profile as any)?.role === 'student' && (
-                  <span className="bg-blue-500/20 text-blue-200 text-xs font-extrabold px-3 py-1 rounded-full border border-blue-400/30 backdrop-blur-md">
+                  <span className="bg-white/20 text-white text-xs font-extrabold px-3 py-1 rounded-full border border-white/20 backdrop-blur-md">
                     🎓 Étudiant en Droit
                   </span>
                 )}
                 {(profile as any)?.role === 'professor' && (
-                  <span className="bg-amber-500/20 text-amber-200 text-xs font-extrabold px-3 py-1 rounded-full border border-amber-400/30 backdrop-blur-md">
+                  <span className="bg-white/20 text-white text-xs font-extrabold px-3 py-1 rounded-full border border-white/20 backdrop-blur-md">
                     👨‍🏫 Professeur de Droit
                   </span>
                 )}
                 {(profile as any)?.role === 'doctorate' && (
-                  <span className="bg-teal-500/20 text-teal-200 text-xs font-extrabold px-3 py-1 rounded-full border border-teal-400/30 backdrop-blur-md">
+                  <span className="bg-white/20 text-white text-xs font-extrabold px-3 py-1 rounded-full border border-white/20 backdrop-blur-md">
                     🔬 Doctorant / Chercheur
                   </span>
                 )}
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
-                {t('dashboard.hello', 'Bonjour')}, <span className="bg-gradient-to-r from-indigo-200 via-white to-violet-200 bg-clip-text text-transparent">{profile?.first_name || t('dashboard.user', 'Utilisateur')}</span> 👋
+                {t('dashboard.hello', 'Bonjour')}, <span className="bg-gradient-to-r from-cyan-100 via-white to-teal-100 bg-clip-text text-transparent">{profile?.first_name || t('dashboard.user', 'Utilisateur')}</span> 👋
               </h1>
 
-              <p className="text-indigo-200/90 text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
+              <p className="text-cyan-50 text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
                 {(profile as any)?.role === 'student' 
                   ? 'Consultez vos formations juridiques, téléchargez vos supports de cours au format PDF et échangez avec vos avocats & professeurs.'
                   : t('dashboard.welcome_portal', 'Bienvenue sur votre portail juridique intelligent France Justice')}
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 backdrop-blur-md bg-white/5 p-3 rounded-2xl border border-white/10">
+            <div className="flex flex-wrap items-center gap-3 backdrop-blur-md bg-white/10 p-3 rounded-2xl border border-white/20">
               <LiveSyncBadge status="connected" showText={true} />
+              <SessionTimeoutManager roleMode="citizen" />
               <NotificationBell userId={user?.id ?? null} />
               <VoiceAssistant
                 mode="citizen"
@@ -1408,7 +1411,7 @@ Ce document est généré par la plateforme France Justice.
               <Button
                 variant="outline"
                 size="sm"
-                className="text-red-300 hover:text-white bg-red-500/10 hover:bg-red-600/80 border-red-400/30 flex items-center justify-center font-semibold rounded-xl transition-all shadow-sm"
+                className="text-white hover:text-red-600 bg-white/10 hover:bg-white border-white/30 flex items-center justify-center font-semibold rounded-xl transition-all shadow-sm"
                 onClick={async () => {
                   await supabase.auth.signOut();
                   window.location.href = '/login';
@@ -1425,13 +1428,13 @@ Ce document est généré par la plateforme France Justice.
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(true)}
-            className="w-full flex items-center justify-between px-4 py-3.5 bg-slate-900 border border-slate-800 rounded-2xl text-white font-extrabold text-sm shadow-xl hover:bg-slate-800 transition-all cursor-pointer"
+            className="w-full flex items-center justify-between px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-900 font-extrabold text-sm shadow-sm hover:border-cyan-400 transition-all cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
-              <Menu className="w-5 h-5 text-indigo-400" />
+              <Menu className="w-5 h-5 text-cyan-600" />
               <span>Menu : {tabs.find(t => t.id === activeTab)?.name || "Navigation"}</span>
             </div>
-            <span className="text-xs bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-full font-bold">
+            <span className="text-xs bg-cyan-50 text-cyan-700 border border-cyan-200 px-3 py-1 rounded-full font-bold">
               Navigation ☰
             </span>
           </button>
@@ -1439,18 +1442,18 @@ Ce document est généré par la plateforme France Justice.
 
         {/* Mobile Sidebar Navigation Drawer Overlay */}
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 flex lg:hidden bg-slate-950/80 backdrop-blur-md transition-all">
-            <div className="relative w-4/5 max-w-sm bg-slate-900 text-slate-100 h-full p-6 shadow-2xl border-r border-slate-800 flex flex-col justify-between overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex lg:hidden bg-slate-900/40 backdrop-blur-sm transition-all">
+            <div className="relative w-4/5 max-w-sm bg-white text-slate-900 h-full p-6 shadow-2xl border-r border-slate-200 flex flex-col justify-between overflow-y-auto">
               <div>
-                <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
-                  <div className="flex items-center gap-2 font-extrabold text-white text-base">
-                    <Shield className="w-5 h-5 text-indigo-400" />
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+                  <div className="flex items-center gap-2 font-extrabold text-slate-900 text-base">
+                    <Shield className="w-5 h-5 text-cyan-600" />
                     Menu du Tableau de Bord
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white"
+                    className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -1470,11 +1473,11 @@ Ce document est généré par la plateforme France Justice.
                         }}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 text-sm font-semibold cursor-pointer ${
                           isActive
-                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 font-bold'
-                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                            ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/20 font-bold'
+                            : 'text-slate-700 hover:bg-cyan-50 hover:text-cyan-700'
                         }`}
                       >
-                        <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-indigo-400'}`} />
+                        <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-cyan-600'}`} />
                         <span>{tab.name}</span>
                       </button>
                     );
@@ -1482,10 +1485,10 @@ Ce document est généré par la plateforme France Justice.
                 </nav>
               </div>
 
-              <div className="pt-6 border-t border-slate-800">
+              <div className="pt-6 border-t border-slate-200">
                 <Button
                   variant="outline"
-                  className="w-full text-red-400 border-red-900/60 hover:bg-red-950 text-xs font-bold"
+                  className="w-full text-red-600 border-red-200 hover:bg-red-50 text-xs font-bold"
                   onClick={async () => {
                     await supabase.auth.signOut();
                     window.location.href = '/login';
@@ -1503,7 +1506,7 @@ Ce document est généré par la plateforme France Justice.
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <aside className="hidden lg:block lg:col-span-1">
-            <Card className="sticky top-6 bg-slate-900/90 border-slate-800">
+            <Card className="sticky top-6 bg-white border-slate-200 shadow-sm">
               <CardContent className="p-4 sm:p-6">
                 <nav className="flex flex-col space-y-2">
                   {tabs.map((tab) => {
@@ -1514,11 +1517,11 @@ Ce document est généré par la plateforme France Justice.
                         onClick={() => setActiveTab(tab.id)}
                         className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 text-sm cursor-pointer ${
                           activeTab === tab.id
-                            ? 'bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-500/30'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                            ? 'bg-cyan-600 text-white font-semibold shadow-md shadow-cyan-600/20'
+                            : 'text-slate-700 hover:bg-cyan-50 hover:text-cyan-700'
                         }`}
                       >
-                        <Icon className="h-5 w-5 text-indigo-400" />
+                        <Icon className={`h-5 w-5 ${activeTab === tab.id ? 'text-white' : 'text-cyan-600'}`} />
                         <span className="font-medium whitespace-nowrap">{tab.name}</span>
                       </button>
                     );
@@ -1526,20 +1529,20 @@ Ce document est généré par la plateforme France Justice.
                 </nav>
 
                 {/* 📜 CONFORMITÉ & SÉCURITÉ DE LA BASE DE DONNÉES */}
-                <div className="pt-4 mt-4 border-t border-slate-800 space-y-1.5">
-                  <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest px-2 mb-1 flex items-center gap-1">
-                    <Shield className="w-3 h-3 text-emerald-400" /> Sécurité & Conformité
+                <div className="pt-4 mt-4 border-t border-slate-200 space-y-1.5">
+                  <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest px-2 mb-1 flex items-center gap-1">
+                    <Shield className="w-3 h-3 text-emerald-600" /> Sécurité & Conformité
                   </div>
-                  <a href="/legal#legal" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                  <a href="/legal#legal" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-700 hover:text-cyan-700 hover:bg-cyan-50 transition-colors">
                     ⚖️ Mentions Légales
                   </a>
-                  <a href="/legal#privacy" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                  <a href="/legal#privacy" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-700 hover:text-cyan-700 hover:bg-cyan-50 transition-colors">
                     🔒 Politique de Confidentialité
                   </a>
-                  <a href="/legal#cgv" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                  <a href="/legal#cgv" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-700 hover:text-cyan-700 hover:bg-cyan-50 transition-colors">
                     📜 CGV / CGU
                   </a>
-                  <a href="/legal#retention" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                  <a href="/legal#retention" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-700 hover:text-cyan-700 hover:bg-cyan-50 transition-colors">
                     🛡️ Retention & Sécurité BD
                   </a>
                 </div>
@@ -1614,7 +1617,7 @@ Ce document est généré par la plateforme France Justice.
                           </CardContent>
                         </Card>
                       ))}
-                      {quotes.length === 0 && <div className="text-center py-12 bg-slate-900 text-slate-100 rounded-xl border border-slate-800">{t('dashboard.no_quotes', 'Aucun devis reçu.')}</div>}
+                      {quotes.length === 0 && <div className="text-center py-12 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-sm">{t('dashboard.no_quotes', 'Aucun devis reçu.')}</div>}
                     </div>
                   </div>
                 )}
@@ -1626,26 +1629,25 @@ Ce document est généré par la plateforme France Justice.
                 {activeTab === 'documents' && renderDocuments()}
                 {activeTab === 'searches' && (
                   <div className="space-y-4 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.ia_legal_search', 'IA Juridique — Recherche de Droit')}</h2>
+                    <h2 className="text-2xl font-semibold text-slate-900">{t('dashboard.ia_legal_search', 'IA Juridique — Recherche de Droit')}</h2>
                     <SearchPage skipAuthCheck />
                   </div>
                 )}
                 {activeTab === 'codes' && (
                   <div className="space-y-4 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.law_codes', 'Codes de Loi')}</h2>
+                    <h2 className="text-2xl font-semibold text-slate-900">{t('dashboard.law_codes', 'Codes de Loi')}</h2>
                     <LawCodes />
                   </div>
                 )}
                 {activeTab === 'procedures' && (
                   <div className="space-y-4 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.procedures_library', 'Bibliothèque des Procédures')}</h2>
+                    <h2 className="text-2xl font-semibold text-slate-900">{t('dashboard.procedures_library', 'Bibliothèque des Procédures')}</h2>
                     <ProcedureLibrary />
                   </div>
                 )}
                 {activeTab === 'analyse' && (
                   <div className="space-y-4 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.ia_analysis', 'Analyse de Contrats & Codes (IA)')}</h2>
-                    <h2 className="text-2xl font-semibold text-white">{t('dashboard.ia_analysis', 'Analyse de Contrats & Codes (IA)')}</h2>
+                    <h2 className="text-2xl font-semibold text-slate-900">{t('dashboard.ia_analysis', 'Analyse de Contrats & Codes (IA)')}</h2>
                     <CodeAnalysis />
                   </div>
                 )}
@@ -1653,26 +1655,26 @@ Ce document est généré par la plateforme France Justice.
                   <div className="space-y-6 animate-fade-in">
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                       <div>
-                        <h2 className="text-2xl font-semibold text-white">{t('dashboard.formations_academic', 'Formations et Espace Académique')}</h2>
-                        <p className="text-xs text-slate-400 mt-1">Accédez aux programmes de formation, masterclasses et supports téléchargeables.</p>
+                        <h2 className="text-2xl font-semibold text-slate-900">{t('dashboard.formations_academic', 'Formations et Espace Académique')}</h2>
+                        <p className="text-xs text-slate-600 mt-1">Accédez aux programmes de formation, masterclasses et supports téléchargeables.</p>
                       </div>
                       
                       <div className="flex flex-wrap items-center gap-3">
                         {['professor', 'doctorate', 'lawyer', 'admin'].includes((profile as any)?.role) && (
                           <Button
                             onClick={() => setCreateFormationOpen(true)}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-lg rounded-xl flex items-center gap-1.5 py-2 px-3.5"
+                            className="bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold text-xs shadow-md rounded-xl flex items-center gap-1.5 py-2 px-3.5"
                           >
                             <Plus className="w-4 h-4" />
                             🎓 Créer une Formation / Masterclass
                           </Button>
                         )}
 
-                        <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800">
+                        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
                           <button
                             onClick={() => setClassroomsSubTab('virtual')}
                             className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                              classroomsSubTab === 'virtual' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'
+                              classroomsSubTab === 'virtual' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                             }`}
                           >
                             {t('dashboard.virtual_classrooms', 'Salles de Classe Virtuelles')}
@@ -1680,7 +1682,7 @@ Ce document est généré par la plateforme France Justice.
                           <button
                             onClick={() => setClassroomsSubTab('static')}
                             className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                              classroomsSubTab === 'static' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'
+                              classroomsSubTab === 'static' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                             }`}
                           >
                             {t('dashboard.training_guides', 'Guides de Formation')}
@@ -1701,7 +1703,7 @@ Ce document est généré par la plateforme France Justice.
                           ].map((f) => (
                             <button
                               key={f.id}
-                              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-200 border border-slate-700 hover:border-primary-400 transition-all"
+                              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:border-cyan-400 hover:bg-cyan-50/50 transition-all"
                             >
                               {f.label}
                             </button>
@@ -1727,12 +1729,12 @@ Ce document est généré par la plateforme France Justice.
                           const isSuspended = room.is_active === false;
                           
                           return (
-                            <Card key={room.id} className={`overflow-hidden hover:shadow-md transition-all border-slate-800 bg-slate-900 text-slate-100 flex flex-col h-full ${isSuspended ? 'opacity-60' : ''}`}>
+                            <Card key={room.id} className={`overflow-hidden hover:shadow-md transition-all border-slate-200 bg-white text-slate-900 flex flex-col h-full ${isSuspended ? 'opacity-60' : ''}`}>
                               <div className={`p-3 text-white font-bold flex justify-between items-center bg-gradient-to-r ${
                                 room.type === 'direct' 
                                   ? 'from-red-600 to-orange-500' 
                                   : room.type === 'video' 
-                                  ? 'from-blue-600 to-indigo-500' 
+                                  ? 'from-cyan-600 to-blue-500' 
                                   : 'from-emerald-600 to-teal-500'
                               }`}>
                                 <span className="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">
@@ -1740,7 +1742,7 @@ Ce document est généré par la plateforme France Justice.
                                 </span>
                                 <div className="flex gap-1.5 items-center">
                                   {sessionStatus === 'live' && <span className="bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded animate-pulse">🔴 EN DIRECT</span>}
-                                  {sessionStatus === 'finished' && <span className="bg-slate-800/50 text-white text-[9px] font-bold px-2 py-0.5 rounded">✅ Terminée</span>}
+                                  {sessionStatus === 'finished' && <span className="bg-white/20 text-white text-[9px] font-bold px-2 py-0.5 rounded">✅ Terminée</span>}
                                   {isSuspended && <span className="bg-amber-500/80 text-white text-[9px] font-bold px-2 py-0.5 rounded">⏸️ Suspendue</span>}
                                   <span className="text-[10px] font-semibold bg-white/10 px-2 py-0.5 rounded-full flex items-center gap-1">
                                     <Users className="w-3 h-3" /> Max {room.max_members}
@@ -1749,47 +1751,47 @@ Ce document est généré par la plateforme France Justice.
                               </div>
                               <CardContent className="p-5 flex flex-col justify-between flex-1 gap-4">
                                 <div className="space-y-2">
-                                  <h3 className="text-base font-bold text-secondary-900 line-clamp-1">{room.title}</h3>
-                                  <p className="text-xs text-secondary-500 line-clamp-3">{room.description}</p>
+                                  <h3 className="text-base font-bold text-slate-900 line-clamp-1">{room.title}</h3>
+                                  <p className="text-xs text-slate-500 line-clamp-3">{room.description}</p>
                                 </div>
-                                <div className="space-y-1.5 border-t border-secondary-50 pt-3 text-xs text-secondary-600">
+                                <div className="space-y-1.5 border-t border-slate-100 pt-3 text-xs text-slate-600">
                                   <div className="flex items-center gap-1.5">
-                                    <User className="w-3.5 h-3.5 text-secondary-400" />
+                                    <User className="w-3.5 h-3.5 text-slate-400" />
                                     <span>Par : Me {room.lawyer_first_name} {room.lawyer_last_name}</span>
                                   </div>
                                   {room.scheduled_at && (
                                     <div className="flex items-center gap-1.5">
-                                      <Calendar className="w-3.5 h-3.5 text-secondary-400" />
+                                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
                                       <span>Le {new Date(room.scheduled_at).toLocaleDateString()} à {new Date(room.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
                                   )}
                                   
                                   {/* Fichiers PDF & Images rattachés */}
                                   {room.attachments && room.attachments.length > 0 && (
-                                    <div className="bg-slate-800/90 border border-slate-700 rounded-xl p-3 space-y-2">
+                                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
                                       <div className="flex items-center justify-between">
-                                        <span className="text-[11px] font-bold text-slate-200">📑 Fichiers PDF & Images ({room.attachments.length})</span>
+                                        <span className="text-[11px] font-bold text-slate-800">📑 Fichiers PDF & Images ({room.attachments.length})</span>
                                         <button
                                           type="button"
                                           onClick={() => exportAllAttachments(room.attachments)}
-                                          className="text-[10px] font-extrabold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
+                                          className="text-[10px] font-extrabold text-cyan-600 hover:text-cyan-700 flex items-center gap-1 cursor-pointer"
                                         >
                                           <Download className="w-3 h-3" /> Tout exporter
                                         </button>
                                       </div>
                                       <div className="space-y-1.5">
                                         {room.attachments.map((att: any) => (
-                                          <div key={att.id} className="flex items-center justify-between text-xs bg-slate-900 p-2 rounded-lg border border-slate-700">
+                                          <div key={att.id} className="flex items-center justify-between text-xs bg-white p-2 rounded-lg border border-slate-200">
                                             <div className="flex items-center gap-2 truncate">
-                                              <span className={`px-1 rounded text-[9px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300' : 'bg-emerald-950 text-emerald-300'}`}>
+                                              <span className={`px-1 rounded text-[9px] font-extrabold ${att.type === 'pdf' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
                                                 {att.type.toUpperCase()}
                                               </span>
-                                              <span className="truncate text-[11px] text-slate-200">{att.name}</span>
+                                              <span className="truncate text-[11px] text-slate-800">{att.name}</span>
                                             </div>
                                             <button
                                               type="button"
                                               onClick={() => exportAttachmentFile(att)}
-                                              className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 shrink-0 ml-2"
+                                              className="text-[10px] font-bold text-cyan-600 hover:text-cyan-700 flex items-center gap-1 shrink-0 ml-2"
                                             >
                                               <Download className="w-3 h-3" /> Exporter
                                             </button>
@@ -1800,7 +1802,7 @@ Ce document est généré par la plateforme France Justice.
                                   )}
 
                                   <div className="flex items-center gap-1.5">
-                                    <Clock className="w-3.5 h-3.5 text-secondary-400" />
+                                    <Clock className="w-3.5 h-3.5 text-slate-400" />
                                     <span>Durée : {room.duration_minutes} min</span>
                                   </div>
                                 </div>
@@ -1819,7 +1821,7 @@ Ce document est généré par la plateforme France Justice.
                                       <Button
                                         variant="primary"
                                         size="sm"
-                                        className={`flex-1 text-xs font-bold ${sessionStatus === 'live' ? 'bg-red-600 hover:bg-red-700' : ''}`}
+                                        className={`flex-1 text-xs font-bold ${sessionStatus === 'live' ? 'bg-red-600 hover:bg-red-700' : 'bg-cyan-600 hover:bg-cyan-700'}`}
                                         onClick={() => startClassroomSimulator(room)}
                                       >
                                         <Video className="w-3.5 h-3.5 mr-1" /> {sessionStatus === 'live' ? 'Rejoindre la session 🔴' : 'Rejoindre'}
@@ -1864,7 +1866,7 @@ Ce document est généré par la plateforme France Justice.
                           );
                         })}
                         {classrooms.length === 0 && (
-                          <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl">
+                          <div className="col-span-full text-center py-12 text-slate-400 border border-dashed border-slate-200 rounded-2xl bg-white shadow-sm">
                             Aucune salle de classe virtuelle n'est disponible pour le moment.
                           </div>
                         )}
@@ -1876,39 +1878,39 @@ Ce document est généré par la plateforme France Justice.
                           const isCompleted = completedFormations.includes(f.id);
                           const atts = getFormationAttachments(f);
                           return (
-                            <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-secondary-100 flex flex-col justify-between">
+                            <Card key={f.id} className="hover:shadow-md transition-all duration-200 border-slate-200 bg-white flex flex-col justify-between">
                               <CardContent className="p-6 flex flex-col justify-between h-full space-y-4">
                                 <div className="flex flex-col space-y-3">
                                   <div className="flex justify-between items-start">
-                                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wider">{f.category}</span>
+                                    <span className="text-xs font-bold text-cyan-600 uppercase tracking-wider">{f.category}</span>
                                     {isCompleted ? (
-                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-success-100 text-success-700 flex items-center gap-1">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                         Terminé
                                       </span>
                                     ) : (
-                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-50 text-cyan-700 border border-cyan-200">
                                         Disponible
                                       </span>
                                     )}
                                   </div>
-                                  <h3 className="text-lg font-bold text-white line-clamp-2">{f.title}</h3>
-                                  <p className="text-xs text-slate-400">Durée: {f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
+                                  <h3 className="text-lg font-bold text-slate-900 line-clamp-2">{f.title}</h3>
+                                  <p className="text-xs text-slate-500">Durée: {f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
                                   
                                   {f.description && (
-                                    <p className="text-xs text-slate-300 line-clamp-2 italic bg-slate-950 p-2 rounded-xl border border-slate-800">
+                                    <p className="text-xs text-slate-700 line-clamp-2 italic bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                                       "{f.description}"
                                     </p>
                                   )}
 
                                   <div className="space-y-1.5 pt-2">
-                                    <div className="flex justify-between text-xs text-slate-400">
+                                    <div className="flex justify-between text-xs text-slate-500">
                                       <span>Progression</span>
                                       <span>{isCompleted ? '100%' : '0%'}</span>
                                     </div>
-                                    <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                    <div className="w-full bg-slate-200 rounded-full h-1.5">
                                       <div 
-                                        className={`h-1.5 rounded-full transition-all duration-300 ${isCompleted ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                                        className={`h-1.5 rounded-full transition-all duration-300 ${isCompleted ? 'bg-emerald-500' : 'bg-slate-300'}`}
                                         style={{ width: isCompleted ? '100%' : '0%' }}
                                       />
                                     </div>
@@ -1916,7 +1918,7 @@ Ce document est généré par la plateforme France Justice.
 
                                   {atts.length > 0 && (
                                     <div className="pt-2 space-y-1.5">
-                                      <p className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                                      <p className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
                                         <span>📑</span> Supports joints ({atts.length}) :
                                       </p>
                                       <div className="flex flex-col gap-1.5">
@@ -1925,7 +1927,7 @@ Ce document est généré par la plateforme France Justice.
                                             key={att.id}
                                             type="button"
                                             onClick={() => exportAttachmentFile(att)}
-                                            className="inline-flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-all w-full text-left"
+                                            className="inline-flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-50 text-cyan-800 border border-cyan-200 hover:bg-cyan-100 transition-all w-full text-left"
                                           >
                                             <span className="truncate flex items-center gap-1.5">
                                               <span className={`px-1.5 py-0.2 rounded text-[9px] font-extrabold ${att.type === 'pdf' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
@@ -1933,7 +1935,7 @@ Ce document est généré par la plateforme France Justice.
                                               </span>
                                               <span className="truncate">{att.name}</span>
                                             </span>
-                                            <FileText className="h-3.5 w-3.5 shrink-0 text-indigo-600" />
+                                            <FileText className="h-3.5 w-3.5 shrink-0 text-cyan-600" />
                                           </button>
                                         ))}
                                       </div>
@@ -1943,7 +1945,7 @@ Ce document est généré par la plateforme France Justice.
                                   <div className="flex gap-2 pt-2">
                                     <Button 
                                       variant={isCompleted ? "outline" : "primary"}
-                                      className="flex-1 text-sm font-semibold"
+                                      className={`flex-1 text-sm font-semibold ${!isCompleted ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : ''}`}
                                       onClick={() => {
                                         setSelectedFormation(f);
                                         setFormationViewMode('start');
@@ -1956,7 +1958,7 @@ Ce document est généré par la plateforme France Justice.
                                     <Button 
                                       variant="outline" 
                                       size="sm" 
-                                      className="px-3 border-red-900/50 text-red-400 hover:bg-red-950/60 hover:border-red-600 transition-colors"
+                                      className="px-3 border-red-200 text-red-500 hover:bg-red-50 hover:border-red-400 transition-colors"
                                       title="Supprimer la formation"
                                       onClick={() => setFormationToDelete(f)}
                                     >
@@ -1969,7 +1971,7 @@ Ce document est généré par la plateforme France Justice.
                           );
                         })}
                         {formations.length === 0 && (
-                          <div className="col-span-full text-center py-12 text-secondary-400 border border-dashed rounded-2xl">
+                          <div className="col-span-full text-center py-12 text-slate-400 border border-dashed border-slate-200 rounded-2xl bg-white shadow-sm">
                             Aucun module de formation n'est actuellement publié.
                           </div>
                         )}
@@ -2066,19 +2068,19 @@ Ce document est généré par la plateforme France Justice.
                       />
                     </div>
                     
-                    <div className="bg-slate-900 rounded-3xl p-5 border border-slate-800 shadow-xl flex flex-col justify-between space-y-4 text-slate-100">
+                    <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between space-y-4 text-slate-900">
                       <div>
-                        <h3 className="font-bold text-white mb-3 flex items-center gap-2">
+                        <h3 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
                           🏛️ Localisation
                         </h3>
                         
                         <div className="space-y-3">
                           <div>
-                            <label className="text-[11px] font-semibold text-slate-300 block mb-1">Région</label>
+                            <label className="text-[11px] font-semibold text-slate-700 block mb-1">Région</label>
                             <select
                               value={selectedRegion || ''}
                               onChange={(e) => setSelectedRegion(e.target.value || null)}
-                              className="w-full h-10 px-2.5 border border-slate-700 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
+                              className="w-full h-10 px-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-cyan-500 bg-white text-slate-900"
                             >
                               <option value="">Toutes les régions</option>
                               {regions.map(r => (
@@ -2088,11 +2090,11 @@ Ce document est généré par la plateforme France Justice.
                           </div>
 
                           <div>
-                            <label className="text-[11px] font-semibold text-slate-300 block mb-1">Barreau d'inscription</label>
+                            <label className="text-[11px] font-semibold text-slate-700 block mb-1">Barreau d'inscription</label>
                             <select
                               value={selectedBarreau}
                               onChange={(e) => setSelectedBarreau(e.target.value)}
-                              className="w-full h-10 px-2.5 border border-slate-700 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
+                              className="w-full h-10 px-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-cyan-500 bg-white text-slate-900"
                             >
                               <option value="">Tous les barreaux</option>
                               {availableBarreaux.map(b => (
@@ -2102,11 +2104,11 @@ Ce document est généré par la plateforme France Justice.
                           </div>
 
                           <div>
-                            <label className="text-[11px] font-semibold text-slate-300 block mb-1">Ville du cabinet</label>
+                            <label className="text-[11px] font-semibold text-slate-700 block mb-1">Ville du cabinet</label>
                             <select
                               value={selectedCity}
                               onChange={(e) => setSelectedCity(e.target.value)}
-                              className="w-full h-10 px-2.5 border border-slate-700 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 bg-slate-800 text-slate-100"
+                              className="w-full h-10 px-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-cyan-500 bg-white text-slate-900"
                             >
                               <option value="">Toutes les villes</option>
                               {availableCities.map(c => (
@@ -2126,7 +2128,7 @@ Ce document est généré par la plateforme France Justice.
                             setSelectedBarreau('');
                             setSelectedCity('');
                           }}
-                          className="w-full"
+                          className="w-full hover:border-cyan-500 hover:text-cyan-700"
                         >
                           Réinitialiser les filtres
                         </Button>
@@ -2414,14 +2416,14 @@ Ce document est généré par la plateforme France Justice.
         title={t('dashboard.welcome_modal_title', 'Bienvenue sur France Justice')}
       >
         <div className="text-center py-6">
-          <div className="mx-auto h-16 w-16 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20">
-            <User className="h-8 w-8 text-emerald-400" />
+          <div className="mx-auto h-16 w-16 bg-cyan-100 border border-cyan-200 rounded-full flex items-center justify-center mb-4 shadow-md">
+            <User className="h-8 w-8 text-cyan-600" />
           </div>
-          <h3 className="text-2xl font-extrabold text-white mb-2">{t('dashboard.welcome', 'Bienvenue')} {profile?.first_name} !</h3>
-          <p className="text-slate-300 text-sm mb-6 leading-relaxed max-w-md mx-auto">
+          <h3 className="text-2xl font-extrabold text-slate-900 mb-2">{t('dashboard.welcome', 'Bienvenue')} {profile?.first_name} !</h3>
+          <p className="text-slate-600 text-sm mb-6 leading-relaxed max-w-md mx-auto">
             {t('dashboard.welcome_modal_desc', "Votre espace personnel est ouvert. Accédez à vos documents juridiques, consultez l'assistance ou contactez votre avocat à tout moment.")}
           </p>
-          <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold py-3 rounded-xl shadow-lg shadow-emerald-600/30" onClick={() => setShowWelcome(false)}>
+          <Button className="w-full bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-extrabold py-3 rounded-xl shadow-md" onClick={() => setShowWelcome(false)}>
             {t('dashboard.discover_space', 'Découvrir mon espace')}
           </Button>
         </div>
@@ -2433,12 +2435,12 @@ Ce document est généré par la plateforme France Justice.
         title={selectedIADoc?.name || "Visualisation du Document"}
       >
         <div className="space-y-6">
-          <div className="p-5 bg-slate-950 border border-slate-800 rounded-2xl max-h-[60vh] overflow-y-auto whitespace-pre-wrap font-serif text-slate-100 text-sm leading-relaxed shadow-inner">
+          <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl max-h-[60vh] overflow-y-auto whitespace-pre-wrap font-serif text-slate-900 text-sm leading-relaxed shadow-inner">
             {selectedIADoc?.metadata?.content}
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
-            <Button variant="outline" onClick={() => setSelectedIADoc(null)} className="border-slate-700 text-slate-300 hover:bg-slate-800">{t('common.close', 'Fermer')}</Button>
-            <Button onClick={() => {
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+            <Button variant="outline" onClick={() => setSelectedIADoc(null)} className="border-slate-200 text-slate-700 hover:bg-slate-100">{t('common.close', 'Fermer')}</Button>
+            <Button className="bg-cyan-600 hover:bg-cyan-700 text-white" onClick={() => {
               const printWindow = window.open('', '_blank');
               if (printWindow) {
                 printWindow.document.write(`
@@ -2480,33 +2482,33 @@ Ce document est généré par la plateforme France Justice.
           onClose={() => setFormationToDelete(null)}
           title="Confirmation de Suppression"
         >
-          <div className="space-y-5 p-2 font-sans text-slate-100">
-            <div className="flex items-center gap-4 p-4 bg-red-950/40 border border-red-800/50 rounded-2xl">
-              <div className="w-12 h-12 rounded-2xl bg-red-900/50 border border-red-700/60 flex items-center justify-center text-red-400 shrink-0 shadow-lg">
+          <div className="space-y-5 p-2 font-sans text-slate-900">
+            <div className="flex items-center gap-4 p-4 bg-red-50 border border-red-200 rounded-2xl">
+              <div className="w-12 h-12 rounded-2xl bg-red-100 border border-red-200 flex items-center justify-center text-red-600 shrink-0 shadow-sm">
                 <Trash2 className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-white mb-0.5">Supprimer définitivement la formation ?</h4>
-                <p className="text-xs text-red-300/90 leading-relaxed">
-                  Êtes-vous sûr de vouloir supprimer la formation <strong className="text-white font-extrabold font-mono">« {formationToDelete.title} »</strong> ?
+                <h4 className="text-sm font-bold text-slate-900 mb-0.5">Supprimer définitivement la formation ?</h4>
+                <p className="text-xs text-red-700 leading-relaxed">
+                  Êtes-vous sûr de vouloir supprimer la formation <strong className="text-slate-900 font-extrabold font-mono">« {formationToDelete.title} »</strong> ?
                 </p>
               </div>
             </div>
 
-            <p className="text-xs text-slate-400 leading-relaxed px-1">
+            <p className="text-xs text-slate-600 leading-relaxed px-1">
               Cette action retirera immédiatement ce module du catalogue en temps réel pour tous les étudiants, citoyens, professeurs, avocats et doctorants. Tous les documents PDF et visuels associés seront également supprimés.
             </p>
 
-            <div className="flex gap-3 pt-3 border-t border-slate-800/80">
+            <div className="flex gap-3 pt-3 border-t border-slate-200">
               <Button
                 variant="outline"
-                className="flex-1 border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white"
+                className="flex-1 border-slate-200 text-slate-700 hover:bg-slate-100"
                 onClick={() => setFormationToDelete(null)}
               >
                 Annuler
               </Button>
               <Button
-                className="flex-1 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-bold shadow-lg shadow-red-950/50 flex items-center justify-center gap-2"
+                className="flex-1 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-bold shadow-md flex items-center justify-center gap-2"
                 onClick={async () => {
                   const id = formationToDelete.id;
                   setFormationToDelete(null);
@@ -2537,51 +2539,51 @@ Ce document est généré par la plateforme France Justice.
           const atts = getFormationAttachments(selectedFormation);
 
           return (
-            <div className="space-y-6 text-slate-100">
-              <div className="flex justify-between items-center bg-slate-900 p-4 rounded-2xl border border-slate-800">
+            <div className="space-y-6 text-slate-900">
+              <div className="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <div className="space-y-1">
-                  <p className="text-xs text-slate-400 font-bold uppercase font-sans">Durée du module</p>
-                  <p className="text-sm font-semibold text-white font-sans">{selectedFormation.duration}</p>
+                  <p className="text-xs text-slate-500 font-bold uppercase font-sans">Durée du module</p>
+                  <p className="text-sm font-semibold text-slate-900 font-sans">{selectedFormation.duration}</p>
                 </div>
                 {formObj.author_name && (
                   <div className="space-y-1 text-center">
-                    <p className="text-xs text-slate-400 font-bold uppercase font-sans">Formateur</p>
-                    <p className="text-xs font-bold text-indigo-300 font-sans">{formObj.author_name} ({formObj.author_role || 'Expert'})</p>
+                    <p className="text-xs text-slate-500 font-bold uppercase font-sans">Formateur</p>
+                    <p className="text-xs font-bold text-cyan-700 font-sans">{formObj.author_name} ({formObj.author_role || 'Expert'})</p>
                   </div>
                 )}
                 <div className="space-y-1 text-right">
-                  <p className="text-xs text-slate-400 font-bold uppercase font-sans">Niveau requis</p>
-                  <p className="text-sm font-semibold text-white font-sans">{selectedFormation.level}</p>
+                  <p className="text-xs text-slate-500 font-bold uppercase font-sans">Niveau requis</p>
+                  <p className="text-sm font-semibold text-slate-900 font-sans">{selectedFormation.level}</p>
                 </div>
               </div>
 
               {formObj.description && (
-                <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1 text-xs">
-                  <p className="font-bold text-indigo-400 uppercase tracking-wider text-[10px]">Description & Objectifs</p>
-                  <p className="text-slate-300 leading-relaxed">{formObj.description}</p>
+                <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-1 text-xs">
+                  <p className="font-bold text-cyan-700 uppercase tracking-wider text-[10px]">Description & Objectifs</p>
+                  <p className="text-slate-700 leading-relaxed">{formObj.description}</p>
                 </div>
               )}
 
               {atts.length > 0 && (
-                <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-3 text-slate-100 font-sans">
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-slate-900 font-sans">
                   <div className="flex justify-between items-center">
-                    <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                       <span>📑</span> Documents PDF & Visuels joints ({atts.length})
                     </h4>
-                    <Button variant="outline" size="sm" className="text-xs font-bold border-slate-700 text-slate-200 hover:bg-slate-800" onClick={() => exportAllAttachments(atts)}>
+                    <Button variant="outline" size="sm" className="text-xs font-bold border-slate-200 text-slate-700 hover:bg-slate-100" onClick={() => exportAllAttachments(atts)}>
                       <Download className="w-3.5 h-3.5 mr-1" /> Exporter tout
                     </Button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {atts.map((att) => (
-                      <div key={att.id} className="p-2.5 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between gap-2">
+                      <div key={att.id} className="p-2.5 bg-white border border-slate-200 rounded-xl flex items-center justify-between gap-2 shadow-sm">
                         <div className="flex items-center gap-2 truncate">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
                             {att.type.toUpperCase()}
                           </span>
-                          <span className="truncate text-xs font-medium text-slate-200">{att.name}</span>
+                          <span className="truncate text-xs font-medium text-slate-800">{att.name}</span>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-primary-400 hover:text-primary-300 hover:bg-primary-950/50 p-1.5 h-auto text-xs font-bold" onClick={() => exportAttachmentFile(att)}>
+                        <Button variant="ghost" size="sm" className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 p-1.5 h-auto text-xs font-bold" onClick={() => exportAttachmentFile(att)}>
                           <Download className="w-3.5 h-3.5" />
                         </Button>
                       </div>
@@ -2592,11 +2594,11 @@ Ce document est généré par la plateforme France Justice.
 
               {/* Progress bar in Modal */}
               <div className="space-y-2">
-                <div className="flex justify-between text-sm font-bold text-slate-300">
+                <div className="flex justify-between text-sm font-bold text-slate-700">
                   <span>Progression globale</span>
                   <span>{percent}%</span>
                 </div>
-                <div className="w-full bg-slate-800 rounded-full h-2">
+                <div className="w-full bg-slate-200 rounded-full h-2">
                   <div 
                     className="h-2 rounded-full bg-emerald-500 transition-all duration-300"
                     style={{ width: `${percent}%` }}
@@ -2605,7 +2607,7 @@ Ce document est généré par la plateforme France Justice.
               </div>
 
               {/* Chapter navigation */}
-              <div className="border-t border-slate-800 pt-4">
+              <div className="border-t border-slate-200 pt-4">
                 <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
                   {chapters.map((ch, idx) => (
                     <button
@@ -2613,8 +2615,8 @@ Ce document est généré par la plateforme France Justice.
                       onClick={() => setActiveChapterIndex(idx)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                         activeChapterIndex === idx 
-                          ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20' 
-                          : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+                          ? 'bg-cyan-600 text-white shadow-sm shadow-cyan-600/20' 
+                          : 'bg-white text-slate-700 hover:bg-cyan-50 border border-slate-200'
                       }`}
                     >
                       {ch.title.split('.')[0]}. {ch.title.split('.').slice(1).join('.').trim()}
@@ -2624,13 +2626,13 @@ Ce document est généré par la plateforme France Justice.
                 </div>
 
                 {/* Chapter content */}
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 min-h-[180px] flex flex-col justify-between font-sans">
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 min-h-[180px] flex flex-col justify-between font-sans">
                   <div className="space-y-3">
-                    <h4 className="font-bold text-white text-base">{chapters[activeChapterIndex].title}</h4>
-                    <p className="text-sm text-slate-300 leading-relaxed font-sans">{chapters[activeChapterIndex].content}</p>
+                    <h4 className="font-bold text-slate-900 text-base">{chapters[activeChapterIndex].title}</h4>
+                    <p className="text-sm text-slate-700 leading-relaxed font-sans">{chapters[activeChapterIndex].content}</p>
                   </div>
                   {formationViewMode === 'start' && (
-                    <div className="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
                       <label className="flex items-center gap-2.5 cursor-pointer select-none">
                         <input
                           type="checkbox"
@@ -2642,22 +2644,23 @@ Ce document est généré par la plateforme France Justice.
                               [activeChapterIndex]: checked
                             }));
                           }}
-                          className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
+                          className="h-4 w-4 rounded border-slate-300 bg-white text-cyan-600 focus:ring-cyan-500 cursor-pointer"
                         />
-                        <span className="text-xs font-bold text-slate-300">J'ai lu et compris ce chapitre</span>
+                        <span className="text-xs font-bold text-slate-700">J'ai lu et compris ce chapitre</span>
                       </label>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-secondary-100">
-                <Button variant="outline" onClick={() => setSelectedFormation(null)}>
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                <Button variant="outline" onClick={() => setSelectedFormation(null)} className="hover:border-cyan-500 hover:text-cyan-700">
                   {t('common.close', 'Fermer')}
                 </Button>
                 {formationViewMode === 'start' && (
                   <Button
                     disabled={percent < 100}
+                    className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold"
                     onClick={() => {
                       const newCompleted = [...completedFormations];
                       if (!newCompleted.includes(selectedFormation.id)) {
@@ -2685,77 +2688,77 @@ Ce document est généré par la plateforme France Justice.
         onClose={() => setCreateFormationOpen(false)}
         title="🎓 Créer & Publier une nouvelle Formation Académique"
       >
-        <form onSubmit={handleCreateFormation} className="space-y-4 text-slate-100">
+        <form onSubmit={handleCreateFormation} className="space-y-4 text-slate-900">
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1">Titre de la Formation *</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Titre de la Formation *</label>
             <Input
               type="text"
               placeholder="ex: Le Contentieux Administratif & Recours pour Excès de Pouvoir"
               value={newFormation.title}
               onChange={e => setNewFormation({ ...newFormation, title: e.target.value })}
               required
-              className="bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500"
+              className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-cyan-500"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">Catégorie</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Catégorie</label>
               <select
                 value={newFormation.category}
                 onChange={e => setNewFormation({ ...newFormation, category: e.target.value })}
-                className="w-full bg-slate-900 border border-slate-800 text-slate-100 text-xs rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-white border border-slate-200 text-slate-900 text-xs rounded-xl p-2.5 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
               >
-                <option value="Droit des Contrats" className="bg-slate-900 text-slate-100">Droit des Contrats</option>
-                <option value="Droit Administratif" className="bg-slate-900 text-slate-100">Droit Administratif</option>
-                <option value="Droit des Affaires" className="bg-slate-900 text-slate-100">Droit des Affaires</option>
-                <option value="Droit du Travail" className="bg-slate-900 text-slate-100">Droit du Travail</option>
-                <option value="Droit Pénal" className="bg-slate-900 text-slate-100">Droit Pénal</option>
-                <option value="Droit Immobilier" className="bg-slate-900 text-slate-100">Droit Immobilier</option>
-                <option value="Droit International" className="bg-slate-900 text-slate-100">Droit International</option>
-                <option value="Recherche & Doctrine" className="bg-slate-900 text-slate-100">Recherche & Doctrine</option>
+                <option value="Droit des Contrats" className="bg-white text-slate-900">Droit des Contrats</option>
+                <option value="Droit Administratif" className="bg-white text-slate-900">Droit Administratif</option>
+                <option value="Droit des Affaires" className="bg-white text-slate-900">Droit des Affaires</option>
+                <option value="Droit du Travail" className="bg-white text-slate-900">Droit du Travail</option>
+                <option value="Droit Pénal" className="bg-white text-slate-900">Droit Pénal</option>
+                <option value="Droit Immobilier" className="bg-white text-slate-900">Droit Immobilier</option>
+                <option value="Droit International" className="bg-white text-slate-900">Droit International</option>
+                <option value="Recherche & Doctrine" className="bg-white text-slate-900">Recherche & Doctrine</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">Niveau</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Niveau</label>
               <select
                 value={newFormation.level}
                 onChange={e => setNewFormation({ ...newFormation, level: e.target.value })}
-                className="w-full bg-slate-900 border border-slate-800 text-slate-100 text-xs rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-white border border-slate-200 text-slate-900 text-xs rounded-xl p-2.5 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
               >
-                <option value="Débutant" className="bg-slate-900 text-slate-100">Débutant (L1-L2)</option>
-                <option value="Intermédiaire" className="bg-slate-900 text-slate-100">Intermédiaire (L3-M1)</option>
-                <option value="Avancé" className="bg-slate-900 text-slate-100">Avancé (M2-Doctorat)</option>
-                <option value="Expert" className="bg-slate-900 text-slate-100">Expert / Praticien</option>
+                <option value="Débutant" className="bg-white text-slate-900">Débutant (L1-L2)</option>
+                <option value="Intermédiaire" className="bg-white text-slate-900">Intermédiaire (L3-M1)</option>
+                <option value="Avancé" className="bg-white text-slate-900">Avancé (M2-Doctorat)</option>
+                <option value="Expert" className="bg-white text-slate-900">Expert / Praticien</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">Durée Estimée</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Durée Estimée</label>
               <Input
                 type="text"
                 placeholder="ex: 3h 30"
                 value={newFormation.duration}
                 onChange={e => setNewFormation({ ...newFormation, duration: e.target.value })}
-                className="bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500 text-xs"
+                className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:border-cyan-500 focus:ring-cyan-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1">Description & Programme détaillé</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Description & Programme détaillé</label>
             <textarea
               rows={4}
               placeholder="Décrivez les objectifs pédagogiques, les compétences visées et le plan de la formation..."
               value={newFormation.description}
               onChange={e => setNewFormation({ ...newFormation, description: e.target.value })}
-              className="w-full bg-slate-900 border border-slate-800 text-slate-100 text-xs rounded-xl p-3 focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-white border border-slate-200 text-slate-900 text-xs rounded-xl p-3 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 placeholder-slate-400"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1">
+            <label className="block text-xs font-bold text-slate-700 mb-1">
               📄 Pièces Jointes & Supports de cours (PDF, Images)
             </label>
             <input
@@ -2775,19 +2778,19 @@ Ce document est généré par la plateforme France Justice.
                   attachments: [...prev.attachments, ...atts]
                 }));
               }}
-              className="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
+              className="block w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100 cursor-pointer"
             />
 
             {newFormation.attachments.length > 0 && (
-              <div className="mt-3 space-y-1.5 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                <p className="text-[11px] font-bold text-indigo-300 uppercase">Fichiers sélectionnés :</p>
+              <div className="mt-3 space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <p className="text-[11px] font-bold text-cyan-700 uppercase">Fichiers sélectionnés :</p>
                 {newFormation.attachments.map((att, i) => (
-                  <div key={att.id || i} className="flex items-center justify-between text-xs text-slate-300 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+                  <div key={att.id || i} className="flex items-center justify-between text-xs text-slate-700 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
                     <span className="truncate max-w-[200px]">{att.type === 'pdf' ? '📄' : '🖼️'} {att.name}</span>
                     <button
                       type="button"
                       onClick={() => setNewFormation(prev => ({ ...prev, attachments: prev.attachments.filter((_, idx) => idx !== i) }))}
-                      className="text-red-400 hover:text-red-300 text-xs font-bold ml-2"
+                      className="text-red-500 hover:text-red-700 text-xs font-bold ml-2"
                     >
                       ✕
                     </button>
@@ -2797,18 +2800,18 @@ Ce document est généré par la plateforme France Justice.
             )}
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
             <Button
               type="button"
               variant="outline"
               onClick={() => setCreateFormationOpen(false)}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="border-slate-200 text-slate-700 hover:bg-slate-100"
             >
               Annuler
             </Button>
             <Button
               type="submit"
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold"
             >
               🎓 Publier la Formation
             </Button>

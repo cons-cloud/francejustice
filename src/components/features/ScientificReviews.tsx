@@ -197,16 +197,16 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
   return (
     <div className="space-y-8">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 rounded-3xl text-white shadow-xl space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/10 pb-6">
+      <div className="bg-gradient-to-r from-cyan-600 via-cyan-700 to-teal-700 p-8 rounded-3xl text-white shadow-xl space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/20 pb-6">
           <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/20 text-white border border-white/30 mb-3">
               <BookOpen className="w-3.5 h-3.5" /> Centre d'Études & Revues Scientifiques Juridiques
             </span>
             <h2 className="text-3xl font-extrabold tracking-tight">
               Publications Académiques & Recherche Doctrinale
             </h2>
-            <p className="text-xs text-slate-300 mt-2 max-w-3xl leading-relaxed">
+            <p className="text-xs text-cyan-50 mt-2 max-w-3xl leading-relaxed">
               Consultez la base scientifique nationale et internationale des travaux de recherche juridique, thèses de doctorat et analyses doctrinales publiées par nos avocats, professeurs et synchronisées automatiquement depuis le Web et Google Legal Research.
             </p>
           </div>
@@ -217,14 +217,14 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
               size="sm"
               onClick={handleTriggerAutoScrape}
               disabled={isRefreshingAuto}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs font-bold"
+              className="bg-white/10 border-white/30 text-white hover:bg-white/20 text-xs font-bold"
             >
               <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isRefreshingAuto ? 'animate-spin' : ''}`} />
               Actualiser le Flux Automatique Web
             </Button>
 
             {(mode === 'lawyer' || mode === 'admin') && onPublishClick && (
-              <Button variant="primary" size="sm" onClick={onPublishClick} className="whitespace-nowrap font-bold shadow-md bg-indigo-600 hover:bg-indigo-700">
+              <Button variant="primary" size="sm" onClick={onPublishClick} className="whitespace-nowrap font-bold shadow-md bg-white text-cyan-800 hover:bg-cyan-50">
                 <Plus className="w-4 h-4 mr-1.5" /> Publier une revue
               </Button>
             )}
@@ -240,7 +240,7 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
               placeholder={t('reviews.search_placeholder', 'Rechercher par titre, auteur, revue scientifique ou mot-clé...')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 text-white text-xs rounded-2xl pl-10 pr-4 py-2.5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full bg-white text-slate-900 text-xs rounded-2xl pl-10 pr-4 py-2.5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-sm"
             />
           </div>
 
@@ -248,7 +248,7 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
             <select
               value={selectedDiscipline}
               onChange={e => setSelectedDiscipline(e.target.value)}
-              className="w-full bg-slate-800 text-white text-xs border border-white/20 rounded-2xl px-3 py-2.5 focus:outline-none"
+              className="w-full bg-white text-slate-800 text-xs border border-white/30 rounded-2xl px-3 py-2.5 focus:outline-none shadow-sm"
             >
               <option value="all">Toutes les Disciplines</option>
               <option value="Droit Public">Droit Public</option>
@@ -263,7 +263,7 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
             <select
               value={selectedRegion}
               onChange={e => setSelectedRegion(e.target.value)}
-              className="w-full bg-slate-800 text-white text-xs border border-white/20 rounded-2xl px-3 py-2.5 focus:outline-none"
+              className="w-full bg-white text-slate-800 text-xs border border-white/30 rounded-2xl px-3 py-2.5 focus:outline-none shadow-sm"
             >
               <option value="all">Toutes les Régions (Monde)</option>
               <option value="France">🇫🇷 France</option>
@@ -276,12 +276,12 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
 
       {/* List of Scientific Reviews */}
       {loading ? (
-        <div className="text-center py-16 bg-white rounded-3xl border border-slate-100 shadow-sm text-slate-400">
-          <RefreshCw className="w-8 h-8 mx-auto mb-2 animate-spin text-indigo-600" />
+        <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 shadow-sm text-slate-400">
+          <RefreshCw className="w-8 h-8 mx-auto mb-2 animate-spin text-cyan-600" />
           <p className="text-xs font-semibold">Chargement des revues scientifiques en temps réel...</p>
         </div>
       ) : filteredReviews.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-3xl border border-slate-100 shadow-sm text-slate-500">
+        <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 shadow-sm text-slate-500">
           <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
           <h3 className="text-base font-bold">Aucune revue scientifique trouvée</h3>
           <p className="text-xs text-slate-400 mt-1">Ajustez vos filtres de recherche ou réactualisez le flux Web.</p>
@@ -289,16 +289,16 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredReviews.map((rev) => (
-            <Card key={rev.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-slate-150 bg-white flex flex-col justify-between group">
+            <Card key={rev.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 border-slate-200 bg-white flex flex-col justify-between group">
               <CardContent className="p-6 space-y-4">
                 <div className="flex items-start justify-between gap-3">
-                  <span className="bg-indigo-50 text-indigo-700 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full border border-indigo-100">
+                  <span className="bg-cyan-50 text-cyan-700 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full border border-cyan-200">
                     {rev.discipline}
                   </span>
                   <div className="flex items-center gap-1.5">
                     {rev.is_auto_scraped && (
-                      <span className="bg-amber-100 text-amber-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <Sparkles className="w-2.5 h-2.5" /> Flux Web Auto
+                      <span className="bg-amber-50 text-amber-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-200">
+                        <Sparkles className="w-2.5 h-2.5 text-amber-600" /> Flux Web Auto
                       </span>
                     )}
                     <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
@@ -308,26 +308,26 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-cyan-700 transition-colors leading-snug">
                     {rev.title}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-2 line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-slate-600 mt-2 line-clamp-3 leading-relaxed">
                     {rev.abstract}
                   </p>
                 </div>
 
                 <div className="border-t border-slate-100 pt-3 space-y-1.5 text-xs text-slate-600">
                   <div className="flex items-center gap-2">
-                    <Users className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" />
-                    <span className="font-semibold">{rev.author_name}</span>
-                    {rev.author_title && <span className="text-slate-400 text-[11px] truncate">({rev.author_title})</span>}
+                    <Users className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+                    <span className="font-semibold text-slate-800">{rev.author_name}</span>
+                    {rev.author_title && <span className="text-slate-500 text-[11px] truncate">({rev.author_title})</span>}
                   </div>
                   <div className="flex items-center gap-2">
-                    <BookOpen className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" />
+                    <BookOpen className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
                     <span>Revue : <strong className="text-slate-800">{rev.journal_name}</strong> ({rev.published_year})</span>
                   </div>
                   {rev.doi_or_issn && (
-                    <div className="text-[11px] text-slate-400 font-mono">
+                    <div className="text-[11px] text-slate-500 font-mono">
                       DOI / ISSN : {rev.doi_or_issn}
                     </div>
                   )}
@@ -337,7 +337,7 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
                   <Button
                     variant="primary"
                     size="sm"
-                    className="flex-1 text-xs font-bold shadow-sm"
+                    className="flex-1 text-xs font-bold shadow-sm bg-cyan-600 hover:bg-cyan-700 text-white"
                     onClick={() => setSelectedReviewModal(rev)}
                   >
                     <BookOpen className="w-3.5 h-3.5 mr-1" /> Lire l'Étude Intégrale
@@ -360,40 +360,40 @@ Les tribunaux nationaux doivent soulever d'office l'incompatibilité des clauses
 
       {/* Modal Text Integral */}
       {selectedReviewModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 text-slate-100 rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-800 flex flex-col">
-            <div className="p-6 border-b border-slate-800 bg-slate-950 text-white rounded-t-3xl flex justify-between items-start">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white text-slate-900 rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
+            <div className="p-6 border-b border-slate-200 bg-slate-50 rounded-t-3xl flex justify-between items-start">
               <div>
-                <span className="bg-indigo-500/20 text-indigo-300 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-indigo-500/30">
+                <span className="bg-cyan-50 text-cyan-800 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-cyan-200">
                   {selectedReviewModal.discipline} • {selectedReviewModal.journal_name}
                 </span>
-                <h3 className="text-xl font-bold mt-2 leading-tight text-white">{selectedReviewModal.title}</h3>
-                <p className="text-xs text-slate-400 mt-1">Par {selectedReviewModal.author_name} — {selectedReviewModal.author_title}</p>
+                <h3 className="text-xl font-bold mt-2 leading-tight text-slate-900">{selectedReviewModal.title}</h3>
+                <p className="text-xs text-slate-600 mt-1">Par {selectedReviewModal.author_name} — {selectedReviewModal.author_title}</p>
               </div>
-              <button onClick={() => setSelectedReviewModal(null)} className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-all">
+              <button onClick={() => setSelectedReviewModal(null)} className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-all">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6 text-sm text-slate-200 leading-relaxed font-sans flex-1">
-              <div className="bg-indigo-950/40 border border-indigo-800/50 p-4 rounded-2xl space-y-2">
-                <h4 className="text-xs font-bold text-indigo-300 uppercase">Résumé Académique / Abstract</h4>
-                <p className="text-xs text-slate-300 italic">{selectedReviewModal.abstract}</p>
+            <div className="p-6 space-y-6 text-sm text-slate-800 leading-relaxed font-sans flex-1">
+              <div className="bg-cyan-50/70 border border-cyan-200 p-4 rounded-2xl space-y-2">
+                <h4 className="text-xs font-bold text-cyan-800 uppercase">Résumé Académique / Abstract</h4>
+                <p className="text-xs text-slate-700 italic">{selectedReviewModal.abstract}</p>
               </div>
 
               <div className="space-y-4">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Texte Intégral de la Publication</h4>
-                <div className="whitespace-pre-line bg-slate-950 p-5 rounded-2xl border border-slate-800 text-xs text-slate-200 leading-relaxed font-mono">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Texte Intégral de la Publication</h4>
+                <div className="whitespace-pre-line bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs text-slate-800 leading-relaxed font-mono">
                   {selectedReviewModal.content}
                 </div>
               </div>
             </div>
 
-            <div className="p-6 border-t border-slate-800 bg-slate-950 rounded-b-3xl flex justify-between items-center">
-              <Button variant="outline" onClick={() => setSelectedReviewModal(null)} className="border-slate-700 text-slate-300 hover:bg-slate-800">
+            <div className="p-6 border-t border-slate-200 bg-slate-50 rounded-b-3xl flex justify-between items-center">
+              <Button variant="outline" onClick={() => setSelectedReviewModal(null)} className="border-slate-300 text-slate-700 hover:bg-slate-100">
                 Fermer
               </Button>
-              <Button variant="primary" onClick={() => downloadReviewPDF(selectedReviewModal)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1.5 shadow-md">
+              <Button variant="primary" onClick={() => downloadReviewPDF(selectedReviewModal)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold flex items-center gap-1.5 shadow-md">
                 <Download className="w-4 h-4" /> Télécharger au format PDF
               </Button>
             </div>

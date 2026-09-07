@@ -102,7 +102,7 @@ const Services: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden">
+    <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
       <SEO 
         title="Services Juridiques IA & Consultations Avocats" 
         description="Découvrez tous nos services juridiques : recherche IA, visioconférence chiffrée avec avocats, générateur de documents et formations certifiantes."
@@ -110,7 +110,7 @@ const Services: React.FC = () => {
       />
 
       {/* HERO PRO */}
-      <section className="py-24 bg-slate-950 relative overflow-hidden border-b border-slate-900">
+      <section className="py-20 md:py-28 bg-gradient-to-b from-cyan-50/70 via-white to-slate-50 relative overflow-hidden border-b border-slate-200/80">
         <div className="container grid md:grid-cols-2 gap-16 items-center px-4 relative z-10">
           {/* LEFT */}
           <motion.div
@@ -118,22 +118,26 @@ const Services: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-7xl font-black mb-8 text-white tracking-tight leading-none text-balance">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-100/80 text-cyan-800 border border-cyan-200 mb-6">
+              <Sparkles className="w-3.5 h-3.5" />
+              Plateforme Juridique d'Excellence
+            </div>
+            <h1 className="text-4xl md:text-7xl font-black mb-8 text-slate-900 tracking-tight leading-none text-balance">
               {t('services.hero_title_left', 'Des services')}{' '}
-              <span className="text-primary-400">{t('services.hero_title_highlight', 'juridiques')}</span>{' '}
+              <span className="text-cyan-600">{t('services.hero_title_highlight', 'juridiques')}</span>{' '}
               {t('services.hero_title_right', 'modernes')}
             </h1>
 
-            <p className="text-xl text-slate-100 mb-10 leading-relaxed font-semibold">
+            <p className="text-xl text-slate-600 mb-10 leading-relaxed font-medium">
               {t('services.hero_subtitle', 'Just-Law combine intelligence artificielle de pointe et expertise humaine pour simplifier l’accès au droit et accélérer vos démarches.')}
             </p>
 
-            <div className="flex gap-6 flex-wrap">
-              <Button size="lg" className="px-10 py-7 rounded-2xl bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white font-bold shadow-xl shadow-indigo-950/50" onClick={() => navigate('/register')}>
+            <div className="flex gap-4 flex-wrap">
+              <Button size="lg" className="px-8 py-6 rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-lg shadow-cyan-600/20" onClick={() => navigate('/register')}>
                 {t('services.hero_cta', 'Démarrez maintenant')}
               </Button>
 
-              <Button variant="outline" size="lg" className="px-10 py-7 rounded-2xl border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800" onClick={() => navigate('/register/lawyer')}>
+              <Button variant="outline" size="lg" className="px-8 py-6 rounded-2xl border-slate-300 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-400" onClick={() => navigate('/register/lawyer')}>
                 {t('services.hero_lawyer_cta', 'Espace avocat')}
               </Button>
             </div>
@@ -149,25 +153,25 @@ const Services: React.FC = () => {
             <img
               src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?q=80&w=1200&auto=format&fit=crop"
               alt="Legal services"
-              className="rounded-3xl shadow-2xl object-cover w-full h-[550px] border border-slate-800"
+              className="rounded-3xl shadow-xl object-cover w-full h-[520px] border border-slate-200"
             />
           </motion.div>
         </div>
       </section>
 
       {/* SERVICES GRID */}
-      <section className="py-32 relative bg-slate-900 border-b border-slate-800">
+      <section className="py-24 relative bg-slate-50/60 border-b border-slate-200/80">
         <div className="container px-4">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-24"
+            className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tight text-white">
+            <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tight text-slate-900">
               {t('services.grid_title', 'Ce que nous proposons')}
             </h2>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto font-medium text-center">
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium text-center">
               {t('services.grid_subtitle', 'Une suite complète d’outils intelligents pour gérer vos problématiques juridiques en toute simplicité.')}
             </p>
           </motion.div>
@@ -181,7 +185,7 @@ const Services: React.FC = () => {
                 exit={{ opacity: 0 }}
                 className="flex justify-center py-20"
               >
-                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-500"></div>
+                <div className="animate-spin rounded-full h-14 w-14 border-b-4 border-cyan-600"></div>
               </motion.div>
             ) : (
               <motion.div 
@@ -190,25 +194,25 @@ const Services: React.FC = () => {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="grid md:grid-cols-3 gap-10"
+                className="grid md:grid-cols-3 gap-8"
               >
                 {services.map((service, i) => {
                   const Icon = getIcon(service.icon_name);
                   return (
                     <motion.div key={i} variants={itemVariants}>
                       <Card 
-                        className="h-full border border-slate-800 shadow-xl hover:border-slate-700 transition-all duration-500 rounded-3xl group bg-slate-950 overflow-hidden cursor-pointer"
+                        className="h-full border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-cyan-400 transition-all duration-300 rounded-3xl group bg-white overflow-hidden cursor-pointer"
                         onClick={() => navigate(service.path)}
                       >
-                        <CardHeader className="pt-10 px-8">
-                          <div className="w-16 h-16 mb-6 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center group-hover:bg-primary-600 transition-colors duration-300">
-                            <Icon className="h-8 w-8 text-primary-400 group-hover:text-white transition-colors" />
+                        <CardHeader className="pt-8 px-8">
+                          <div className="w-14 h-14 mb-6 bg-cyan-50 border border-cyan-100 rounded-2xl flex items-center justify-center group-hover:bg-cyan-600 transition-colors duration-300">
+                            <Icon className="h-7 w-7 text-cyan-600 group-hover:text-white transition-colors" />
                           </div>
-                          <CardTitle className="text-2xl font-bold text-white group-hover:text-primary-400 transition-colors">{service.title}</CardTitle>
+                          <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-cyan-700 transition-colors">{service.title}</CardTitle>
                         </CardHeader>
 
-                        <CardContent className="px-8 pb-10">
-                          <CardDescription className="text-base text-slate-300 leading-relaxed">
+                        <CardContent className="px-8 pb-8">
+                          <CardDescription className="text-base text-slate-600 leading-relaxed">
                             {service.description}
                           </CardDescription>
                         </CardContent>
@@ -223,7 +227,7 @@ const Services: React.FC = () => {
       </section>
 
       {/* BENEFITS */}
-      <section className="py-32 bg-slate-950 relative overflow-hidden border-b border-slate-900">
+      <section className="py-24 bg-white relative overflow-hidden border-b border-slate-200/80">
         <div className="container px-4">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <motion.div
@@ -231,12 +235,12 @@ const Services: React.FC = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl md:text-5xl font-black mb-10 tracking-tight leading-tight text-white text-balance">
+              <h2 className="text-3xl md:text-5xl font-black mb-8 tracking-tight leading-tight text-slate-900 text-balance">
                 {t('services.why_title_left', 'Pourquoi choisir')}{' '}
-                <span className="text-primary-400">Just-Law</span> ?
+                <span className="text-cyan-600">France Justice</span> ?
               </h2>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {benefits.map((b, i) => (
                   <motion.div 
                     key={i} 
@@ -244,12 +248,12 @@ const Services: React.FC = () => {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
                     viewport={{ once: true }}
-                    className="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 hover:border-slate-700 transition-colors"
+                    className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-cyan-300 transition-colors"
                   >
-                    <div className="bg-emerald-950/80 border border-emerald-800/60 p-2 rounded-full">
-                      <CheckCircle className="h-6 w-6 text-emerald-400" />
+                    <div className="bg-cyan-100/80 border border-cyan-200 p-2 rounded-full">
+                      <CheckCircle className="h-5 w-5 text-cyan-700" />
                     </div>
-                    <span className="text-lg font-bold text-slate-200">{b}</span>
+                    <span className="text-base font-bold text-slate-800">{b}</span>
                   </motion.div>
                 ))}
               </div>
@@ -261,11 +265,11 @@ const Services: React.FC = () => {
               viewport={{ once: true }}
               className="relative"
             >
-              <div className="absolute -inset-4 bg-slate-900 border border-slate-800 rounded-3xl rotate-3 z-0" />
+              <div className="absolute -inset-4 bg-cyan-50 border border-cyan-100 rounded-3xl rotate-2 z-0" />
               <img
                 src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1200&auto=format&fit=crop"
                 alt="Trust"
-                className="relative z-10 rounded-2xl shadow-2xl border border-slate-800"
+                className="relative z-10 rounded-2xl shadow-xl border border-slate-200 object-cover w-full h-[460px]"
               />
             </motion.div>
           </div>
@@ -273,48 +277,48 @@ const Services: React.FC = () => {
       </section>
 
       {/* GENIA-L PROMO */}
-      <section className="py-24 relative overflow-hidden bg-slate-900 text-white border-b border-slate-800">
+      <section className="py-24 relative overflow-hidden bg-slate-50/60 border-b border-slate-200/80">
         <div className="container px-4 relative z-10">
-          <div className="max-w-5xl mx-auto bg-slate-950/90 rounded-3xl border border-slate-800 p-8 md:p-16 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-10">
-              <Sparkles className="h-48 w-48 text-primary-400" />
+          <div className="max-w-5xl mx-auto bg-gradient-to-br from-cyan-50 via-white to-teal-50/60 rounded-3xl border border-cyan-200/80 p-8 md:p-14 shadow-lg relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+              <Sparkles className="h-48 w-48 text-cyan-600" />
             </div>
 
-            <div className="grid md:grid-cols-5 gap-12 items-center">
-              <div className="md:col-span-3 space-y-6 text-left">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-950/80 border border-indigo-800/60 text-indigo-300 text-sm font-semibold tracking-wide uppercase">
-                  <Sparkles className="h-4 w-4 text-indigo-400" />
+            <div className="grid md:grid-cols-5 gap-10 items-center">
+              <div className="md:col-span-3 space-y-5 text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-100 border border-cyan-200 text-cyan-800 text-xs font-bold tracking-wide uppercase">
+                  <Sparkles className="h-3.5 w-3.5 text-cyan-600" />
                   {t('services.genia_badge', 'Nouveau service IA')}
                 </div>
                 
-                <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight text-white">
+                <h2 className="text-3xl md:text-4xl font-black tracking-tight leading-tight text-slate-900">
                   {t('services.genia_title', 'GénIA-L Avocat')}{' '}
-                  <span className="text-primary-400">
+                  <span className="text-cyan-600">
                     {t('services.genia_title_gradient', "l'IA générative")}
                   </span>{' '}
                   {t('services.genia_title_end', 'pour les professionnels')}
                 </h2>
                 
-                <p className="text-lg text-slate-300 leading-relaxed">
+                <p className="text-base text-slate-600 leading-relaxed">
                   {t('services.genia_description', 'Augmentez votre productivité au quotidien : recherche jurisprudentielle ultrarapide, génération intelligente de projets d’actes et analyse approfondie de pièces contractuelles complexes.')}
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-2">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-emerald-400 shrink-0" />
-                    <span className="text-slate-200 font-medium">{t('services.genia_benefit1', 'Gain de temps de 50%')}</span>
+                    <CheckCircle className="h-5 w-5 text-cyan-600 shrink-0" />
+                    <span className="text-slate-800 font-semibold text-sm">{t('services.genia_benefit1', 'Gain de temps de 50%')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-emerald-400 shrink-0" />
-                    <span className="text-slate-200 font-medium">{t('services.genia_benefit2', 'Données 100% sécurisées')}</span>
+                    <CheckCircle className="h-5 w-5 text-cyan-600 shrink-0" />
+                    <span className="text-slate-800 font-semibold text-sm">{t('services.genia_benefit2', 'Données 100% sécurisées')}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="md:col-span-2 flex flex-col justify-center gap-4">
+              <div className="md:col-span-2 flex flex-col justify-center gap-3">
                 <Button 
                   size="lg" 
-                  className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white font-bold py-6 rounded-2xl shadow-xl shadow-indigo-950/50 text-center flex items-center justify-center gap-2" 
+                  className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-6 rounded-2xl shadow-lg shadow-cyan-600/20 text-center flex items-center justify-center gap-2" 
                   onClick={() => navigate('/genia-l')}
                 >
                   {t('services.genia_discover', 'Découvrir GénIA-L Avocat')}
@@ -322,7 +326,7 @@ const Services: React.FC = () => {
                 </Button>
                 
                 <button 
-                  className="w-full py-4 text-slate-400 hover:text-white font-semibold transition-colors flex items-center justify-center gap-1"
+                  className="w-full py-3 text-slate-600 hover:text-cyan-700 font-semibold text-sm transition-colors flex items-center justify-center gap-1"
                   onClick={() => navigate('/contact')}
                 >
                   {t('services.genia_demo', 'Demander une démo personnalisée')}
@@ -334,29 +338,29 @@ const Services: React.FC = () => {
       </section>
 
       {/* USERS VS LAWYERS */}
-      <section className="py-32 relative bg-slate-950 border-b border-slate-900">
-        <div className="container px-4 text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4 text-white">{t('services.audience_title', 'Une solution pour tous')}</h2>
-            <p className="text-xl text-slate-300 font-medium">{t('services.audience_subtitle', 'Deux espaces dédiés pour une collaboration optimale.')}</p>
+      <section className="py-24 relative bg-white border-b border-slate-200/80">
+        <div className="container px-4 text-center mb-14">
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-3 text-slate-900">{t('services.audience_title', 'Une solution pour tous')}</h2>
+            <p className="text-lg text-slate-600 font-medium">{t('services.audience_subtitle', 'Deux espaces dédiés pour une collaboration optimale.')}</p>
         </div>
-        <div className="container px-4 grid md:grid-cols-2 gap-10">
+        <div className="container px-4 grid md:grid-cols-2 gap-8">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="h-full rounded-3xl border border-slate-800 shadow-2xl p-8 hover:border-slate-700 transition-all bg-slate-900 text-white">
+            <Card className="h-full rounded-3xl border border-slate-200 shadow-md p-8 hover:shadow-xl hover:border-cyan-400 transition-all bg-white text-slate-900">
               <CardHeader>
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-950 border border-slate-800 text-primary-400 mb-6">
-                    <Users className="h-8 w-8" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-50 border border-cyan-100 text-cyan-600 mb-6">
+                    <Users className="h-7 w-7" />
                 </div>
-                <CardTitle className="text-3xl font-bold text-white">{t('services.audience_citizens_title', 'Citoyens')}</CardTitle>
+                <CardTitle className="text-2xl font-bold text-slate-900">{t('services.audience_citizens_title', 'Citoyens')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-lg text-slate-300 mb-8 leading-relaxed">
+                <p className="text-base text-slate-600 mb-8 leading-relaxed">
                   {t('services.audience_citizens_desc', 'Déposez vos dossiers, générez vos documents officiels et obtenez de l’aide intelligente instantanément.')}
                 </p>
-                <Button size="lg" className="w-full py-7 rounded-2xl font-bold text-lg bg-gradient-to-r from-primary-600 to-indigo-600 text-white" onClick={() => navigate('/register')}>
+                <Button size="lg" className="w-full py-6 rounded-2xl font-bold text-base bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20" onClick={() => navigate('/register')}>
                   {t('services.audience_citizens_cta', 'Créer mon compte citoyen')}
                 </Button>
               </CardContent>
@@ -368,18 +372,18 @@ const Services: React.FC = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="h-full rounded-3xl border border-slate-800 shadow-2xl p-8 hover:border-slate-700 transition-all bg-slate-900 text-white">
+            <Card className="h-full rounded-3xl border border-slate-200 shadow-md p-8 hover:shadow-xl hover:border-cyan-400 transition-all bg-white text-slate-900">
               <CardHeader>
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-950 border border-slate-800 text-purple-400 mb-6">
-                    <Scale className="h-8 w-8" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 border border-teal-100 text-teal-600 mb-6">
+                    <Scale className="h-7 w-7" />
                 </div>
-                <CardTitle className="text-3xl font-bold text-white">{t('services.audience_lawyers_title', 'Avocats')}</CardTitle>
+                <CardTitle className="text-2xl font-bold text-slate-900">{t('services.audience_lawyers_title', 'Avocats')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-lg text-slate-300 mb-8 leading-relaxed">
+                <p className="text-base text-slate-600 mb-8 leading-relaxed">
                   {t('services.audience_lawyers_desc', 'Gérez vos clients, automatisez votre secrétariat juridique et accédez à une base de données surpuissante.')}
                 </p>
-                <Button variant="outline" size="lg" className="w-full py-7 rounded-2xl font-bold text-lg border-slate-700 bg-slate-950 text-slate-200 hover:bg-slate-800" onClick={() => navigate('/register/lawyer')}>
+                <Button variant="outline" size="lg" className="w-full py-6 rounded-2xl font-bold text-base border-slate-300 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-400" onClick={() => navigate('/register/lawyer')}>
                   {t('services.audience_lawyers_cta', 'Rejoindre le réseau Just-Law')}
                 </Button>
               </CardContent>
@@ -389,31 +393,31 @@ const Services: React.FC = () => {
       </section>
 
       {/* FAQ */}
-      <section className="py-32 bg-slate-900 border-b border-slate-800">
+      <section className="py-24 bg-slate-50/60 border-b border-slate-200/80">
         <div className="container max-w-4xl px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-14"
           >
-            <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tight text-white">{t('faq.title')}</h2>
-            <p className="text-xl text-slate-300 font-medium">{t('faq.subtitle')}</p>
+            <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tight text-slate-900">{t('faq.title')}</h2>
+            <p className="text-lg text-slate-600 font-medium">{t('faq.subtitle')}</p>
           </motion.div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             {faqs.map((faq, i) => (
               <motion.div 
-                key={i}
+                key={i} 
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="rounded-2xl border border-slate-800 bg-slate-950 text-white hover:border-slate-700 transition-colors cursor-pointer group shadow-lg">
-                  <CardContent className="p-8">
-                    <h3 className="text-xl font-bold mb-3 group-hover:text-primary-400 transition-colors uppercase tracking-tight text-white">{faq.question}</h3>
-                    <p className="text-lg text-slate-300 leading-relaxed font-medium">{faq.answer}</p>
+                <Card className="rounded-2xl border border-slate-200 bg-white text-slate-900 hover:border-cyan-400 transition-colors cursor-pointer group shadow-sm">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-bold mb-2 group-hover:text-cyan-700 transition-colors text-slate-900">{faq.question}</h3>
+                    <p className="text-base text-slate-600 leading-relaxed font-normal">{faq.answer}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -423,31 +427,30 @@ const Services: React.FC = () => {
       </section>
 
       {/* CTA FINAL */}
-      <section className="py-32 bg-slate-950 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-indigo-950 to-slate-950 opacity-90" />
+      <section className="py-24 bg-gradient-to-b from-cyan-50/50 via-cyan-100/30 to-white relative overflow-hidden">
         <div className="container relative z-10 text-center px-4">
           <motion.div
              initial={{ opacity: 0, scale: 0.95 }}
              whileInView={{ opacity: 1, scale: 1 }}
              viewport={{ once: true }}
-             className="flex flex-col items-center justify-center"
+             className="flex flex-col items-center justify-center max-w-4xl mx-auto"
           >
-            <h2 className="text-4xl md:text-7xl font-black text-white mb-10 tracking-tight text-center">
+            <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight text-center">
               {t('services.cta_title_left', 'Passez à l’action')}{' '}
-              <span className="text-primary-400 underline decoration-primary-500">{t('services.cta_title_highlight', 'maintenant')}</span>
+              <span className="text-cyan-600 underline decoration-cyan-400">{t('services.cta_title_highlight', 'maintenant')}</span>
             </h2>
 
-            <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-3xl mx-auto font-medium text-center">
-              {t('services.cta_subtitle', "Accédez à vos droits et gérez vos dossiers plus rapidement avec l'IA avancée de Just-Law.")}
+            <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto font-medium text-center">
+              {t('services.cta_subtitle', "Accédez à vos droits et gérez vos dossiers plus rapidement avec l'IA avancée de France Justice.")}
             </p>
 
             <Button 
               size="lg" 
-              className="text-xl px-16 py-10 rounded-3xl bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white font-bold shadow-2xl hover:scale-105 transition-all"
+              className="text-lg px-12 py-8 rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-xl shadow-cyan-600/25 hover:scale-105 transition-all"
               onClick={() => navigate('/register')}
             >
               {t('services.cta_btn', 'Commencer gratuitement')}
-              <ArrowRight className="ml-3 h-8 w-8" />
+              <ArrowRight className="ml-3 h-6 w-6" />
             </Button>
           </motion.div>
         </div>

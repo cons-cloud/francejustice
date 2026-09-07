@@ -149,14 +149,14 @@ export const ProcedureLibrary: React.FC = () => {
         {/* Back button */}
         <button
           onClick={() => setSelectedProcedure(null)}
-          className="flex items-center gap-2 text-primary-600 hover:text-primary-800 font-semibold text-sm transition-colors"
+          className="flex items-center gap-2 text-cyan-600 hover:text-cyan-800 font-semibold text-sm transition-colors"
         >
           <ChevronRight className="h-4 w-4 rotate-180" />
           Retour à la bibliothèque
         </button>
 
         {/* Procedure header */}
-        <div className="bg-gradient-to-r from-primary-900 to-primary-700 text-white rounded-3xl p-8">
+        <div className="bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 text-white rounded-3xl p-8 shadow-md">
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <span className={`text-xs px-3 py-1 rounded-full font-bold ${diff.bg} ${diff.color}`}>
               {selectedProcedure.difficulty}
@@ -170,39 +170,39 @@ export const ProcedureLibrary: React.FC = () => {
             </span>
           </div>
           <h2 className="text-2xl font-bold mb-3">{selectedProcedure.title}</h2>
-          <p className="text-primary-200 text-sm leading-relaxed">{selectedProcedure.description}</p>
+          <p className="text-cyan-50 text-sm leading-relaxed">{selectedProcedure.description}</p>
         </div>
 
         {/* Timeline steps */}
         <div className="relative">
           {/* Vertical line */}
-          <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-primary-200 hidden sm:block" />
+          <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-cyan-200 hidden sm:block" />
           
           <div className="space-y-4">
             {selectedProcedure.steps.map((step) => (
               <div key={step.step} className="relative flex gap-4 sm:gap-6">
                 {/* Step circle */}
-                <div className="flex-shrink-0 w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md z-10">
+                <div className="flex-shrink-0 w-12 h-12 bg-cyan-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md z-10">
                   {step.step}
                 </div>
                 
                 {/* Content */}
-                <Card className="flex-1 border border-secondary-200 shadow-sm hover:shadow-md transition-shadow mb-0">
+                <Card className="flex-1 border border-slate-200 shadow-sm hover:shadow-md transition-shadow mb-0 bg-white">
                   <CardContent className="p-5">
                     <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
-                      <h3 className="font-bold text-secondary-900">{step.title}</h3>
+                      <h3 className="font-bold text-slate-900">{step.title}</h3>
                       {step.duration && (
-                        <span className="text-xs bg-secondary-100 text-secondary-600 px-2.5 py-1 rounded-full flex items-center gap-1 flex-shrink-0">
+                        <span className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full flex items-center gap-1 flex-shrink-0">
                           <Clock className="h-3 w-3" />
                           {step.duration}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-secondary-700 leading-relaxed mb-3">{step.description}</p>
+                    <p className="text-sm text-slate-700 leading-relaxed mb-3">{step.description}</p>
                     {step.tips && (
-                      <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl p-3 mt-3">
-                        <Info className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <p className="text-xs text-blue-800 leading-relaxed">{step.tips}</p>
+                      <div className="flex items-start gap-2 bg-cyan-50 border border-cyan-200 rounded-xl p-3 mt-3">
+                        <Info className="h-4 w-4 text-cyan-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-cyan-900 leading-relaxed">{step.tips}</p>
                       </div>
                     )}
                     {step.warning && (
@@ -217,11 +217,11 @@ export const ProcedureLibrary: React.FC = () => {
             ))}
             {/* End */}
             <div className="relative flex gap-4 sm:gap-6">
-              <div className="flex-shrink-0 w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center shadow-md z-10">
+              <div className="flex-shrink-0 w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-md z-10">
                 <CheckCircle2 className="h-6 w-6" />
               </div>
               <div className="flex-1 flex items-center">
-                <p className="text-green-700 font-bold text-sm">Procédure terminée !</p>
+                <p className="text-emerald-700 font-bold text-sm">Procédure terminée !</p>
               </div>
             </div>
           </div>
@@ -235,20 +235,20 @@ export const ProcedureLibrary: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-secondary-900 flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-primary-600" />
+          <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <BookOpen className="h-6 w-6 text-cyan-600" />
             Bibliothèque des Procédures Juridiques
           </h2>
-          <p className="text-sm text-secondary-500 mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             Chronologies étape par étape pour toutes les grandes procédures du droit français.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-secondary-400">
+          <span className="text-xs text-slate-500">
             Sync: {lastSync.toLocaleTimeString('fr-FR')}
           </span>
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Temps réel actif" />
-          <Button variant="outline" size="sm" onClick={fetchProcedures}>
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Temps réel actif" />
+          <Button variant="outline" size="sm" onClick={fetchProcedures} className="hover:border-cyan-500 hover:text-cyan-700">
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
@@ -256,9 +256,9 @@ export const ProcedureLibrary: React.FC = () => {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-3 h-5 w-5 text-secondary-400" />
+        <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
         <Input
-          className="pl-10"
+          className="pl-10 border-slate-200 focus:border-cyan-500 focus:ring-cyan-500"
           placeholder="Rechercher une procédure..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
@@ -276,8 +276,8 @@ export const ProcedureLibrary: React.FC = () => {
               onClick={() => setSelectedCategory(cat.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all ${
                 isActive
-                  ? 'bg-primary-600 text-white border-primary-600 shadow-md'
-                  : 'bg-slate-800 text-slate-200 border-slate-700 hover:border-primary-400'
+                  ? 'bg-cyan-600 text-white border-cyan-600 shadow-sm'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-cyan-300 hover:bg-cyan-50/50'
               }`}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -289,10 +289,10 @@ export const ProcedureLibrary: React.FC = () => {
 
       {/* Procedure cards */}
       {filtered.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900 text-slate-100 rounded-2xl border border-slate-800">
-          <Search className="h-10 w-10 text-secondary-300 mx-auto mb-3" />
-          <p className="font-bold text-secondary-700">Aucune procédure trouvée</p>
-          <p className="text-sm text-secondary-500">Modifiez votre recherche ou la catégorie.</p>
+        <div className="text-center py-16 bg-white text-slate-800 rounded-2xl border border-slate-200 shadow-sm">
+          <Search className="h-10 w-10 text-slate-400 mx-auto mb-3" />
+          <p className="font-bold text-slate-800">Aucune procédure trouvée</p>
+          <p className="text-sm text-slate-500">Modifiez votre recherche ou la catégorie.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -302,7 +302,7 @@ export const ProcedureLibrary: React.FC = () => {
             return (
               <Card
                 key={proc.id}
-                className="cursor-pointer hover:shadow-lg transition-all border border-secondary-200 group"
+                className="cursor-pointer hover:shadow-md transition-all border border-slate-200 group bg-white hover:border-cyan-300"
                 onClick={() => setSelectedProcedure(proc)}
               >
                 <CardContent className="p-6">
@@ -312,22 +312,22 @@ export const ProcedureLibrary: React.FC = () => {
                         {proc.difficulty}
                       </span>
                       {catInfo && catInfo.id !== 'all' && (
-                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-secondary-100 text-secondary-600">
+                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-slate-100 text-slate-600">
                           {catInfo.name}
                         </span>
                       )}
                     </div>
-                    <ChevronRight className="h-5 w-5 text-secondary-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                    <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-cyan-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
                   </div>
-                  <h3 className="font-bold text-secondary-900 mb-2 group-hover:text-primary-700 transition-colors">{proc.title}</h3>
-                  <p className="text-xs text-secondary-600 mb-4 line-clamp-2">{proc.description}</p>
-                  <div className="flex items-center justify-between text-xs text-secondary-500">
+                  <h3 className="font-bold text-slate-900 mb-2 group-hover:text-cyan-700 transition-colors">{proc.title}</h3>
+                  <p className="text-xs text-slate-600 mb-4 line-clamp-2">{proc.description}</p>
+                  <div className="flex items-center justify-between text-xs text-slate-500">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5" />
                       {proc.totalDuration}
                     </span>
                     <span className="flex items-center gap-1">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-primary-500" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-cyan-600" />
                       {proc.steps.length} étapes
                     </span>
                   </div>

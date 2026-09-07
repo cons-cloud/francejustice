@@ -35,11 +35,11 @@ export const LanguageSwitcher: React.FC = () => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-200 hover:text-white bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 backdrop-blur-md transition-all font-medium focus:outline-none shadow-sm cursor-pointer"
+        className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 transition-all font-semibold focus:outline-none shadow-sm cursor-pointer"
       >
-        <Globe className="h-4 w-4 text-primary-400" />
+        <Globe className="h-4 w-4 text-cyan-600" />
         <span className="text-sm">{currentLang.flag} {currentLang.name}</span>
-        <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-white' : ''}`} />
+        <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-slate-700' : ''}`} />
       </button>
 
       <AnimatePresence>
@@ -49,7 +49,7 @@ export const LanguageSwitcher: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-48 origin-top-right bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-indigo-800/50 overflow-hidden text-white z-50"
+            className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-2xl shadow-xl shadow-cyan-900/10 border border-slate-200 overflow-hidden text-slate-800 z-50"
           >
             <div className="py-1">
               {languages.map((lang) => {
@@ -64,8 +64,8 @@ export const LanguageSwitcher: React.FC = () => {
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors cursor-pointer ${
                       isSelected
-                        ? 'text-primary-400 font-semibold bg-primary-900/40'
-                        : 'text-slate-200 hover:bg-slate-800/80 hover:text-white'
+                        ? 'text-cyan-700 font-bold bg-cyan-50'
+                        : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
                     }`}
                   >
                     <span className="text-base">{lang.flag}</span>

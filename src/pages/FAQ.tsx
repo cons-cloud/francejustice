@@ -31,37 +31,39 @@ const FAQ: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-secondary-50 py-16">
-      <div className="container max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 py-16">
+      <div className="container max-w-4xl mx-auto px-4">
 
-        <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 text-center mb-10">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 text-center mb-10 tracking-tight">
           {t('faq.title')}
         </h1>
 
         <div className="space-y-4">
 
           {faqs.map((faq, index) => (
-            <Card key={index} hover>
-              <CardContent>
+            <Card key={index} className="bg-white border-slate-200/90 shadow-sm hover:shadow-md transition-all">
+              <CardContent className="p-6">
                 <button
                   onClick={() =>
                     setOpenIndex(openIndex === index ? null : index)
                   }
-                  className="w-full flex justify-between items-center text-left"
+                  className="w-full flex justify-between items-center text-left gap-4"
                 >
-                  <span className="font-semibold text-secondary-900">
+                  <span className={`font-semibold text-base sm:text-lg transition-colors ${
+                    openIndex === index ? 'text-cyan-700 font-bold' : 'text-slate-900'
+                  }`}>
                     {faq.question}
                   </span>
 
-                  <ChevronDown
-                    className={`transition-transform ${
-                      openIndex === index ? 'rotate-180' : ''
-                    }`}
-                  />
+                  <div className={`p-1.5 rounded-full transition-transform duration-200 ${
+                    openIndex === index ? 'bg-cyan-50 text-cyan-600 rotate-180' : 'text-slate-400'
+                  }`}>
+                    <ChevronDown className="h-5 w-5" />
+                  </div>
                 </button>
 
                 {openIndex === index && (
-                  <p className="mt-3 text-secondary-600">
+                  <p className="mt-4 text-slate-600 leading-relaxed pt-3 border-t border-slate-100">
                     {faq.answer}
                   </p>
                 )}

@@ -6,40 +6,40 @@ const Legal: React.FC = () => {
     const { t } = useTranslation();
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-24 pb-12">
-            <div className="container max-w-4xl">
-                <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
+        <div className="min-h-screen bg-gradient-to-b from-cyan-50/60 via-white to-slate-50 pt-20 pb-16">
+            <div className="container max-w-4xl px-4 mx-auto">
+                <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-8">
                     {/* Header */}
-                    <div className="bg-primary-600 p-8 text-white">
-                        <Scale className="h-12 w-12 mb-4" />
-                        <h1 className="text-3xl font-bold">{t('legal.title', 'Informations Légales & Conformité')}</h1>
-                        <p className="text-primary-100 mt-2">{t('legal.last_update', 'Dernière mise à jour : 30 Juillet 2026')}</p>
+                    <div className="bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-700 p-8 text-white">
+                        <Scale className="h-12 w-12 mb-4 text-cyan-100" />
+                        <h1 className="text-3xl font-black">{t('legal.title', 'Informations Légales & Conformité')}</h1>
+                        <p className="text-cyan-100 mt-2 font-medium">{t('legal.last_update', 'Dernière mise à jour : 30 Juillet 2026')}</p>
                     </div>
 
                     <div className="p-8 space-y-12">
                         {/* 1. Mentions Légales */}
                         <section id="legal" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-primary-100 text-primary-600 rounded-lg">
+                                <div className="p-2.5 bg-cyan-100 text-cyan-700 rounded-xl">
                                     <FileText className="h-6 w-6" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-gray-900">{t('legal.notice_title', '1. Mentions Légales')}</h2>
+                                <h2 className="text-2xl font-bold text-slate-900">{t('legal.notice_title', '1. Mentions Légales')}</h2>
                             </div>
-                            <div className="prose prose-blue max-w-none text-gray-600 space-y-4 text-sm leading-relaxed">
+                            <div className="prose max-w-none text-slate-600 space-y-4 text-sm leading-relaxed">
                                 <p>
                                     Conformément aux dispositions de l'article 6 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN), il est précisé aux utilisateurs de la plateforme **France Justice** l'identité des différents intervenants dans le cadre de sa réalisation et de son suivi.
                                 </p>
                                 
-                                <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                                     <div>
-                                        <h3 className="font-bold text-slate-800 mb-2">Éditeur de la plateforme</h3>
-                                        <p className="font-semibold text-primary-700">France Justice SAS</p>
+                                        <h3 className="font-bold text-slate-900 mb-2">Éditeur de la plateforme</h3>
+                                        <p className="font-semibold text-cyan-700">France Justice SAS</p>
                                         <p>Société par Actions Simplifiée (SAS) au capital de 50 000 €</p>
                                         <p>RCS : Romans B 812 345 678</p>
                                         <p>TVA Intracommunautaire : FR 12 812 345 678</p>
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-slate-800 mb-2">Siège Social & Contact</h3>
+                                        <h3 className="font-bold text-slate-900 mb-2">Siège Social & Contact</h3>
                                         <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" /> 1275 route de chateau neuf, 26320 Saint-Marcel-lès-Valence</p>
                                         <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" /> contact@francejustice.com</p>
                                         <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" /> +33 6 07 51 74 16</p>
@@ -48,13 +48,13 @@ const Legal: React.FC = () => {
 
                                 <div className="space-y-3 mt-4">
                                     <p>
-                                        <strong>Directeur de la publication :</strong> Le représentant légal de France Justice SAS.
+                                        <strong className="text-slate-900">Directeur de la publication :</strong> Le représentant légal de France Justice SAS.
                                     </p>
                                     <p>
-                                        <strong>Hébergement de l'application :</strong>
+                                        <strong className="text-slate-900">Hébergement de l'application :</strong>
                                         <br />
                                         La plateforme France Justice est propulsée et hébergée par :
-                                        <span className="block pl-4 mt-1 text-slate-500">
+                                        <span className="block pl-4 mt-1 text-slate-600">
                                             - **Railway App Inc** (93 S Jackson St, Seattle, WA 98104, USA)
                                             <br />
                                             - **Platform.sh SAS** (22 rue de Palestro, 75002 Paris, France)
@@ -69,17 +69,17 @@ const Legal: React.FC = () => {
                         {/* 2. Politique de Confidentialité */}
                         <section id="privacy" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-green-100 text-green-600 rounded-lg">
+                                <div className="p-2.5 bg-teal-100 text-teal-700 rounded-xl">
                                     <Lock className="h-6 w-6" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-gray-900">{t('legal.privacy_title', '2. Politique de Confidentialité (RGPD)')}</h2>
+                                <h2 className="text-2xl font-bold text-slate-900">{t('legal.privacy_title', '2. Politique de Confidentialité (RGPD)')}</h2>
                             </div>
-                            <div className="prose prose-green max-w-none text-gray-600 space-y-4 text-sm leading-relaxed">
+                            <div className="prose max-w-none text-slate-600 space-y-4 text-sm leading-relaxed">
                                 <p>
                                     France Justice accorde une importance primordiale à la confidentialité et à la sécurité de vos données à caractère personnel. Cette politique décrit comment nous collectons, utilisons, stockons et protégeons vos données conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi Informatique et Libertés.
                                 </p>
 
-                                <h3 className="font-bold text-slate-800 text-base mt-4">2.1 Données collectées</h3>
+                                <h3 className="font-bold text-slate-900 text-base mt-4">2.1 Données collectées</h3>
                                 <p>
                                     Nous collectons uniquement les données strictement nécessaires à l'exécution de nos services juridiques :
                                 </p>
@@ -88,7 +88,7 @@ const Legal: React.FC = () => {
                                     <li>**Pour les avocats** : Identité complète, coordonnées professionnelles, appartenance au barreau, numéro de licence professionnelle, spécialités juridiques, et documents d'habilitation (carte professionnelle).</li>
                                 </ul>
 
-                                <h3 className="font-bold text-slate-800 text-base mt-4">2.2 Finalités des traitements</h3>
+                                <h3 className="font-bold text-slate-900 text-base mt-4">2.2 Finalités des traitements</h3>
                                 <p>
                                     Le traitement de vos données est fondé sur l'exécution des conditions d'utilisation et poursuit les finalités suivantes :
                                 </p>
@@ -99,12 +99,12 @@ const Legal: React.FC = () => {
                                     <li>La sécurisation des transactions financières par le biais de notre prestataire de paiement sécurisé (Stripe).</li>
                                 </ul>
 
-                                <h3 className="font-bold text-slate-800 text-base mt-4">2.3 Durée de conservation & Destinataires</h3>
+                                <h3 className="font-bold text-slate-900 text-base mt-4">2.3 Durée de conservation & Destinataires</h3>
                                 <p>
                                     Vos données sont conservées pendant toute la durée d'activation de votre compte. En cas d'inactivité prolongée pendant 3 ans, les données sont supprimées. Vos données ne sont en aucun cas vendues à des tiers et ne sont accessibles qu'aux services internes de France Justice et aux avocats que vous choisissez de solliciter.
                                 </p>
 
-                                <h3 className="font-bold text-slate-800 text-base mt-4">2.4 Vos Droits Informatiques et Libertés</h3>
+                                <h3 className="font-bold text-slate-900 text-base mt-4">2.4 Vos Droits Informatiques et Libertés</h3>
                                 <p>
                                     Vous disposez d'un droit d'accès, de rectification, de suppression (droit à l'oubli), de limitation du traitement, de portabilité et d'opposition sur vos données personnelles. Vous pouvez exercer ces droits à tout moment en envoyant un e-mail à : **support@francejustice.com**.
                                 </p>
@@ -116,35 +116,35 @@ const Legal: React.FC = () => {
                         {/* 3. CGU & CGV */}
                         <section id="terms" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
+                                <div className="p-2.5 bg-cyan-100 text-cyan-700 rounded-xl">
                                     <Shield className="h-6 w-6" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-gray-900">{t('legal.terms_title', "3. Conditions Générales d'Utilisation (CGU) & de Vente (CGV)")}</h2>
+                                <h2 className="text-2xl font-bold text-slate-900">{t('legal.terms_title', "3. Conditions Générales d'Utilisation (CGU) & de Vente (CGV)")}</h2>
                             </div>
-                            <div className="prose prose-orange max-w-none text-gray-600 space-y-4 text-sm leading-relaxed">
-                                <h3 className="font-bold text-slate-800 text-base mt-2">3.1 Conditions Générales d'Utilisation (CGU)</h3>
+                            <div className="prose max-w-none text-slate-600 space-y-4 text-sm leading-relaxed">
+                                <h3 className="font-bold text-slate-900 text-base mt-2">3.1 Conditions Générales d'Utilisation (CGU)</h3>
                                 <p>
                                     Les présentes Conditions Générales d'Utilisation (CGU) encadrent l'accès et l'utilisation des services de France Justice. L'utilisation de notre site implique l'acceptation pleine et entière de ces CGU par l'utilisateur.
                                 </p>
                                 <p>
-                                    <strong>Responsabilité relative à l'Intelligence Artificielle :</strong>
+                                    <strong className="text-slate-900">Responsabilité relative à l'Intelligence Artificielle :</strong>
                                     <br />
-                                    France Justice met à disposition des utilisateurs des outils d'IA avancés (GÉNIA 2026) pour générer des projets de documents juridiques et de plaintes. Bien que nos modèles soient entraînés sur des bases de données juridiques officielles, <strong>les documents générés par l'IA ne constituent en aucun cas un avis juridique final et ne sauraient remplacer l'assistance, la validation ou les conseils d'un avocat inscrit au barreau.</strong>
+                                    France Justice met à disposition des utilisateurs des outils d'IA avancés (GÉNIA-L) pour générer des projets de documents juridiques et de plaintes. Bien que nos modèles soient entraînés sur des bases de données juridiques officielles, <strong>les documents générés par l'IA ne constituent en aucun cas un avis juridique final et ne sauraient remplacer l'assistance, la validation ou les conseils d'un avocat inscrit au barreau.</strong>
                                 </p>
                                 <p>
                                     L'utilisateur est fortement invité à solliciter les services d'un avocat partenaire référencé sur la plateforme pour finaliser et valider tout acte juridique ou procédure contentieuse.
                                 </p>
 
                                 <div id="cgv" className="pt-4 scroll-mt-24">
-                                    <h3 className="font-bold text-slate-800 text-base border-t border-slate-200 pt-4">3.2 Conditions Générales de Vente (CGV) — Formations, Devis & Services Payants</h3>
+                                    <h3 className="font-bold text-slate-900 text-base border-t border-slate-200 pt-4">3.2 Conditions Générales de Vente (CGV) — Formations, Devis & Services Payants</h3>
                                     <p>
                                         Les présentes CGV s'appliquent à toutes les commandes d'abonnements, de devis d'honoraires d'avocats et de formations en ligne (Masterclass et Formations Diplômantes) effectuées sur la plateforme France Justice.
                                     </p>
                                     <ul className="list-disc pl-5 space-y-1.5">
-                                        <li><strong>Prix et Tarification :</strong> Tous les prix sont indiqués en Euros (€) TTC. France Justice se réserve le droit de modifier ses tarifs à tout moment, mais les services sont facturés sur la base des tarifs en vigueur au moment de la validation de la commande.</li>
-                                        <li><strong>Modalités de Paiement Sécurisé :</strong> Les règlements sont effectués exclusivement par carte bancaire via le serveur sécurisé de notre prestataire certifié <strong>Stripe (PCI-DSS Level 1)</strong>. Aucune donnée bancaire n'est conservée sur les serveurs de France Justice.</li>
-                                        <li><strong>Droit de Rétractation (Art. L. 221-18 du Code de la Consommation) :</strong> Conformément aux dispositions légales, le client dispose d'un délai de 14 jours francs à compter de la souscription d'un service pour exercer son droit de rétractation sans avoir à justifier de motifs ni à payer de pénalités. Pour les formations numériques immédiatement accessibles en intégralité après achat, l'accès immédiat vaut renonciation expresse au droit de rétractation conformément à l'article L. 221-28 13° du Code de la consommation.</li>
-                                        <li><strong>Facturation & Recouvrement :</strong> Une facture conforme aux exigences fiscales françaises est générée automatiquement et téléchargeable depuis l'espace client pour chaque transaction validée.</li>
+                                        <li><strong className="text-slate-900">Prix et Tarification :</strong> Tous les prix sont indiqués en Euros (€) TTC. France Justice se réserve le droit de modifier ses tarifs à tout moment, mais les services sont facturés sur la base des tarifs en vigueur au moment de la validation de la commande.</li>
+                                        <li><strong className="text-slate-900">Modalités de Paiement Sécurisé :</strong> Les règlements sont effectués exclusivement par carte bancaire via le serveur sécurisé de notre prestataire certifié <strong>Stripe (PCI-DSS Level 1)</strong>. Aucune donnée bancaire n'est conservée sur les serveurs de France Justice.</li>
+                                        <li><strong className="text-slate-900">Droit de Rétractation (Art. L. 221-18 du Code de la Consommation) :</strong> Conformément aux dispositions légales, le client dispose d'un délai de 14 jours francs à compter de la souscription d'un service pour exercer son droit de rétractation sans avoir à justifier de motifs ni à payer de pénalités. Pour les formations numériques immédiatement accessibles en intégralité après achat, l'accès immédiat vaut renonciation expresse au droit de rétractation conformément à l'article L. 221-28 13° du Code de la consommation.</li>
+                                        <li><strong className="text-slate-900">Facturation & Recouvrement :</strong> Une facture conforme aux exigences fiscales françaises est générée automatiquement et téléchargeable depuis l'espace client pour chaque transaction validée.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -155,44 +155,44 @@ const Legal: React.FC = () => {
                         {/* 4. Durée de Conservation des Données & Sécurité de la Base de Données */}
                         <section id="retention" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
+                                <div className="p-2.5 bg-teal-100 text-teal-700 rounded-xl">
                                     <Lock className="h-6 w-6" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-gray-900">4. Sécurité de la Base de Données & Durée de Conservation des Données (RGPD)</h2>
+                                <h2 className="text-2xl font-bold text-slate-900">4. Sécurité de la Base de Données & Durée de Conservation des Données (RGPD)</h2>
                             </div>
-                            <div className="prose prose-emerald max-w-none text-gray-600 space-y-4 text-sm leading-relaxed">
+                            <div className="prose max-w-none text-slate-600 space-y-4 text-sm leading-relaxed">
                                 <p>
                                     France Justice garantit une sécurité maximale des données stockées dans la base de données PostgreSQL Supabase et sur nos serveurs distants.
                                 </p>
 
-                                <div className="bg-slate-900 text-slate-100 p-6 rounded-2xl border border-slate-800 my-4 shadow-md">
-                                    <h3 className="text-base font-bold text-emerald-400 mb-3 flex items-center gap-2">
+                                <div className="bg-slate-50 text-slate-800 p-6 rounded-2xl border border-slate-200 my-4 shadow-sm">
+                                    <h3 className="text-base font-bold text-cyan-800 mb-3 flex items-center gap-2">
                                         🛡️ Mesures de Sécurité Appliquées à la Base de Données
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                                        <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-                                            <span className="font-bold text-white block mb-1">Chiffrement en Transit & au Repos</span>
-                                            <p className="text-slate-300">Connexions SSL/TLS 1.3 avec HSTS 256 bits. Chiffrement AES-256 des données au repos et des documents stockés.</p>
+                                        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+                                            <span className="font-bold text-slate-900 block mb-1">Chiffrement en Transit & au Repos</span>
+                                            <p className="text-slate-600">Connexions SSL/TLS 1.3 avec HSTS 256 bits. Chiffrement AES-256 des données au repos et des documents stockés.</p>
                                         </div>
-                                        <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-                                            <span className="font-bold text-white block mb-1">Contrôle d'Accès Strict (RLS)</span>
-                                            <p className="text-slate-300">Règles Row-Level Security (RLS) Supabase garantissant que chaque utilisateur ne peut lire que ses propres données.</p>
+                                        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+                                            <span className="font-bold text-slate-900 block mb-1">Contrôle d'Accès Strict (RLS)</span>
+                                            <p className="text-slate-600">Règles Row-Level Security (RLS) Supabase garantissant que chaque utilisateur ne peut lire que ses propres données.</p>
                                         </div>
-                                        <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-                                            <span className="font-bold text-white block mb-1">Authentification JWT Sécurisée</span>
-                                            <p className="text-slate-300">Jetons JSON Web Tokens éphémères avec rafraîchissement automatique et hachage sécurisé des mots de passe.</p>
+                                        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+                                            <span className="font-bold text-slate-900 block mb-1">Authentification JWT Sécurisée</span>
+                                            <p className="text-slate-600">Jetons JSON Web Tokens éphémères avec rafraîchissement automatique et hachage sécurisé des mots de passe.</p>
                                         </div>
-                                        <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-                                            <span className="font-bold text-white block mb-1">Protection Financière PCI-DSS</span>
-                                            <p className="text-slate-300">Zéro donnée de carte bancaire stockée. Traitement 100% tokenisé par le partenaire Stripe certifié PCI-DSS Level 1.</p>
+                                        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+                                            <span className="font-bold text-slate-900 block mb-1">Protection Financière PCI-DSS</span>
+                                            <p className="text-slate-600">Zéro donnée de carte bancaire stockée. Traitement 100% tokenisé par le partenaire Stripe certifié PCI-DSS Level 1.</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <h3 className="font-bold text-slate-800 text-base mt-6">Tableau Récapitulatif des Durées de Conservation des Données :</h3>
+                                <h3 className="font-bold text-slate-900 text-base mt-6">Tableau Récapitulatif des Durées de Conservation des Données :</h3>
                                 <div className="overflow-x-auto rounded-xl border border-slate-200 mt-3">
                                     <table className="w-full text-xs text-left text-slate-700">
-                                        <thead className="bg-slate-100 text-slate-800 uppercase font-bold text-[11px] border-b border-slate-200">
+                                        <thead className="bg-slate-50 text-slate-800 uppercase font-bold text-[11px] border-b border-slate-200">
                                             <tr>
                                                 <th className="px-4 py-3">Catégorie de Données</th>
                                                 <th className="px-4 py-3">Durée de Conservation</th>
@@ -205,31 +205,31 @@ const Legal: React.FC = () => {
                                                 <td className="px-4 py-3 font-semibold text-slate-900">Comptes Utilisateurs & Profils Avocats</td>
                                                 <td className="px-4 py-3">3 ans après dernière activité</td>
                                                 <td className="px-4 py-3">Recommandation CNIL & Art. 5-1-e RGPD</td>
-                                                <td className="px-4 py-3 text-emerald-700 font-bold">Anonymisation ou Purge définitive</td>
+                                                <td className="px-4 py-3 text-cyan-700 font-bold">Anonymisation ou Purge définitive</td>
                                             </tr>
                                             <tr>
                                                 <td className="px-4 py-3 font-semibold text-slate-900">Documents Juridiques & Plaintes Générées</td>
                                                 <td className="px-4 py-3">5 ans après création</td>
                                                 <td className="px-4 py-3">Prescription civile (Art. 2224 Code Civil)</td>
-                                                <td className="px-4 py-3 text-emerald-700 font-bold">Purge automatique sécurisée</td>
+                                                <td className="px-4 py-3 text-cyan-700 font-bold">Purge automatique sécurisée</td>
                                             </tr>
                                             <tr>
                                                 <td className="px-4 py-3 font-semibold text-slate-900">Factures, Devis & Transactions Stripe</td>
                                                 <td className="px-4 py-3">10 ans</td>
                                                 <td className="px-4 py-3">Article L123-22 du Code de Commerce</td>
-                                                <td className="px-4 py-3 text-emerald-700 font-bold">Archivage légal intermédiaire crypté</td>
+                                                <td className="px-4 py-3 text-cyan-700 font-bold">Archivage légal intermédiaire crypté</td>
                                             </tr>
                                             <tr>
                                                 <td className="px-4 py-3 font-semibold text-slate-900">Logs de Connexion & Traces IP</td>
                                                 <td className="px-4 py-3">1 an</td>
                                                 <td className="px-4 py-3">Article 6 LCEN & Décret n° 2011-219</td>
-                                                <td className="px-4 py-3 text-emerald-700 font-bold">Purge automatisée des logs</td>
+                                                <td className="px-4 py-3 text-cyan-700 font-bold">Purge automatisée des logs</td>
                                             </tr>
                                             <tr>
                                                 <td className="px-4 py-3 font-semibold text-slate-900">Coordonnées Bancaires (Cartes Bleues)</td>
                                                 <td className="px-4 py-3 font-bold text-rose-600">0 jour (Non stocké)</td>
                                                 <td className="px-4 py-3">Norme PCI-DSS & API Tokenized Stripe</td>
-                                                <td className="px-4 py-3 text-emerald-700 font-bold">Géré exclusivement par Stripe</td>
+                                                <td className="px-4 py-3 text-cyan-700 font-bold">Géré exclusivement par Stripe</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -242,24 +242,24 @@ const Legal: React.FC = () => {
                         {/* 5. Cookies */}
                         <section id="cookies" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
+                                <div className="p-2.5 bg-cyan-100 text-cyan-700 rounded-xl">
                                     <Cookie className="h-6 w-6" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-gray-900">{t('legal.cookies_title', '4. Politique des Cookies')}</h2>
+                                <h2 className="text-2xl font-bold text-slate-900">{t('legal.cookies_title', '4. Politique des Cookies')}</h2>
                             </div>
-                            <div className="prose prose-purple max-w-none text-gray-600 space-y-4 text-sm leading-relaxed">
+                            <div className="prose max-w-none text-slate-600 space-y-4 text-sm leading-relaxed">
                                 <p>
                                     Afin de rendre votre navigation sur notre plateforme la plus agréable et sécurisée possible, France Justice utilise des traceurs et cookies de navigation.
                                 </p>
                                 
-                                <h3 className="font-bold text-slate-800 text-base mt-4">Types de cookies utilisés :</h3>
+                                <h3 className="font-bold text-slate-900 text-base mt-4">Types de cookies utilisés :</h3>
                                 <ul className="list-disc pl-5 space-y-2">
                                     <li>**Cookies techniques et essentiels** : Ces cookies sont indispensables pour vous connecter à votre espace personnel (gestion des jetons d'accès Supabase), mémoriser vos préférences de navigation et sécuriser les formulaires. Ils ne peuvent pas être désactivés car ils garantissent le fonctionnement de base de l'application.</li>
                                     <li>**Cookies de mesure d'audience** : Nous utilisons des outils d'analyse d'audience (ex: Google Analytics de manière anonyme) pour mesurer la fréquentation de notre site et repérer les éventuels bugs afin d'améliorer l'expérience utilisateur.</li>
                                     <li>**Cookies tiers liés aux paiements** : Notre partenaire Stripe dépose des cookies à des fins de sécurisation et de prévention contre la fraude lors des transactions de devis ou d'abonnements.</li>
                                 </ul>
 
-                                 <h3 className="font-bold text-slate-800 text-base mt-4">Gestion et paramétrage :</h3>
+                                 <h3 className="font-bold text-slate-900 text-base mt-4">Gestion et paramétrage :</h3>
                                 <p>
                                     À votre première visite sur France Justice, un bandeau d'information vous permet d'accepter ou de refuser l'utilisation de cookies non indispensables. Vous pouvez configurer ou bloquer ces cookies à tout moment via les options de configuration de votre navigateur Internet.
                                 </p>
@@ -271,30 +271,30 @@ const Legal: React.FC = () => {
                         {/* 5. Charte & Règlement Intérieur - ONG Police Citoyenne Europe */}
                         <section id="ong-police-citoyenne" className="scroll-mt-24">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
+                                <div className="p-2.5 bg-teal-100 text-teal-700 rounded-xl">
                                     <Scale className="h-6 w-6" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-gray-900">5. Règlement Intérieur & Charte Éthique — ONG Police Citoyenne - Europe</h2>
+                                <h2 className="text-2xl font-bold text-slate-900">5. Règlement Intérieur & Charte Éthique — ONG Police Citoyenne - Europe</h2>
                             </div>
-                            <div className="prose prose-emerald max-w-none text-gray-600 space-y-6 text-sm leading-relaxed">
-                                <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-200">
-                                    <h3 className="text-lg font-bold text-emerald-900 mb-2">Préambule : Principes Fondamentaux de Fraternité et d'Égalité</h3>
-                                    <p className="text-emerald-800 italic">
+                            <div className="prose max-w-none text-slate-600 space-y-6 text-sm leading-relaxed">
+                                <div className="bg-cyan-50/70 p-6 rounded-2xl border border-cyan-200">
+                                    <h3 className="text-lg font-bold text-cyan-950 mb-2">Préambule : Principes Fondamentaux de Fraternité et d'Égalité</h3>
+                                    <p className="text-cyan-900 italic">
                                         L'Organisation est guidée par une conviction humaine absolue : l'être humain n'est pleinement accompli que lorsqu'il se rend utile à son frère.
                                     </p>
-                                    <ul className="list-disc pl-5 mt-3 space-y-1.5 text-emerald-900 font-medium">
+                                    <ul className="list-disc pl-5 mt-3 space-y-1.5 text-cyan-900 font-medium">
                                         <li><strong>Fraternité Universelle :</strong> Nous sommes tous frères et sœurs au sein d'une même humanité. Aucune distinction de couleur, de race, d'origine, de genre ou de religion ne sera tolérée.</li>
                                         <li><strong>Liberté et Égalité Judiciaire :</strong> Tous les êtres humains naissent libres et demeurent rigoureusement égaux devant la justice. Aucun titre de noblesse, rang social, mandat politique, fonction administrative ou fortune ne peut permettre d'y déroger.</li>
                                         <li><strong>Devoir de Redevabilité :</strong> Face à une accusation étayée d'abus de pouvoir, de discrimination ou de manquement grave, la transparence est obligatoire. Toute personne mise en cause, quel que soit son rang, a le devoir strict et absolu de s'expliquer.</li>
                                     </ul>
                                 </div>
 
-                                <div className="bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 space-y-4">
-                                    <h3 className="text-base font-bold text-amber-400">Article 1 : Le Serment d'Intégrité, de Droiture et d'Égalité Absolue</h3>
-                                    <p className="text-xs text-slate-300 italic">
+                                <div className="bg-slate-50 text-slate-800 p-6 rounded-2xl border border-slate-200 space-y-4 shadow-sm">
+                                    <h3 className="text-base font-bold text-amber-700">Article 1 : Le Serment d'Intégrité, de Droiture et d'Égalité Absolue</h3>
+                                    <p className="text-xs text-slate-600 italic">
                                         Tout membre habilité à mener ou participer à une investigation, un audit ou une expertise prête et signe le serment suivant :
                                     </p>
-                                    <blockquote className="border-l-4 border-amber-400 pl-4 py-1 text-slate-200 font-serif italic text-sm">
+                                    <blockquote className="border-l-4 border-amber-500 pl-4 py-1 text-slate-700 font-serif italic text-sm">
                                         « Je jure devant mes pairs et les institutions de mener mes missions avec une intégrité absolue, une droiture morale irréprochable et une stricte impartialité. Je m'engage à rechercher la vérité sans préjugé, à traiter de manière égale toute personne impliquée quel que soit son rang, et à respecter le secret professionnel le plus strict. Dans l'exercice de mes fonctions, je reconnais chaque individu comme un citoyen égal devant la loi : du Président de la République à l'ouvrier, aucune distinction sociale, de titre, de fortune ou de fonction ne saurait influencer mon enquête ou altérer ma quête d'équité. »
                                     </blockquote>
                                 </div>
@@ -313,16 +313,16 @@ const Legal: React.FC = () => {
                                     </p>
                                 </div>
 
-                                <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-200 space-y-3">
-                                    <h3 className="text-base font-bold text-indigo-900">Protocole de Désignation des Délégations Nationales (Article X)</h3>
-                                    <p className="text-indigo-800 text-xs">
+                                <div className="bg-cyan-50/60 p-6 rounded-2xl border border-cyan-200 space-y-3">
+                                    <h3 className="text-base font-bold text-cyan-950">Protocole de Désignation des Délégations Nationales (Article X)</h3>
+                                    <p className="text-cyan-900 text-xs">
                                         Chaque État membre est placé sous la responsabilité exclusive d'un Délégué National nommé selon un processus rigoureux en 4 étapes (Appel à candidatures & enquête d'intégrité, Grand Oral devant le Bureau Européen, Prestation du Serment National, Décret d'Ouverture pour 3 ans).
                                     </p>
                                 </div>
 
-                                <div className="bg-amber-50 p-6 rounded-2xl border border-amber-200 space-y-4">
-                                    <h3 className="text-base font-bold text-amber-900">Guide Déontologique de l'Enquêteur Citoyen</h3>
-                                    <div className="space-y-2 text-xs text-amber-950">
+                                <div className="bg-amber-50/70 p-6 rounded-2xl border border-amber-200 space-y-4">
+                                    <h3 className="text-base font-bold text-amber-950">Guide Déontologique de l'Enquêteur Citoyen</h3>
+                                    <div className="space-y-2 text-xs text-amber-900">
                                         <p><strong>Chapitre 1 — Posture & Éthique :</strong> Impartialité totale, recherche à charge et à décharge, refus des conflits d'intérêts, dignité et courtoisie.</p>
                                         <p><strong>Chapitre 2 — Méthodologie :</strong> Administration de la preuve factuelle, vérification systématique des sources, respect du délai contradictoire de 15 jours.</p>
                                         <p><strong>Chapitre 3 — Secret Professionnel :</strong> Confidentialité absolue des pièces transmises, interdiction formelle des fuites dans la presse ou les réseaux sociaux, cryptage RGPD obligatoire.</p>

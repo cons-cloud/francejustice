@@ -235,20 +235,20 @@ export const LawCodes: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-secondary-900 flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-primary-600" />
+          <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <BookOpen className="h-6 w-6 text-cyan-600" />
             Bibliothèque des Codes de Loi
           </h2>
-          <p className="text-sm text-secondary-500 mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             Consultez les articles des principaux codes de droit — données synchronisées en temps réel.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-secondary-400">
+          <span className="text-xs text-slate-500">
             Sync: {lastSync.toLocaleTimeString('fr-FR')}
           </span>
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Temps réel actif" />
-          <Button variant="outline" size="sm" onClick={fetchLawCodes}>
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Temps réel actif" />
+          <Button variant="outline" size="sm" onClick={fetchLawCodes} className="hover:border-cyan-500 hover:text-cyan-700">
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
@@ -266,7 +266,7 @@ export const LawCodes: React.FC = () => {
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all ${
                 isActive
                   ? `${code.bgColor} ${code.color} border-current shadow-md`
-                  : 'bg-slate-800 text-slate-200 border-slate-700 hover:border-slate-600'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-cyan-300 hover:bg-cyan-50/50'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -282,17 +282,17 @@ export const LawCodes: React.FC = () => {
         <>
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-secondary-400" />
+              <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
               <Input
-                className="pl-10"
+                className="pl-10 border-slate-200 focus:border-cyan-500 focus:ring-cyan-500"
                 placeholder={`Rechercher dans le ${currentCode.name}...`}
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={expandAll}>Tout ouvrir</Button>
-              <Button variant="outline" size="sm" onClick={collapseAll}>Tout fermer</Button>
+              <Button variant="outline" size="sm" onClick={expandAll} className="hover:border-cyan-500 hover:text-cyan-700">Tout ouvrir</Button>
+              <Button variant="outline" size="sm" onClick={collapseAll} className="hover:border-cyan-500 hover:text-cyan-700">Tout fermer</Button>
             </div>
           </div>
 
@@ -301,17 +301,17 @@ export const LawCodes: React.FC = () => {
             {React.createElement(currentCode.icon, { className: `h-8 w-8 ${currentCode.color} flex-shrink-0` })}
             <div>
               <h3 className={`text-lg font-bold ${currentCode.color}`}>{currentCode.name}</h3>
-              <p className="text-sm text-slate-300">{currentCode.description}</p>
+              <p className="text-sm text-slate-700 font-medium">{currentCode.description}</p>
             </div>
           </div>
 
           {/* Chapters */}
           <div className="space-y-3">
             {filteredChapters.length === 0 && (
-              <div className="text-center py-16 bg-slate-900 text-slate-100 rounded-2xl border border-slate-800">
-                <Search className="h-10 w-10 text-secondary-300 mx-auto mb-3" />
-                <p className="font-bold text-secondary-700">Aucun article trouvé</p>
-                <p className="text-sm text-secondary-500">Modifiez votre terme de recherche.</p>
+              <div className="text-center py-16 bg-white text-slate-800 rounded-2xl border border-slate-200 shadow-sm">
+                <Search className="h-10 w-10 text-slate-400 mx-auto mb-3" />
+                <p className="font-bold text-slate-800">Aucun article trouvé</p>
+                <p className="text-sm text-slate-500">Modifiez votre terme de recherche.</p>
               </div>
             )}
             {filteredChapters.map(chapter => {

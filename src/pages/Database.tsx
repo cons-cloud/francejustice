@@ -511,47 +511,47 @@ const Database: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 pt-24 pb-16">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pt-24 pb-16">
       <div className="container px-4 mx-auto max-w-7xl">
         
         {/* Header Hero Section */}
-        <div className="relative bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 rounded-3xl p-8 md:p-12 border border-indigo-800/40 shadow-2xl mb-10 overflow-hidden">
+        <div className="relative bg-gradient-to-r from-cyan-50 via-teal-50/40 to-white rounded-3xl p-8 md:p-12 border border-cyan-200/80 shadow-sm mb-10 overflow-hidden">
           <div className="relative z-10 space-y-4 max-w-3xl">
             <div className="flex flex-wrap items-center gap-3">
               <LiveSyncBadge status="connected" />
             </div>
 
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
-              <span className="text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.4)]">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight text-slate-900">
+              <span>
                 {t('database.title_part1', 'Base de Données Juridique')}
               </span>{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-300 drop-shadow-[0_4px_25px_rgba(252,211,77,0.4)]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-700">
                 {t('database.title_part2', 'Mondiale & Synchronisée')}
               </span>
             </h1>
 
-            <p className="text-slate-300 text-base md:text-lg leading-relaxed">
+            <p className="text-slate-600 text-base md:text-lg leading-relaxed">
               {t('database.subtitle', 'Consultez et recherchez en temps réel parmi les codes de loi officiels, traités internationaux, jurisprudence de la Cour de Cassation, du Conseil d\'État, de la CJUE, de la CEDH et de l\'ONU.')}
             </p>
           </div>
-          <Library className="absolute -right-10 -bottom-10 h-72 w-72 text-indigo-500/10 pointer-events-none" />
+          <Library className="absolute -right-10 -bottom-10 h-72 w-72 text-cyan-600/10 pointer-events-none" />
         </div>
 
         {/* Search & Filter Bar */}
-        <div className="bg-slate-950/80 backdrop-blur-xl border border-indigo-900/50 rounded-2xl p-6 mb-8 shadow-xl space-y-4">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 mb-8 shadow-sm space-y-4">
           <div className="flex flex-col lg:flex-row gap-4 items-center">
             {/* Input Search */}
             <div className="relative flex-1 w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-indigo-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-cyan-600" />
               <input 
                 type="text" 
                 placeholder={t('database.search_placeholder', 'Rechercher un texte juridique (Ex: Code Civil, RGPD, Licenciement, Article 1101, CEDH, CISG)...')}
-                className="w-full pl-12 pr-4 py-3.5 bg-slate-900 border border-indigo-800/60 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm font-medium transition-all"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm font-medium transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               {searchTerm && (
-                <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -561,7 +561,7 @@ const Database: React.FC = () => {
             <Button
               onClick={handleAILegalSearch}
               disabled={isSearchingAI || !searchTerm.trim() || !isLegalValid}
-              className="bg-gradient-to-r from-amber-500 via-emerald-500 to-cyan-500 hover:opacity-95 text-slate-950 font-extrabold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 whitespace-nowrap w-full lg:w-auto justify-center"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold px-6 py-3.5 rounded-xl shadow-md shadow-cyan-600/20 flex items-center gap-2 whitespace-nowrap w-full lg:w-auto justify-center cursor-pointer"
             >
               {isSearchingAI ? (
                 <>
@@ -570,7 +570,7 @@ const Database: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles className="w-4 h-4 text-cyan-200" />
                   <span>{t('database.btn_search_ai', 'Recherche IA Mondiale en Direct')}</span>
                 </>
               )}
@@ -582,9 +582,9 @@ const Database: React.FC = () => {
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 bg-amber-950/60 border border-amber-500/50 rounded-xl text-amber-200 text-sm flex items-start gap-3"
+              className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-sm flex items-start gap-3"
             >
-              <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold">⚠️ {t('database.guardrail_title', 'Filtre de conformité juridique actif :')} </span>
                 {t('database.guardrail_desc', 'Seules les requêtes portant strictly sur le droit (textes de loi, jurisprudence, directives, arrêtés, articles de code ou traités internationaux) sont autorisées et traitées par le système.')}
@@ -593,42 +593,42 @@ const Database: React.FC = () => {
           )}
 
           {/* Filter Dropdowns */}
-          <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-800">
+          <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-100">
             {/* Country / Scope */}
-            <div className="flex items-center gap-2 bg-slate-900 px-3 py-2 rounded-xl border border-slate-800">
-              <Globe className="w-4 h-4 text-indigo-400" />
-              <span className="text-xs font-semibold text-slate-400">{t('database.label_jurisdiction', 'Juridiction :')}</span>
+            <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
+              <Globe className="w-4 h-4 text-cyan-600" />
+              <span className="text-xs font-semibold text-slate-500">{t('database.label_jurisdiction', 'Juridiction :')}</span>
               <select 
                 value={filterCountry} 
                 onChange={(e) => setFilterCountry(e.target.value)}
-                className="bg-transparent text-white text-xs font-bold border-none focus:outline-none cursor-pointer"
+                className="bg-transparent text-slate-800 text-xs font-bold border-none focus:outline-none cursor-pointer"
               >
-                <option value="Tous" className="bg-slate-900 text-white">{t('database.opt_all_countries', 'Toutes (Monde & Europe)')}</option>
-                <option value="France" className="bg-slate-900 text-white">🇫🇷 {t('database.opt_france', 'France (Légifrance)')}</option>
-                <option value="Union Européenne" className="bg-slate-900 text-white">🇪🇺 {t('database.opt_eu', 'Union Européenne (EUR-Lex / CEDH)')}</option>
-                <option value="International & Mondial" className="bg-slate-900 text-white">🌐 {t('database.opt_intl', 'International & Mondial (ONU / US Code)')}</option>
-                <option value="Maroc & Maghreb" className="bg-slate-900 text-white">🇲🇦 {t('database.opt_maroc', 'Maroc & Maghreb (DOC)')}</option>
+                <option value="Tous" className="bg-white text-slate-900">{t('database.opt_all_countries', 'Toutes (Monde & Europe)')}</option>
+                <option value="France" className="bg-white text-slate-900">🇫🇷 {t('database.opt_france', 'France (Légifrance)')}</option>
+                <option value="Union Européenne" className="bg-white text-slate-900">🇪🇺 {t('database.opt_eu', 'Union Européenne (EUR-Lex / CEDH)')}</option>
+                <option value="International & Mondial" className="bg-white text-slate-900">🌐 {t('database.opt_intl', 'International & Mondial (ONU / US Code)')}</option>
+                <option value="Maroc & Maghreb" className="bg-white text-slate-900">🇲🇦 {t('database.opt_maroc', 'Maroc & Maghreb (DOC)')}</option>
               </select>
             </div>
 
             {/* Category */}
-            <div className="flex items-center gap-2 bg-slate-900 px-3 py-2 rounded-xl border border-slate-800">
-              <Filter className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-semibold text-slate-400">{t('database.label_type', 'Type de texte :')}</span>
+            <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
+              <Filter className="w-4 h-4 text-teal-600" />
+              <span className="text-xs font-semibold text-slate-500">{t('database.label_type', 'Type de texte :')}</span>
               <select 
                 value={filterCategory} 
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="bg-transparent text-white text-xs font-bold border-none focus:outline-none cursor-pointer"
+                className="bg-transparent text-slate-800 text-xs font-bold border-none focus:outline-none cursor-pointer"
               >
-                <option value="Tous" className="bg-slate-900 text-white">{t('database.opt_all_types', 'Tous les types')}</option>
-                <option value="Codes & Lois" className="bg-slate-900 text-white">{t('database.opt_codes', 'Codes & Lois')}</option>
-                <option value="Jurisprudence & Arrêts" className="bg-slate-900 text-white">{t('database.opt_jurisprudence', 'Jurisprudence & Arrêts')}</option>
-                <option value="Directives & Traités" className="bg-slate-900 text-white">{t('database.opt_directives', 'Directives & Traités')}</option>
-                <option value="Décrets & Arrêtés" className="bg-slate-900 text-white">{t('database.opt_decrets', 'Décrets & Arrêtés')}</option>
+                <option value="Tous" className="bg-white text-slate-900">{t('database.opt_all_types', 'Tous les types')}</option>
+                <option value="Codes & Lois" className="bg-white text-slate-900">{t('database.opt_codes', 'Codes & Lois')}</option>
+                <option value="Jurisprudence & Arrêts" className="bg-white text-slate-900">{t('database.opt_jurisprudence', 'Jurisprudence & Arrêts')}</option>
+                <option value="Directives & Traités" className="bg-white text-slate-900">{t('database.opt_directives', 'Directives & Traités')}</option>
+                <option value="Décrets & Arrêtés" className="bg-white text-slate-900">{t('database.opt_decrets', 'Décrets & Arrêtés')}</option>
               </select>
             </div>
 
-            <div className="ml-auto text-xs text-slate-400 font-semibold">
+            <div className="ml-auto text-xs text-slate-500 font-semibold">
               {filteredDocs.length} {t('database.count_label', 'texte(s) juridique(s) disponible(s)')}
             </div>
           </div>
@@ -641,19 +641,19 @@ const Database: React.FC = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-8 bg-slate-950 border border-emerald-500/50 rounded-2xl p-6 shadow-2xl relative"
+              className="mb-8 bg-white border border-cyan-300 rounded-2xl p-6 shadow-lg relative"
             >
               <button 
                 onClick={() => setAiSearchResult(null)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white"
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
-              <div className="flex items-center gap-2 text-emerald-400 font-bold mb-3">
-                <Sparkles className="w-5 h-5" />
+              <div className="flex items-center gap-2 text-cyan-800 font-bold mb-3">
+                <Sparkles className="w-5 h-5 text-cyan-600" />
                 <span>Résultats de la Recherche Juridique IA Mondiale en Direct (Google & Bases Officielles)</span>
               </div>
-              <div className="whitespace-pre-wrap text-slate-200 text-sm leading-relaxed bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+              <div className="whitespace-pre-wrap text-slate-800 text-sm leading-relaxed bg-cyan-50/50 p-4 rounded-xl border border-cyan-100">
                 {aiSearchResult}
               </div>
             </motion.div>
@@ -668,47 +668,47 @@ const Database: React.FC = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.04 }}
-              className="bg-slate-950/70 border border-indigo-900/40 rounded-2xl p-6 hover:border-amber-400/50 transition-all duration-300 shadow-lg flex flex-col justify-between group"
+              className="bg-white border border-slate-200/90 rounded-2xl p-6 hover:border-cyan-500 hover:shadow-xl transition-all duration-300 shadow-sm flex flex-col justify-between group"
             >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-md bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold">
+                    <span className="px-2.5 py-1 rounded-md bg-cyan-50 border border-cyan-200 text-cyan-800 text-xs font-bold">
                       {doc.country}
                     </span>
-                    <span className="px-2.5 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+                    <span className="px-2.5 py-1 rounded-md bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold">
                       {doc.category}
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                  <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                     {doc.year}
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-2">
+                <h3 className="text-lg font-bold text-slate-900 group-hover:text-cyan-700 transition-colors line-clamp-2">
                   {doc.title}
                 </h3>
 
-                <p className="text-slate-300 text-xs leading-relaxed line-clamp-3">
+                <p className="text-slate-600 text-xs leading-relaxed line-clamp-3">
                   {doc.description}
                 </p>
 
                 {doc.content && (
-                  <div className="p-3 bg-slate-900/90 rounded-xl border border-slate-800/80 text-xs font-mono text-slate-300 line-clamp-2">
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono text-slate-700 line-clamp-2">
                     {doc.content}
                   </div>
                 )}
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-900 gap-2">
+              <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-indigo-800/60 text-slate-200 hover:bg-indigo-900/40 text-xs font-semibold"
+                  className="border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-cyan-800 text-xs font-semibold cursor-pointer"
                   onClick={() => setSelectedDoc(doc)}
                 >
-                  <BookOpen className="w-3.5 h-3.5 mr-1 text-indigo-400" />
+                  <BookOpen className="w-3.5 h-3.5 mr-1 text-cyan-600" />
                   Consulter le Texte
                 </Button>
 
@@ -718,7 +718,7 @@ const Database: React.FC = () => {
                       href={doc.source_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-amber-300 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1.5 rounded-lg transition-colors"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-cyan-800 hover:text-cyan-900 bg-cyan-50 border border-cyan-200 px-2.5 py-1.5 rounded-lg transition-colors"
                       title="Source officielle externe (Légifrance, Service-Public...)"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -729,15 +729,15 @@ const Database: React.FC = () => {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-slate-400 hover:text-white"
+                    className="text-slate-400 hover:text-slate-700 cursor-pointer"
                     onClick={() => copyDocText(doc)}
                   >
-                    {copiedId === doc.id ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    {copiedId === doc.id ? <CheckCircle className="w-4 h-4 text-cyan-600" /> : <Copy className="w-4 h-4" />}
                   </Button>
 
                   <Button
                     size="sm"
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3"
+                    className="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 shadow-sm cursor-pointer"
                     onClick={() => downloadDocFile(doc)}
                   >
                     <Download className="w-3.5 h-3.5 mr-1" />
@@ -751,14 +751,14 @@ const Database: React.FC = () => {
 
         {/* Empty State */}
         {filteredDocs.length === 0 && (
-          <div className="text-center py-20 bg-slate-950/60 rounded-3xl border border-dashed border-indigo-900/50 p-8 space-y-4">
-            <ShieldAlert className="h-16 w-16 text-slate-600 mx-auto" />
-            <h3 className="text-xl font-bold text-slate-300">
+          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300 p-8 space-y-4 shadow-sm">
+            <ShieldAlert className="h-16 w-16 text-slate-400 mx-auto" />
+            <h3 className="text-xl font-bold text-slate-800">
               {!isLegalValid 
                 ? "Recherche non-juridique filtrée" 
                 : "Aucun texte juridique ne correspond à ces critères"}
             </h3>
-            <p className="text-slate-400 text-sm max-w-md mx-auto">
+            <p className="text-slate-600 text-sm max-w-md mx-auto">
               {!isLegalValid 
                 ? "Veuillez entrer des termes juridiques authentiques (ex: Code Civil, RGPD, Contrat, Jurisprudence, Cassation)." 
                 : "Essayez de modifier vos filtres de pays ou lancez la recherche IA mondiale en direct."}
@@ -770,48 +770,48 @@ const Database: React.FC = () => {
       {/* Reader Modal */}
       <AnimatePresence>
         {selectedDoc && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-indigo-800/80 rounded-3xl p-6 md:p-8 max-w-3xl w-full max-h-[85vh] overflow-y-auto space-y-6 shadow-2xl relative"
+              className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 max-w-3xl w-full max-h-[85vh] overflow-y-auto space-y-6 shadow-2xl relative text-slate-900"
             >
               <button
                 onClick={() => setSelectedDoc(null)}
-                className="absolute top-6 right-6 text-slate-400 hover:text-white"
+                className="absolute top-6 right-6 text-slate-400 hover:text-slate-700 cursor-pointer"
               >
                 <X className="w-6 h-6" />
               </button>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs font-bold text-amber-400">
+                <div className="flex items-center gap-2 text-xs font-bold text-cyan-700">
                   <span>{selectedDoc.country}</span> • <span>{selectedDoc.category}</span> • <span>{selectedDoc.year}</span>
                 </div>
-                <h2 className="text-2xl font-black text-white">{selectedDoc.title}</h2>
+                <h2 className="text-2xl font-black text-slate-900">{selectedDoc.title}</h2>
               </div>
 
-              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-slate-300 text-sm leading-relaxed whitespace-pre-wrap font-sans">
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-slate-800 text-sm leading-relaxed whitespace-pre-wrap font-sans">
                 {selectedDoc.content || selectedDoc.description}
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+              <div className="flex items-center justify-between pt-4 border-t border-slate-200">
                 {selectedDoc.source_url ? (
                   <a
                     href={selectedDoc.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 font-bold"
+                    className="inline-flex items-center gap-1.5 text-xs text-cyan-700 hover:text-cyan-800 font-bold"
                   >
                     <ExternalLink className="w-3.5 h-3.5" /> Source Officielle ({new URL(selectedDoc.source_url).hostname})
                   </a>
                 ) : <span />}
 
                 <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => copyDocText(selectedDoc)}>
-                    <Copy className="w-4 h-4 mr-1" /> Copier
+                  <Button variant="outline" onClick={() => copyDocText(selectedDoc)} className="cursor-pointer border-slate-200 text-slate-700 hover:bg-slate-100">
+                    <Copy className="w-4 h-4 mr-1 text-slate-500" /> Copier
                   </Button>
-                  <Button onClick={() => downloadDocFile(selectedDoc)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold">
+                  <Button onClick={() => downloadDocFile(selectedDoc)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold cursor-pointer shadow-sm">
                     <Download className="w-4 h-4 mr-1" /> Télécharger en PDF
                   </Button>
                 </div>

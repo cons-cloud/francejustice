@@ -144,39 +144,39 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-slate-100 py-12 px-4 relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 text-slate-900 py-12 px-4 relative">
       <Link 
         to="/" 
-        className="absolute top-8 left-8 flex items-center text-slate-400 hover:text-white font-semibold transition-colors group"
+        className="absolute top-8 left-8 flex items-center text-slate-500 hover:text-cyan-600 font-semibold transition-colors group"
       >
         <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
         Retour à l'accueil
       </Link>
 
-      <Card className="w-full max-w-2xl bg-slate-900 border-slate-800 shadow-2xl">
+      <Card className="w-full max-w-2xl bg-white border-slate-200 shadow-xl shadow-slate-200/50">
         <CardContent className="p-8">
           <div className="text-center mb-8">
-            <div className="mx-auto h-12 w-12 bg-primary-900/60 border border-primary-700/50 rounded-full flex items-center justify-center mb-4">
-              <ShieldCheck className="h-6 w-6 text-primary-400" />
+            <div className="mx-auto h-12 w-12 bg-cyan-50 border border-cyan-200 rounded-full flex items-center justify-center mb-4 shadow-sm">
+              <ShieldCheck className="h-6 w-6 text-cyan-600" />
             </div>
-            <h2 className="text-3xl font-extrabold text-white">
+            <h2 className="text-3xl font-extrabold text-slate-900">
               Inscription Professionnelle
             </h2>
-            <p className="text-slate-300 mt-2">
+            <p className="text-slate-600 mt-2">
               Rejoignez notre réseau d'avocats certifiés
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-md font-medium">
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md font-medium">
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="relative">
-                <UserIcon className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <UserIcon className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   required
                   placeholder="Prénom"
@@ -186,7 +186,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
                 />
               </div>
               <div className="relative">
-                <UserIcon className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <UserIcon className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   required
                   placeholder="Nom"
@@ -199,7 +199,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="relative">
-                <Mail className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <Mail className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   type="email"
                   required
@@ -221,7 +221,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="relative">
-                <Lock className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <Lock className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   required
@@ -233,13 +233,13 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-secondary-400 hover:text-secondary-600 transition-colors"
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               <div className="relative">
-                <Lock className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <Lock className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
                   required
@@ -251,7 +251,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3 text-secondary-400 hover:text-secondary-600 transition-colors"
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -260,7 +260,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
 
             <div className="space-y-4">
               <div className="relative">
-                <Briefcase className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <Briefcase className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   required
                   placeholder="Barreau de rattachement (ex: Paris, Lyon...)"
@@ -271,10 +271,10 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="relative">
-                  <FileText className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                  <FileText className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                   <Input
                     required
-                    placeholder="Licence"
+                    placeholder="Numéro de Licence"
                     className="!pl-14"
                     value={form.licenseNumber}
                     onChange={(e) => setForm({ ...form, licenseNumber: e.target.value })}
@@ -291,7 +291,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="relative">
-                <MapPin className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <MapPin className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   placeholder="Ville"
                   className="!pl-14"
@@ -308,16 +308,16 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
             </div>
 
             <div>
-              <label className="text-sm font-medium text-secondary-700 mb-2 block">
+              <label className="text-sm font-semibold text-slate-700 mb-2 block">
                 Documents justificatifs (Carte professionnelle, diplôme...)
               </label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-secondary-300 border-dashed rounded-lg">
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-200 border-dashed rounded-xl bg-slate-50/50 hover:bg-cyan-50/30 transition-colors">
                 <div className="space-y-1 text-center">
-                  <svg className="mx-auto h-12 w-12 text-secondary-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                  <svg className="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <div className="flex text-sm text-secondary-600">
-                    <label className="relative cursor-pointer bg-slate-800 text-slate-100 rounded-md font-medium text-primary-400 hover:text-primary-300 focus-within:outline-none">
+                  <div className="flex justify-center text-sm text-slate-600">
+                    <label className="relative cursor-pointer bg-cyan-50 text-cyan-700 hover:bg-cyan-100 border border-cyan-200 px-4 py-2 rounded-lg font-bold transition-colors">
                       <span>Télécharger des fichiers</span>
                       <input 
                         type="file" 
@@ -328,22 +328,22 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
                       />
                     </label>
                   </div>
-                  <p className="text-xs text-secondary-500">
+                  <p className="text-xs text-slate-500">
                     {files && files.length > 0 ? `${files.length} fichier(s) sélectionné(s)` : "PNG, JPG, PDF jusqu'à 10MB"}
                   </p>
                 </div>
               </div>
             </div>
 
-            <Button className="w-full h-12 text-lg" disabled={loading}>
+            <Button className="w-full h-12 text-base font-bold bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/25 transition-all" disabled={loading}>
               {loading ? 'Traitement en cours...' : 'Soumettre ma candidature'}
             </Button>
             
-            <p className="text-center text-sm text-secondary-600">
+            <p className="text-center text-sm text-slate-600">
               Déjà inscrit ?{' '}
               <button
                 type="button"
-                className="text-primary-600 font-semibold hover:underline"
+                className="text-cyan-600 font-semibold hover:underline"
                 onClick={() => {
                   const redirect = new URLSearchParams(window.location.search).get('redirect');
                   navigate(`/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`);

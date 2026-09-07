@@ -374,15 +374,15 @@ const Home: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-slate-50 font-sans">
+    <div className="min-h-screen overflow-x-hidden bg-white font-sans text-slate-900">
       <SEO title="FranceJustice — ONG Internationale & Droit IA" description="FranceJustice : Plateforme souveraine d'accès au droit français, recherche IA et consultations." />
 
       {/* HERO SECTION */}
-      <section className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 pt-20 pb-16 text-slate-100 overflow-hidden">
-        {/* Background glow animations */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-blue-900/10 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
-        <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-red-950/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-10 left-10 w-[450px] h-[450px] bg-blue-950/10 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-b from-cyan-50/60 via-white to-white pt-20 pb-16 text-slate-900 overflow-hidden">
+        {/* Background cyan glow animations */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-cyan-400/10 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
+        <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-teal-300/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-10 left-10 w-[450px] h-[450px] bg-sky-300/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Content */}
         <div className="relative z-10 text-center px-3 sm:px-6 max-w-6xl mx-auto space-y-6 sm:space-y-8 w-full">
@@ -390,9 +390,9 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-slate-900/80 border border-slate-700/60 text-[11px] sm:text-sm font-bold text-slate-300 backdrop-blur-md shadow-sm max-w-full text-balance"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white border border-cyan-200 text-[11px] sm:text-sm font-bold text-cyan-900 shadow-sm max-w-full text-balance"
           >
-            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0 animate-spin" />
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-600 shrink-0 animate-spin" />
             <span>{t('home.hero_badge', 'Plateforme Nationale 100% Synchronisée en Temps Réel • Visioconférences & IA 2026')}</span>
           </motion.div>
 
@@ -400,16 +400,16 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-balance font-sans"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-balance font-sans text-slate-900"
           >
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-400 to-blue-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-700">
               {t('home.hero_title_part1', 'La Justice Numérique de Demain,')}
             </span>{' '}
             <br className="hidden sm:inline" />
-            <span className="text-slate-200">
+            <span className="text-slate-900">
               {t('home.hero_title_part2', 'Accessible à Tous les ')}
             </span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-700 to-rose-900">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-700 via-teal-700 to-slate-900">
               {t('home.hero_title_part3', 'Citoyens & Avocats')}
             </span>
           </motion.h1>
@@ -418,14 +418,14 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-base sm:text-xl md:text-2xl text-slate-300 font-extrabold max-w-5xl mx-auto leading-relaxed text-center"
+            className="text-base sm:text-xl md:text-2xl text-slate-700 font-extrabold max-w-5xl mx-auto leading-relaxed text-center"
           >
-            <span className="text-blue-400 font-black">{t('home.hero_sub1', 'Assistant IA Génia 2026')}</span> •{' '}
-            <span className="text-slate-200 font-black">{t('home.hero_sub2', 'Visioconférences sécurisées en direct')}</span> •{' '}
-            <span className="text-blue-400 font-black">{t('home.hero_sub3', 'Salles de classe virtuelles')}</span> •{' '}
-            <span className="text-slate-200 font-black">{t('home.hero_sub4', 'Planning Annuel national')}</span> •{' '}
-            <span className="text-red-400 font-black">{t('home.hero_sub5', 'Centre d\'Études Doctrinales & Revues Scientifiques')}</span>{' '}
-            <span className="text-slate-300">{t('home.hero_sub6', 'en temps réel.')}</span>
+            <span className="text-cyan-700 font-black">{t('home.hero_sub1', 'Assistant IA Génia 2026')}</span> •{' '}
+            <span className="text-slate-800 font-black">{t('home.hero_sub2', 'Visioconférences sécurisées en direct')}</span> •{' '}
+            <span className="text-cyan-700 font-black">{t('home.hero_sub3', 'Salles de classe virtuelles')}</span> •{' '}
+            <span className="text-slate-800 font-black">{t('home.hero_sub4', 'Planning Annuel national')}</span> •{' '}
+            <span className="text-teal-700 font-black">{t('home.hero_sub5', 'Centre d\'Études Doctrinales & Revues Scientifiques')}</span>{' '}
+            <span className="text-slate-600">{t('home.hero_sub6', 'en temps réel.')}</span>
           </motion.p>
 
           <motion.div
@@ -436,7 +436,7 @@ const Home: React.FC = () => {
           >
             <Button
               size="lg"
-              className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl bg-blue-700 hover:bg-blue-800 text-slate-100 shadow-lg transition-all hover:scale-105 active:scale-95 font-black justify-center"
+              className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg shadow-cyan-600/20 transition-all hover:scale-105 active:scale-95 font-black justify-center cursor-pointer"
               onClick={() => navigate('/register')}
             >
               {t('home.btn_create_account', 'Créer mon Compte Citoyen')}
@@ -446,7 +446,7 @@ const Home: React.FC = () => {
             <Button
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl border-slate-600 text-slate-200 bg-slate-800/60 hover:bg-slate-800 backdrop-blur-md transition-all hover:scale-105 active:scale-95 font-bold justify-center"
+              className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-2xl border-slate-300 text-slate-800 bg-white hover:bg-slate-50 transition-all hover:scale-105 active:scale-95 font-bold justify-center shadow-sm cursor-pointer"
               onClick={() => navigate('/login')}
             >
               {t('home.btn_lawyer_space', 'Espace Avocat au Barreau')}
@@ -455,18 +455,18 @@ const Home: React.FC = () => {
             <Button
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto text-sm sm:text-lg px-5 sm:px-6 py-4 sm:py-6 rounded-2xl border-red-900/60 text-red-300 bg-red-950/40 hover:bg-red-900/50 backdrop-blur-md transition-all hover:scale-105 active:scale-95 font-semibold justify-center"
+              className="w-full sm:w-auto text-sm sm:text-lg px-5 sm:px-6 py-4 sm:py-6 rounded-2xl border-cyan-200 text-cyan-800 bg-cyan-50/70 hover:bg-cyan-100 transition-all hover:scale-105 active:scale-95 font-semibold justify-center shadow-sm cursor-pointer"
               onClick={() => navigate('/classrooms')}
             >
-              <Video className="w-5 h-5 mr-2 text-red-400 shrink-0" /> {t('home.btn_live_rooms', 'Salles de Classe & Visio en Direct')}
+              <Video className="w-5 h-5 mr-2 text-cyan-600 shrink-0" /> {t('home.btn_live_rooms', 'Salles de Classe & Visio en Direct')}
             </Button>
           </motion.div>
         </div>
       </section>
 
       {/* RECHERCHE JURIDIQUE & DOMAINES DE RECHERCHE */}
-      <section className="relative py-12 bg-slate-900 border-t border-b border-indigo-900/40 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/40 via-slate-900 to-slate-950 pointer-events-none" />
+      <section className="relative py-12 bg-slate-50/80 border-t border-b border-slate-200/80 text-slate-900 overflow-hidden">
+        <div className="absolute inset-0 bg-radial from-cyan-50/40 via-transparent to-transparent pointer-events-none" />
         <div className="relative z-10 container px-3 sm:px-6 max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -478,7 +478,6 @@ const Home: React.FC = () => {
           </motion.div>
         </div>
       </section>
-
       {/* STATS SECTION */}
       <section className="py-16 bg-white border-b border-slate-200 relative">
         <div className="container px-4 mx-auto">
@@ -490,8 +489,8 @@ const Home: React.FC = () => {
             className="grid grid-cols-2 md:grid-cols-4 gap-8"
           >
             {stats.map((stat, index) => (
-              <motion.div key={index} variants={itemVariants} className="text-center group p-4 rounded-2xl hover:bg-slate-50 transition-colors">
-                <div className="text-3xl md:text-5xl font-black text-indigo-600 mb-2 tracking-tight group-hover:scale-110 transition-transform">
+              <motion.div key={index} variants={itemVariants} className="text-center group p-4 rounded-2xl hover:bg-cyan-50/50 transition-colors">
+                <div className="text-3xl md:text-5xl font-black text-cyan-600 mb-2 tracking-tight group-hover:scale-110 transition-transform">
                   <AnimatedCounter value={stat.number} />
                 </div>
                 <div className="text-slate-500 font-bold uppercase tracking-wider text-xs">{t(stat.label)}</div>
@@ -502,23 +501,23 @@ const Home: React.FC = () => {
       </section>
 
       {/* ── SECTION 1: NOS FORMATIONS JURIDIQUES & SALLES DE CLASSE EN DIRECT ── */}
-      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+      <section className="py-20 bg-white text-slate-900 relative overflow-hidden border-b border-slate-200/80">
         <div className="container px-4 mx-auto max-w-7xl relative z-10 space-y-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-800 pb-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-6">
             <div className="space-y-3 max-w-2xl">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-4 py-1.5 rounded-full border border-cyan-500/20 inline-flex items-center gap-1.5">
-                <BookOpen className="w-4 h-4 text-cyan-400" /> {t('home.section_classrooms_badge', 'Formations Juridiques Inscrites')}
+              <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-800 bg-cyan-50 px-4 py-1.5 rounded-full border border-cyan-200 inline-flex items-center gap-1.5">
+                <BookOpen className="w-4 h-4 text-cyan-600" /> {t('home.section_classrooms_badge', 'Formations Juridiques Inscrites')}
               </span>
-              <h2 className="text-3xl md:text-5xl font-black tracking-tight">
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
                 {t('home.section_classrooms_title', 'Les Formations & Salles de Classe Virtuelles')}
               </h2>
-              <p className="text-sm md:text-base text-slate-300">
+              <p className="text-sm md:text-base text-slate-600">
                 {t('home.section_classrooms_desc', 'Suivez en direct ou en replay les masterclasses dispensées par les avocats au barreau, professeurs de droit et juristes experts.')}
               </p>
             </div>
             <Button
               onClick={() => navigate('/classrooms')}
-              className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-lg shadow-cyan-600/20"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-md shadow-cyan-600/20 cursor-pointer"
             >
               {t('home.btn_all_classrooms', 'Voir Toutes les Formations')} ({featuredClassrooms.length}+)
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -529,37 +528,37 @@ const Home: React.FC = () => {
             {featuredClassrooms.map((cls) => (
               <div 
                 key={cls.id} 
-                className="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:border-cyan-500/50 hover:shadow-2xl transition-all duration-300 group"
+                className="bg-white border border-slate-200/90 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 group shadow-sm"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-lg border border-cyan-800/40">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-800 bg-cyan-50 px-3 py-1 rounded-lg border border-cyan-200">
                       {cls.category ? t(`classrooms.cat_${cls.category}`, cls.category) : t('classrooms.default_cat', 'Formation Juridique')}
                     </span>
                     {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? (
-                      <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
-                        <FileText className="w-3 h-3 text-indigo-400" /> {t('classrooms.diploma_pdf', 'Diplôme Texte & PDF')}
+                      <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-200 flex items-center gap-1">
+                        <FileText className="w-3 h-3 text-cyan-600" /> {t('classrooms.diploma_pdf', 'Diplôme Texte & PDF')}
                       </span>
                     ) : (
-                      <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                        <Video className="w-3 h-3 text-emerald-400" /> {cls.type === 'direct' ? t('classrooms.live_hd', 'Live HD') : t('classrooms.replay', 'Replay')}
+                      <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 flex items-center gap-1">
+                        <Video className="w-3 h-3 text-teal-600" /> {cls.type === 'direct' ? t('classrooms.live_hd', 'Live HD') : t('classrooms.replay', 'Replay')}
                       </span>
                     )}
                   </div>
 
-                  <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-cyan-600 transition-colors line-clamp-2">
                     {cls.title}
                   </h3>
 
-                  <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
                     {cls.description || t('classrooms.default_desc', 'Formation complète sur les textes de loi et la jurisprudence récente.')}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-700/60 space-y-3">
-                  <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span className="flex items-center gap-1 font-semibold text-slate-200 truncate">
-                      <UserCheck className="w-3.5 h-3.5 text-cyan-400 shrink-0" /> 
+                <div className="pt-4 border-t border-slate-100 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span className="flex items-center gap-1 font-semibold text-slate-800 truncate">
+                      <UserCheck className="w-3.5 h-3.5 text-cyan-600 shrink-0" /> 
                       {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? t('classrooms.official_diploma', 'Formation Diplômante Officielle') : cls.lawyer_first_name ? `${cls.lawyer_first_name} ${cls.lawyer_last_name}` : t('classrooms.law_prof', 'Professeur de Droit')}
                     </span>
                     {!((cls as any).is_pdf_formation || cls.id.startsWith('fede-')) && cls.duration_minutes > 0 && (
@@ -571,7 +570,7 @@ const Home: React.FC = () => {
 
                   <Button 
                     onClick={() => navigate(`/classrooms?formation=${cls.id}`)}
-                    className="w-full bg-slate-700 hover:bg-cyan-600 text-white font-bold py-2.5 text-xs rounded-xl transition-all"
+                    className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2.5 text-xs rounded-xl transition-all shadow-sm cursor-pointer"
                   >
                     {(cls as any).is_pdf_formation || cls.id.startsWith('fede-') ? t('classrooms.btn_read', '📖 Lire le Contenu') : t('classrooms.btn_access', 'Accéder à la Salle de Classe')}
                   </Button>
@@ -587,8 +586,8 @@ const Home: React.FC = () => {
         <div className="container px-4 mx-auto max-w-7xl space-y-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-6">
             <div className="space-y-3 max-w-2xl">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-700 bg-indigo-100 px-4 py-1.5 rounded-full border border-indigo-200 inline-flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-indigo-600" /> {t('home.section_lawyers_badge', 'Annuaire Officiel des Barreaux')}
+              <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-800 bg-cyan-50 px-4 py-1.5 rounded-full border border-cyan-200 inline-flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-cyan-600" /> {t('home.section_lawyers_badge', 'Annuaire Officiel des Barreaux')}
               </span>
               <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
                 {t('home.section_lawyers_title', 'Les Avocats & Juristes inscrits sur la Plateforme')}
@@ -599,7 +598,7 @@ const Home: React.FC = () => {
             </div>
             <Button
               onClick={() => navigate('/lawyers')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-lg shadow-indigo-600/20"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-md shadow-cyan-600/20 cursor-pointer"
             >
               Découvrir Tous les Avocats
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -610,23 +609,23 @@ const Home: React.FC = () => {
             {featuredLawyers.map((lawyer) => (
               <div 
                 key={lawyer.id}
-                className="bg-slate-50 border border-slate-200 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:shadow-2xl hover:border-indigo-400 transition-all duration-300 group"
+                className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:shadow-xl hover:border-cyan-400 transition-all duration-300 group shadow-sm"
               >
                 <div className="space-y-4 text-center">
                   <div className="relative inline-block mx-auto">
                     <img 
                       src={lawyer.avatar_url || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'} 
                       alt={`Me ${lawyer.first_name} ${lawyer.last_name}`} 
-                      className="w-20 h-20 rounded-2xl object-cover shadow-md mx-auto border-2 border-indigo-500/30 group-hover:scale-105 transition-transform"
+                      className="w-20 h-20 rounded-2xl object-cover shadow-md mx-auto border-2 border-cyan-500/30 group-hover:scale-105 transition-transform"
                     />
-                    <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full" title={t('home.available_appoint', 'Disponible pour rendez-vous')} />
+                    <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-teal-500 border-2 border-white rounded-full" title={t('home.available_appoint', 'Disponible pour rendez-vous')} />
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-cyan-600 transition-colors">
                       Me {lawyer.first_name} {lawyer.last_name}
                     </h3>
-                    <p className="text-xs font-semibold text-indigo-600 mt-1">
+                    <p className="text-xs font-bold text-cyan-700 mt-1">
                       {lawyer.specialty || lawyer.specialties?.[0] || 'Droit Général & Contentieux'}
                     </p>
                   </div>
@@ -637,16 +636,16 @@ const Home: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-200/80 space-y-2">
-                  <div className="flex items-center justify-between text-[11px] text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-xl">
+                <div className="pt-4 border-t border-slate-100 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] text-teal-800 font-bold bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-100">
                     <span className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> {t('home.certified_profile', 'Profil Certifié')}
+                      <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" /> {t('home.certified_profile', 'Profil Certifié')}
                     </span>
                     <span>Visio 2h+</span>
                   </div>
                   <Button 
                     onClick={() => navigate('/lawyers')}
-                    className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-2.5 text-xs rounded-xl transition-all shadow-sm"
+                    className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2.5 text-xs rounded-xl transition-all shadow-sm cursor-pointer"
                   >
                     Consulter le Profil
                   </Button>
@@ -658,25 +657,25 @@ const Home: React.FC = () => {
       </section>
 
       {/* ── SECTION ACTUALITÉS JURIDIQUES (TOUTES LES NOUVELLES ACTUALITÉS) ── */}
-      <section className="py-24 bg-slate-900 text-white relative border-y border-slate-800">
+      <section className="py-24 bg-slate-50/60 text-slate-900 relative border-y border-slate-200">
         <div className="container px-4 mx-auto max-w-7xl space-y-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-4 max-w-3xl">
-              <span className="text-xs font-black uppercase tracking-widest text-emerald-400 bg-emerald-950/80 px-4 py-1.5 rounded-full border border-emerald-800/80 inline-flex items-center gap-2">
-                <Newspaper className="w-4 h-4 text-emerald-400" />
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="text-xs font-black uppercase tracking-widest text-cyan-800 bg-cyan-50 px-4 py-1.5 rounded-full border border-cyan-200 inline-flex items-center gap-2">
+                <Newspaper className="w-4 h-4 text-cyan-600" />
+                <span className="w-2 h-2 rounded-full bg-cyan-500 animate-ping" />
                 {t('home.news_badge', 'Fil d\'Actualité Direct & Législation 2026')}
               </span>
-              <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+              <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
                 {t('home.news_title', 'Toutes les Nouvelles Actualités Juridiques')}
               </h2>
-              <p className="text-base text-slate-200 leading-relaxed font-medium">
+              <p className="text-base text-slate-600 leading-relaxed font-medium">
                 {t('home.news_desc', 'Suivez l\'évolution en temps réel du droit français et européen : décrets au JORF, nouvelles jurisprudences de la Cour de Cassation, AI Act UE 2024/1689 et publications scientifiques.')}
               </p>
             </div>
             <Button
               onClick={() => navigate('/news')}
-              className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-black px-8 py-4 rounded-2xl shadow-xl flex items-center gap-2.5 self-start md:self-auto transition-all hover:scale-105"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-black px-8 py-4 rounded-2xl shadow-lg shadow-cyan-600/20 flex items-center gap-2.5 self-start md:self-auto transition-all hover:scale-105 cursor-pointer"
             >
               {t('home.btn_all_news', 'Consulter Toutes les Actualités')}
               <ArrowRight className="w-5 h-5" />
@@ -685,29 +684,29 @@ const Home: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* News 1 */}
-            <div className="bg-slate-950 p-8 rounded-3xl border-2 border-slate-800 shadow-2xl flex flex-col justify-between hover:border-indigo-500/60 transition-all duration-300 group">
+            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-cyan-500 hover:shadow-xl transition-all duration-300 group">
               <div className="space-y-5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="bg-indigo-950 text-indigo-300 px-3.5 py-1 rounded-full font-black border border-indigo-700/60">
+                  <span className="bg-cyan-50 text-cyan-800 px-3.5 py-1 rounded-full font-black border border-cyan-200">
                     {t('news.cat_rgpd', 'RGPD & Numérique')}
                   </span>
-                  <span className="text-slate-200 font-bold">{t('news.country_eu', 'Union Européenne')}</span>
+                  <span className="text-slate-600 font-bold">{t('news.country_eu', 'Union Européenne')}</span>
                 </div>
-                <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors leading-snug">
+                <h3 className="text-xl font-bold text-slate-900 group-hover:text-cyan-600 transition-colors leading-snug">
                   {t('news.n1_title', 'Entrée en vigueur des premières obligations de l\'AI Act européen (Règlement UE 2024/1689)')}
                 </h3>
-                <p className="text-xs text-slate-100 leading-relaxed line-clamp-4 font-medium">
+                <p className="text-xs text-slate-600 leading-relaxed line-clamp-4 font-medium">
                   {t('news.n1_summary', 'L\'UE déploie son cadre juridique historique encadrant l\'IA générative et les systèmes à haut risque. Cartographie des risques, audits de conformité et sanctions financières obligatoires.')}
                 </p>
-                <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-emerald-300 font-bold">
+                <div className="bg-cyan-50/70 p-3.5 rounded-2xl border border-cyan-200 text-xs text-cyan-900 font-bold">
                   {t('news.n1_impact', '⚡ Impact : Audits & Conformité IA obligatoire')}
                 </div>
               </div>
-              <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
-                <span className="text-slate-200 font-semibold">EUR-Lex / CNIL</span>
+              <div className="pt-6 border-t border-slate-100 mt-6 flex items-center justify-between text-xs gap-2">
+                <span className="text-slate-500 font-semibold">EUR-Lex / CNIL</span>
                 <Button 
                   onClick={() => navigate('/news')}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   {t('news.btn_read_article', 'Lire l\'Article')} <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
@@ -715,29 +714,29 @@ const Home: React.FC = () => {
             </div>
 
             {/* News 2 */}
-            <div className="bg-slate-950 p-8 rounded-3xl border-2 border-slate-800 shadow-2xl flex flex-col justify-between hover:border-emerald-500/60 transition-all duration-300 group">
+            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-cyan-500 hover:shadow-xl transition-all duration-300 group">
               <div className="space-y-5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="bg-emerald-950 text-emerald-300 px-3.5 py-1 rounded-full font-black border border-emerald-700/60">
+                  <span className="bg-teal-50 text-teal-800 px-3.5 py-1 rounded-full font-black border border-teal-200">
                     {t('news.cat_labor', 'Droit du Travail')}
                   </span>
-                  <span className="text-slate-200 font-bold">{t('news.country_fr', 'France')}</span>
+                  <span className="text-slate-600 font-bold">{t('news.country_fr', 'France')}</span>
                 </div>
-                <h3 className="text-xl font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug">
+                <h3 className="text-xl font-bold text-slate-900 group-hover:text-teal-700 transition-colors leading-snug">
                   {t('news.n2_title', 'Cour de Cassation : Acquisition des congés payés pendant l\'arrêt maladie')}
                 </h3>
-                <p className="text-xs text-slate-100 leading-relaxed line-clamp-4 font-medium">
+                <p className="text-xs text-slate-600 leading-relaxed line-clamp-4 font-medium">
                   {t('news.n2_summary', 'La Chambre Sociale confirme le droit pour les salariés d\'acquérir des congés payés durant un arrêt maladie ordinaire, en conformité totale avec la Directive UE 2003/88.')}
                 </p>
-                <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-emerald-300 font-bold">
+                <div className="bg-teal-50/70 p-3.5 rounded-2xl border border-teal-200 text-xs text-teal-900 font-bold">
                   {t('news.n2_impact', '⚖️ Impact : Conformité Législative & RH')}
                 </div>
               </div>
-              <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
-                <span className="text-slate-200 font-semibold">Légifrance</span>
+              <div className="pt-6 border-t border-slate-100 mt-6 flex items-center justify-between text-xs gap-2">
+                <span className="text-slate-500 font-semibold">Légifrance</span>
                 <Button 
                   onClick={() => navigate('/news')}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
+                  className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   {t('news.btn_read_article', 'Lire l\'Article')} <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
@@ -745,29 +744,29 @@ const Home: React.FC = () => {
             </div>
 
             {/* News 3 */}
-            <div className="bg-slate-950 p-8 rounded-3xl border-2 border-slate-800 shadow-2xl flex flex-col justify-between hover:border-amber-500/60 transition-all duration-300 group">
+            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-cyan-500 hover:shadow-xl transition-all duration-300 group">
               <div className="space-y-5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="bg-amber-950 text-amber-300 px-3.5 py-1 rounded-full font-black border border-amber-700/60">
+                  <span className="bg-cyan-50 text-cyan-800 px-3.5 py-1 rounded-full font-black border border-cyan-200">
                     {t('news.cat_business', 'Droit des Affaires')}
                   </span>
-                  <span className="text-slate-200 font-bold">{t('news.country_europe', 'Europe')}</span>
+                  <span className="text-slate-600 font-bold">{t('news.country_europe', 'Europe')}</span>
                 </div>
-                <h3 className="text-xl font-bold text-white group-hover:text-amber-300 transition-colors leading-snug">
+                <h3 className="text-xl font-bold text-slate-900 group-hover:text-cyan-700 transition-colors leading-snug">
                   {t('news.n3_title', 'Directive UE CS3D & Pappers Entreprise : Devoir de Vigilance des Entreprises')}
                 </h3>
-                <p className="text-xs text-slate-100 leading-relaxed line-clamp-4 font-medium">
+                <p className="text-xs text-slate-600 leading-relaxed line-clamp-4 font-medium">
                   {t('news.n3_summary', 'Les grandes sociétés doivent identifier et prévenir les atteintes aux droits humains et environnementaux. Publication officielle au BODACC et registres des entreprises.')}
                 </p>
-                <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 text-xs text-amber-300 font-bold">
+                <div className="bg-cyan-50/70 p-3.5 rounded-2xl border border-cyan-200 text-xs text-cyan-900 font-bold">
                   {t('news.n3_impact', '🏢 Impact : RSE & Transparence Pappers')}
                 </div>
               </div>
-              <div className="pt-6 border-t border-slate-800 mt-6 flex items-center justify-between text-xs gap-2">
-                <span className="text-slate-200 font-semibold">Journal Officiel UE / BODACC</span>
+              <div className="pt-6 border-t border-slate-100 mt-6 flex items-center justify-between text-xs gap-2">
+                <span className="text-slate-500 font-semibold">Journal Officiel UE / BODACC</span>
                 <Button 
                   onClick={() => navigate('/news')}
-                  className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   {t('news.btn_read_article', 'Lire l\'Article')} <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
@@ -778,16 +777,16 @@ const Home: React.FC = () => {
       </section>
 
       {/* ── SECTION 3: LES MODULES DE L'ASSISTANT IA GÉNIA-L ── */}
-      <section className="py-20 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white relative overflow-hidden">
+      <section className="py-20 bg-white text-slate-900 relative overflow-hidden border-b border-slate-200">
         <div className="container px-4 mx-auto max-w-7xl space-y-12 relative z-10">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-amber-300 bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/20 inline-flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" /> {t('home.genai_badge', 'Intelligence Artificielle Juridique 2026')}
+            <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-800 bg-cyan-50 px-4 py-1.5 rounded-full border border-cyan-200 inline-flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-cyan-600 animate-pulse" /> {t('home.genai_badge', 'Intelligence Artificielle Juridique 2026')}
             </span>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white">
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
               {t('home.genai_title', 'Les Assistants IA GÉNIA-L à votre Service')}
             </h2>
-            <p className="text-sm md:text-base text-slate-300">
+            <p className="text-sm md:text-base text-slate-600">
               {t('home.genai_desc', 'Profitez des technologies d\'IA générative les plus avancées pour répondre à vos questions, analyser vos contrats et éditer des actes légaux.')}
             </p>
           </div>
@@ -796,30 +795,30 @@ const Home: React.FC = () => {
             {genAiModules.map((mod) => (
               <div 
                 key={mod.id}
-                className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 flex flex-col justify-between space-y-6 hover:border-amber-500/50 hover:shadow-2xl transition-all duration-300 group"
+                className="bg-white border border-slate-200/90 rounded-3xl p-8 flex flex-col justify-between space-y-6 hover:border-cyan-500 hover:shadow-xl transition-all duration-300 group shadow-sm"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${mod.gradient} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${mod.gradient} text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
                       <mod.icon className="w-7 h-7" />
                     </div>
-                    <span className="text-xs font-bold text-amber-300 bg-amber-950/60 px-3 py-1 rounded-full border border-amber-500/30">
+                    <span className="text-xs font-bold text-cyan-800 bg-cyan-50 px-3 py-1 rounded-full border border-cyan-200">
                       {mod.badge}
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-extrabold text-white group-hover:text-amber-300 transition-colors">
+                  <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-cyan-700 transition-colors">
                     {mod.title}
                   </h3>
 
-                  <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
+                  <p className="text-xs md:text-sm text-slate-600 leading-relaxed">
                     {mod.description}
                   </p>
                 </div>
 
                 <Button
                   onClick={() => navigate(mod.link)}
-                  className={`w-full bg-gradient-to-r ${mod.gradient} text-white font-extrabold py-3.5 text-xs rounded-xl shadow-xl hover:opacity-90 transition-opacity`}
+                  className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold py-3.5 text-xs rounded-xl shadow-md shadow-cyan-600/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
                 >
                   {mod.actionText}
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -831,12 +830,12 @@ const Home: React.FC = () => {
       </section>
 
       {/* ── SECTION 4: LES DÉPÔTS DE PLAINTES & DÉMARCHES D'URGENCE ── */}
-      <section className="py-20 bg-slate-100 relative">
+      <section className="py-20 bg-slate-50/60 relative border-b border-slate-200">
         <div className="container px-4 mx-auto max-w-7xl space-y-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-300 pb-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-6">
             <div className="space-y-3 max-w-2xl">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-red-700 bg-red-100 px-4 py-1.5 rounded-full border border-red-200 inline-flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4 text-red-600" /> {t('home.complaints_badge', 'Dépôt de Plaintes & Mises en Demeure Directes')}
+              <span className="text-xs font-extrabold uppercase tracking-widest text-rose-800 bg-rose-50 px-4 py-1.5 rounded-full border border-rose-200 inline-flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 text-rose-600" /> {t('home.complaints_badge', 'Dépôt de Plaintes & Mises en Demeure Directes')}
               </span>
               <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
                 {t('home.complaints_title', 'Les Dépôts de Plaintes & Démarches Juridiques')}
@@ -847,7 +846,7 @@ const Home: React.FC = () => {
             </div>
             <Button
               onClick={() => navigate('/generator')}
-              className="bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-lg shadow-red-600/20"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-2xl px-6 py-3 shrink-0 shadow-md shadow-cyan-600/20 cursor-pointer"
             >
               {t('home.btn_generate_complaint', 'Générer une Plainte en Direct')}
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -857,12 +856,12 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {complaintTypes.map((c) => (
               <div 
-                key={c.id}
-                className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:border-red-400 hover:shadow-xl transition-all duration-300 group"
+                key={c.id} 
+                className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:border-cyan-500 hover:shadow-xl transition-all duration-300 group shadow-sm"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-3 py-1 rounded-lg border border-red-100">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-3 py-1 rounded-lg border border-rose-100">
                       {c.category}
                     </span>
                     <span className="text-[10px] font-extrabold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
@@ -871,10 +870,10 @@ const Home: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center shrink-0">
                       <c.icon className="w-5 h-5" />
                     </div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-red-600 transition-colors leading-snug">
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-cyan-700 transition-colors leading-snug">
                       {c.title}
                     </h3>
                   </div>
@@ -887,7 +886,7 @@ const Home: React.FC = () => {
                 <div className="pt-4 border-t border-slate-100 space-y-2">
                   <Button 
                     onClick={() => navigate(`/generator?type=${c.docType}`)}
-                    className="w-full bg-slate-900 hover:bg-red-600 text-white font-bold py-2.5 text-xs rounded-xl transition-all shadow-sm"
+                    className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2.5 text-xs rounded-xl transition-all shadow-sm cursor-pointer"
                   >
                     {t('home.btn_start_complaint', 'Démarrer la Plainte')}
                   </Button>
@@ -899,16 +898,16 @@ const Home: React.FC = () => {
       </section>
 
       {/* ECOSYSTEM EXPLORER SECTION (CITIZEN / LAWYER / ADMIN) */}
-      <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
+      <section className="py-24 bg-white text-slate-900 relative overflow-hidden border-b border-slate-200">
         <div className="container px-4 mx-auto max-w-7xl relative z-10">
           <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-4 py-1.5 rounded-full border border-indigo-500/20">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-800 bg-cyan-50 px-4 py-1.5 rounded-full border border-cyan-200 inline-block">
               {t('home.ecosystem_badge', 'Une Architecture Complète & Sur-Mesure')}
             </span>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
               {t('home.ecosystem_title', 'Découvrez les Fonctionnalités de Chaque Espace')}
             </h2>
-            <p className="text-base text-slate-300">
+            <p className="text-base text-slate-600">
               {t('home.ecosystem_desc', 'Choisissez un rôle ci-dessous pour explorer l\'ensemble des modules interactifs synchronisés en temps réel.')}
             </p>
 
@@ -916,50 +915,50 @@ const Home: React.FC = () => {
             <div className="flex flex-wrap justify-center gap-2 pt-6 max-w-4xl mx-auto">
               <button
                 onClick={() => setActiveTabEcosystem('citizen')}
-                className={`px-4 py-2.5 rounded-2xl font-black text-xs transition-all border ${
+                className={`px-4 py-2.5 rounded-2xl font-black text-xs transition-all border cursor-pointer ${
                   activeTabEcosystem === 'citizen'
-                    ? 'bg-gradient-to-r from-primary-600 to-indigo-600 text-white border-primary-500 shadow-xl scale-105'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                    ? 'bg-cyan-600 text-white border-cyan-600 shadow-md scale-105'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 👤 {t('home.tab_citizen', 'Espace Citoyen')}
               </button>
               <button
                 onClick={() => setActiveTabEcosystem('student')}
-                className={`px-4 py-2.5 rounded-2xl font-black text-xs transition-all border ${
+                className={`px-4 py-2.5 rounded-2xl font-black text-xs transition-all border cursor-pointer ${
                   activeTabEcosystem === 'student'
-                    ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-blue-500 shadow-xl scale-105'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                    ? 'bg-cyan-600 text-white border-cyan-600 shadow-md scale-105'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 🎓 {t('home.tab_student', 'Espace Étudiant en Droit')}
               </button>
               <button
                 onClick={() => setActiveTabEcosystem('professor')}
-                className={`px-4 py-2.5 rounded-2xl font-black text-xs transition-all border ${
+                className={`px-4 py-2.5 rounded-2xl font-black text-xs transition-all border cursor-pointer ${
                   activeTabEcosystem === 'professor'
-                    ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white border-amber-500 shadow-xl scale-105'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                    ? 'bg-cyan-600 text-white border-cyan-600 shadow-md scale-105'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 👨‍🏫 {t('home.tab_prof', 'Espace Professeur')}
               </button>
               <button
                 onClick={() => setActiveTabEcosystem('doctorate')}
-                className={`px-4 py-2.5 rounded-2xl font-black text-xs transition-all border ${
+                className={`px-4 py-2.5 rounded-2xl font-black text-xs transition-all border cursor-pointer ${
                   activeTabEcosystem === 'doctorate'
-                    ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white border-teal-500 shadow-xl scale-105'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                    ? 'bg-cyan-600 text-white border-cyan-600 shadow-md scale-105'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 🔬 {t('home.tab_doc', 'Espace Doctorant')}
               </button>
               <button
                 onClick={() => setActiveTabEcosystem('lawyer')}
-                className={`px-4 py-2.5 rounded-2xl font-black text-xs transition-all border ${
+                className={`px-4 py-2.5 rounded-2xl font-black text-xs transition-all border cursor-pointer ${
                   activeTabEcosystem === 'lawyer'
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500 shadow-xl scale-105'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                    ? 'bg-cyan-600 text-white border-cyan-600 shadow-md scale-105'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 ⚖️ {t('home.tab_lawyer', 'Espace Avocat')}
@@ -975,21 +974,21 @@ const Home: React.FC = () => {
             transition={{ duration: 0.4 }}
             className="space-y-8"
           >
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <h3 className="text-xl font-bold text-slate-100">{ecosystemContent[activeTabEcosystem].title}</h3>
-              <span className="text-xs font-bold px-3 py-1 bg-white/10 rounded-full text-indigo-300">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+              <h3 className="text-xl font-bold text-slate-900">{ecosystemContent[activeTabEcosystem].title}</h3>
+              <span className="text-xs font-bold px-3 py-1 bg-cyan-50 border border-cyan-200 rounded-full text-cyan-800">
                 {ecosystemContent[activeTabEcosystem].badge}
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {ecosystemContent[activeTabEcosystem].features.map((item, idx) => (
-                <div key={idx} className="bg-slate-800/80 border border-slate-700/80 p-6 rounded-3xl space-y-3 hover:border-indigo-500/50 transition-all hover:shadow-xl">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                <div key={idx} className="bg-white border border-slate-200 p-6 rounded-3xl space-y-3 hover:border-cyan-500 transition-all hover:shadow-xl shadow-sm">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center">
                     <item.icon className="w-6 h-6" />
                   </div>
-                  <h4 className="text-lg font-bold text-white">{item.title}</h4>
-                  <p className="text-xs text-slate-300 leading-relaxed">{item.desc}</p>
+                  <h4 className="text-lg font-bold text-slate-900">{item.title}</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -1001,8 +1000,8 @@ const Home: React.FC = () => {
       <section className="py-24 bg-white relative">
         <div className="container px-4 mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
-            <span className="bg-red-50 text-red-700 text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-red-100 inline-flex items-center gap-1.5">
-              <Video className="w-4 h-4 text-red-600 animate-pulse" /> {t('home.visio_badge', 'Salles de Classe Virtuelles & Visioconférences 2h+')}
+            <span className="bg-cyan-50 text-cyan-800 text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-cyan-200 inline-flex items-center gap-1.5">
+              <Video className="w-4 h-4 text-cyan-600 animate-pulse" /> {t('home.visio_badge', 'Salles de Classe Virtuelles & Visioconférences 2h+')}
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight">
               {t('home.visio_title', 'Des Consultations & Cours Vidéo HD en Direct 100% Sécurisés')}
@@ -1012,52 +1011,52 @@ const Home: React.FC = () => {
             </p>
             <div className="space-y-3 pt-2">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-cyan-600 shrink-0 mt-0.5" />
                 <span className="text-sm font-semibold text-slate-800">{t('home.visio_bullet1', 'Durée Illimitée (plus de 2 heures par session sans coupure).')}</span>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-cyan-600 shrink-0 mt-0.5" />
                 <span className="text-sm font-semibold text-slate-800">{t('home.visio_bullet2', 'Disparition automatique des séances passées au profit d\'un résumé clair.')}</span>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-cyan-600 shrink-0 mt-0.5" />
                 <span className="text-sm font-semibold text-slate-800">{t('home.visio_bullet3', 'Interactivité totale avec chat, questions/réponses et tableau blanc.')}</span>
               </div>
             </div>
 
             <div className="pt-4">
-              <Button onClick={() => navigate('/classrooms')} className="bg-indigo-600 hover:bg-indigo-700 font-bold px-6 py-3 rounded-xl text-sm shadow-md">
+              <Button onClick={() => navigate('/classrooms')} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-cyan-600/20 cursor-pointer">
                 {t('home.visio_cta', 'Rejoindre le Catalogue des Visioconférences')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
           </div>
 
-          <div className="bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 p-8 rounded-3xl text-white shadow-2xl space-y-6 relative">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+          <div className="bg-white border border-slate-200 p-8 rounded-3xl text-slate-900 shadow-xl shadow-cyan-900/5 space-y-6 relative">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-red-500 rounded-full animate-ping" />
-                <span className="text-xs font-bold text-red-400">EN DIRECT MAJO | SALLE VIRTUELLE #01</span>
+                <div className="w-3 h-3 bg-cyan-500 rounded-full animate-ping" />
+                <span className="text-xs font-bold text-cyan-600">EN DIRECT • SALLE VIRTUELLE #01</span>
               </div>
-              <span className="text-xs font-mono text-slate-400">128 Participants</span>
+              <span className="text-xs font-mono text-slate-500">128 Participants</span>
             </div>
 
-            <div className="aspect-video bg-slate-950 rounded-2xl overflow-hidden relative flex items-center justify-center border border-white/10 shadow-inner">
+            <div className="aspect-video bg-slate-100 rounded-2xl overflow-hidden relative flex items-center justify-center border border-slate-200 shadow-inner">
               <img 
                 src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80" 
                 alt="Visio Avocat" 
-                className="w-full h-full object-cover opacity-80"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center text-xs">
-                <span className="font-bold bg-slate-900/80 px-3 py-1 rounded-lg backdrop-blur-sm">Me Laurent — Droit du Travail</span>
-                <span className="bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/30">Visio HD Active</span>
+                <span className="font-bold bg-white/90 text-slate-900 px-3 py-1 rounded-lg backdrop-blur-sm shadow-xs">Me Laurent — Droit du Travail</span>
+                <span className="bg-cyan-600 text-white font-bold px-2.5 py-0.5 rounded-full shadow-xs">Visio HD Active</span>
               </div>
             </div>
 
-            <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-xs space-y-2">
-              <p className="font-semibold text-amber-300">{t('home.visio_summary_title', '📝 Résumé Automatique de Séance (IA)')}</p>
-              <p className="text-slate-300 text-[11px] leading-relaxed">
+            <div className="p-4 bg-cyan-50/60 rounded-2xl border border-cyan-200 text-xs space-y-2">
+              <p className="font-bold text-cyan-800">{t('home.visio_summary_title', '📝 Résumé Automatique de Séance (IA)')}</p>
+              <p className="text-slate-600 text-[11px] leading-relaxed">
                 {t('home.visio_summary_desc', 'À la fin des 2h de direct, la salle s\'archive. Retrouvez ici la synthèse écrite des points de droit abordés, les textes cités et les questions répondues.')}
               </p>
             </div>
@@ -1066,10 +1065,10 @@ const Home: React.FC = () => {
       </section>
 
       {/* HIGHLIGHT 2: PLANNING ANNUEL & REVUES SCIENTIFIQUES */}
-      <section className="py-24 bg-slate-100 relative">
+      <section className="py-24 bg-slate-50/70 border-b border-slate-200 relative">
         <div className="container px-4 mx-auto max-w-7xl space-y-16">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-700 bg-indigo-100 px-4 py-1.5 rounded-full border border-indigo-200">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-800 bg-cyan-50 px-4 py-1.5 rounded-full border border-cyan-200 inline-block">
               Recherche & Calendrier Officiel
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -1082,9 +1081,9 @@ const Home: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Card Planning Annuel */}
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl space-y-6 flex flex-col justify-between">
+            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6 flex flex-col justify-between hover:border-cyan-500 transition-all">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center">
                   <Calendar className="w-6 h-6" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900">{t('home.planning_title', 'Planning Annuel, Mensuel & Hebdomadaire')}</h3>
@@ -1094,23 +1093,23 @@ const Home: React.FC = () => {
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs">
                   <div className="flex justify-between font-bold text-slate-800">
                     <span>🎓 Masterclass AI Act & Droit du Numérique</span>
-                    <span className="text-indigo-600">Mensuel</span>
+                    <span className="text-cyan-700">Mensuel</span>
                   </div>
                   <div className="flex justify-between font-bold text-slate-800">
                     <span>📜 Programme National de Droit de la Famille</span>
-                    <span className="text-emerald-600">Annuel</span>
+                    <span className="text-teal-700">Annuel</span>
                   </div>
                 </div>
               </div>
-              <Button onClick={() => navigate('/classrooms')} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 text-xs rounded-xl">
+              <Button onClick={() => navigate('/classrooms')} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 text-xs rounded-xl shadow-sm cursor-pointer">
                 {t('home.visio_cta', 'Consulter l\'Agenda National')}
               </Button>
             </div>
 
             {/* Card Revues Scientifiques */}
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl space-y-6 flex flex-col justify-between">
+            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6 flex flex-col justify-between hover:border-cyan-500 transition-all">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center">
                   <BookOpen className="w-6 h-6" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900">{t('home.reviews_title', 'Revues Scientifiques & Publications PDF')}</h3>
@@ -1120,15 +1119,15 @@ const Home: React.FC = () => {
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs">
                   <div className="flex justify-between font-bold text-slate-800">
                     <span>🔬 Étude sur la Responsabilité Civile des IA</span>
-                    <span className="text-xs text-slate-400">PDF Téléchargeable</span>
+                    <span className="text-xs text-slate-500">PDF Téléchargeable</span>
                   </div>
                   <div className="flex justify-between font-bold text-slate-800">
                     <span>🌍 Devoir de Vigilance CS3D & RSE</span>
-                    <span className="text-xs text-slate-400">Flux Web Google</span>
+                    <span className="text-xs text-slate-500">Flux Web Google</span>
                   </div>
                 </div>
               </div>
-              <Button onClick={() => navigate('/news')} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 text-xs rounded-xl">
+              <Button onClick={() => navigate('/news')} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 text-xs rounded-xl shadow-sm cursor-pointer">
                 {t('home.reviews_title', 'Consulter les Revues Scientifiques')}
               </Button>
             </div>
@@ -1143,18 +1142,18 @@ const Home: React.FC = () => {
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
               {t('faq.title', 'Foire Aux Questions (FAQ)')}
             </h2>
-            <p className="text-sm text-slate-500">{t('faq.subtitle', 'Tout ce qu\'il faut savoir sur l\'utilisation de France Justice.')}</p>
+            <p className="text-sm text-slate-600">{t('faq.subtitle', 'Tout ce qu\'il faut savoir sur l\'utilisation de France Justice.')}</p>
           </div>
 
           <div className="space-y-4">
             {faqs.map((faq, idx) => (
-              <div key={idx} className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50">
+              <div key={idx} className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50 shadow-sm">
                 <button
                   onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
                   className="w-full p-5 text-left flex justify-between items-center font-bold text-slate-900 text-sm hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   <span>{faq.q}</span>
-                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${activeFaq === idx ? 'rotate-180 text-indigo-600' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${activeFaq === idx ? 'rotate-180 text-cyan-600' : ''}`} />
                 </button>
                 <AnimatePresence>
                   {activeFaq === idx && (
@@ -1178,19 +1177,19 @@ const Home: React.FC = () => {
       <OfficialGovernmentLinks />
 
       {/* CTA FINAL SECTION */}
-      <section className="py-20 relative overflow-hidden bg-gradient-to-r from-primary-700 via-indigo-900 to-slate-950 text-white">
+      <section className="py-20 relative overflow-hidden bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-800 text-white shadow-xl">
         <div className="container px-4 mx-auto max-w-5xl text-center space-y-8 relative z-10">
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight">
             {t('home.cta_title', 'Prêt à accéder à votre espace juridique sécurisé ?')}
           </h2>
-          <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto font-medium">
+          <p className="text-base sm:text-xl text-cyan-50 max-w-2xl mx-auto font-medium">
             {t('home.cta_subtitle', 'Inscrivez-vous dès aujourd\'hui et profitez de l\'ensemble des services d\'assistant IA, visioconférences et publications.')}
           </p>
 
           <div className="flex flex-wrap gap-4 justify-center pt-4">
             <Button
               size="lg"
-              className="text-base px-10 py-6 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 font-extrabold shadow-2xl hover:scale-105 transition-all"
+              className="text-base px-10 py-6 rounded-2xl bg-white text-cyan-950 hover:bg-cyan-50 font-black shadow-2xl hover:scale-105 transition-all cursor-pointer"
               onClick={() => navigate('/register')}
             >
               Rejoindre France Justice

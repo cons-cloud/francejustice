@@ -108,14 +108,13 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-      <div className="bg-slate-900 text-slate-100 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-800 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white text-slate-900 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl shadow-cyan-950/10 border border-slate-200 flex flex-col">
         {/* Header */}
-        <div className="p-6 bg-slate-950 text-white flex justify-between items-center relative overflow-hidden border-b border-slate-800">
-          <div className="absolute right-0 top-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl" />
+        <div className="p-6 bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 text-white flex justify-between items-center relative overflow-hidden">
           <div className="space-y-1 z-10">
             <div className="flex items-center gap-2">
-              <span className="bg-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md border border-indigo-500/30 flex items-center gap-1">
+              <span className="bg-white/20 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md border border-white/30 flex items-center gap-1">
                 <Lock className="w-3 h-3" /> Stripe 256-bit SSL
               </span>
             </div>
@@ -123,7 +122,7 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
           </div>
           <button 
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition-colors z-10"
+            className="text-white/80 hover:text-white p-1.5 rounded-xl hover:bg-white/20 transition-colors z-10"
           >
             <X className="w-5 h-5" />
           </button>
@@ -131,34 +130,34 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
 
         {paymentSuccess ? (
           <div className="p-10 text-center space-y-4">
-            <div className="w-16 h-16 bg-emerald-950/80 border border-emerald-800 rounded-full flex items-center justify-center mx-auto animate-bounce">
-              <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+            <div className="w-16 h-16 bg-emerald-50 border border-emerald-200 rounded-full flex items-center justify-center mx-auto animate-bounce">
+              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
             </div>
-            <h4 className="text-xl font-extrabold text-white">Paiement Confirmé !</h4>
-            <p className="text-xs text-slate-300 max-w-sm mx-auto">
-              Votre transaction de <strong className="text-white">{displayAmount} MAD</strong> a été enregistrée. Reçu envoyé par email.
+            <h4 className="text-xl font-extrabold text-slate-900">Paiement Confirmé !</h4>
+            <p className="text-xs text-slate-600 max-w-sm mx-auto">
+              Votre transaction de <strong className="text-slate-900">{displayAmount} MAD</strong> a été enregistrée. Reçu envoyé par email.
             </p>
-            <div className="inline-flex items-center gap-2 text-xs text-emerald-300 font-bold bg-emerald-950/60 border border-emerald-800 px-4 py-2 rounded-xl">
+            <div className="inline-flex items-center gap-2 text-xs text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl">
               <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Synchronisation temps réel en cours...
             </div>
           </div>
         ) : (
           <form onSubmit={handleProcessPayment} className="p-6 space-y-5">
             {/* Amount Summary */}
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex justify-between items-center">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex justify-between items-center">
               <div>
-                <p className="text-xs text-slate-400 font-medium">Montant Total à Régler</p>
-                <p className="text-2xl font-black text-white">{displayAmount} <span className="text-sm font-bold text-slate-400">MAD</span></p>
+                <p className="text-xs text-slate-500 font-medium">Montant Total à Régler</p>
+                <p className="text-2xl font-black text-slate-900">{displayAmount} <span className="text-sm font-bold text-slate-500">MAD</span></p>
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-800">
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                   Transaction Sécurisée
                 </span>
               </div>
             </div>
 
             {errorMessage && (
-              <div className="p-3 bg-red-950/80 border border-red-800 rounded-xl text-xs text-red-300 flex items-center gap-2">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{errorMessage}</span>
               </div>
@@ -166,26 +165,26 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
 
             {/* Payment Method Selector */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">Mode de Paiement</label>
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">Mode de Paiement</label>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setSelectedMethod('card')}
                   className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
                     selectedMethod === 'card' 
-                      ? 'border-indigo-500 bg-indigo-950/60 text-white shadow-sm' 
-                      : 'border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white'
+                      ? 'border-cyan-500 bg-cyan-50 text-cyan-800 shadow-sm' 
+                      : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
-                  <CreditCard className="w-4 h-4 text-indigo-400" /> Carte Bancaire
+                  <CreditCard className="w-4 h-4 text-cyan-600" /> Carte Bancaire
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedMethod('apple_pay')}
                   className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
                     selectedMethod === 'apple_pay' 
-                      ? 'border-indigo-500 bg-indigo-950/60 text-white shadow-sm' 
-                      : 'border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white'
+                      ? 'border-cyan-500 bg-cyan-50 text-cyan-800 shadow-sm' 
+                      : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
                   <span className="text-sm font-black"> Pay</span> Apple / Google
@@ -195,39 +194,39 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
                   onClick={() => setSelectedMethod('virement')}
                   className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
                     selectedMethod === 'virement' 
-                      ? 'border-indigo-500 bg-indigo-950/60 text-white shadow-sm' 
-                      : 'border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white'
+                      ? 'border-cyan-500 bg-cyan-50 text-cyan-800 shadow-sm' 
+                      : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
-                  <Building className="w-4 h-4 text-indigo-400" /> Virement SEPA
+                  <Building className="w-4 h-4 text-cyan-600" /> Virement SEPA
                 </button>
               </div>
             </div>
 
             {/* Credit Card Inputs */}
             {selectedMethod === 'card' && (
-              <div className="space-y-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div className="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-300 block mb-1">Nom sur la Carte</label>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">Nom sur la Carte</label>
                   <input
                     type="text"
                     required
                     value={cardHolder}
                     onChange={(e) => setCardHolder(e.target.value)}
-                    className="w-full h-10 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs font-medium text-white focus:ring-2 focus:ring-indigo-500 outline-none placeholder-slate-500"
+                    className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:ring-2 focus:ring-cyan-500 outline-none placeholder-slate-400"
                     placeholder="ex: Jean Dupont"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-300 block mb-1">Numéro de Carte Bancaire</label>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">Numéro de Carte Bancaire</label>
                   <div className="relative">
                     <input
                       type="text"
                       required
                       value={cardNumber}
                       onChange={(e) => setCardNumber(e.target.value)}
-                      className="w-full h-10 pl-3 pr-10 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono font-medium text-white focus:ring-2 focus:ring-indigo-500 outline-none placeholder-slate-500"
+                      className="w-full h-10 pl-3 pr-10 bg-white border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-900 focus:ring-2 focus:ring-cyan-500 outline-none placeholder-slate-400"
                       placeholder="4242 4242 4242 4242"
                     />
                     <CreditCard className="w-4 h-4 text-slate-400 absolute right-3 top-3" />
@@ -236,25 +235,25 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-300 block mb-1">Expiration (MM/AA)</label>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-1">Expiration (MM/AA)</label>
                     <input
                       type="text"
                       required
                       value={expiry}
                       onChange={(e) => setExpiry(e.target.value)}
-                      className="w-full h-10 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono font-medium text-white focus:ring-2 focus:ring-indigo-500 outline-none text-center placeholder-slate-500"
+                      className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-900 focus:ring-2 focus:ring-cyan-500 outline-none text-center placeholder-slate-400"
                       placeholder="MM/AA"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-300 block mb-1">Code CVC / CWW</label>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-1">Code CVC / CWW</label>
                     <input
                       type="text"
                       required
                       maxLength={4}
                       value={cvc}
                       onChange={(e) => setCvc(e.target.value)}
-                      className="w-full h-10 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono font-medium text-white focus:ring-2 focus:ring-indigo-500 outline-none text-center placeholder-slate-500"
+                      className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-900 focus:ring-2 focus:ring-cyan-500 outline-none text-center placeholder-slate-400"
                       placeholder="123"
                     />
                   </div>
@@ -263,9 +262,9 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
             )}
 
             {selectedMethod !== 'card' && (
-              <div className="p-4 bg-indigo-950/50 border border-indigo-800/60 rounded-2xl text-xs text-indigo-200 space-y-1 text-center">
-                <p className="font-bold text-white">Mode Express Sélectionné</p>
-                <p className="text-[11px] text-indigo-300">Vous serez invité à valider la transaction via l'application partenaire lors du clic sur Payer.</p>
+              <div className="p-4 bg-cyan-50 border border-cyan-200 rounded-2xl text-xs text-cyan-800 space-y-1 text-center">
+                <p className="font-bold text-slate-900">Mode Express Sélectionné</p>
+                <p className="text-[11px] text-cyan-700">Vous serez invité à valider la transaction via l'application partenaire lors du clic sur Payer.</p>
               </div>
             )}
 
@@ -274,7 +273,7 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-sm rounded-xl shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01] active:scale-[0.99]"
+                className="w-full h-12 bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-white font-black text-sm rounded-xl shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01] active:scale-[0.99]"
               >
                 {loading ? (
                   <>
@@ -282,12 +281,12 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" /> Payer {displayAmount} MAD via Stripe <ArrowRight className="w-4 h-4 ml-1" />
+                    <ShieldCheck className="w-4 h-4 text-white" /> Payer {displayAmount} MAD via Stripe <ArrowRight className="w-4 h-4 ml-1" />
                   </>
                 )}
               </Button>
 
-              <div className="flex justify-center items-center gap-4 pt-2 text-[10px] text-slate-400 font-medium">
+              <div className="flex justify-center items-center gap-4 pt-2 text-[10px] text-slate-500 font-medium">
                 <span className="flex items-center gap-1"><Lock className="w-3 h-3 text-emerald-600" /> Cryptage AES-256</span>
                 <span>•</span>
                 <span>Paiement Instantané</span>

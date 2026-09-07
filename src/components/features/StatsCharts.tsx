@@ -28,7 +28,7 @@ interface ChartProps {
   nameKey?: string;
 }
 
-export const AdvancedAreaChart: React.FC<ChartProps> = ({ data, height = 300, color = "#1E40AF", dataKey = "value" }) => {
+export const AdvancedAreaChart: React.FC<ChartProps> = ({ data, height = 300, color = "#0891b2", dataKey = "value" }) => {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
@@ -40,25 +40,25 @@ export const AdvancedAreaChart: React.FC<ChartProps> = ({ data, height = 300, co
         <AreaChart data={data}>
           <defs>
             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={color} stopOpacity={0.1}/>
+              <stop offset="5%" stopColor={color} stopOpacity={0.15}/>
               <stop offset="95%" stopColor={color} stopOpacity={0}/>
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
           <XAxis 
             dataKey="name" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fontSize: 12, fill: '#6B7280' }}
+            tick={{ fontSize: 12, fill: '#64748b' }}
             dy={10}
           />
           <YAxis 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fontSize: 12, fill: '#6B7280' }}
+            tick={{ fontSize: 12, fill: '#64748b' }}
           />
           <Tooltip 
-            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+            contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', backgroundColor: '#ffffff', color: '#0f172a', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.08)' }}
           />
           <Area 
             type="monotone" 
@@ -66,7 +66,7 @@ export const AdvancedAreaChart: React.FC<ChartProps> = ({ data, height = 300, co
             stroke={color} 
             fillOpacity={1} 
             fill="url(#colorValue)" 
-            strokeWidth={2}
+            strokeWidth={2.5}
           />
         </AreaChart>
       </ResponsiveContainer>
@@ -74,7 +74,7 @@ export const AdvancedAreaChart: React.FC<ChartProps> = ({ data, height = 300, co
   );
 };
 
-export const AdvancedBarChart: React.FC<ChartProps> = ({ data, height = 300, color = "#1E40AF", dataKey = "value" }) => {
+export const AdvancedBarChart: React.FC<ChartProps> = ({ data, height = 300, color = "#0891b2", dataKey = "value" }) => {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
@@ -84,23 +84,23 @@ export const AdvancedBarChart: React.FC<ChartProps> = ({ data, height = 300, col
     <div style={{ width: '100%', height: `${height}px`, minWidth: 0, minHeight: 0, position: 'relative' }}>
       <ResponsiveContainer width="100%" height={height} minWidth={0} minHeight={0}>
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
           <XAxis 
             dataKey="name" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fontSize: 12, fill: '#6B7280' }}
+            tick={{ fontSize: 12, fill: '#64748b' }}
             dy={10}
           />
           <YAxis 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fontSize: 12, fill: '#6B7280' }}
+            tick={{ fontSize: 12, fill: '#64748b' }}
           />
           <Tooltip 
-            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+            contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', backgroundColor: '#ffffff', color: '#0f172a', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.08)' }}
           />
-          <Bar dataKey={dataKey} fill={color} radius={[4, 4, 0, 0]} />
+          <Bar dataKey={dataKey} fill={color} radius={[6, 6, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -110,7 +110,7 @@ export const AdvancedBarChart: React.FC<ChartProps> = ({ data, height = 300, col
 export const SimplePieChart: React.FC<ChartProps> = ({ data, height = 300, nameKey = "name", dataKey = "value" }) => {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
-  const COLORS = ['#1E40AF', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+  const COLORS = ['#0891b2', '#0d9488', '#0284c7', '#10b981', '#6366f1'];
   
   if (!isMounted) return <div style={{ width: '100%', height: `${height}px` }} />;
 
@@ -133,7 +133,7 @@ export const SimplePieChart: React.FC<ChartProps> = ({ data, height = 300, nameK
             ))}
           </Pie>
           <Tooltip 
-             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+             contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', backgroundColor: '#ffffff', color: '#0f172a', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.08)' }}
           />
         </PieChart>
       </ResponsiveContainer>

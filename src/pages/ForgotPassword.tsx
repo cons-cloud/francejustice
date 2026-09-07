@@ -85,21 +85,21 @@ export const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 text-slate-900 flex items-center justify-center px-4 relative overflow-hidden">
       {/* Ambient background glows */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-100/40 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-100/40 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-md w-full relative z-10">
-        <Card className="bg-slate-900/90 border-slate-800 backdrop-blur-xl shadow-2xl">
+        <Card className="bg-white border-slate-200 shadow-xl shadow-slate-200/50">
           <CardHeader className="text-center space-y-2">
-            <div className="mx-auto h-14 w-14 bg-primary-500/10 border border-primary-500/20 rounded-2xl flex items-center justify-center shadow-lg">
-              <KeyRound className="h-7 w-7 text-primary-400" />
+            <div className="mx-auto h-14 w-14 bg-cyan-50 border border-cyan-200 rounded-2xl flex items-center justify-center shadow-sm">
+              <KeyRound className="h-7 w-7 text-cyan-600" />
             </div>
-            <CardTitle className="text-2xl font-black text-white tracking-tight">
+            <CardTitle className="text-2xl font-black text-slate-900 tracking-tight">
               {t('forgot_password.title', 'Mot de passe oublié ?')}
             </CardTitle>
-            <CardDescription className="text-slate-400 text-xs sm:text-sm">
+            <CardDescription className="text-slate-600 text-xs sm:text-sm">
               {t(
                 'forgot_password.subtitle',
                 'Saisissez votre adresse email pour recevoir un lien de réinitialisation sécurisé (étudiants, professeurs, doctorants, avocats et citoyens).'
@@ -110,12 +110,12 @@ export const ForgotPasswordPage: React.FC = () => {
           <CardContent className="space-y-4">
             {/* Admin Blocked Alert */}
             {isAdminBlocked && (
-              <div className="bg-red-950/60 border border-red-500/40 p-4 rounded-xl space-y-2">
-                <div className="flex items-center gap-2 text-red-400 font-bold text-sm">
-                  <ShieldAlert className="w-5 h-5 shrink-0" />
+              <div className="bg-red-50 border border-red-200 p-4 rounded-xl space-y-2">
+                <div className="flex items-center gap-2 text-red-700 font-bold text-sm">
+                  <ShieldAlert className="w-5 h-5 shrink-0 text-red-600" />
                   <span>Réinitialisation Admin Interdite</span>
                 </div>
-                <p className="text-xs text-red-200 leading-relaxed">
+                <p className="text-xs text-red-700 leading-relaxed">
                   Pour des raisons de haute sécurité, les comptes avec le rôle Administrateur ne disposent pas de réinitialisation autonome par courriel. Contactez le responsable système de FranceJustice.
                 </p>
               </div>
@@ -123,34 +123,34 @@ export const ForgotPasswordPage: React.FC = () => {
 
             {/* Error Banner */}
             {error && !isAdminBlocked && (
-              <div className="bg-red-500/10 border border-red-500/30 p-3 rounded-xl">
-                <p className="text-xs text-red-400 font-medium">{error}</p>
+              <div className="bg-red-50 border border-red-200 p-3 rounded-xl">
+                <p className="text-xs text-red-700 font-medium">{error}</p>
               </div>
             )}
 
             {/* Success Banner */}
             {successMsg && (
-              <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl space-y-2 text-center">
-                <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
-                <p className="text-xs text-emerald-300 font-semibold">{successMsg}</p>
+              <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl space-y-2 text-center">
+                <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
+                <p className="text-xs text-emerald-800 font-semibold">{successMsg}</p>
               </div>
             )}
 
             {!successMsg && (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-300">
+                  <label className="text-xs font-bold text-slate-700">
                     {t('forgot_password.label_email', 'Adresse Email de votre compte')}
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+                    <Mail className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
                     <Input
                       type="email"
                       required
                       placeholder="nom@exemple.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:ring-primary-500"
+                      className="pl-10 bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                     />
                   </div>
                 </div>
@@ -158,17 +158,17 @@ export const ForgotPasswordPage: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-primary-600/25 transition-all"
+                  className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 rounded-xl shadow-md shadow-cyan-600/25 transition-all"
                 >
                   {loading ? t('common.loading', 'Envoi en cours…') : t('forgot_password.btn_send', 'Envoyer le lien de réinitialisation')}
                 </Button>
               </form>
             )}
 
-            <div className="pt-2 text-center border-t border-slate-800">
+            <div className="pt-2 text-center border-t border-slate-200">
               <Link
                 to="/login"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-white transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-cyan-600 transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>{t('forgot_password.back_to_login', 'Retour à la page de connexion')}</span>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from '../i18n';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
@@ -30,6 +30,14 @@ const LoginPage: React.FC = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
+  const [sessionExpiredNotice, setSessionExpiredNotice] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && sessionStorage.getItem('francejustice_session_expired') === 'true') {
+      setSessionExpiredNotice(true);
+      sessionStorage.removeItem('francejustice_session_expired');
+    }
+  }, []);
 
   const handleLogin = async (e?: React.FormEvent, customEmail?: string, customPass?: string) => {
     if (e) e.preventDefault();
@@ -169,25 +177,25 @@ const LoginPage: React.FC = () => {
   // ── Forgot-password sent ───────────────────────────────────────────────────
   if (view === 'forgot_sent') {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-100">
+      <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-900">
         <div className="max-w-md w-full">
-          <Card className="bg-slate-900 border-slate-800">
+          <Card className="bg-white border-slate-200 shadow-xl shadow-slate-200/50">
             <CardContent className="pt-8 pb-8 text-center">
-              <div className="mx-auto h-16 w-16 bg-emerald-950/80 border border-emerald-800 rounded-full flex items-center justify-center mb-4">
-                <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+              <div className="mx-auto h-16 w-16 bg-emerald-50 border border-emerald-200 rounded-full flex items-center justify-center mb-4">
+                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
               </div>
-              <CardTitle className="text-2xl font-bold text-white mb-2">
+              <CardTitle className="text-2xl font-bold text-slate-900 mb-2">
                 {t('reset_password.email_sent_title', 'Email envoyé !')}
               </CardTitle>
-              <p className="text-slate-300 text-sm mb-6">
+              <p className="text-slate-600 text-sm mb-6">
                 {t('reset_password.email_sent_desc', 'Un lien de réinitialisation a été envoyé à')}{' '}
-                <span className="font-semibold text-primary-400">{resetEmail}</span>.{' '}
+                <span className="font-semibold text-cyan-600">{resetEmail}</span>.{' '}
                 {t('reset_password.check_inbox', 'Vérifiez votre boîte de réception (et vos spams).')}
               </p>
               <Button
                 type="button"
                 variant="outline"
-                className="w-full text-slate-200 border-slate-700 hover:bg-slate-800"
+                className="w-full text-slate-700 border-slate-300 hover:bg-slate-50"
                 onClick={() => {
                   setView('login');
                   setResetEmail('');
@@ -206,26 +214,26 @@ const LoginPage: React.FC = () => {
   // ── Forgot-password form ───────────────────────────────────────────────────
   if (view === 'forgot') {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-100">
+      <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-900">
         <button
           type="button"
           onClick={() => { setView('login'); setResetError(null); }}
-          className="absolute top-8 left-8 flex items-center text-slate-400 hover:text-white font-medium transition-colors group"
+          className="absolute top-8 left-8 flex items-center text-slate-500 hover:text-cyan-600 font-medium transition-colors group"
         >
           <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
           {t('reset_password.back_login')}
         </button>
 
         <div className="max-w-md w-full">
-          <Card className="bg-slate-900 border-slate-800">
+          <Card className="bg-white border-slate-200 shadow-xl shadow-slate-200/50">
             <CardHeader className="text-center">
-              <div className="mx-auto h-12 w-12 bg-primary-900/50 border border-primary-700/50 rounded-full flex items-center justify-center mb-4">
-                <KeyRound className="h-6 w-6 text-primary-400" />
+              <div className="mx-auto h-12 w-12 bg-cyan-50 border border-cyan-200 rounded-full flex items-center justify-center mb-4">
+                <KeyRound className="h-6 w-6 text-cyan-600" />
               </div>
-              <CardTitle className="text-3xl font-extrabold text-white">
+              <CardTitle className="text-3xl font-extrabold text-slate-900">
                 {t('reset_password.title', 'Mot de passe oublié ?')}
               </CardTitle>
-              <CardDescription className="text-slate-300">
+              <CardDescription className="text-slate-600">
                 {t('reset_password.desc', 'Entrez votre adresse email pour recevoir un lien de réinitialisation.')}
               </CardDescription>
             </CardHeader>
@@ -233,8 +241,8 @@ const LoginPage: React.FC = () => {
             <CardContent>
               <form className="space-y-4" onSubmit={handleForgotPassword}>
                 {resetError && (
-                  <div className="bg-red-950/80 border-l-4 border-red-500 p-4 rounded-r-md">
-                    <p className="text-sm text-red-200">{resetError}</p>
+                  <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md">
+                    <p className="text-sm text-red-700">{resetError}</p>
                   </div>
                 )}
 
@@ -246,14 +254,14 @@ const LoginPage: React.FC = () => {
                     placeholder={t('login.email_placeholder', 'votre@email.com')}
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    className="pl-14!"
+                    className="pl-14! bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-500"
                   />
                 </div>
 
                 <Button
                   type="submit"
                   disabled={resetLoading}
-                  className="w-full"
+                  className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-md shadow-cyan-600/20"
                 >
                   {resetLoading
                     ? t('common.loading', 'Chargement...')
@@ -269,34 +277,41 @@ const LoginPage: React.FC = () => {
 
   // ── Login form (default) ───────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-100">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-900">
       <Link
         to="/"
-        className="absolute top-8 left-8 flex items-center text-slate-400 hover:text-white font-medium transition-colors group"
+        className="absolute top-8 left-8 flex items-center text-slate-500 hover:text-cyan-600 font-medium transition-colors group"
       >
         <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
         {t('login.back_home')}
       </Link>
 
       <div className="max-w-md w-full space-y-8">
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-white border-slate-200 shadow-xl shadow-slate-200/50">
           <CardHeader className="text-center">
-            <div className="mx-auto h-12 w-12 bg-indigo-950/80 border border-indigo-700/50 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-indigo-950/50">
-              <LogIn className="h-6 w-6 text-indigo-400" />
+            <div className="mx-auto h-12 w-12 bg-cyan-50 border border-cyan-200 rounded-full flex items-center justify-center mb-4 shadow-sm">
+              <LogIn className="h-6 w-6 text-cyan-600" />
             </div>
-            <CardTitle className="text-3xl font-extrabold text-white">
+            <CardTitle className="text-3xl font-extrabold text-slate-900">
               {t('login.welcome', 'Bienvenue sur France Justice')}
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-600">
               {t('login.subtitle')}
             </CardDescription>
           </CardHeader>
 
           <CardContent>
+            {sessionExpiredNotice && (
+              <div className="mb-4 p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-2.5 text-xs text-amber-900 font-medium shadow-xs">
+                <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0" />
+                <span>Votre session précédente a été fermée automatiquement pour des raisons de sécurité (inactivité). Vos données sont protégées.</span>
+              </div>
+            )}
+
             <form className="mt-8 space-y-5" onSubmit={handleLogin}>
               {error && (
-                <div className="bg-red-950/80 border-l-4 border-red-500 p-4 mb-4 rounded-r-md">
-                  <p className="text-sm text-red-200">{error}</p>
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-r-md">
+                  <p className="text-sm text-red-700">{error}</p>
                 </div>
               )}
 
@@ -309,7 +324,7 @@ const LoginPage: React.FC = () => {
                     placeholder={t('login.email_placeholder', 'votre@email.com')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-14! bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500"
+                    className="pl-14! bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                   />
                 </div>
                 <div className="relative">
@@ -320,12 +335,12 @@ const LoginPage: React.FC = () => {
                     placeholder={t('login.password_placeholder', '••••••••')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-14! pr-12! bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500"
+                    className="pl-14! pr-12! bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3.5 text-slate-400 hover:text-white transition-colors"
+                    className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -337,7 +352,7 @@ const LoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => { setView('forgot'); setResetEmail(email); }}
-                    className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+                    className="font-medium text-cyan-600 hover:text-cyan-700 transition-colors"
                   >
                     {t('login.forgot')}
                   </button>
@@ -345,49 +360,49 @@ const LoginPage: React.FC = () => {
               </div>
 
               <div>
-                <Button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold shadow-lg shadow-indigo-950/50" disabled={loading}>
+                <Button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-md shadow-cyan-600/25 transition-all" disabled={loading}>
                   {loading ? t('login.loading') : t('login.submit')}
                 </Button>
               </div>
 
               {/* Quick Demo Login Badges */}
-              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 space-y-2 mt-4">
-                <p className="text-[11px] font-black text-slate-300 uppercase tracking-wider text-center">
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 mt-4">
+                <p className="text-[11px] font-black text-slate-500 uppercase tracking-wider text-center">
                   🔑 Connexion Rapide 1-Clic par Profil :
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => handleLogin(undefined, 'etudjust@gmail.com', 'Etudjust1@')}
-                    className="p-2 bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-800/60 rounded-xl text-[11px] font-bold text-indigo-200 transition-all text-left flex items-center justify-between shadow-sm"
+                    className="p-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl text-[11px] font-bold text-indigo-700 transition-all text-left flex items-center justify-between shadow-xs"
                   >
                     <span>🎓 Étudiant</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleLogin(undefined, 'profjust@gmail.com', 'Profjust1@')}
-                    className="p-2 bg-blue-950/60 hover:bg-blue-900/80 border border-blue-800/60 rounded-xl text-[11px] font-bold text-blue-200 transition-all text-left flex items-center justify-between shadow-sm"
+                    className="p-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-[11px] font-bold text-blue-700 transition-all text-left flex items-center justify-between shadow-xs"
                   >
                     <span>👨‍🏫 Professeur</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleLogin(undefined, 'doctjust@gmail.com', 'Doctjust1@')}
-                    className="p-2 bg-purple-950/60 hover:bg-purple-900/80 border border-purple-800/60 rounded-xl text-[11px] font-bold text-purple-200 transition-all text-left flex items-center justify-between shadow-sm"
+                    className="p-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl text-[11px] font-bold text-purple-700 transition-all text-left flex items-center justify-between shadow-xs"
                   >
                     <span>🔬 Doctorant</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleLogin(undefined, 'avocat@gmail.com', 'Avocat123!')}
-                    className="p-2 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-800/60 rounded-xl text-[11px] font-bold text-amber-200 transition-all text-left flex items-center justify-between shadow-sm"
+                    className="p-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-[11px] font-bold text-amber-800 transition-all text-left flex items-center justify-between shadow-xs"
                   >
                     <span>⚖️ Avocat</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleLogin(undefined, 'just@gmail.com', 'Just1@')}
-                    className="p-2 bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-800/60 rounded-xl text-[11px] font-bold text-emerald-200 transition-all text-left flex items-center justify-between shadow-sm"
+                    className="p-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[11px] font-bold text-emerald-800 transition-all text-left flex items-center justify-between shadow-xs"
                   >
                     <span>👤 Citoyen</span>
                   </button>
@@ -396,10 +411,10 @@ const LoginPage: React.FC = () => {
 
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-800" />
+                  <div className="w-full border-t border-slate-200" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-3 bg-slate-900 text-slate-400">{t('login.no_account')}</span>
+                  <span className="px-3 bg-white text-slate-500">{t('login.no_account')}</span>
                 </div>
               </div>
 
@@ -408,25 +423,25 @@ const LoginPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register')}
-                  className="flex items-center justify-center text-xs border-slate-800 bg-slate-950 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  className="flex items-center justify-center text-xs border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                 >
-                  <UserIcon className="h-3.5 w-3.5 mr-1" />
+                  <UserIcon className="h-3.5 w-3.5 mr-1 text-slate-500" />
                   Citoyen
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register/lawyer')}
-                  className="flex items-center justify-center text-xs border-amber-900/50 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60"
+                  className="flex items-center justify-center text-xs border-amber-200 bg-amber-50/60 text-amber-800 hover:bg-amber-100"
                 >
-                  <ShieldCheck className="h-3.5 w-3.5 mr-1 text-amber-400" />
+                  <ShieldCheck className="h-3.5 w-3.5 mr-1 text-amber-600" />
                   Avocat
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register/student')}
-                  className="flex items-center justify-center text-xs border-indigo-900/50 bg-indigo-950/40 text-indigo-300 hover:bg-indigo-900/60"
+                  className="flex items-center justify-center text-xs border-indigo-200 bg-indigo-50/60 text-indigo-700 hover:bg-indigo-100"
                 >
                   🎓 Étudiant
                 </Button>
@@ -434,7 +449,7 @@ const LoginPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register/professor')}
-                  className="flex items-center justify-center text-xs border-blue-900/50 bg-blue-950/40 text-blue-300 hover:bg-blue-900/60"
+                  className="flex items-center justify-center text-xs border-blue-200 bg-blue-50/60 text-blue-700 hover:bg-blue-100"
                 >
                   👨‍🏫 Professeur
                 </Button>
@@ -442,7 +457,7 @@ const LoginPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/register/doctorate')}
-                  className="flex items-center justify-center text-xs border-purple-900/50 bg-purple-950/40 text-purple-300 hover:bg-purple-900/60 sm:col-span-2"
+                  className="flex items-center justify-center text-xs border-purple-200 bg-purple-50/60 text-purple-700 hover:bg-purple-100 sm:col-span-2"
                 >
                   🔬 Doctorant
                 </Button>

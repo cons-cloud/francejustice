@@ -685,18 +685,17 @@ ${curriculumText}`;
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-12">
+    <div className="min-h-screen bg-slate-50 text-slate-900 py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl overflow-hidden mb-12 shadow-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-8 md:p-16 border border-slate-800">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(59,130,246,0.15),transparent_60%)]" />
+        <div className="relative rounded-3xl overflow-hidden mb-12 shadow-xl bg-gradient-to-b from-cyan-50/90 via-white to-slate-50 text-slate-900 p-8 md:p-14 border border-slate-200">
           <div className="relative z-10 max-w-3xl space-y-5">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-indigo-500/30 text-indigo-200 border border-indigo-500/30">
-              <Tv className="w-3.5 h-3.5" /> Académie Juridique & Formations Avocat
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-cyan-100/80 text-cyan-800 border border-cyan-200">
+              <Tv className="w-3.5 h-3.5 text-cyan-600" /> Académie Juridique & Formations Avocat
             </span>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
               Formations Juridiques & Masterclasses Détaillées
             </h1>
-            <p className="text-lg text-slate-300 leading-relaxed">
+            <p className="text-lg text-slate-600 leading-relaxed">
               Consultez l'ensemble des programmes académiques dispensés par nos avocats partenaires. Chaque formation comprend un programme exhaustif, des textes de loi de référence et un cours téléchargeable au format PDF.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
@@ -704,8 +703,8 @@ ${curriculumText}`;
                 onClick={() => setMainTab('catalog')}
                 className={`px-5 py-2.5 rounded-xl font-extrabold text-sm transition-all border ${
                   mainTab === 'catalog'
-                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg'
-                    : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                    ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-600/20'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 📚 Catalogue des Formations
@@ -714,8 +713,8 @@ ${curriculumText}`;
                 onClick={() => setMainTab('planning')}
                 className={`px-5 py-2.5 rounded-xl font-extrabold text-sm transition-all border ${
                   mainTab === 'planning'
-                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg'
-                    : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                    ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-600/20'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 📅 Planning Annuel & Agenda
@@ -724,8 +723,8 @@ ${curriculumText}`;
                 onClick={() => setMainTab('diagnostic')}
                 className={`px-5 py-2.5 rounded-xl font-extrabold text-sm transition-all border ${
                   mainTab === 'diagnostic'
-                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg'
-                    : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                    ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-600/20'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 ✨ Diagnostic IA & Cas Pratiques
@@ -756,33 +755,33 @@ ${curriculumText}`;
           <>
 
         {/* 🎓 DEUX GROUPES MAJEURS : FORMATIONS DIPLÔMANTES vs MASTERCLASS */}
-        <div className="flex flex-wrap items-center gap-3 p-2.5 bg-slate-900/90 rounded-2xl border border-slate-800 mb-6 shadow-lg">
+        <div className="flex flex-wrap items-center gap-2 p-2 bg-white rounded-2xl border border-slate-200 mb-6 shadow-xs">
           <button
             onClick={() => setGroupFilter('all')}
-            className={`px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
               groupFilter === 'all'
-                ? 'bg-gradient-to-r from-indigo-600 to-primary-600 text-white shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                ? 'bg-cyan-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             🌟 Tous les Programmes (Masterclass & Diplômes)
           </button>
           <button
             onClick={() => setGroupFilter('diplomante')}
-            className={`px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
               groupFilter === 'diplomante'
-                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
-                : 'text-emerald-400 hover:bg-emerald-950/40 hover:text-emerald-300'
+                ? 'bg-teal-600 text-white shadow-xs'
+                : 'text-teal-700 hover:bg-teal-50'
             }`}
           >
             🎓 Formations Diplômantes (PDF & Programmes Officiels)
           </button>
           <button
             onClick={() => setGroupFilter('masterclass')}
-            className={`px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
               groupFilter === 'masterclass'
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                : 'text-indigo-300 hover:bg-indigo-950/40 hover:text-indigo-200'
+                ? 'bg-cyan-700 text-white shadow-xs'
+                : 'text-cyan-700 hover:bg-cyan-50'
             }`}
           >
             ⭐ Formations Masterclass (Direct Visio & Replay)
@@ -797,8 +796,8 @@ ${curriculumText}`;
                 onClick={() => setActiveFilter(f.id as "all" | "direct" | "differe" | "video")}
                 className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
                   activeFilter === f.id
-                    ? "bg-indigo-600 text-white border-indigo-600 shadow-md"
-                    : "bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700"
+                    ? "bg-cyan-600 text-white border-cyan-600 shadow-xs"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-cyan-300 hover:text-cyan-700"
                 }`}
               >
                 {f.label}
@@ -812,8 +811,8 @@ ${curriculumText}`;
                 onClick={() => setStatusFilter(sf.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
                   statusFilter === sf.id
-                    ? `${sf.color} text-white border-transparent shadow-md`
-                    : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700"
+                    ? `${sf.color} text-white border-transparent shadow-xs`
+                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
                 }`}
               >
                 {sf.label}
@@ -827,21 +826,21 @@ ${curriculumText}`;
               placeholder={t('classrooms.search_placeholder', 'Rechercher une formation...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-xs"
             />
           </div>
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center gap-3 py-24 text-slate-400">
-            <Loader2 className="animate-spin h-8 w-8" />
+          <div className="flex justify-center items-center gap-3 py-24 text-slate-500">
+            <Loader2 className="animate-spin h-8 w-8 text-cyan-600" />
             <span className="text-sm font-medium">{t('classrooms.loading', 'Chargement des programmes...')}</span>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-slate-900 rounded-3xl border border-slate-800 p-16 text-center max-w-xl mx-auto shadow-sm text-slate-100">
-            <BookOpen className="h-14 w-14 text-slate-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-slate-100 mb-2">{t('classrooms.empty_title', 'Aucune formation trouvée')}</h3>
-            <p className="text-slate-400 text-sm">{t('classrooms.empty_desc', 'Essayez de modifier votre recherche ou vos filtres.')}</p>
+          <div className="bg-white rounded-3xl border border-slate-200 p-16 text-center max-w-xl mx-auto shadow-xs text-slate-900">
+            <BookOpen className="h-14 w-14 text-cyan-600 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-slate-900 mb-2">{t('classrooms.empty_title', 'Aucune formation trouvée')}</h3>
+            <p className="text-slate-500 text-sm">{t('classrooms.empty_desc', 'Essayez de modifier votre recherche ou vos filtres.')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
@@ -851,39 +850,39 @@ ${curriculumText}`;
               const isDiplomante = room.course_category === 'diplomante' || (room as any).is_pdf_formation || room.id.startsWith('fede-') || room.id.startsWith('diplomante-');
 
               return (
-                <Card key={room.id} className="overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-800 shadow-md flex flex-col bg-slate-900 text-slate-100 group">
+                <Card key={room.id} className="overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 shadow-xs flex flex-col bg-white text-slate-900 group rounded-3xl">
                   <div className={`h-2 bg-gradient-to-r ${
-                    isDiplomante ? "from-emerald-500 via-teal-400 to-cyan-500" :
-                    room.type === "direct" ? "from-red-500 to-orange-400" :
-                    room.type === "video" ? "from-indigo-600 to-blue-500" :
-                    "from-indigo-500 to-purple-400"
+                    isDiplomante ? "from-teal-500 via-cyan-400 to-cyan-500" :
+                    room.type === "direct" ? "from-cyan-600 to-teal-400" :
+                    room.type === "video" ? "from-cyan-500 to-blue-500" :
+                    "from-cyan-500 to-teal-400"
                   }`} />
                   <CardContent className="p-6 flex-1 flex flex-col gap-4">
                     <div className="flex justify-between items-start gap-2">
                       {isDiplomante ? (
-                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center gap-1 shadow-sm">
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 flex items-center gap-1 shadow-2xs">
                           🎓 Formation Diplômante
                         </span>
                       ) : (
-                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 flex items-center gap-1 shadow-sm">
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-200 flex items-center gap-1 shadow-2xs">
                           ⭐ Masterclass
                         </span>
                       )}
-                      <span className="text-xs text-slate-400 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium whitespace-nowrap">
-                        <Users className="w-3.5 h-3.5 text-slate-400" /> {(room as any).registered_count || 18} / {room.max_members}
+                      <span className="text-xs text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium whitespace-nowrap">
+                        <Users className="w-3.5 h-3.5 text-slate-500" /> {(room as any).registered_count || 18} / {room.max_members}
                       </span>
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-extrabold text-slate-900 line-clamp-2 leading-tight mb-2 group-hover:text-indigo-600 transition-colors">
+                      <h3 className="text-lg font-extrabold text-slate-900 line-clamp-2 leading-tight mb-2 group-hover:text-cyan-700 transition-colors">
                         {room.title}
                       </h3>
-                      <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed">{displayDesc}</p>
+                      <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">{displayDesc}</p>
                     </div>
 
                     <div className="space-y-2 text-sm border-t border-slate-100 pt-3">
-                      <div className="flex items-center gap-2 text-slate-700 font-medium">
-                        <User className="w-4 h-4 text-indigo-500 shrink-0" />
+                      <div className="flex items-center gap-2 text-slate-800 font-medium">
+                        <User className="w-4 h-4 text-cyan-600 shrink-0" />
                         <span>{(room as any).is_pdf_formation || room.id.startsWith('fede-') ? `${room.lawyer_first_name} ${room.lawyer_last_name}` : `Me ${room.lawyer_first_name} ${room.lawyer_last_name}`}</span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-600">
@@ -895,31 +894,31 @@ ${curriculumText}`;
                     <div className="flex flex-col gap-2.5 mt-auto pt-2">
                       <Button
                         variant="outline"
-                        className="w-full border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-bold flex items-center justify-center gap-2"
+                        className="w-full border-cyan-200 text-cyan-800 hover:bg-cyan-50 font-bold flex items-center justify-center gap-2 rounded-xl"
                         onClick={() => setSelectedFormationModal({ ...room, description: displayDesc, curriculum: displayCurriculum })}
                       >
-                        <BookOpen className="w-4 h-4" /> 📖 Lire le Contenu & Programme
+                        <BookOpen className="w-4 h-4 text-cyan-600" /> 📖 Lire le Contenu & Programme
                       </Button>
 
                       <Button
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center justify-center gap-2 shadow-md"
+                        className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center justify-center gap-2 shadow-xs rounded-xl"
                         onClick={() => downloadFormationPDF({ ...room, description: displayDesc, curriculum: displayCurriculum })}
                       >
                         <Download className="w-4 h-4" /> Télécharger le Cours (PDF)
                       </Button>
 
                       {isSessionPassed(room) ? (
-                        <div className="w-full text-center py-2.5 px-3 bg-slate-100 rounded-xl text-slate-500 font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-200">
+                        <div className="w-full text-center py-2.5 px-3 bg-slate-100 rounded-xl text-slate-600 font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-200">
                           <span className="w-2 h-2 rounded-full bg-slate-400 animate-pulse" /> Séance Terminée (Résumé disponible)
                         </div>
                       ) : (room as any).is_pdf_formation || room.id.startsWith('fede-') ? (
-                        <div className="w-full text-center py-2.5 px-3 bg-indigo-950/80 rounded-xl text-indigo-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-indigo-800">
+                        <div className="w-full text-center py-2.5 px-3 bg-cyan-50 rounded-xl text-cyan-900 font-bold text-xs flex items-center justify-center gap-1.5 border border-cyan-200">
                           <span>📜 Diplôme Européen (Support Texte & PDF)</span>
                         </div>
                       ) : user ? (
                         <Button
                           variant="primary"
-                          className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold flex items-center justify-center gap-2"
+                          className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold flex items-center justify-center gap-2 rounded-xl shadow-xs"
                           onClick={() => joinMeeting(room)}
                         >
                           <Video className="w-4 h-4" /> Rejoindre la Session Visio
@@ -928,7 +927,7 @@ ${curriculumText}`;
                         <Button
                           size="sm"
                           variant="outline"
-                          className="w-full text-xs text-slate-500"
+                          className="w-full text-xs text-slate-600 border-slate-200 rounded-xl hover:bg-slate-50"
                           onClick={() => navigate(`/login?redirect=/classrooms?formation=${room.id}`)}
                         >
                           Se connecter pour la visio
@@ -947,21 +946,21 @@ ${curriculumText}`;
 
       {/* FORMATION DETAIL MODAL */}
       {selectedFormationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="bg-slate-900 text-slate-100 rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-800 flex flex-col">
-            <div className="p-6 border-b border-slate-800 flex justify-between items-start bg-slate-950 text-white rounded-t-3xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white text-slate-900 rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
+            <div className="p-6 border-b border-slate-200 flex justify-between items-start bg-slate-50 text-slate-900 rounded-t-3xl">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
+                <span className="text-xs font-bold uppercase tracking-wider text-cyan-700">
                   {selectedFormationModal.category || 'Formation Juridique Officielle'}
                 </span>
-                <h2 className="text-xl font-bold mt-1 text-white">{selectedFormationModal.title}</h2>
-                <p className="text-xs text-slate-400 mt-1">
+                <h2 className="text-xl font-bold mt-1 text-slate-900">{selectedFormationModal.title}</h2>
+                <p className="text-xs text-slate-600 mt-1">
                   {(selectedFormationModal as any).is_pdf_formation || selectedFormationModal.id.startsWith('fede-') ? `Certificateur : ${selectedFormationModal.lawyer_first_name} ${selectedFormationModal.lawyer_last_name}` : `Formateur : Me ${selectedFormationModal.lawyer_first_name} ${selectedFormationModal.lawyer_last_name} • Durée : ${selectedFormationModal.duration_minutes} min`}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedFormationModal(null)}
-                className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-all"
+                className="p-2 rounded-full hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -973,46 +972,46 @@ ${curriculumText}`;
                 if (fedeDetail) {
                   return (
                     <div className="space-y-4">
-                      <div className="bg-gradient-to-r from-indigo-950/80 to-blue-950/80 rounded-2xl p-5 border border-indigo-700/60 shadow-lg space-y-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-indigo-800/60 pb-3">
-                          <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-300 bg-cyan-950/80 px-3 py-1 rounded-full border border-cyan-700/60">
+                      <div className="bg-gradient-to-r from-cyan-50 to-teal-50 rounded-2xl p-5 border border-cyan-200 shadow-xs space-y-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cyan-100 pb-3">
+                          <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-900 bg-cyan-100 px-3 py-1 rounded-full border border-cyan-200">
                             📜 Diplôme Européen Officiel — {fedeDetail.level}
                           </span>
-                          <span className="text-xs font-bold text-slate-300 bg-slate-900 px-3 py-1 rounded-full border border-slate-700">
+                          <span className="text-xs font-bold text-slate-700 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">
                             {fedeDetail.ects} ECTS • {fedeDetail.duration}
                           </span>
                         </div>
                         
                         <div>
-                          <h4 className="text-sm font-extrabold text-white mb-1">
+                          <h4 className="text-sm font-extrabold text-slate-900 mb-1">
                             {fedeDetail.title}
                           </h4>
-                          <p className="text-xs text-indigo-200">
-                            Certificateur : <span className="font-bold text-white">{fedeDetail.certifier}</span>
+                          <p className="text-xs text-slate-600">
+                            Certificateur : <span className="font-bold text-slate-800">{fedeDetail.certifier}</span>
                           </p>
                         </div>
 
-                        <p className="text-xs text-slate-200 leading-relaxed bg-slate-950/60 p-3.5 rounded-xl border border-indigo-900/40">
+                        <p className="text-xs text-slate-700 leading-relaxed bg-white/80 p-3.5 rounded-xl border border-cyan-100">
                           {fedeDetail.description}
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                          <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
-                            <h5 className="text-xs font-bold text-cyan-400 uppercase tracking-wide">
+                          <div className="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+                            <h5 className="text-xs font-bold text-cyan-700 uppercase tracking-wide">
                               🎯 Objectifs de la Formation
                             </h5>
-                            <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
+                            <ul className="text-xs text-slate-700 space-y-1 list-disc list-inside">
                               {fedeDetail.objectives.map((obj, i) => (
                                 <li key={i}>{obj}</li>
                               ))}
                             </ul>
                           </div>
 
-                          <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
-                            <h5 className="text-xs font-bold text-emerald-400 uppercase tracking-wide">
+                          <div className="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+                            <h5 className="text-xs font-bold text-teal-700 uppercase tracking-wide">
                               💼 Débouchés Professionnels
                             </h5>
-                            <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
+                            <ul className="text-xs text-slate-700 space-y-1 list-disc list-inside">
                               {fedeDetail.careerOpportunities.map((opp, i) => (
                                 <li key={i}>{opp}</li>
                               ))}
@@ -1020,10 +1019,10 @@ ${curriculumText}`;
                           </div>
                         </div>
 
-                        <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 text-xs text-slate-300 space-y-1">
-                          <p><strong className="text-white">Prérequis :</strong> {fedeDetail.prerequisites.join(' • ')}</p>
-                          <p><strong className="text-white">Public Visé :</strong> {fedeDetail.publicTarget}</p>
-                          <p><strong className="text-white">Évaluations :</strong> {fedeDetail.evaluationMethods.join(' • ')}</p>
+                        <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1">
+                          <p><strong className="text-slate-900">Prérequis :</strong> {fedeDetail.prerequisites.join(' • ')}</p>
+                          <p><strong className="text-slate-900">Public Visé :</strong> {fedeDetail.publicTarget}</p>
+                          <p><strong className="text-slate-900">Évaluations :</strong> {fedeDetail.evaluationMethods.join(' • ')}</p>
                         </div>
                       </div>
                     </div>
@@ -1031,11 +1030,11 @@ ${curriculumText}`;
                 }
 
                 return (
-                  <div className="bg-indigo-950/40 rounded-2xl p-5 border border-indigo-800/50">
-                    <h4 className="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-indigo-400" /> Objectifs & Présentation Générale
+                  <div className="bg-cyan-50/60 rounded-2xl p-5 border border-cyan-200">
+                    <h4 className="text-xs font-bold text-cyan-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-cyan-600" /> Objectifs & Présentation Générale
                     </h4>
-                    <p className="text-slate-200 text-sm leading-relaxed">
+                    <p className="text-slate-700 text-sm leading-relaxed">
                       {getRichDescription(selectedFormationModal.title, selectedFormationModal.description)}
                     </p>
                   </div>
@@ -1043,17 +1042,17 @@ ${curriculumText}`;
               })()}
 
               {isSessionPassed(selectedFormationModal) && (
-                <div className="bg-emerald-950/40 rounded-2xl p-5 border border-emerald-800/50 space-y-4">
-                  <h4 className="text-xs font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Résumé & Enregistrement de la Séance (Terminée)
+                <div className="bg-teal-50/60 rounded-2xl p-5 border border-teal-200 space-y-4">
+                  <h4 className="text-xs font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-teal-600" /> Résumé & Enregistrement de la Séance (Terminée)
                   </h4>
-                  <p className="text-slate-200 text-sm leading-relaxed whitespace-pre-line">
+                  <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-line">
                     {getSessionSummaryText(selectedFormationModal.title)}
                   </p>
                   
                   {selectedFormationModal.video_url && (
                     <div className="mt-4 space-y-2">
-                      <h5 className="font-bold text-white text-xs uppercase tracking-wide">
+                      <h5 className="font-bold text-slate-900 text-xs uppercase tracking-wide">
                         Replay / Enregistrement Vidéo de la Séance
                       </h5>
                       <VideoPlayer url={selectedFormationModal.video_url} />
@@ -1064,18 +1063,18 @@ ${curriculumText}`;
 
               {/* PDF & Image Attachments Export Section */}
               {selectedFormationModal.attachments && selectedFormationModal.attachments.length > 0 && (
-                <div className="bg-slate-950 text-slate-100 rounded-2xl p-5 border border-slate-800 space-y-4">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-3">
+                <div className="bg-slate-50 text-slate-900 rounded-2xl p-5 border border-slate-200 space-y-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200 pb-3">
                     <div>
-                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                         📑 Pièces Jointes & Supports de Cours ({selectedFormationModal.attachments.length})
                       </h4>
-                      <p className="text-xs text-slate-400 mt-0.5">Documents PDF et supports images intégrés à cette formation</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Documents PDF et supports images intégrés à cette formation</p>
                     </div>
                     <Button
                       size="sm"
                       onClick={() => exportAllAttachments(selectedFormationModal.attachments || [])}
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md"
+                      className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs"
                     >
                       <Download className="w-3.5 h-3.5" /> Exporter Tous les Fichiers (PDF & Images)
                     </Button>
@@ -1083,18 +1082,18 @@ ${curriculumText}`;
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {selectedFormationModal.attachments.map((att) => (
-                      <div key={att.id} className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3 hover:border-indigo-500/50 transition-all">
+                      <div key={att.id} className="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-3 hover:border-cyan-400 transition-all">
                         <div className="flex items-center gap-3 overflow-hidden">
                           {att.type === 'image' ? (
-                            <img src={att.dataUrl} alt={att.name} className="w-10 h-10 rounded-lg object-cover border border-slate-700 flex-shrink-0" />
+                            <img src={att.dataUrl} alt={att.name} className="w-10 h-10 rounded-lg object-cover border border-slate-200 flex-shrink-0" />
                           ) : (
-                            <div className="w-10 h-10 rounded-lg bg-red-950/80 border border-red-800/60 flex items-center justify-center text-red-400 font-bold text-xs flex-shrink-0">
+                            <div className="w-10 h-10 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 font-bold text-xs flex-shrink-0">
                               PDF
                             </div>
                           )}
                           <div className="truncate">
-                            <p className="text-xs font-bold text-white truncate">{att.name}</p>
-                            <p className="text-[10px] text-slate-400">{att.size} • {att.type.toUpperCase()}</p>
+                            <p className="text-xs font-bold text-slate-900 truncate">{att.name}</p>
+                            <p className="text-[10px] text-slate-500">{att.size} • {att.type.toUpperCase()}</p>
                           </div>
                         </div>
 
@@ -1102,7 +1101,7 @@ ${curriculumText}`;
                           size="sm"
                           variant="outline"
                           onClick={() => exportAttachmentFile(att)}
-                          className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-white text-xs font-semibold px-2.5 py-1 flex items-center gap-1 flex-shrink-0"
+                          className="bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-1 flex items-center gap-1 flex-shrink-0"
                         >
                           <Download className="w-3 h-3" /> Exporter
                         </Button>
@@ -1113,29 +1112,29 @@ ${curriculumText}`;
               )}
 
               <div>
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-indigo-400" /> Syllabus & Modules d'Enseignement Intégral ({getRichCurriculum(selectedFormationModal.title, selectedFormationModal.curriculum).length} Modules)
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-cyan-600" /> Syllabus & Modules d'Enseignement Intégral ({getRichCurriculum(selectedFormationModal.title, selectedFormationModal.curriculum).length} Modules)
                 </h4>
                 <div className="space-y-4">
                   {getRichCurriculum(selectedFormationModal.title, selectedFormationModal.curriculum).map((sec, idx) => (
-                    <div key={idx} className="bg-slate-950 rounded-2xl p-5 border border-slate-800 hover:border-indigo-800 transition-colors">
-                      <h5 className="font-extrabold text-white text-sm flex items-center gap-2.5 mb-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <div key={idx} className="bg-slate-50 rounded-2xl p-5 border border-slate-200 hover:border-cyan-300 transition-colors">
+                      <h5 className="font-extrabold text-slate-900 text-sm flex items-center gap-2.5 mb-2">
+                        <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
                         {sec.title}
                       </h5>
-                      <p className="text-xs text-slate-300 leading-relaxed pl-6 whitespace-pre-line">{sec.content}</p>
+                      <p className="text-xs text-slate-700 leading-relaxed pl-6 whitespace-pre-line">{sec.content}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="p-6 border-t border-slate-800 bg-slate-950 rounded-b-3xl flex flex-wrap justify-between items-center gap-3">
-              <Button variant="outline" onClick={() => setSelectedFormationModal(null)} className="border-slate-700 text-slate-300 hover:bg-slate-800">
+            <div className="p-6 border-t border-slate-200 bg-slate-50 rounded-b-3xl flex flex-wrap justify-between items-center gap-3">
+              <Button variant="outline" onClick={() => setSelectedFormationModal(null)} className="border-slate-300 text-slate-700 hover:bg-slate-100">
                 Fermer
               </Button>
               <Button
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-2 shadow-lg"
+                className="bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center gap-2 shadow-md"
                 onClick={() => downloadFormationPDF(selectedFormationModal)}
               >
                 <Download className="w-4 h-4" /> Télécharger le Cours Complet (PDF)

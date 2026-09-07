@@ -206,46 +206,46 @@ III. THEMES ABORDES DANS L'AUDIO/VIDEO
 
 const categoryStyles: Record<string, { badge: string; border: string; glow: string; text: string; icon: string }> = {
   'Droit du Travail': {
-    badge: 'bg-blue-950/90 text-blue-300 border-blue-400',
-    border: 'hover:border-blue-400 hover:shadow-blue-900/50',
-    glow: 'from-blue-950/40',
-    text: 'group-hover:text-blue-300',
-    icon: 'text-blue-400'
+    badge: 'bg-cyan-50 text-cyan-800 border-cyan-200',
+    border: 'hover:border-cyan-400 hover:shadow-cyan-100',
+    glow: 'from-cyan-50',
+    text: 'group-hover:text-cyan-700',
+    icon: 'text-cyan-600'
   },
   'RGPD & Numérique': {
-    badge: 'bg-purple-950/90 text-purple-300 border-purple-400',
-    border: 'hover:border-purple-400 hover:shadow-purple-900/50',
-    glow: 'from-purple-950/40',
-    text: 'group-hover:text-purple-300',
-    icon: 'text-purple-400'
+    badge: 'bg-teal-50 text-teal-800 border-teal-200',
+    border: 'hover:border-teal-400 hover:shadow-teal-100',
+    glow: 'from-teal-50',
+    text: 'group-hover:text-teal-700',
+    icon: 'text-teal-600'
   },
   'Droit Européen & CEDH': {
-    badge: 'bg-amber-950/90 text-amber-300 border-amber-400',
-    border: 'hover:border-amber-400 hover:shadow-amber-900/50',
-    glow: 'from-amber-950/40',
-    text: 'group-hover:text-amber-300',
-    icon: 'text-amber-400'
+    badge: 'bg-sky-50 text-sky-800 border-sky-200',
+    border: 'hover:border-sky-400 hover:shadow-sky-100',
+    glow: 'from-sky-50',
+    text: 'group-hover:text-sky-700',
+    icon: 'text-sky-600'
   },
   'Droit Civil & Famille': {
-    badge: 'bg-emerald-950/90 text-emerald-300 border-emerald-400',
-    border: 'hover:border-emerald-400 hover:shadow-emerald-900/50',
-    glow: 'from-emerald-950/40',
-    text: 'group-hover:text-emerald-300',
-    icon: 'text-emerald-400'
+    badge: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    border: 'hover:border-emerald-400 hover:shadow-emerald-100',
+    glow: 'from-emerald-50',
+    text: 'group-hover:text-emerald-700',
+    icon: 'text-emerald-600'
   },
   'Émissions & Médias': {
-    badge: 'bg-pink-950/90 text-pink-300 border-pink-400',
-    border: 'hover:border-pink-400 hover:shadow-pink-900/50',
-    glow: 'from-pink-950/40',
-    text: 'group-hover:text-pink-300',
-    icon: 'text-pink-400'
+    badge: 'bg-cyan-50 text-cyan-800 border-cyan-200',
+    border: 'hover:border-cyan-400 hover:shadow-cyan-100',
+    glow: 'from-cyan-50',
+    text: 'group-hover:text-cyan-700',
+    icon: 'text-cyan-600'
   },
   'Décrets & JORF': {
-    badge: 'bg-rose-950/90 text-rose-300 border-rose-400',
-    border: 'hover:border-rose-400 hover:shadow-rose-900/50',
-    glow: 'from-rose-950/40',
-    text: 'group-hover:text-rose-300',
-    icon: 'text-rose-400'
+    badge: 'bg-amber-50 text-amber-800 border-amber-200',
+    border: 'hover:border-amber-400 hover:shadow-amber-100',
+    glow: 'from-amber-50',
+    text: 'group-hover:text-amber-700',
+    icon: 'text-amber-600'
   }
 };
 
@@ -449,38 +449,38 @@ INSTRUCTIONS :
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pt-20 pb-20 selection:bg-primary-500 selection:text-white">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 text-slate-900 pt-16 pb-20 selection:bg-cyan-500 selection:text-white">
       {/* Real-time Ticker Marquee Bar */}
-      <div className="bg-slate-900/95 backdrop-blur-md border-b border-slate-700 text-xs py-2.5 px-4 sticky top-16 z-30 flex items-center justify-between gap-4 overflow-hidden shadow-md">
+      <div className="bg-white/95 backdrop-blur-md border-b border-slate-200 text-xs py-2.5 px-4 sticky top-16 z-30 flex items-center justify-between gap-4 overflow-hidden shadow-xs">
         <div className="flex items-center gap-3 shrink-0">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-600"></span>
           </span>
-          <span className="font-extrabold text-rose-400 tracking-wider uppercase flex items-center gap-1.5">
+          <span className="font-extrabold text-cyan-700 tracking-wider uppercase flex items-center gap-1.5">
             <Radio className="w-3.5 h-3.5 animate-pulse" />
             EN DIRECT — Veille Juridique Temps Réel
           </span>
-          <span className="text-slate-600">|</span>
-          <span className="text-slate-200 font-mono hidden md:inline">{lastSyncTime}</span>
+          <span className="text-slate-300">|</span>
+          <span className="text-slate-600 font-mono hidden md:inline">{lastSyncTime}</span>
         </div>
 
-        <div className="truncate text-slate-200 font-medium text-xs flex-1 hidden sm:block">
-          <span className="text-primary-400 font-bold">{liveLogMessage} — </span>
+        <div className="truncate text-slate-700 font-medium text-xs flex-1 hidden sm:block">
+          <span className="text-cyan-700 font-bold">{liveLogMessage} — </span>
           {news[0]?.title || 'Chargement des actualités en cours...'}
         </div>
 
-        <div className="flex items-center gap-3 shrink-0 text-slate-200 text-xs">
-          <span className="hidden lg:inline flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5 text-emerald-400" />
-            Recalcul dans <strong className="text-emerald-400 font-mono w-4 inline-block">{countdown}s</strong>
+        <div className="flex items-center gap-3 shrink-0 text-slate-700 text-xs">
+          <span className="hidden lg:flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5 text-cyan-600" />
+            Recalcul dans <strong className="text-cyan-700 font-mono w-4 inline-block">{countdown}s</strong>
           </span>
           <button 
             onClick={() => handleLiveWebVeille()}
             disabled={isAiSearching}
-            className="flex items-center gap-1.5 bg-primary-600 hover:bg-primary-500 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs transition-all shadow-md disabled:opacity-50"
+            className="flex items-center gap-1.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs transition-all shadow-sm disabled:opacity-50"
           >
-            {isAiSearching ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-amber-300" />}
+            {isAiSearching ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-cyan-200" />}
             <span>{isAiSearching ? 'Recherche...' : 'Veille Web IA'}</span>
           </button>
         </div>
@@ -492,7 +492,7 @@ INSTRUCTIONS :
             onClick={() => setPageTab('news')}
             className={`px-5 py-2.5 rounded-2xl font-extrabold text-sm transition-all border ${
               pageTab === 'news'
-                ? 'bg-slate-900 text-white border-slate-700 shadow-lg'
+                ? 'bg-cyan-600 text-white border-cyan-600 shadow-sm'
                 : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
             }`}
           >
@@ -502,7 +502,7 @@ INSTRUCTIONS :
             onClick={() => setPageTab('reviews')}
             className={`px-5 py-2.5 rounded-2xl font-extrabold text-sm transition-all border ${
               pageTab === 'reviews'
-                ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg'
+                ? 'bg-cyan-600 text-white border-cyan-600 shadow-sm'
                 : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
             }`}
           >
@@ -516,7 +516,7 @@ INSTRUCTIONS :
           <>
 
         {/* Live Search & Multi-Filter Control Panel */}
-        <div className="bg-slate-900/95 border border-slate-700/80 rounded-2xl p-6 shadow-2xl mb-10 space-y-6 backdrop-blur-md">
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm mb-10 space-y-6">
           {/* Main Search Input + AI Live Button */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -524,7 +524,7 @@ INSTRUCTIONS :
               <input
                 type="text"
                 placeholder="Rechercher une actualité (ex: licenciement, RGPD, AI Act, bail commercial, arrêt Cassation)..."
-                className="w-full pl-12 pr-10 py-3.5 bg-slate-950 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-400 text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all shadow-inner"
+                className="w-full pl-12 pr-10 py-3.5 bg-slate-50/60 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -534,7 +534,7 @@ INSTRUCTIONS :
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3.5 top-3.5 text-slate-300 hover:text-white text-xs bg-slate-800 rounded-full w-5 h-5 flex items-center justify-center transition-colors"
+                  className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-700 text-xs bg-slate-200 rounded-full w-5 h-5 flex items-center justify-center transition-colors"
                 >
                   ✕
                 </button>
@@ -544,7 +544,7 @@ INSTRUCTIONS :
             <button
               onClick={() => handleLiveWebVeille(searchQuery)}
               disabled={isAiSearching}
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 via-emerald-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-black px-6 py-3.5 rounded-xl text-sm transition-all shadow-xl hover:shadow-emerald-500/25 disabled:opacity-50 shrink-0 cursor-pointer"
+              className="flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-3.5 rounded-xl text-sm transition-all shadow-md shadow-cyan-600/20 disabled:opacity-50 shrink-0 cursor-pointer"
             >
               {isAiSearching ? (
                 <>
@@ -553,7 +553,7 @@ INSTRUCTIONS :
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <Sparkles className="w-4 h-4 text-cyan-200" />
                   <span>{t('news.btn_search_web', 'Chercher en Direct sur le Web')}</span>
                 </>
               )}
@@ -562,8 +562,8 @@ INSTRUCTIONS :
 
           {/* Categories Horizontal Scroll Pills */}
           <div className="space-y-2.5">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
-              <Filter className="w-4 h-4 text-primary-400" />
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+              <Filter className="w-4 h-4 text-cyan-600" />
               <span>{t('news.label_fields', 'Domaines juridiques :')}</span>
             </div>
             <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
@@ -582,8 +582,8 @@ INSTRUCTIONS :
                   onClick={() => setSelectedCategory(cat)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
                     selectedCategory === cat
-                      ? 'bg-gradient-to-r from-primary-600 to-indigo-600 border-primary-400 text-white shadow-lg shadow-primary-950/60 ring-1 ring-primary-400'
-                      : 'bg-slate-950 border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-500'
+                      ? 'bg-cyan-600 border-cyan-600 text-white shadow-sm ring-1 ring-cyan-500'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-cyan-50 hover:text-cyan-800 hover:border-cyan-200'
                   }`}
                 >
                   {cat === 'Tous' ? t('news.cat_all', 'Tous') : cat}
@@ -593,44 +593,44 @@ INSTRUCTIONS :
           </div>
 
           {/* Secondary Sub-filters (Country & Media Type) */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-800 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100 text-xs">
             <div className="flex flex-wrap items-center gap-4">
               {/* Jurisdiction */}
-              <div className="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-700">
-                <Globe className="w-4 h-4 text-indigo-400" />
-                <span className="text-slate-200 font-bold">{t('news.label_jurisdiction', 'Juridiction :')}</span>
+              <div className="flex items-center gap-2 bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200">
+                <Globe className="w-4 h-4 text-cyan-600" />
+                <span className="text-slate-700 font-bold">{t('news.label_jurisdiction', 'Juridiction :')}</span>
                 <select
                   value={selectedCountry}
                   onChange={(e) => setSelectedCountry(e.target.value)}
-                  className="bg-transparent text-white font-extrabold border-none focus:outline-none cursor-pointer"
+                  className="bg-transparent text-slate-900 font-bold border-none focus:outline-none cursor-pointer"
                 >
-                  <option value="Tous" className="bg-slate-900 text-white">{t('news.opt_all_jurisdictions', 'Toutes (France & UE)')}</option>
-                  <option value="France" className="bg-slate-900 text-white">🇫🇷 France</option>
-                  <option value="Union Européenne" className="bg-slate-900 text-white">🇪🇺 Union Européenne</option>
-                  <option value="International & Mondial" className="bg-slate-900 text-white">🌐 International</option>
+                  <option value="Tous" className="bg-white text-slate-900">{t('news.opt_all_jurisdictions', 'Toutes (France & UE)')}</option>
+                  <option value="France" className="bg-white text-slate-900">🇫🇷 France</option>
+                  <option value="Union Européenne" className="bg-white text-slate-900">🇪🇺 Union Européenne</option>
+                  <option value="International & Mondial" className="bg-white text-slate-900">🌐 International</option>
                 </select>
               </div>
 
               {/* Format */}
-              <div className="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-700">
-                <Tv className="w-4 h-4 text-emerald-400" />
-                <span className="text-slate-200 font-bold">{t('news.label_format', 'Format :')}</span>
+              <div className="flex items-center gap-2 bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200">
+                <Tv className="w-4 h-4 text-teal-600" />
+                <span className="text-slate-700 font-bold">{t('news.label_format', 'Format :')}</span>
                 <select
                   value={selectedMediaType}
                   onChange={(e) => setSelectedMediaType(e.target.value)}
-                  className="bg-transparent text-white font-extrabold border-none focus:outline-none cursor-pointer"
+                  className="bg-transparent text-slate-900 font-bold border-none focus:outline-none cursor-pointer"
                 >
-                  <option value="Tous" className="bg-slate-900 text-white">{t('news.opt_all_formats', 'Tous les formats')}</option>
-                  <option value="Article" className="bg-slate-900 text-white">📰 Articles & Analyses</option>
-                  <option value="Décret & Loi" className="bg-slate-900 text-white">📜 Décrets & Lois (JORF)</option>
-                  <option value="Arrêt & Jurisprudence" className="bg-slate-900 text-white">⚖️ Jurisprudence</option>
-                  <option value="Émission & Podcast" className="bg-slate-900 text-white">📺 Émissions & Audio</option>
+                  <option value="Tous" className="bg-white text-slate-900">{t('news.opt_all_formats', 'Tous les formats')}</option>
+                  <option value="Article" className="bg-white text-slate-900">📰 Articles & Analyses</option>
+                  <option value="Décret & Loi" className="bg-white text-slate-900">📜 Décrets & Lois (JORF)</option>
+                  <option value="Arrêt & Jurisprudence" className="bg-white text-slate-900">⚖️ Jurisprudence</option>
+                  <option value="Émission & Podcast" className="bg-white text-slate-900">📺 Émissions & Audio</option>
                 </select>
               </div>
             </div>
 
-            <div className="text-slate-200 font-bold">
-              Affichage de <strong className="text-primary-300 text-sm font-black">{filteredNews.length}</strong> actualité(s)
+            <div className="text-slate-600 font-medium">
+              Affichage de <strong className="text-cyan-700 text-sm font-bold">{filteredNews.length}</strong> actualité(s)
             </div>
           </div>
         </div>
@@ -639,11 +639,11 @@ INSTRUCTIONS :
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredNews.map((item, index) => {
             const style = categoryStyles[item.category] || {
-              badge: 'bg-primary-950/90 text-primary-300 border-primary-400',
-              border: 'hover:border-primary-400 hover:shadow-primary-900/50',
-              glow: 'from-primary-950/40',
-              text: 'group-hover:text-primary-300',
-              icon: 'text-primary-400'
+              badge: 'bg-cyan-50 text-cyan-800 border-cyan-200',
+              border: 'hover:border-cyan-400 hover:shadow-cyan-100',
+              glow: 'from-cyan-50',
+              text: 'group-hover:text-cyan-700',
+              icon: 'text-cyan-600'
             };
 
             return (
@@ -652,10 +652,10 @@ INSTRUCTIONS :
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className={`bg-slate-900 border-2 border-slate-700/90 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 flex flex-col group ${style.border}`}
+                className={`bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group ${style.border}`}
               >
                 {/* Image & Badges */}
-                <div className="h-52 bg-slate-950 relative overflow-hidden">
+                <div className="h-52 bg-slate-100 relative overflow-hidden">
                   {item.image_url ? (
                     <img 
                       src={item.image_url} 
@@ -663,70 +663,70 @@ INSTRUCTIONS :
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-primary-950">
-                      <Newspaper className={`h-16 w-16 ${style.icon} opacity-50`} />
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-50 via-slate-50 to-teal-50">
+                      <Newspaper className={`h-16 w-16 ${style.icon} opacity-40`} />
                     </div>
                   )}
                   
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
 
                   {/* Top Badges */}
                   <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2">
-                    <span className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider backdrop-blur-md shadow-lg flex items-center gap-1.5 border ${style.badge}`}>
+                    <span className={`px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wide backdrop-blur-md shadow-sm flex items-center gap-1.5 border bg-white/95 ${style.badge}`}>
                       <Tag className={`h-3.5 w-3.5 ${style.icon}`} />
                       {item.category}
                     </span>
 
                     {item.is_live && (
-                      <span className="px-3 py-1 rounded-xl text-xs font-black bg-rose-600 text-white shadow-lg flex items-center gap-1 animate-pulse border border-rose-400">
+                      <span className="px-3 py-1 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-sm flex items-center gap-1 animate-pulse border border-rose-400">
                         🔴 Direct
                       </span>
                     )}
                   </div>
 
                   {/* Bottom Overlay Info */}
-                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-xs text-white font-bold">
-                    <span className="flex items-center gap-1.5 bg-slate-950/90 px-3 py-1 rounded-lg backdrop-blur-md border border-slate-700">
-                      <Globe className="w-3.5 h-3.5 text-indigo-400" />
+                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-xs text-white font-semibold">
+                    <span className="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-lg backdrop-blur-md">
+                      <Globe className="w-3.5 h-3.5 text-cyan-300" />
                       {item.country}
                     </span>
-                    <span className="flex items-center gap-1.5 bg-slate-950/90 px-3 py-1 rounded-lg backdrop-blur-md border border-slate-700">
-                      <Clock className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-lg backdrop-blur-md">
+                      <Clock className="w-3.5 h-3.5 text-amber-300" />
                       {item.published_at ? new Date(item.published_at).toLocaleDateString(i18n?.language || 'fr', { day: 'numeric', month: 'short' }) : 'Récent'}
                     </span>
                   </div>
                 </div>
 
                 {/* Card Body */}
-                <div className="p-6 flex-1 flex flex-col space-y-4">
-                  <h2 className="text-lg md:text-xl font-black text-white transition-colors leading-snug tracking-tight" style={{ color: '#ffffff' }}>
+                <div className="p-6 flex-1 flex flex-col space-y-3">
+                  <h2 className="text-lg md:text-xl font-bold text-slate-900 transition-colors leading-snug tracking-tight group-hover:text-cyan-700">
                     {item.title}
                   </h2>
 
-                <p className="text-slate-100 text-sm font-medium leading-relaxed">
+                <p className="text-slate-600 text-sm font-normal leading-relaxed">
                   {item.summary}
                 </p>
 
                 {/* Impact callout */}
                 {item.impact && (
-                  <div className="p-3.5 rounded-2xl bg-slate-950 border border-emerald-500/50 text-xs font-medium text-slate-100 flex items-start gap-2.5 shadow-inner">
-                    <ShieldCheck className="w-4.5 h-4.5 text-emerald-400 shrink-0 mt-0.5" />
-                    <div className="text-slate-100">
-                      <strong className="text-emerald-400 font-black block mb-0.5">Impact Juridique : </strong>
-                      <span className="text-slate-100">{item.impact}</span>
+                  <div className="p-3.5 rounded-2xl bg-cyan-50/70 border border-cyan-200 text-xs font-medium text-slate-800 flex items-start gap-2.5">
+                    <ShieldCheck className="w-4.5 h-4.5 text-cyan-600 shrink-0 mt-0.5" />
+                    <div className="text-slate-800">
+                      <strong className="text-cyan-800 font-bold block mb-0.5">Impact Juridique : </strong>
+                      <span className="text-slate-700">{item.impact}</span>
                     </div>
                   </div>
                 )}
 
                 {/* Card Footer Actions */}
-                <div className="mt-auto pt-4 border-t border-slate-800 flex items-center justify-between gap-2">
-                  <span className="text-xs text-slate-200 font-bold truncate max-w-[150px]">
+                <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <span className="text-xs text-slate-500 font-medium truncate max-w-[150px]">
                     Par {item.author}
                   </span>
 
                   <button
                     onClick={() => setSelectedArticle(item)}
-                    className="flex items-center gap-1.5 text-xs font-black text-white bg-primary-600 hover:bg-primary-500 px-4 py-2.5 rounded-xl border border-primary-400 transition-all shadow-md hover:shadow-primary-600/30 cursor-pointer shrink-0"
+                    className="flex items-center gap-1.5 text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-700 px-4 py-2.5 rounded-xl transition-all shadow-sm hover:shadow-cyan-600/20 cursor-pointer shrink-0"
                   >
                     <span>Lire l&apos;analyse</span>
                     <ChevronRight className="h-4 w-4" />
@@ -740,12 +740,12 @@ INSTRUCTIONS :
 
         {/* Empty State */}
         {filteredNews.length === 0 && (
-          <div className="text-center py-20 bg-slate-900/60 rounded-3xl border border-dashed border-slate-800 p-8 space-y-4">
-            <Newspaper className="h-16 w-16 text-slate-600 mx-auto" />
-            <h3 className="text-xl font-bold text-slate-300">
+          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200 p-8 space-y-4 shadow-sm">
+            <Newspaper className="h-16 w-16 text-slate-400 mx-auto" />
+            <h3 className="text-xl font-bold text-slate-900">
               Aucune actualité ne correspond à vos filtres actuels
             </h3>
-            <p className="text-slate-400 text-sm max-w-md mx-auto">
+            <p className="text-slate-600 text-sm max-w-md mx-auto">
               Essayez de réinitialiser vos catégories ou relancez une veille web en direct avec le bouton IA.
             </p>
             <button
@@ -755,7 +755,7 @@ INSTRUCTIONS :
                 setSelectedMediaType('Tous');
                 setSearchQuery('');
               }}
-              className="bg-primary-600 hover:bg-primary-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition-all"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition-all shadow-sm"
             >
               Réinitialiser tous les filtres
             </button>
@@ -768,73 +768,73 @@ INSTRUCTIONS :
       {/* Reader Modal */}
       <AnimatePresence>
         {selectedArticle && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+              className="bg-white border border-slate-200 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
             >
               {/* Modal Header */}
-              <div className="p-6 bg-slate-950 border-b border-slate-800 flex items-start justify-between gap-4">
+              <div className="p-6 bg-slate-50/80 border-b border-slate-200 flex items-start justify-between gap-4">
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-2.5 py-0.5 bg-primary-950 text-primary-300 border border-primary-800 rounded-lg text-xs font-bold uppercase">
+                    <span className="px-2.5 py-0.5 bg-cyan-100 text-cyan-800 border border-cyan-200 rounded-lg text-xs font-bold uppercase">
                       {selectedArticle.category}
                     </span>
-                    <span className="px-2.5 py-0.5 bg-indigo-950 text-indigo-300 border border-indigo-800 rounded-lg text-xs font-bold">
+                    <span className="px-2.5 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold">
                       {selectedArticle.country}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">
+                    <span className="text-xs text-slate-500 font-medium">
                       {new Date(selectedArticle.published_at).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                   </div>
-                  <h2 className="text-xl md:text-2xl font-bold text-white leading-tight">
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900 leading-tight">
                     {selectedArticle.title}
                   </h2>
                 </div>
 
                 <button
                   onClick={() => setSelectedArticle(null)}
-                  className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors shrink-0"
+                  className="p-2 text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors shrink-0"
                 >
                   ✕
                 </button>
               </div>
 
               {/* Modal Body */}
-              <div className="p-6 md:p-8 overflow-y-auto space-y-6 flex-1 text-slate-300 text-sm leading-relaxed">
+              <div className="p-6 md:p-8 overflow-y-auto space-y-6 flex-1 text-slate-700 text-sm leading-relaxed">
                 {/* Podcast / Media Player Widget */}
                 {selectedArticle.media_type === 'Émission & Podcast' && (
-                  <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-950 via-slate-950 to-pink-950 border border-purple-500/50 shadow-xl space-y-4">
+                  <div className="p-5 rounded-2xl bg-cyan-50 border border-cyan-200 shadow-sm space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-pink-600 flex items-center justify-center text-white shadow-lg animate-pulse">
+                        <div className="w-12 h-12 rounded-2xl bg-cyan-600 flex items-center justify-center text-white shadow-md">
                           <Radio className="w-6 h-6" />
                         </div>
                         <div>
-                          <h4 className="text-white font-extrabold text-sm">Émission & Décryptage Audio / Vidéo</h4>
-                          <p className="text-xs text-purple-300">FranceJustice Legal Podcast • Durée : 28 min</p>
+                          <h4 className="text-slate-900 font-bold text-sm">Émission & Décryptage Audio / Vidéo</h4>
+                          <p className="text-xs text-cyan-800 font-medium">FranceJustice Legal Podcast • Durée : 28 min</p>
                         </div>
                       </div>
-                      <span className="px-3 py-1 bg-pink-500/20 text-pink-300 border border-pink-500/40 rounded-xl text-xs font-black uppercase">
+                      <span className="px-3 py-1 bg-cyan-100 text-cyan-800 border border-cyan-200 rounded-xl text-xs font-bold uppercase">
                         🎧 Écouter
                       </span>
                     </div>
 
                     {/* Fake Interactive Audio Progress Wave */}
-                    <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex items-center gap-4">
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 flex items-center gap-4 shadow-xs">
                       <button 
                         onClick={() => alert("▶ Lecture de l'émission audio juridique...")}
-                        className="w-10 h-10 rounded-full bg-primary-600 hover:bg-primary-500 text-white flex items-center justify-center text-xs font-black shadow-md cursor-pointer shrink-0"
+                        className="w-10 h-10 rounded-full bg-cyan-600 hover:bg-cyan-700 text-white flex items-center justify-center text-xs font-bold shadow-sm cursor-pointer shrink-0"
                       >
                         ▶
                       </button>
                       <div className="flex-1 space-y-1">
-                        <div className="h-2 bg-slate-800 rounded-full overflow-hidden flex items-center">
-                          <div className="w-2/5 h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"></div>
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden flex items-center">
+                          <div className="w-2/5 h-full bg-cyan-600 rounded-full"></div>
                         </div>
-                        <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                        <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
                           <span>11:42</span>
                           <span>28:00</span>
                         </div>
@@ -847,43 +847,43 @@ INSTRUCTIONS :
                   <img
                     src={selectedArticle.image_url}
                     alt={selectedArticle.title}
-                    className="w-full h-64 object-cover rounded-2xl border border-slate-800 shadow-lg"
+                    className="w-full h-64 object-cover rounded-2xl border border-slate-200 shadow-sm"
                   />
                 )}
 
-                <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-slate-200 font-medium leading-relaxed">
-                  <strong className="text-primary-400 block mb-1">Résumé synthétique :</strong>
+                <div className="p-4 rounded-2xl bg-cyan-50/70 border border-cyan-200 text-slate-800 font-medium leading-relaxed">
+                  <strong className="text-cyan-800 block mb-1">Résumé synthétique :</strong>
                   {selectedArticle.summary}
                 </div>
 
-                <div className="p-6 rounded-2xl bg-slate-950/80 border border-slate-800 whitespace-pre-wrap leading-relaxed text-slate-100 font-sans space-y-4 shadow-inner">
+                <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 whitespace-pre-wrap leading-relaxed text-slate-800 font-sans space-y-4">
                   {selectedArticle.content}
                 </div>
 
                 {selectedArticle.impact && (
-                  <div className="p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/50 space-y-2 shadow-lg">
-                    <div className="flex items-center gap-2 text-emerald-400 font-extrabold text-sm">
-                      <ShieldCheck className="w-5 h-5" />
+                  <div className="p-5 rounded-2xl bg-teal-50 border border-teal-200 space-y-2">
+                    <div className="flex items-center gap-2 text-teal-800 font-bold text-sm">
+                      <ShieldCheck className="w-5 h-5 text-teal-600" />
                       <span>Portée et Impact Juridique Officiel :</span>
                     </div>
-                    <p className="text-emerald-100 text-xs leading-relaxed font-medium">
+                    <p className="text-teal-900 text-xs leading-relaxed font-normal">
                       {selectedArticle.impact}
                     </p>
                   </div>
                 )}
 
                 {/* Source officielle & Lien externe vérifié */}
-                <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-300 shadow-inner">
+                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600">
                   <div className="space-y-1">
-                    <span className="text-slate-400 block">Source officielle & Éditeur :</span>
-                    <strong className="text-white text-sm font-black">{selectedArticle.author}</strong>
+                    <span className="text-slate-500 block">Source officielle & Éditeur :</span>
+                    <strong className="text-slate-900 text-sm font-bold">{selectedArticle.author}</strong>
                   </div>
                   {selectedArticle.source_url && (
                     <a
                       href={selectedArticle.source_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white font-black px-4 py-2.5 rounded-xl transition-all shadow-md cursor-pointer"
+                      className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer"
                     >
                       <span>Consulter sur le site officiel (Légifrance / EUR-Lex)</span>
                       <ExternalLink className="w-4 h-4" />
@@ -893,19 +893,19 @@ INSTRUCTIONS :
               </div>
 
               {/* Modal Footer Controls */}
-              <div className="p-6 bg-slate-950 border-t border-slate-800 flex items-center justify-between gap-4">
+              <div className="p-6 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-4">
                 <button
                   onClick={() => copyArticleLink(selectedArticle)}
-                  className="flex items-center gap-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors"
+                  className="flex items-center gap-2 text-slate-700 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-100 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors shadow-xs"
                 >
-                  {copiedId === selectedArticle.id ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                  {copiedId === selectedArticle.id ? <Check className="w-4 h-4 text-teal-600" /> : <Copy className="w-4 h-4" />}
                   <span>{copiedId === selectedArticle.id ? 'Lien copié !' : 'Partager'}</span>
                 </button>
 
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => downloadArticlePDF(selectedArticle)}
-                    className="flex items-center gap-2 bg-primary-600 hover:bg-primary-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-md"
+                    className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-sm"
                   >
                     <Download className="w-4 h-4" />
                     <span>Télécharger PDF</span>
@@ -913,7 +913,7 @@ INSTRUCTIONS :
 
                   <button
                     onClick={() => setSelectedArticle(null)}
-                    className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors"
+                    className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-100 transition-colors"
                   >
                     Fermer
                   </button>

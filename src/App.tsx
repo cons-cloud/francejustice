@@ -37,8 +37,8 @@ const ForgotPasswordPage   = lazy(() => import('./pages/ForgotPassword'));
 // ─── Fast, non-blocking page transition loader ──────────────────────────
 function PageLoader() {
   return (
-    <div className="w-full h-1 bg-slate-900 overflow-hidden relative">
-      <div className="w-1/2 h-full bg-gradient-to-r from-amber-400 to-indigo-500 animate-pulse transition-all duration-300" />
+    <div className="w-full h-1 bg-slate-100 overflow-hidden relative">
+      <div className="w-1/2 h-full bg-gradient-to-r from-cyan-500 to-teal-500 animate-pulse transition-all duration-300" />
     </div>
   );
 }

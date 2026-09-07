@@ -391,25 +391,25 @@ const GuidePratique: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pt-24 pb-20">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pt-20 pb-20">
       <div className="container px-4 mx-auto max-w-7xl space-y-10">
 
         {/* Hero Banner Header */}
-        <div className="relative bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 md:p-12 border border-indigo-500/30 shadow-2xl overflow-hidden">
+        <div className="relative bg-gradient-to-b from-cyan-50/80 via-white to-slate-50 rounded-3xl p-8 md:p-12 border border-slate-200 shadow-xl overflow-hidden">
           <div className="relative z-10 space-y-6 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-primary-500/20 text-primary-300 border border-primary-400/40 text-xs font-black uppercase tracking-wider backdrop-blur-md">
-              <BookOpen className="w-4 h-4 text-primary-400" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-cyan-100 text-cyan-800 border border-cyan-200 text-xs font-black uppercase tracking-wider">
+              <BookOpen className="w-4 h-4 text-cyan-600" />
               <span>Guides Juridiques Pratiques & Démarches 2026</span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
-              <span className="text-white">Vos Démarches Juridiques</span>{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-300">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight text-slate-900">
+              <span>Vos Démarches Juridiques</span>{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-500">
                 Pas à Pas et Sans Erreur
               </span>
             </h1>
 
-            <p className="text-slate-300 text-sm md:text-base leading-relaxed font-medium">
+            <p className="text-slate-600 text-sm md:text-base leading-relaxed font-medium">
               Consultez des guides explicatifs complets, appuyés par les textes officiels du Code civil, Code du travail et du Code de procédure pénale. Téléchargez les modèles de documents et exportez vos fiches en PDF.
             </p>
 
@@ -421,29 +421,29 @@ const GuidePratique: React.FC = () => {
                 placeholder={t('guide.search_placeholder', 'Rechercher un guide (ex: plainte, rupture conventionnelle, caution, divorce, litige)...')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 bg-slate-900/90 border border-slate-700 rounded-2xl text-white placeholder-slate-400 text-sm focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/30 transition-all shadow-inner"
+                className="w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all shadow-xs"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
                 >
                   <X className="w-4 h-4" />
                 </button>
               )}
             </div>
           </div>
-          <Scale className="absolute -right-10 -bottom-10 h-72 w-72 text-indigo-500/10 pointer-events-none" />
+          <Scale className="absolute -right-10 -bottom-10 h-72 w-72 text-cyan-500/10 pointer-events-none" />
         </div>
 
         {/* Category Navigation Filter Pills */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
               {t('guide.filter_domain', 'Filtrer par domaine juridique :')}
             </span>
-            <span className="text-xs text-slate-400 font-medium">
-              <strong className="text-amber-300 font-black">{filteredGuides.length}</strong> {t('guide.available_count', 'guide(s) disponible(s)')}
+            <span className="text-xs text-slate-500 font-medium">
+              <strong className="text-cyan-800 font-black">{filteredGuides.length}</strong> {t('guide.available_count', 'guide(s) disponible(s)')}
             </span>
           </div>
 
@@ -454,8 +454,8 @@ const GuidePratique: React.FC = () => {
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-4.5 py-2.5 rounded-xl text-xs font-black whitespace-nowrap transition-all border ${
                   selectedCategory === cat.id
-                    ? 'bg-gradient-to-r from-primary-600 to-indigo-600 border-primary-400 text-white shadow-lg shadow-primary-950/60 ring-1 ring-primary-400'
-                    : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-500'
+                    ? 'bg-cyan-600 border-cyan-600 text-white shadow-md shadow-cyan-600/20'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300'
                 }`}
               >
                 {cat.label}
@@ -472,43 +472,43 @@ const GuidePratique: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="bg-slate-900 border-2 border-slate-800 rounded-3xl p-6 flex flex-col justify-between hover:border-primary-400 hover:shadow-2xl hover:shadow-primary-950/40 transition-all duration-300 group"
+              className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between hover:border-cyan-300 hover:shadow-xl transition-all duration-300 group"
             >
               <div className="space-y-4">
                 {/* Header Info */}
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-3 py-1 bg-primary-950 text-primary-300 border border-primary-800 rounded-xl text-[11px] font-black uppercase">
+                  <span className="px-3 py-1 bg-cyan-50 text-cyan-800 border border-cyan-200 rounded-xl text-[11px] font-black uppercase">
                     {guide.category}
                   </span>
 
-                  <span className="flex items-center gap-1 text-[11px] font-bold text-amber-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
-                    <Clock className="w-3 h-3 text-amber-400" />
+                  <span className="flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                    <Clock className="w-3 h-3 text-cyan-600" />
                     {guide.estimatedTime}
                   </span>
                 </div>
 
                 {/* Title */}
-                <h3 className="text-lg font-black text-white group-hover:text-primary-300 transition-colors leading-snug">
+                <h3 className="text-lg font-black text-slate-900 group-hover:text-cyan-700 transition-colors leading-snug">
                   {guide.title}
                 </h3>
 
                 {/* Summary */}
-                <p className="text-slate-300 text-xs leading-relaxed line-clamp-3 font-medium">
+                <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 font-normal">
                   {guide.summary}
                 </p>
 
                 {/* Legal Basis Callout */}
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400 font-mono flex items-center gap-2">
-                  <Scale className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 font-mono flex items-center gap-2">
+                  <Scale className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
                   <span className="truncate">{guide.legalBasis}</span>
                 </div>
               </div>
 
               {/* Action Button */}
-              <div className="pt-6 mt-6 border-t border-slate-800/80 flex items-center justify-between">
+              <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
                 <button
                   onClick={() => setSelectedGuide(guide)}
-                  className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-primary-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-all shadow-md group-hover:bg-primary-600"
+                  className="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-cyan-600 text-cyan-800 hover:text-white border border-slate-200 hover:border-cyan-600 font-bold px-4 py-2.5 rounded-xl text-xs transition-all shadow-xs group-hover:bg-cyan-600 group-hover:text-white"
                 >
                   <span>{t('guide.read_full', 'Consulter le guide complet')}</span>
                   <ChevronRight className="w-4 h-4" />
@@ -520,17 +520,17 @@ const GuidePratique: React.FC = () => {
 
         {/* Empty State */}
         {filteredGuides.length === 0 && (
-          <div className="text-center py-20 bg-slate-900 rounded-3xl border border-dashed border-slate-800 p-8 space-y-4">
-            <BookOpen className="h-16 w-16 text-slate-600 mx-auto" />
-            <h3 className="text-xl font-bold text-slate-300">
+          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200 p-8 space-y-4">
+            <BookOpen className="h-16 w-16 text-cyan-600 mx-auto" />
+            <h3 className="text-xl font-bold text-slate-900">
               {t('guide.empty_title', 'Aucun guide juridique ne correspond à votre recherche')}
             </h3>
-            <p className="text-slate-400 text-sm max-w-md mx-auto">
+            <p className="text-slate-500 text-sm max-w-md mx-auto">
               {t('guide.empty_desc', 'Essayez de modifier votre mot-clé ou réinitialisez les filtres par catégorie.')}
             </p>
             <button
               onClick={() => { setSelectedCategory('Tous'); setSearchQuery(''); }}
-              className="bg-primary-600 hover:bg-primary-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition-all"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition-all shadow-xs"
             >
               {t('guide.reset_filters', 'Réinitialiser les filtres')}
             </button>
@@ -540,74 +540,74 @@ const GuidePratique: React.FC = () => {
         {/* Detailed Modal Reader */}
         <AnimatePresence>
           {selectedGuide && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+                className="bg-white border border-slate-200 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl text-slate-900"
               >
                 {/* Modal Header */}
-                <div className="p-6 bg-slate-950 border-b border-slate-800 flex items-start justify-between gap-4">
+                <div className="p-6 bg-slate-50 border-b border-slate-200 flex items-start justify-between gap-4">
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-3 py-1 bg-primary-950 text-primary-300 border border-primary-800 rounded-lg text-xs font-black uppercase">
+                      <span className="px-3 py-1 bg-cyan-100 text-cyan-800 border border-cyan-200 rounded-lg text-xs font-black uppercase">
                         {selectedGuide.category}
                       </span>
-                      <span className="px-3 py-1 bg-slate-800 text-amber-300 border border-slate-700 rounded-lg text-xs font-bold flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-amber-400" />
+                      <span className="px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-cyan-600" />
                         {selectedGuide.estimatedTime}
                       </span>
-                      <span className="px-3 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded-lg text-xs font-bold">
+                      <span className="px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold">
                         {t('guide.difficulty_label', 'Difficulté :')} {selectedGuide.difficulty}
                       </span>
                     </div>
-                    <h2 className="text-xl md:text-2xl font-black text-white leading-tight">
+                    <h2 className="text-xl md:text-2xl font-black text-slate-900 leading-tight">
                       {selectedGuide.title}
                     </h2>
                   </div>
 
                   <button
                     onClick={() => setSelectedGuide(null)}
-                    className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors shrink-0"
+                    className="p-2 text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors shrink-0"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
                 {/* Modal Body Content */}
-                <div className="p-6 md:p-8 overflow-y-auto space-y-8 flex-1 text-slate-300 text-sm leading-relaxed">
+                <div className="p-6 md:p-8 overflow-y-auto space-y-8 flex-1 text-slate-700 text-sm leading-relaxed">
                   
                   {/* Legal Basis Callout */}
-                  <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 flex items-center gap-3">
-                    <Scale className="w-6 h-6 text-indigo-400 shrink-0" />
+                  <div className="p-4 rounded-2xl bg-cyan-50/70 border border-cyan-200 flex items-center gap-3">
+                    <Scale className="w-6 h-6 text-cyan-600 shrink-0" />
                     <div>
-                      <strong className="text-white text-xs block font-bold">{t('guide.legal_basis_title', 'Fondement légal et textes de référence :')}</strong>
-                      <span className="text-indigo-200 text-xs font-mono">{selectedGuide.legalBasis}</span>
+                      <strong className="text-cyan-950 text-xs block font-bold">{t('guide.legal_basis_title', 'Fondement légal et textes de référence :')}</strong>
+                      <span className="text-cyan-800 text-xs font-mono">{selectedGuide.legalBasis}</span>
                     </div>
                   </div>
 
                   {/* Summary */}
                   <div className="space-y-2">
-                    <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-primary-400" />
+                    <h4 className="text-slate-900 font-extrabold text-base flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-cyan-600" />
                       <span>{t('guide.summary_title', 'Présentation et objectifs du guide :')}</span>
                     </h4>
-                    <p className="text-slate-200 text-sm leading-relaxed bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                    <p className="text-slate-700 text-sm leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-200">
                       {selectedGuide.summary}
                     </p>
                   </div>
 
                   {/* Required Documents */}
                   <div className="space-y-3">
-                    <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                      <FileCheck className="w-4 h-4 text-emerald-400" />
+                    <h4 className="text-slate-900 font-extrabold text-base flex items-center gap-2">
+                      <FileCheck className="w-4 h-4 text-teal-600" />
                       <span>{t('guide.documents_title', 'Pièces et documents obligatoires à réunir :')}</span>
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {selectedGuide.requiredDocuments.map((doc, i) => (
-                        <div key={i} className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 flex items-start gap-2.5">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <div key={i} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-start gap-2.5">
+                          <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
                           <span>{doc}</span>
                         </div>
                       ))}
@@ -616,28 +616,28 @@ const GuidePratique: React.FC = () => {
 
                   {/* Step-by-Step Procedure Timeline */}
                   <div className="space-y-4 pt-2">
-                    <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-amber-400" />
+                    <h4 className="text-slate-900 font-extrabold text-base flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-cyan-600" />
                       <span>{t('guide.steps_title', 'Étapes chronologiques de la procédure :')}</span>
                     </h4>
 
                     <div className="space-y-4">
                       {selectedGuide.steps.map((step) => (
-                        <div key={step.number} className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5 relative">
+                        <div key={step.number} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5 relative">
                           <div className="flex items-center gap-3">
-                            <span className="w-7 h-7 rounded-full bg-primary-600 text-white font-black text-xs flex items-center justify-center shadow-md">
+                            <span className="w-7 h-7 rounded-full bg-cyan-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
                               {step.number}
                             </span>
-                            <h5 className="text-white font-bold text-sm">
+                            <h5 className="text-slate-900 font-bold text-sm">
                               {step.title}
                             </h5>
                           </div>
-                          <p className="text-slate-300 text-xs leading-relaxed pl-10">
+                          <p className="text-slate-600 text-xs leading-relaxed pl-10">
                             {step.description}
                           </p>
                           {step.tip && (
-                            <div className="ml-10 p-3 rounded-xl bg-indigo-950/60 border border-indigo-800/40 text-indigo-200 text-xs flex items-start gap-2">
-                              <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+                            <div className="ml-10 p-3 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-900 text-xs flex items-start gap-2">
+                              <Sparkles className="w-4 h-4 text-cyan-600 shrink-0 mt-0.5" />
                               <span><strong>{t('guide.tip_label', 'Conseil Pratique :')}</strong> {step.tip}</span>
                             </div>
                           )}
@@ -647,15 +647,15 @@ const GuidePratique: React.FC = () => {
                   </div>
 
                   {/* Errors to Avoid */}
-                  <div className="p-5 rounded-2xl bg-rose-950/30 border border-rose-500/40 space-y-3">
-                    <div className="flex items-center gap-2 text-rose-400 font-extrabold text-sm">
-                      <AlertTriangle className="w-5 h-5" />
+                  <div className="p-5 rounded-2xl bg-rose-50 border border-rose-200 space-y-3">
+                    <div className="flex items-center gap-2 text-rose-700 font-extrabold text-sm">
+                      <AlertTriangle className="w-5 h-5 text-rose-600" />
                       <span>{t('guide.errors_title', 'Erreurs fatales à éviter obligatoirement :')}</span>
                     </div>
-                    <ul className="space-y-2 text-xs text-rose-200">
+                    <ul className="space-y-2 text-xs text-rose-800">
                       {selectedGuide.errorsToAvoid.map((err, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <span className="text-rose-400 font-bold">•</span>
+                          <span className="text-rose-600 font-bold">•</span>
                           <span>{err}</span>
                         </li>
                       ))}
@@ -664,19 +664,19 @@ const GuidePratique: React.FC = () => {
                 </div>
 
                 {/* Modal Footer Controls */}
-                <div className="p-6 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <div className="p-6 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
                   <button
                     onClick={() => navigate('/generator')}
-                    className="flex items-center gap-2 text-white bg-slate-800 hover:bg-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                    className="flex items-center gap-2 text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-2xs"
                   >
-                    <FileText className="w-4 h-4 text-primary-400" />
+                    <FileText className="w-4 h-4 text-cyan-600" />
                     <span>{t('guide.generate_linked', 'Générer un modèle de document lié')}</span>
                   </button>
 
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleExportPDF(selectedGuide)}
-                      className="flex items-center gap-2 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-md cursor-pointer"
+                      className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-xs cursor-pointer"
                     >
                       <Download className="w-4 h-4" />
                       <span>{t('guide.export_pdf', 'Exporter le Guide en PDF')}</span>
@@ -684,7 +684,7 @@ const GuidePratique: React.FC = () => {
 
                     <button
                       onClick={() => setSelectedGuide(null)}
-                      className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
+                      className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-100 transition-colors cursor-pointer"
                     >
                       {t('common.close', 'Fermer')}
                     </button>

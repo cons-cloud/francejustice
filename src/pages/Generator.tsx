@@ -143,7 +143,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
       case 1:
         return (
           <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-secondary-900 mb-6">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">
               {t('generator.select_doc_type', 'Quel type de document souhaitez-vous générer ?')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -155,26 +155,26 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
                     key={type.id}
                     className={`relative cursor-pointer transition-all duration-300 rounded-2xl p-1 ${
                       isSelected
-                        ? 'border-2 border-indigo-600 bg-indigo-50/90 dark:bg-indigo-950/50 ring-2 ring-indigo-500/40 shadow-xl shadow-indigo-500/10 scale-[1.02]'
-                        : 'border border-slate-200 hover:border-indigo-300 hover:bg-slate-50/80 opacity-80 hover:opacity-100'
+                        ? 'border-2 border-cyan-600 bg-cyan-50/90 ring-2 ring-cyan-500/30 shadow-lg shadow-cyan-500/10 scale-[1.01]'
+                        : 'border border-slate-200 hover:border-cyan-400 hover:bg-slate-50/80 bg-white'
                     }`}
                     onClick={() => handleInputChange('documentType', type.id)}
                   >
                     {isSelected && (
-                      <div className="absolute top-3 right-3 bg-indigo-600 text-white rounded-full p-1 shadow-md">
-                        <CheckCircle className="h-5 w-5 fill-white text-indigo-600" />
+                      <div className="absolute top-3 right-3 bg-cyan-600 text-white rounded-full p-1 shadow-md">
+                        <CheckCircle className="h-5 w-5 fill-white text-cyan-600" />
                       </div>
                     )}
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
-                        <div className={`p-3 rounded-xl transition-colors ${isSelected ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-600'}`}>
+                        <div className={`p-3 rounded-xl transition-colors ${isSelected ? 'bg-cyan-600 text-white' : 'bg-cyan-50 text-cyan-700'}`}>
                           <Icon className="h-6 w-6" />
                         </div>
                         <div className="pr-6">
-                          <h4 className={`text-lg font-bold mb-1 ${isSelected ? 'text-indigo-950 dark:text-white' : 'text-slate-900'}`}>
+                          <h4 className={`text-lg font-bold mb-1 ${isSelected ? 'text-cyan-950' : 'text-slate-900'}`}>
                             {type.title}
                           </h4>
-                          <p className={`text-sm leading-relaxed ${isSelected ? 'text-indigo-900/80 dark:text-slate-200 font-medium' : 'text-slate-600'}`}>
+                          <p className={`text-sm leading-relaxed ${isSelected ? 'text-cyan-900/80 font-medium' : 'text-slate-600'}`}>
                             {type.description}
                           </p>
                         </div>
@@ -190,7 +190,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
       case 2:
         return (
           <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-secondary-900 mb-6">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">
               {t('generator.personal_info', 'Vos informations personnelles')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -242,7 +242,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
       case 3:
         return (
           <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-secondary-900 mb-6">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">
               {t('generator.describe_incident', "Décrivez l'incident")}
             </h3>
             <div className="space-y-6">
@@ -281,7 +281,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
       case 4:
         return (
           <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-secondary-900 mb-6">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">
               {t('generator.legal_details', 'Détails juridiques')}
             </h3>
             <div className="space-y-6">
@@ -313,30 +313,30 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
       case 5:
         return (
           <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-secondary-900 mb-6">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">
               {t('generator.final_verify', 'Vérification et finalisation')}
             </h3>
             <div className="space-y-6">
-              <Card>
+              <Card className="bg-slate-50/80 border border-slate-200">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-success-600 mr-2" />
+                  <CardTitle className="flex items-center text-slate-900 text-lg">
+                    <CheckCircle className="h-5 w-5 text-cyan-600 mr-2" />
                     {t('generator.summary_label', 'Récapitulatif')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-3 text-slate-700">
                     <div>
-                      <strong>{t('generator.doc_type_bold', 'Type de document :')}</strong> {documentTypes.find(t => t.id === formData.documentType)?.title}
+                      <strong className="text-slate-900">{t('generator.doc_type_bold', 'Type de document :')}</strong> {documentTypes.find(t => t.id === formData.documentType)?.title}
                     </div>
                     <div>
-                      <strong>{t('generator.name_bold', 'Nom :')}</strong> {formData.firstName} {formData.lastName}
+                      <strong className="text-slate-900">{t('generator.name_bold', 'Nom :')}</strong> {formData.firstName} {formData.lastName}
                     </div>
                     <div>
-                      <strong>{t('generator.email_bold', 'Email :')}</strong> {formData.email}
+                      <strong className="text-slate-900">{t('generator.email_bold', 'Email :')}</strong> {formData.email}
                     </div>
                     <div>
-                      <strong>{t('generator.date_bold', "Date de l'incident :")}</strong> {formData.incidentDate}
+                      <strong className="text-slate-900">{t('generator.date_bold', "Date de l'incident :")}</strong> {formData.incidentDate}
                     </div>
                   </div>
                 </CardContent>
@@ -350,12 +350,12 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
                 rows={4}
               />
               
-              <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 <div className="flex items-start">
-                  <AlertCircle className="h-5 w-5 text-warning-600 mr-3 mt-0.5" />
+                  <AlertCircle className="h-5 w-5 text-amber-600 mr-3 mt-0.5" />
                   <div>
-                    <h4 className="font-semibold text-warning-800 mb-2">{t('search.warning_title')}</h4>
-                    <p className="text-warning-700 text-sm">
+                    <h4 className="font-semibold text-amber-900 mb-1">{t('search.warning_title')}</h4>
+                    <p className="text-amber-800 text-sm">
                       {t('generator.warning_desc', "Vérifiez attentivement toutes les informations avant de générer le document. Une fois généré, vous pourrez le télécharger et l'imprimer.")}
                     </p>
                   </div>
@@ -368,13 +368,16 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
       case 6:
         return (
           <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-secondary-900 mb-6">{t('generator.ready', 'Votre document est prêt !')}</h3>
-            <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl min-h-[400px] whitespace-pre-wrap font-serif text-slate-100">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">{t('generator.ready', 'Votre document est prêt !')}</h3>
+            <div className="p-8 bg-white border border-slate-200 rounded-2xl shadow-xl min-h-[400px] whitespace-pre-wrap font-serif text-slate-900 leading-relaxed ring-1 ring-slate-900/5">
               {generatedContent}
             </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setCurrentStep(5)}>{t('common.edit')}</Button>
-              <Button onClick={() => window.print()}><Download className="h-4 w-4 mr-2" />{t('common.download')} (PDF)</Button>
+              <Button onClick={() => window.print()} className="bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20">
+                <Download className="h-4 w-4 mr-2" />
+                {t('common.download')} (PDF)
+              </Button>
             </div>
           </div>
         );
@@ -387,15 +390,15 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
     return (
       <div className="space-y-6">
         {/* Progress Steps */}
-        <Card>
+        <Card className="border border-slate-200/80 bg-white shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
                 <div key={step.number} className="flex items-center">
-                  <div className={`flex items-center justify-center w-9 h-9 rounded-full border-2 ${
+                  <div className={`flex items-center justify-center w-9 h-9 rounded-full border-2 transition-colors ${
                     currentStep >= step.number
-                      ? 'bg-primary-600 border-primary-600 text-white'
-                      : 'border-secondary-300 text-secondary-400'
+                      ? 'bg-cyan-600 border-cyan-600 text-white'
+                      : 'border-slate-300 text-slate-400 bg-white'
                   }`}>
                     {currentStep > step.number ? (
                       <CheckCircle className="h-4 w-4" />
@@ -404,11 +407,11 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
                     )}
                   </div>
                   <div className="ml-2 hidden sm:block">
-                    <div className="text-xs font-medium text-secondary-900">{step.title}</div>
+                    <div className={`text-xs font-semibold ${currentStep >= step.number ? 'text-slate-900' : 'text-slate-500'}`}>{step.title}</div>
                   </div>
                   {index < steps.length - 1 && (
                     <div className={`hidden sm:block w-6 h-0.5 mx-3 ${
-                      currentStep > step.number ? 'bg-primary-600' : 'bg-secondary-300'
+                      currentStep > step.number ? 'bg-cyan-600' : 'bg-slate-200'
                     }`} />
                   )}
                 </div>
@@ -418,7 +421,7 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         </Card>
 
         {/* Step Content */}
-        <Card>
+        <Card className="border border-slate-200/80 bg-white shadow-sm">
           <CardContent className="p-6">
             {renderStepContent()}
           </CardContent>
@@ -426,18 +429,18 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
 
         {/* Navigation */}
         <div className="flex justify-between">
-          <Button variant="outline" onClick={prevStep} disabled={currentStep === 1} className="flex items-center">
+          <Button variant="outline" onClick={prevStep} disabled={currentStep === 1} className="flex items-center border-slate-200 text-slate-700 hover:bg-slate-50">
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t('common.previous')}
           </Button>
           {currentStep < 5 ? (
-            <Button onClick={nextStep} disabled={isNextDisabled()} className="flex items-center">
+            <Button onClick={nextStep} disabled={isNextDisabled()} className="flex items-center bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20 disabled:opacity-50">
               {t('common.next')}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           ) : (
             <div className="flex space-x-4">
-              <Button onClick={handleGenerate} disabled={isGenerating}>
+              <Button onClick={handleGenerate} disabled={isGenerating} className="bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20">
                 <Download className="h-4 w-4 mr-2" />
                 {isGenerating ? t('generator.generating', 'Génération...') : t('generator.generate')}
               </Button>
@@ -450,46 +453,50 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="container py-8">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 text-slate-900">
+      <div className="container py-8 max-w-5xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-100/80 text-cyan-800 border border-cyan-200 mb-3">
+            <FileText className="w-3.5 h-3.5" />
+            Générateur d'actes certifiés
+          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">
             {t('generator.title')}
           </h1>
-          <p className="text-xl text-secondary-600 max-w-3xl">
+          <p className="text-lg text-slate-600 max-w-3xl">
             {t('generator.subtitle')}
           </p>
         </div>
 
         {/* Progress Steps */}
-        <Card className="mb-8">
+        <Card className="mb-8 border border-slate-200/80 bg-white shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
                 <div key={step.number} className="flex items-center">
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                  <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
                     currentStep >= step.number
-                      ? 'bg-primary-600 border-primary-600 text-white'
-                      : 'border-secondary-300 text-secondary-400'
+                      ? 'bg-cyan-600 border-cyan-600 text-white shadow-md shadow-cyan-600/20'
+                      : 'border-slate-300 text-slate-400 bg-white'
                   }`}>
                     {currentStep > step.number ? (
                       <CheckCircle className="h-5 w-5" />
                     ) : (
-                      <span className="text-sm font-semibold">{step.number}</span>
+                      <span className="text-sm font-bold">{step.number}</span>
                     )}
                   </div>
                   <div className="ml-3 hidden sm:block">
-                    <div className="text-sm font-medium text-secondary-900">
+                    <div className={`text-sm font-bold ${currentStep >= step.number ? 'text-slate-900' : 'text-slate-500'}`}>
                       {step.title}
                     </div>
-                    <div className="text-xs text-secondary-500">
+                    <div className="text-xs text-slate-500">
                       {step.description}
                     </div>
                   </div>
                   {index < steps.length - 1 && (
                     <div className={`hidden sm:block w-8 h-0.5 mx-4 ${
-                      currentStep > step.number ? 'bg-primary-600' : 'bg-secondary-300'
+                      currentStep > step.number ? 'bg-cyan-600' : 'bg-slate-200'
                     }`} />
                   )}
                 </div>
@@ -499,8 +506,8 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         </Card>
 
         {/* Step Content */}
-        <Card className="mb-8">
-          <CardContent className="p-8">
+        <Card className="mb-8 border border-slate-200/80 bg-white shadow-sm">
+          <CardContent className="p-6 sm:p-8">
             {renderStepContent()}
           </CardContent>
         </Card>
@@ -511,24 +518,24 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 1}
-            className="flex items-center"
+            className="flex items-center border-slate-200 text-slate-700 hover:bg-slate-50"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t('common.previous')}
           </Button>
           
           {currentStep < 5 ? (
-            <Button onClick={nextStep} disabled={isNextDisabled()} className="flex items-center">
+            <Button onClick={nextStep} disabled={isNextDisabled()} className="flex items-center bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20 disabled:opacity-50">
               {t('common.next')}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           ) : (
             <div className="flex space-x-4">
-              <Button variant="outline" className="flex items-center">
+              <Button variant="outline" className="flex items-center border-slate-200 text-slate-700 hover:bg-slate-50">
                 <Save className="h-4 w-4 mr-2" />
                 {t('common.save')}
               </Button>
-              <Button onClick={handleGenerate} disabled={isGenerating}>
+              <Button onClick={handleGenerate} disabled={isGenerating} className="bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20">
                 <Download className="h-4 w-4 mr-2" />
                 {isGenerating ? t('generator.generating', 'Génération...') : t('generator.generate')}
               </Button>

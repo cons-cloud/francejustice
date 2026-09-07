@@ -294,13 +294,13 @@ const CodeAnalysis: React.FC = () => {
   return (
     <div className="space-y-6">
       {!result ? (
-        <Card className="border border-slate-100 shadow-md">
+        <Card className="border border-slate-200 shadow-sm bg-white">
           <CardHeader>
-            <CardTitle className="flex items-center text-slate-800">
-              <Brain className="h-5 w-5 text-indigo-600 mr-2" />
+            <CardTitle className="flex items-center text-slate-900">
+              <Brain className="h-5 w-5 text-cyan-600 mr-2" />
               Analyseur intelligent de contrats & documents
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-slate-600">
               Déposez votre contrat de travail, bail commercial, CGV ou tout document juridique pour en analyser les risques et clauses abusives selon le droit français.
             </CardDescription>
           </CardHeader>
@@ -309,7 +309,7 @@ const CodeAnalysis: React.FC = () => {
             <div 
               onDragOver={handleDragOver}
               onDrop={handleDrop}
-              className="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/20 hover:bg-indigo-50/40 transition duration-200 rounded-xl p-8 text-center cursor-pointer flex flex-col items-center justify-center space-y-3"
+              className="border-2 border-dashed border-cyan-200 hover:border-cyan-400 bg-cyan-50/30 hover:bg-cyan-50/60 transition duration-200 rounded-xl p-8 text-center cursor-pointer flex flex-col items-center justify-center space-y-3"
               onClick={triggerFileSelect}
             >
               <input 
@@ -319,45 +319,45 @@ const CodeAnalysis: React.FC = () => {
                 className="hidden" 
                 accept=".txt,.pdf,.doc,.docx"
               />
-              <div className="p-4 bg-indigo-50 text-indigo-600 rounded-full">
+              <div className="p-4 bg-cyan-100 text-cyan-700 rounded-full">
                 <Upload className="h-8 w-8" />
               </div>
               <div>
-                <p className="font-semibold text-slate-700">
+                <p className="font-semibold text-slate-800">
                   {fileName ? `Fichier sélectionné : ${fileName}` : "Glissez-déposez votre document ici"}
                 </p>
                 <p className="text-sm text-slate-500 mt-1">
                   Format acceptés : PDF, Word, Texte (.txt, .docx, .pdf)
                 </p>
               </div>
-              <Button type="button" variant="outline" size="sm">
+              <Button type="button" variant="outline" size="sm" className="hover:border-cyan-500 hover:text-cyan-700">
                 Parcourir les fichiers
               </Button>
             </div>
 
             <div className="flex items-center my-4">
-              <div className="flex-grow border-t border-slate-700"></div>
-              <span className="px-3 text-sm text-slate-300 font-medium bg-slate-900">OU</span>
-              <div className="flex-grow border-t border-slate-700"></div>
+              <div className="flex-grow border-t border-slate-200"></div>
+              <span className="px-3 text-sm text-slate-500 font-medium bg-white">OU</span>
+              <div className="flex-grow border-t border-slate-200"></div>
             </div>
 
             {/* Text input area */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-200 block">
+              <label className="text-sm font-semibold text-slate-800 block">
                 Coller le texte du document juridique
               </label>
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Collez ici le texte intégral ou les clauses spécifiques que vous souhaitez faire analyser par notre IA..."
-                className="w-full h-60 p-4 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none font-mono text-sm leading-relaxed"
+                className="w-full h-60 p-4 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 resize-none font-mono text-sm leading-relaxed"
                 disabled={isAnalyzing}
               />
             </div>
 
             <Button
               onClick={runAnalysis}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center space-x-2 transition duration-200 shadow-sm"
+              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center space-x-2 transition duration-200 shadow-sm"
               disabled={isAnalyzing || !inputText.trim()}
             >
               {isAnalyzing ? (
@@ -405,13 +405,14 @@ const CodeAnalysis: React.FC = () => {
                     }}
                     variant="outline"
                     size="sm"
+                    className="hover:border-cyan-500 hover:text-cyan-700"
                   >
                     <RefreshCw className="h-4 w-4 mr-1.5" /> Nouvelle analyse
                   </Button>
                   <Button
                     onClick={handleSaveResult}
                     disabled={isSaving || isSaved}
-                    className={`${isSaved ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-700 hover:bg-slate-800'} text-white`}
+                    className={`${isSaved ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-cyan-600 hover:bg-cyan-700'} text-white`}
                     size="sm"
                   >
                     {isSaving ? (
@@ -433,7 +434,7 @@ const CodeAnalysis: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Score section */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-slate-800/80 p-6 rounded-xl border border-slate-700">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-slate-50 p-6 rounded-xl border border-slate-200">
                 <div className="text-center md:border-r border-slate-200 pb-4 md:pb-0">
                   <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Indice de risque</p>
                   <div className="mt-2 flex items-baseline justify-center">
@@ -462,7 +463,7 @@ const CodeAnalysis: React.FC = () => {
               {/* Specific Indicators */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {result.indicators.map((ind, i) => (
-                  <div key={i} className="border border-slate-700 p-4 rounded-xl bg-slate-800/80 text-slate-100 shadow-sm flex flex-col justify-between">
+                  <div key={i} className="border border-slate-200 p-4 rounded-xl bg-white text-slate-800 shadow-sm flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-center mb-1">
                         <span className="font-semibold text-slate-700 text-sm">{ind.title}</span>
@@ -493,7 +494,7 @@ const CodeAnalysis: React.FC = () => {
           {/* List of analyzed clauses */}
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-slate-800 flex items-center">
-              <FileText className="h-5 w-5 mr-2 text-indigo-600" />
+              <FileText className="h-5 w-5 mr-2 text-cyan-600" />
               Clauses spécifiques analysées ({result.clauses.length})
             </h3>
             

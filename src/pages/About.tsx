@@ -160,7 +160,7 @@ const About: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden">
+    <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
       <SEO 
         title="À Propos — ONG FranceJustice, Règlement Intérieur & Direction Académique"
         description="Découvrez l'ONG Internationale FranceJustice (Just-Law), son Règlement Intérieur officiel complet, son statut d'ONG d'accès au Droit et le Fondateur Dr. Imam Çoban."
@@ -168,9 +168,9 @@ const About: React.FC = () => {
       />
 
       {/* HERO SECTION */}
-      <section className="py-24 md:py-32 bg-slate-950 relative border-b border-slate-900 overflow-hidden">
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-[100px] pointer-events-none" />
+      <section className="py-20 md:py-28 bg-gradient-to-b from-cyan-50/70 via-white to-slate-50 relative border-b border-slate-200/80 overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-[600px] h-[600px] rounded-full bg-cyan-200/20 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-[500px] h-[500px] rounded-full bg-teal-200/20 blur-[100px] pointer-events-none" />
 
         <div className="container max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center px-4 relative z-10">
           <motion.div
@@ -178,32 +178,32 @@ const About: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-950/80 border border-indigo-800/60 text-indigo-300 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
-              <HeartHandshake className="w-4 h-4 text-emerald-400" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-100/80 border border-cyan-200 text-cyan-800 text-xs font-bold uppercase tracking-wide mb-6">
+              <HeartHandshake className="w-4 h-4 text-cyan-600" />
               ONG Internationale d'Accès au Droit & Écosystème IA
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
-              ONG: France Justice ; <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-emerald-400 bg-clip-text text-transparent">justice intelligente pour tous</span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6">
+              ONG: France Justice ; <span className="text-cyan-600">justice intelligente pour tous</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-slate-100 mb-8 leading-relaxed font-medium max-w-2xl">
-              FranceJustice (Just-Law) est une <strong className="text-amber-300">Organisation Non Gouvernementale (ONG)</strong> internationale indépendante dédiée à la démocratisation de la justice, la protection des libertés fondamentales et la formation académique d'excellence supervisée par le <strong className="text-indigo-300">Dr. Imam Çoban</strong>.
+            <p className="text-lg md:text-xl text-slate-600 mb-8 leading-relaxed font-medium max-w-2xl">
+              FranceJustice est une <strong className="text-cyan-900 font-bold">Organisation Non Gouvernementale (ONG)</strong> internationale indépendante dédiée à la démocratisation de la justice, la protection des libertés fondamentales et la formation académique d'excellence supervisée par le <strong className="text-cyan-800 font-bold">Dr. Imam Çoban</strong>.
             </p>
 
             <div className="flex flex-wrap gap-4">
               <Button 
                 size="lg" 
-                className="px-8 py-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-700 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-base shadow-xl shadow-indigo-950/60 transition-all transform hover:scale-105 flex items-center gap-2"
+                className="px-8 py-6 rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-base shadow-lg shadow-cyan-600/20 transition-all transform hover:scale-105 flex items-center gap-2"
                 onClick={() => navigate('/services')}
               >
                 Découvrir nos Services <ArrowRight className="w-5 h-5" />
               </Button>
               <a 
                 href="#reglement"
-                className="px-8 py-4 rounded-2xl border border-slate-700 bg-slate-900/90 text-slate-100 hover:bg-slate-800 text-base font-bold transition-all inline-flex items-center gap-2"
+                className="px-8 py-4 rounded-2xl border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 text-base font-bold transition-all inline-flex items-center gap-2 shadow-xs"
               >
-                <BookMarked className="w-5 h-5 text-amber-400" /> Consulter le Règlement Intérieur
+                <BookMarked className="w-5 h-5 text-amber-500" /> Consulter le Règlement Intérieur
               </a>
             </div>
           </motion.div>
@@ -214,42 +214,42 @@ const About: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="relative"
           >
-            <div className="relative z-10 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+            <div className="relative z-10 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-amber-500" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span className="text-xs font-mono text-slate-300 ml-2">francejustice.com / status-ong</span>
+                  <div className="w-3 h-3 rounded-full bg-rose-400" />
+                  <div className="w-3 h-3 rounded-full bg-amber-400" />
+                  <div className="w-3 h-3 rounded-full bg-emerald-400" />
+                  <span className="text-xs font-mono text-slate-500 ml-2">francejustice.com / status-ong</span>
                 </div>
-                <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
-                  🏛️ ONG Agrée & Souveraine
+                <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-200">
+                  🏛️ ONG Agréée & Souveraine
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-                  <HeartHandshake className="w-6 h-6 text-emerald-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">ONG d'Intérêt Général</h4>
-                  <p className="text-xs text-slate-200 font-medium mt-1">Accès gratuit au droit et secours pro bono pour tous.</p>
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/60">
+                  <HeartHandshake className="w-6 h-6 text-cyan-600 mb-2" />
+                  <h4 className="text-xs font-bold text-slate-900">ONG d'Intérêt Général</h4>
+                  <p className="text-xs text-slate-600 font-medium mt-1">Accès gratuit au droit et secours pro bono pour tous.</p>
                 </div>
 
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-                  <Users className="w-6 h-6 text-amber-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">Avocats & Barreaux</h4>
-                  <p className="text-xs text-slate-200 font-medium mt-1">Praticiens certifiés par les Barreaux de France.</p>
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/60">
+                  <Users className="w-6 h-6 text-teal-600 mb-2" />
+                  <h4 className="text-xs font-bold text-slate-900">Avocats & Barreaux</h4>
+                  <p className="text-xs text-slate-600 font-medium mt-1">Praticiens certifiés par les Barreaux de France.</p>
                 </div>
 
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-                  <GraduationCap className="w-6 h-6 text-violet-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">Direction Académique</h4>
-                  <p className="text-xs text-slate-200 font-medium mt-1">Supervisée par le Fondateur Dr. Imam Çoban.</p>
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/60">
+                  <GraduationCap className="w-6 h-6 text-indigo-600 mb-2" />
+                  <h4 className="text-xs font-bold text-slate-900">Direction Académique</h4>
+                  <p className="text-xs text-slate-600 font-medium mt-1">Supervisée par le Fondateur Dr. Imam Çoban.</p>
                 </div>
 
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-                  <Lock className="w-6 h-6 text-cyan-400 mb-2" />
-                  <h4 className="text-xs font-extrabold text-white">Chiffrement & RGPD</h4>
-                  <p className="text-xs text-slate-200 font-medium mt-1">PostgreSQL TLS 1.3 / AES-256 & RLS Supabase.</p>
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/60">
+                  <Lock className="w-6 h-6 text-cyan-600 mb-2" />
+                  <h4 className="text-xs font-bold text-slate-900">Chiffrement & RGPD</h4>
+                  <p className="text-xs text-slate-600 font-medium mt-1">PostgreSQL TLS 1.3 / AES-256 & RLS Supabase.</p>
                 </div>
               </div>
             </div>
@@ -258,16 +258,16 @@ const About: React.FC = () => {
       </section>
 
       {/* ALL SERVICES GRID */}
-      <section className="py-28 bg-slate-950 border-b border-slate-900 relative">
+      <section className="py-24 bg-slate-50/60 border-b border-slate-200/80 relative">
         <div className="container max-w-7xl mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-black uppercase tracking-widest text-indigo-400 bg-indigo-950/80 px-4 py-1.5 rounded-full border border-indigo-800/60 inline-block mb-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-cyan-800 bg-cyan-100/80 px-3.5 py-1.5 rounded-full border border-cyan-200 inline-block mb-4">
               Catalogue Écosystème
             </span>
-            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Tous les Services Proposés par FranceJustice
             </h2>
-            <p className="text-slate-100 font-semibold text-base md:text-lg mt-4">
+            <p className="text-slate-600 font-medium text-base md:text-lg mt-4">
               Une gamme complète de solutions juridiques, technologiques et académiques adaptées aux particuliers, entreprises, étudiants et avocats.
             </p>
           </div>
@@ -276,22 +276,22 @@ const About: React.FC = () => {
             {services.map((item) => {
               const Icon = item.icon;
               return (
-                <Card key={item.id} className="bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 transition-all rounded-3xl p-6 shadow-xl group">
+                <Card key={item.id} className="bg-white border border-slate-200/80 hover:border-cyan-400 hover:shadow-xl transition-all rounded-3xl p-6 shadow-sm group">
                   <CardHeader className="p-0 pb-4">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 rounded-2xl bg-indigo-950 border border-indigo-800/60 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white transition-all">
                         <Icon className="w-6 h-6" />
                       </div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-slate-800 text-slate-200">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-slate-100 text-slate-700">
                         {item.category}
                       </span>
                     </div>
-                    <CardTitle className="text-xl font-bold text-white group-hover:text-indigo-300 transition-colors">
+                    <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-cyan-700 transition-colors">
                       {item.title}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <p className="text-slate-100 text-sm font-medium leading-relaxed">
+                    <p className="text-slate-600 text-sm font-normal leading-relaxed">
                       {item.description}
                     </p>
                   </CardContent>
@@ -303,16 +303,16 @@ const About: React.FC = () => {
       </section>
 
       {/* RÈGLEMENT INTÉRIEUR OFFICIEL DE L'ONG FRANCEJUSTICE */}
-      <section id="reglement" className="py-28 bg-slate-900/50 border-b border-slate-900 relative">
+      <section id="reglement" className="py-24 bg-white border-b border-slate-200/80 relative">
         <div className="container max-w-5xl mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-black uppercase tracking-widest text-amber-400 bg-amber-950/80 px-4 py-1.5 rounded-full border border-amber-800/60 inline-block mb-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-900 bg-amber-100/80 px-3.5 py-1.5 rounded-full border border-amber-200 inline-block mb-4">
               📌 Statuts Officiels
             </span>
-            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Règlement Intérieur Complet de l'ONG FranceJustice
             </h2>
-            <p className="text-slate-100 font-semibold text-base md:text-lg mt-4">
+            <p className="text-slate-600 font-medium text-base md:text-lg mt-4">
               Adopté par le Conseil d'Administration de l'ONG et opposable à l'ensemble des membres, praticiens affiliés et utilisateurs de la plateforme.
             </p>
           </div>
@@ -323,20 +323,20 @@ const About: React.FC = () => {
               return (
                 <div 
                   key={art.id} 
-                  className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all"
+                  className="bg-slate-50/60 border border-slate-200 rounded-2xl overflow-hidden transition-all"
                 >
                   <button
                     onClick={() => toggleArticle(art.id)}
-                    className="w-full p-5 text-left flex items-center justify-between gap-4 hover:bg-slate-850 transition-colors"
+                    className="w-full p-5 text-left flex items-center justify-between gap-4 hover:bg-slate-100/80 transition-colors"
                   >
-                    <span className="text-base font-bold text-white flex items-center gap-3">
-                      <BookMarked className="w-5 h-5 text-amber-400 shrink-0" />
+                    <span className="text-base font-bold text-slate-900 flex items-center gap-3">
+                      <BookMarked className="w-5 h-5 text-cyan-600 shrink-0" />
                       {art.title}
                     </span>
                     {isOpen ? (
-                      <ChevronUp className="w-5 h-5 text-slate-300 shrink-0" />
+                      <ChevronUp className="w-5 h-5 text-slate-600 shrink-0" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-slate-300 shrink-0" />
+                      <ChevronDown className="w-5 h-5 text-slate-400 shrink-0" />
                     )}
                   </button>
 
@@ -348,7 +348,7 @@ const About: React.FC = () => {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <div className="p-5 pt-0 border-t border-slate-800/60 text-slate-100 text-sm font-medium leading-relaxed bg-slate-950/40">
+                        <div className="p-5 pt-0 border-t border-slate-200 text-slate-700 text-sm font-normal leading-relaxed bg-white">
                           {art.content}
                         </div>
                       </motion.div>
@@ -362,16 +362,16 @@ const About: React.FC = () => {
       </section>
 
       {/* DIRECTORY OF OFFICIAL EXTERNAL GOVERNMENT LINKS */}
-      <section className="py-28 bg-slate-950 border-b border-slate-900 relative">
+      <section className="py-24 bg-slate-50/60 border-b border-slate-200/80 relative">
         <div className="container max-w-7xl mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-black uppercase tracking-widest text-indigo-400 bg-indigo-950/80 px-4 py-1.5 rounded-full border border-indigo-800/60 inline-block mb-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-cyan-800 bg-cyan-100/80 px-3.5 py-1.5 rounded-full border border-cyan-200 inline-block mb-4">
               🌐 Transparence & Sources
             </span>
-            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Répertoire des Sources Officielles & Sites Gouvernementaux
             </h2>
-            <p className="text-slate-100 font-semibold text-base md:text-lg mt-4">
+            <p className="text-slate-600 font-medium text-base md:text-lg mt-4">
               Retrouvez l'accès direct aux portails officiels de l'État Français, des juridictions suprêmes, du Conseil National des Barreaux et des instances internationales.
             </p>
           </div>
@@ -383,21 +383,21 @@ const About: React.FC = () => {
                 href={source.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-900 border border-slate-800 hover:border-indigo-500/80 p-6 rounded-3xl transition-all group flex flex-col justify-between"
+                className="bg-white border border-slate-200/80 hover:border-cyan-400 hover:shadow-lg p-6 rounded-3xl transition-all group flex flex-col justify-between shadow-sm"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <Building2 className="w-5 h-5 text-indigo-400" />
-                    <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-indigo-400 transition-colors" />
+                    <Building2 className="w-5 h-5 text-cyan-600" />
+                    <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-cyan-600 transition-colors" />
                   </div>
-                  <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors mb-2">
+                  <h3 className="text-base font-bold text-slate-900 group-hover:text-cyan-700 transition-colors mb-2">
                     {source.name}
                   </h3>
-                  <p className="text-slate-100 text-xs font-medium leading-relaxed">
+                  <p className="text-slate-600 text-xs leading-relaxed">
                     {source.desc}
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] font-mono text-indigo-400 truncate">
+                <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-mono text-cyan-600 truncate">
                   {source.url}
                 </div>
               </a>
@@ -407,40 +407,40 @@ const About: React.FC = () => {
       </section>
 
       {/* LEADERSHIP & FOUNDER SECTION (Dr. Imam Çoban) */}
-      <section className="py-28 bg-slate-950 border-b border-slate-900 relative">
+      <section className="py-24 bg-white border-b border-slate-200/80 relative">
         <div className="container max-w-7xl mx-auto px-4">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden"
+            className="bg-gradient-to-br from-cyan-50/60 via-white to-teal-50/40 border border-cyan-200/80 rounded-3xl p-8 md:p-12 shadow-lg relative overflow-hidden"
           >
             <div className="grid lg:grid-cols-3 gap-8 items-center">
               <div className="lg:col-span-1 text-center">
-                <div className="w-40 h-40 mx-auto rounded-3xl bg-slate-950 border-2 border-indigo-500/50 p-2 shadow-2xl relative overflow-hidden mb-4">
-                  <div className="w-full h-full rounded-2xl bg-gradient-to-tr from-indigo-900 to-slate-900 flex items-center justify-center">
-                    <GraduationCap className="w-20 h-20 text-indigo-300" />
+                <div className="w-36 h-36 mx-auto rounded-3xl bg-white border-2 border-cyan-400 p-2 shadow-md relative overflow-hidden mb-4">
+                  <div className="w-full h-full rounded-2xl bg-gradient-to-tr from-cyan-600 to-teal-600 flex items-center justify-center text-white">
+                    <GraduationCap className="w-16 h-16 text-white" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-black text-white">Dr. Imam Çoban</h3>
-                <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mt-1">
+                <h3 className="text-2xl font-black text-slate-900">Dr. Imam Çoban</h3>
+                <p className="text-xs font-bold text-cyan-700 uppercase tracking-wider mt-1">
                   Fondateur & Directeur Pédagogique
                 </p>
-                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-950 text-indigo-300 text-[11px] font-semibold border border-indigo-800">
+                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-100 text-cyan-800 text-[11px] font-semibold border border-cyan-200">
                   🎓 Docteur en Droit • Enseignant-Chercheur
                 </div>
               </div>
 
               <div className="lg:col-span-2 space-y-4">
-                <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
                   Une Direction Académique & Scientifique de Premier Plan
                 </h3>
-                <p className="text-slate-100 text-sm font-medium leading-relaxed">
-                  L'ONG <strong>FranceJustice</strong> a été pensée et fondée par le <strong>Dr. Imam Çoban</strong>, Docteur en Droit et Enseignant-Chercheur, avec une ambition claire : mettre la rigueur de la doctrine juridique universitaire et la puissance des technologies d'Intelligence Artificielle au service des citoyens et des professionnels du droit.
+                <p className="text-slate-600 text-sm font-normal leading-relaxed">
+                  L'ONG <strong className="text-slate-900">FranceJustice</strong> a été pensée et fondée par le <strong className="text-slate-900">Dr. Imam Çoban</strong>, Docteur en Droit et Enseignant-Chercheur, avec une ambition claire : mettre la rigueur de la doctrine juridique universitaire et la puissance des technologies d'Intelligence Artificielle au service des citoyens et des professionnels du droit.
                 </p>
-                <p className="text-slate-100 text-sm font-medium leading-relaxed">
-                  Sous sa direction pédagogique, notre centre de formation garantit des programmes certifiants d'une haute précision académique, combinant théorie fondamentale, analyse jurisprudentielle et cas pratiques pratiques.
+                <p className="text-slate-600 text-sm font-normal leading-relaxed">
+                  Sous sa direction pédagogique, notre centre de formation garantit des programmes certifiants d'une haute précision académique, combinant théorie fondamentale, analyse jurisprudentielle et cas pratiques.
                 </p>
                 
                 <div className="pt-2 flex flex-wrap gap-2">
@@ -451,7 +451,7 @@ const About: React.FC = () => {
                     "Conformité RGPD & Éthique IA",
                     "Directeur des Masterclass"
                   ].map((sk, idx) => (
-                    <span key={idx} className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-950 text-slate-200 border border-slate-800">
+                    <span key={idx} className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white text-slate-800 border border-slate-200 shadow-xs">
                       ✓ {sk}
                     </span>
                   ))}
@@ -463,9 +463,9 @@ const About: React.FC = () => {
       </section>
 
       {/* WHY CHOOSE US */}
-      <section className="py-28 bg-slate-950 border-b border-slate-900 relative">
+      <section className="py-24 bg-slate-50/60 border-b border-slate-200/80 relative">
         <div className="container max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-5xl font-black mb-16 tracking-tight text-white">
+          <h2 className="text-3xl md:text-5xl font-black mb-14 tracking-tight text-slate-900">
             {t('about.why_title', 'Pourquoi choisir l\'ONG FranceJustice ?')}
           </h2>
 
@@ -473,15 +473,15 @@ const About: React.FC = () => {
             {whyChooseUs.map((item, i) => {
               const Icon = item.icon;
               return (
-                <Card key={i} className="bg-slate-900 border border-slate-800 shadow-xl rounded-3xl p-6 text-center hover:border-slate-700 transition-all">
+                <Card key={i} className="bg-white border border-slate-200/80 shadow-sm rounded-3xl p-6 text-center hover:border-cyan-400 hover:shadow-lg transition-all">
                   <CardHeader className="text-center pb-2">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-slate-950 border border-slate-800 rounded-2xl flex items-center justify-center">
-                      <Icon className="h-8 w-8 text-indigo-400" />
+                    <div className="w-14 h-14 mx-auto mb-4 bg-cyan-50 border border-cyan-100 rounded-2xl flex items-center justify-center">
+                      <Icon className="h-7 w-7 text-cyan-600" />
                     </div>
-                    <CardTitle className="text-xl font-bold text-white">{item.title}</CardTitle>
+                    <CardTitle className="text-xl font-bold text-slate-900">{item.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-slate-100 text-sm font-medium leading-relaxed">
+                    <p className="text-slate-600 text-sm font-normal leading-relaxed">
                       {item.description}
                     </p>
                   </CardContent>
@@ -493,27 +493,25 @@ const About: React.FC = () => {
       </section>
 
       {/* CTA SECTION */}
-      <section className="py-28 relative overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-950 via-slate-950 to-violet-950 opacity-90" />
-        
+      <section className="py-24 relative overflow-hidden bg-gradient-to-b from-cyan-50/50 via-cyan-100/30 to-white">
         <div className="container max-w-4xl mx-auto relative z-10 text-center px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-6xl font-black text-white mb-6 tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">
               Rejoignez la Révolution Juridique
             </h2>
 
-            <p className="text-lg md:text-xl text-slate-100 mb-10 font-semibold leading-relaxed">
+            <p className="text-lg md:text-xl text-slate-600 mb-10 font-medium leading-relaxed">
               Que vous soyez citoyen à la recherche d'une assistance juridique, étudiant souhaitant valider une formation diplômante, ou avocat désireux d'optimiser votre cabinet.
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button 
                 size="lg"
-                className="text-base px-10 py-7 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-700 hover:from-indigo-500 hover:to-violet-500 text-white font-black shadow-2xl transition-transform hover:scale-105" 
+                className="text-base px-8 py-6 rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-lg shadow-cyan-600/20 transition-transform hover:scale-105" 
                 onClick={() => navigate('/register')}
               >
                 Créer un compte Citoyen / Étudiant
@@ -522,7 +520,7 @@ const About: React.FC = () => {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="text-base px-10 py-7 rounded-2xl border-slate-700 bg-slate-900/90 text-slate-200 hover:bg-slate-800 font-bold transition-transform hover:scale-105"
+                className="text-base px-8 py-6 rounded-2xl border-slate-300 bg-white text-slate-800 hover:bg-slate-50 font-bold transition-transform hover:scale-105"
                 onClick={() => navigate('/register/lawyer')}
               >
                 Accès Cabinet Avocat / Professeur

@@ -35,7 +35,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
       path: '/database?category=Jurisprudence %26 Arrêts'
     },
     { 
-      title: t('search.feat_codes', 'Codes & Dahirs'), 
+      title: t('search.feat_codes', 'Codes & Lois'), 
       desc: t('search.feat_codes_desc', 'Base complète des textes législatifs'), 
       icon: ExternalLink,
       path: '/database?category=Codes %26 Lois'
@@ -44,7 +44,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
       title: t('search.feat_advice', 'Conseils IA'), 
       desc: t('search.feat_advice_desc', 'Explications simplifiées du droit'), 
       icon: Search,
-      path: '/assistant'
+      path: '/genia-l'
     }
   ];
 
@@ -149,7 +149,7 @@ ${fullQuery}
 INSTRUCTIONS DE TRAITEMENT :
 1. Recherche sur Internet les informations et jurisprudences les plus RÉCENTES sur ce sujet
 2. Analyse complètement les pièces jointes fournies (si présentes) et cite les extraits pertinents
-3. Cite les articles de loi exacts (Code Civil, Code du Travail, Dahirs, Code Pénal, etc.)
+3. Cite les articles de loi exacts (Code Civil, Code du Travail, Code Pénal, etc.)
 4. Trouve les jurisprudences récentes (2024-2026) sur Internet
 5. Donne des conseils pratiques, synthétiques et directement applicables
 6. Cite tes sources avec les dates et références légales
@@ -187,10 +187,10 @@ Réponds de manière structurée et professionnelle.`;
     return (
       <div className="space-y-6">
         <ToastContainer toasts={toasts} onRemove={removeToast} />
-        <div className="w-full bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4">
+        <div className="w-full bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <form onSubmit={handleSubmit} className="space-y-3">
             <textarea
-              className="w-full min-h-[140px] sm:min-h-[180px] bg-[#131c2e] border-2 border-slate-700 focus:border-amber-400 text-white placeholder-slate-400 text-base sm:text-lg rounded-2xl p-4 font-medium focus:ring-2 focus:ring-amber-400/20 transition-all leading-relaxed"
+              className="w-full min-h-[140px] sm:min-h-[180px] bg-slate-50 border-2 border-slate-200 focus:border-cyan-500 text-slate-900 placeholder-slate-400 text-base sm:text-lg rounded-2xl p-4 font-medium focus:ring-2 focus:ring-cyan-500/20 transition-all leading-relaxed"
               placeholder={t('search.placeholder_example', 'Posez votre question juridique complète ou décrivez votre litige... Importez vos dossiers PDF si nécessaire.')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -198,18 +198,18 @@ Réponds de manière structurée et professionnelle.`;
 
             {/* Attached files chip list */}
             {attachedFiles.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1 pb-1.5 border-b border-slate-800">
-                <span className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1 w-full">
-                  <Paperclip className="h-3.5 w-3.5 text-amber-400" /> {attachedFiles.length} Pièce(s) jointe(s) importée(s) :
+              <div className="flex flex-wrap gap-1.5 pt-1 pb-1.5 border-b border-slate-100">
+                <span className="text-xs font-bold text-cyan-800 uppercase tracking-wider flex items-center gap-1 w-full">
+                  <Paperclip className="h-3.5 w-3.5 text-cyan-600" /> {attachedFiles.length} Pièce(s) jointe(s) importée(s) :
                 </span>
                 {attachedFiles.map((file, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 bg-[#1c2942] border border-amber-400/40 text-white text-xs px-2.5 py-1 rounded-xl shadow-sm">
-                    <FileText className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                  <div key={idx} className="flex items-center gap-1.5 bg-cyan-50 border border-cyan-200 text-cyan-900 text-xs px-2.5 py-1 rounded-xl shadow-xs">
+                    <FileText className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
                     <span className="line-clamp-1 max-w-[150px] font-semibold">{file.name}</span>
                     <button
                       type="button"
                       onClick={() => removeAttachedFile(idx)}
-                      className="text-slate-400 hover:text-red-400 transition-colors ml-1 p-0.5"
+                      className="text-slate-400 hover:text-rose-600 transition-colors ml-1 p-0.5"
                       title="Supprimer la pièce jointe"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -233,10 +233,10 @@ Réponds de manière structurée et professionnelle.`;
                   type="button" 
                   variant="outline" 
                   onClick={() => fileInputRef.current?.click()} 
-                  className="bg-[#131c2e] hover:bg-[#1c2942] text-amber-400 hover:text-amber-300 border-slate-700 hover:border-amber-400 p-2.5 rounded-xl cursor-pointer shadow-sm flex items-center justify-center shrink-0"
+                  className="bg-slate-50 hover:bg-slate-100 text-cyan-700 hover:text-cyan-800 border-slate-200 hover:border-cyan-400 p-2.5 rounded-xl cursor-pointer shadow-xs flex items-center justify-center shrink-0"
                   title="Joindre un document ou dossier (Word, Excel, PDF, Image, Texte)"
                 >
-                  <Paperclip className="h-5 w-5 text-amber-400" />
+                  <Paperclip className="h-5 w-5 text-cyan-600" />
                 </Button>
 
                 {(query || attachedFiles.length > 0) && (
@@ -244,7 +244,7 @@ Réponds de manière structurée et professionnelle.`;
                     type="button"
                     variant="ghost"
                     onClick={() => { setQuery(''); setAttachedFiles([]); }}
-                    className="text-slate-400 hover:text-red-400 text-xs font-semibold py-1.5 px-2"
+                    className="text-slate-400 hover:text-rose-600 text-xs font-semibold py-1.5 px-2"
                   >
                     <Trash2 className="h-4 w-4 mr-1" /> Effacer
                   </Button>
@@ -253,7 +253,7 @@ Réponds de manière structurée et professionnelle.`;
 
               <Button 
                 type="submit" 
-                className="h-12 px-8 font-black text-sm bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 rounded-xl shadow-md cursor-pointer flex items-center gap-2" 
+                className="h-12 px-8 font-black text-sm bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl shadow-md shadow-cyan-600/20 cursor-pointer flex items-center gap-2 transition-colors" 
                 disabled={loading || (!query.trim() && attachedFiles.length === 0)}
               >
                 {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : <><span>Rechercher avec l'IA Juridique</span> <Search className="h-4 w-4" /></>}
@@ -263,22 +263,22 @@ Réponds de manière structurée et professionnelle.`;
         </div>
 
         {loading && (
-          <div className="text-center py-12 bg-slate-950 border border-slate-800 rounded-2xl">
-            <RefreshCw className="h-10 w-10 animate-spin text-amber-400 mx-auto mb-4" />
-            <p className="text-amber-300 font-bold text-base">{t('search.loading_desc', "L'IA analyse vos pièces jointes et les textes de loi...")}</p>
+          <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl shadow-sm">
+            <RefreshCw className="h-10 w-10 animate-spin text-cyan-600 mx-auto mb-4" />
+            <p className="text-cyan-800 font-bold text-base">{t('search.loading_desc', "L'IA analyse vos pièces jointes et les textes de loi...")}</p>
           </div>
         )}
 
         {aiExplanation && (
-          <Card className="border-2 border-amber-400/40 bg-[#131c2e] text-white shadow-xl rounded-2xl overflow-hidden">
-            <CardHeader className="bg-[#1c2942] border-b border-slate-700">
-              <CardTitle className="flex items-center gap-2 text-amber-400 text-lg font-black">
-                <Scale className="h-6 w-6 text-amber-400" />
+          <Card className="border border-cyan-200 bg-white text-slate-900 shadow-xl rounded-2xl overflow-hidden">
+            <CardHeader className="bg-cyan-50/70 border-b border-cyan-100">
+              <CardTitle className="flex items-center gap-2 text-cyan-900 text-lg font-black">
+                <Scale className="h-6 w-6 text-cyan-600" />
                 {t('search.analysis_title', "Analyse & Résolution Juridique par l'IA")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="whitespace-pre-wrap text-white font-semibold text-base sm:text-lg leading-relaxed">
+              <div className="whitespace-pre-wrap text-slate-800 font-normal text-base sm:text-lg leading-relaxed">
                 {aiExplanation}
               </div>
             </CardContent>
@@ -286,11 +286,11 @@ Réponds de manière structurée et professionnelle.`;
         )}
 
         {!loading && !aiExplanation && (
-          <Card className="bg-slate-900 border-slate-800 text-slate-200">
+          <Card className="bg-white border-slate-200 text-slate-700 shadow-xs">
             <CardContent className="p-8 text-center">
-              <Scale className="h-12 w-12 mx-auto mb-4 text-amber-400" />
-              <p className="text-lg font-bold text-white">{t('search.ask_prompt', 'Posez votre question juridique ou importez vos dossiers PDF')}</p>
-              <p className="text-sm mt-1 text-slate-400">{t('search.ask_prompt_desc', 'Jurisprudence, codes, contrats, dossiers — notre IA vous répond instantanément')}</p>
+              <Scale className="h-12 w-12 mx-auto mb-4 text-cyan-600" />
+              <p className="text-lg font-bold text-slate-900">{t('search.ask_prompt', 'Posez votre question juridique ou importez vos dossiers PDF')}</p>
+              <p className="text-sm mt-1 text-slate-500">{t('search.ask_prompt_desc', 'Jurisprudence, codes, contrats, dossiers — notre IA vous répond instantanément')}</p>
             </CardContent>
           </Card>
         )}
@@ -299,24 +299,31 @@ Réponds de manière structurée et professionnelle.`;
   }
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-      <div className="bg-primary-900 text-white py-16">
-        <div className="container text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t('search.hero_title', 'Recherche IA — Droit & Dossiers PDF en Temps Réel')}</h1>
-          <p className="text-xl text-primary-200 max-w-2xl mx-auto">
+      
+      {/* Light Hero Header */}
+      <div className="bg-gradient-to-b from-cyan-50/80 via-white to-slate-50 text-slate-900 pt-16 pb-20 border-b border-slate-200/80">
+        <div className="container mx-auto px-4 text-center">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-100/70 text-cyan-800 font-bold text-xs tracking-wide uppercase mb-4 border border-cyan-200">
+            <Scale className="h-3.5 w-3.5 text-cyan-600" /> Moteur IA Juridique France
+          </span>
+          <h1 className="text-3xl md:text-5xl font-black mb-4 tracking-tight text-slate-900">
+            {t('search.hero_title', 'Recherche IA — Droit & Dossiers PDF en Temps Réel')}
+          </h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
             {t('search.hero_subtitle', 'Accédez instantanément à la jurisprudence, aux textes de loi et analysez vos pièces jointes grâce à notre IA.')}
           </p>
         </div>
       </div>
 
-      <div className="container -mt-12">
-        <Card className="max-w-4xl mx-auto shadow-2xl border-none">
-          <CardContent className="p-8 space-y-4">
+      <div className="container mx-auto px-4 -mt-10">
+        <Card className="max-w-4xl mx-auto shadow-xl border border-slate-200 bg-white rounded-3xl overflow-hidden">
+          <CardContent className="p-6 sm:p-8 space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="relative">
                 <textarea
-                  className="w-full min-h-[140px] sm:min-h-[180px] bg-slate-900 border-2 border-slate-700 focus:border-amber-400 text-white placeholder-slate-400 text-base sm:text-lg rounded-2xl p-4 font-medium focus:ring-2 focus:ring-amber-400/20 transition-all leading-relaxed"
+                  className="w-full min-h-[140px] sm:min-h-[180px] bg-slate-50 border-2 border-slate-200 focus:border-cyan-500 text-slate-900 placeholder-slate-400 text-base sm:text-lg rounded-2xl p-4 font-medium focus:ring-2 focus:ring-cyan-500/20 transition-all leading-relaxed"
                   placeholder={t('search.placeholder_example_long', 'Posez votre question juridique complète ou décrivez votre litige... Joignez vos fichiers PDF si nécessaire.')}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -325,18 +332,18 @@ Réponds de manière structurée et professionnelle.`;
 
               {/* Attached files chip list */}
               {attachedFiles.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 pt-1 pb-1.5 border-b border-slate-800">
-                  <span className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1 w-full">
-                    <Paperclip className="h-3.5 w-3.5 text-amber-400" /> {attachedFiles.length} Pièce(s) jointe(s) importée(s) :
+                <div className="flex flex-wrap gap-1.5 pt-1 pb-1.5 border-b border-slate-100">
+                  <span className="text-xs font-bold text-cyan-800 uppercase tracking-wider flex items-center gap-1 w-full">
+                    <Paperclip className="h-3.5 w-3.5 text-cyan-600" /> {attachedFiles.length} Pièce(s) jointe(s) importée(s) :
                   </span>
                   {attachedFiles.map((file, idx) => (
-                    <div key={idx} className="flex items-center gap-1.5 bg-[#1c2942] border border-amber-400/40 text-white text-xs px-2.5 py-1 rounded-xl shadow-sm">
-                      <FileText className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                    <div key={idx} className="flex items-center gap-1.5 bg-cyan-50 border border-cyan-200 text-cyan-900 text-xs px-2.5 py-1 rounded-xl shadow-xs">
+                      <FileText className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
                       <span className="line-clamp-1 max-w-[150px] font-semibold">{file.name}</span>
                       <button
                         type="button"
                         onClick={() => removeAttachedFile(idx)}
-                        className="text-slate-400 hover:text-red-400 transition-colors ml-1 p-0.5"
+                        className="text-slate-400 hover:text-rose-600 transition-colors ml-1 p-0.5"
                         title="Supprimer la pièce jointe"
                       >
                         <X className="h-3.5 w-3.5" />
@@ -360,10 +367,10 @@ Réponds de manière structurée et professionnelle.`;
                     type="button" 
                     variant="outline" 
                     onClick={() => fileInputRef.current?.click()} 
-                    className="bg-[#131c2e] hover:bg-[#1c2942] text-amber-400 hover:text-amber-300 border-slate-700 hover:border-amber-400 p-2.5 rounded-xl cursor-pointer shadow-sm flex items-center justify-center shrink-0"
+                    className="bg-slate-50 hover:bg-slate-100 text-cyan-700 hover:text-cyan-800 border-slate-200 hover:border-cyan-400 p-2.5 rounded-xl cursor-pointer shadow-xs flex items-center justify-center shrink-0"
                     title="Joindre un document ou dossier (Word, Excel, PDF, Image, Texte)"
                   >
-                    <Paperclip className="h-5 w-5 text-amber-400" />
+                    <Paperclip className="h-5 w-5 text-cyan-600" />
                   </Button>
 
                   {(query || attachedFiles.length > 0) && (
@@ -371,7 +378,7 @@ Réponds de manière structurée et professionnelle.`;
                       type="button"
                       variant="ghost"
                       onClick={() => { setQuery(''); setAttachedFiles([]); }}
-                      className="text-slate-400 hover:text-red-400 text-xs font-semibold py-1.5 px-2"
+                      className="text-slate-400 hover:text-rose-600 text-xs font-semibold py-1.5 px-2"
                     >
                       <Trash2 className="h-4 w-4 mr-1" /> Effacer
                     </Button>
@@ -381,10 +388,10 @@ Réponds de manière structurée et professionnelle.`;
                 <Button 
                   type="submit" 
                   size="lg" 
-                  className="h-14 px-8 font-black text-base bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 rounded-xl shadow-lg cursor-pointer" 
+                  className="h-14 px-8 font-black text-base bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl shadow-md shadow-cyan-600/20 cursor-pointer transition-colors" 
                   disabled={loading || (!query.trim() && attachedFiles.length === 0)}
                 >
-                  {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : t('search.btn')}
+                  {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : t('search.btn', 'Lancer la recherche juridique')}
                 </Button>
               </div>
             </form>
@@ -392,31 +399,31 @@ Réponds de manière structurée et professionnelle.`;
         </Card>
 
         {loading && (
-          <div className="mt-12 text-center py-20">
-            <RefreshCw className="h-12 w-12 animate-spin text-primary-600 mx-auto mb-4" />
-            <p className="text-xl text-secondary-600">{t('search.loading_desc_long', "L'IA analyse vos dossiers PDF et les textes de loi...")}</p>
+          <div className="mt-12 text-center py-20 bg-white border border-slate-200 rounded-3xl shadow-sm max-w-4xl mx-auto">
+            <RefreshCw className="h-12 w-12 animate-spin text-cyan-600 mx-auto mb-4" />
+            <p className="text-xl font-bold text-slate-800">{t('search.loading_desc_long', "L'IA analyse vos dossiers PDF et les textes de loi...")}</p>
           </div>
         )}
 
         {aiExplanation && (
           <div className="mt-12 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <Card className="border-l-4 border-l-primary-500">
-              <CardHeader className="bg-primary-50">
-                <CardTitle className="flex items-center gap-2 text-primary-900">
-                  <Scale className="h-6 w-6" />
+            <Card className="border-l-4 border-l-cyan-600 bg-white shadow-xl border-t border-r border-b border-slate-200">
+              <CardHeader className="bg-cyan-50/70 border-b border-cyan-100">
+                <CardTitle className="flex items-center gap-2 text-cyan-950 font-bold text-xl">
+                  <Scale className="h-6 w-6 text-cyan-600" />
                   {t('search.analysis_title', "Analyse Juridique par l'IA")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8 prose prose-slate max-w-none">
-                <div className="whitespace-pre-wrap text-secondary-800 leading-relaxed text-lg">
+                <div className="whitespace-pre-wrap text-slate-800 leading-relaxed text-lg font-normal">
                   {aiExplanation}
                 </div>
               </CardContent>
             </Card>
 
-            <div className="bg-warning-50 border border-warning-200 rounded-2xl p-6 flex items-start gap-4">
-              <AlertCircle className="h-6 w-6 text-warning-600 mt-1 shrink-0" />
-              <p className="text-warning-800">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex items-start gap-4">
+              <AlertCircle className="h-6 w-6 text-amber-600 mt-1 shrink-0" />
+              <p className="text-amber-900 text-sm leading-relaxed">
                 <strong>{t('search.warning_title', 'Attention:')}</strong> {t('search.warning_desc', "Cette analyse est générée par IA et fournie à titre informatif uniquement. Elle ne remplace pas l'avis d'un avocat inscrit au barreau. Pour une assistance personnalisée, nous vous recommandons de consulter un professionnel.")}
               </p>
             </div>
@@ -424,7 +431,7 @@ Réponds de manière structurée et professionnelle.`;
         )}
 
         {!loading && !aiExplanation && (
-          <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 pb-20">
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 pb-20 max-w-5xl mx-auto">
             {features.map((item, i) => (
               <div 
                 key={i} 
@@ -437,16 +444,16 @@ Réponds de manière structurée et professionnelle.`;
                     navigate(item.path);
                   }
                 }}
-                className="text-center p-8 bg-white rounded-3xl border border-secondary-100 shadow-sm hover:shadow-2xl hover:border-primary-300 transition-all duration-300 group cursor-pointer hover:-translate-y-1.5 flex flex-col items-center select-none"
+                className="text-center p-8 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-cyan-400 transition-all duration-300 group cursor-pointer hover:-translate-y-1.5 flex flex-col items-center select-none"
               >
-                <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300 shadow-inner group-hover:scale-110">
+                <div className="w-16 h-16 bg-cyan-50 text-cyan-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-600 group-hover:text-white transition-all duration-300 shadow-inner group-hover:scale-110">
                   <item.icon className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold text-secondary-900 mb-2 group-hover:text-primary-700 transition-colors flex items-center gap-1.5">
+                <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-cyan-700 transition-colors flex items-center gap-1.5">
                   {item.title}
-                  <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-primary-600" />
+                  <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-cyan-600" />
                 </h3>
-                <p className="text-secondary-600 text-sm leading-relaxed">{item.desc}</p>
+                <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -458,3 +465,4 @@ Réponds de manière structurée et professionnelle.`;
 };
 
 export default SearchPage;
+

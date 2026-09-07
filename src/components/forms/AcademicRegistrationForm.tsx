@@ -172,7 +172,7 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 py-10 px-4 sm:px-6 lg:px-8 text-slate-100 flex flex-col justify-center">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 py-10 px-4 sm:px-6 lg:px-8 text-slate-900 flex flex-col justify-center">
       <div className="max-w-2xl mx-auto w-full space-y-6">
         
         {/* Navigation & Header */}
@@ -180,27 +180,27 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
           <button
             type="button"
             onClick={handleClose}
-            className="inline-flex items-center text-slate-400 hover:text-white transition-colors text-sm font-semibold gap-2"
+            className="inline-flex items-center text-slate-500 hover:text-cyan-600 transition-colors text-sm font-semibold gap-2"
           >
             <ArrowLeft className="w-4 h-4" /> Retour à l'accueil
           </button>
           
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-              <Sparkles className="w-3.5 h-3.5 mr-1 text-indigo-400" /> France Justice Académie
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-cyan-50 text-cyan-800 border border-cyan-200">
+              <Sparkles className="w-3.5 h-3.5 mr-1 text-cyan-600" /> France Justice Académie
             </span>
           </div>
         </div>
 
         {/* Role Switcher Tabs */}
-        <div className="bg-slate-900 p-1.5 rounded-2xl border border-slate-800 grid grid-cols-3 gap-2">
+        <div className="bg-slate-100 p-1.5 rounded-2xl border border-slate-200 grid grid-cols-3 gap-2">
           <button
             type="button"
             onClick={() => { setRole('student'); setError(null); }}
             className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
               role === 'student'
-                ? 'bg-blue-600 text-white shadow-md scale-[1.02]'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-cyan-600 text-white shadow-md scale-[1.02]'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             }`}
           >
             <GraduationCap className="w-4 h-4" />
@@ -212,8 +212,8 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
             onClick={() => { setRole('professor'); setError(null); }}
             className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
               role === 'professor'
-                ? 'bg-indigo-600 text-white shadow-md scale-[1.02]'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-cyan-600 text-white shadow-md scale-[1.02]'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             }`}
           >
             <BookOpen className="w-4 h-4" />
@@ -225,8 +225,8 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
             onClick={() => { setRole('doctorate'); setError(null); }}
             className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
               role === 'doctorate'
-                ? 'bg-purple-600 text-white shadow-md scale-[1.02]'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-cyan-600 text-white shadow-md scale-[1.02]'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             }`}
           >
             <Award className="w-4 h-4" />
@@ -235,25 +235,25 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
         </div>
 
         {/* Form Card */}
-        <Card className="bg-slate-900 border-slate-800 shadow-2xl rounded-3xl overflow-hidden backdrop-blur-xl">
+        <Card className="bg-white border-slate-200 shadow-xl shadow-slate-200/50 rounded-3xl overflow-hidden">
           <CardContent className="p-6 sm:p-8 space-y-6">
             
             {/* Header Title */}
-            <div className="border-b border-slate-800 pb-5 text-center space-y-2">
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            <div className="border-b border-slate-100 pb-5 text-center space-y-2">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-cyan-50 text-cyan-800 border border-cyan-200">
                 {roleTitles[role].badge}
               </span>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                 {roleTitles[role].title}
               </h1>
-              <p className="text-slate-400 text-xs sm:text-sm max-w-lg mx-auto">
+              <p className="text-slate-600 text-xs sm:text-sm max-w-lg mx-auto">
                 {roleTitles[role].description}
               </p>
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-2xl flex items-center gap-3 text-rose-400 text-sm">
+              <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-700 text-sm">
                 <AlertCircle className="w-5 h-5 flex-shrink-0" />
                 <span>{error}</span>
               </div>
@@ -265,31 +265,31 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
               {/* Personal Info */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Prénom *</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Prénom *</label>
                   <Input
                     type="text"
                     required
                     value={form.firstName}
                     onChange={e => setForm({ ...form, firstName: e.target.value })}
                     placeholder="Jean"
-                    className="bg-slate-950 border-slate-800 text-white"
+                    className="bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Nom *</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Nom *</label>
                   <Input
                     type="text"
                     required
                     value={form.lastName}
                     onChange={e => setForm({ ...form, lastName: e.target.value })}
                     placeholder="Dupont"
-                    className="bg-slate-950 border-slate-800 text-white"
+                    className="bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Adresse Email Universitaire / Professionnelle *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Adresse Email Universitaire / Professionnelle *</label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
                   <Input
@@ -298,13 +298,13 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
                     value={form.email}
                     onChange={e => setForm({ ...form, email: e.target.value })}
                     placeholder="prenom.nom@univ.fr"
-                    className="bg-slate-950 border-slate-800 text-white pl-10!"
+                    className="bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-500 pl-10!"
                   />
                 </div>
               </div>
 
               <div className="relative">
-                <label className="block text-xs font-bold text-slate-300 mb-1">Mot de passe *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Mot de passe *</label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
                   <Input
@@ -313,12 +313,12 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
                     value={form.password}
                     onChange={e => setForm({ ...form, password: e.target.value })}
                     placeholder="••••••••"
-                    className="bg-slate-950 border-slate-800 text-white pl-10! pr-10"
+                    className="bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-500 pl-10! pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-slate-400 hover:text-white"
+                    className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -327,7 +327,7 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
 
               {/* Role-Specific Field 1: University */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   {role === 'student' && 'Université / Faculté de Droit *'}
                   {role === 'professor' && 'Université / Établissement d\'enseignement *'}
                   {role === 'doctorate' && 'Université / Laboratoire de recherche *'}
@@ -340,7 +340,7 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
                     value={form.university}
                     onChange={e => setForm({ ...form, university: e.target.value })}
                     placeholder="ex: Université Paris 1 Panthéon-Sorbonne"
-                    className="bg-slate-950 border-slate-800 text-white pl-10!"
+                    className="bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-500 pl-10!"
                   />
                 </div>
               </div>
@@ -348,11 +348,11 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
               {/* Role-Specific Field 2 */}
               {role === 'student' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Niveau d'études *</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Niveau d'études *</label>
                   <select
                     value={form.studyLevel}
                     onChange={e => setForm({ ...form, studyLevel: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500 font-medium"
                   >
                     <option value="Licence 1">Licence 1 (L1 Droit)</option>
                     <option value="Licence 2">Licence 2 (L2 Droit)</option>
@@ -368,11 +368,11 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
               {role === 'professor' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Titre / Grade Académique *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Titre / Grade Académique *</label>
                     <select
                       value={form.academicTitle}
                       onChange={e => setForm({ ...form, academicTitle: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500 font-medium"
                     >
                       <option value="Professeur des Universités">Professeur des Universités (PU)</option>
                       <option value="Maître de Conférences">Maître de Conférences (MCU)</option>
@@ -382,14 +382,14 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Discipline d'enseignement *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Discipline d'enseignement *</label>
                     <Input
                       type="text"
                       required
                       value={form.specialty}
                       onChange={e => setForm({ ...form, specialty: e.target.value })}
                       placeholder="ex: Droit Privé, Droit des Affaires"
-                      className="bg-slate-950 border-slate-800 text-white"
+                      className="bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-500"
                     />
                   </div>
                 </div>
@@ -398,11 +398,11 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
               {role === 'doctorate' && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Année de Thèse *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Année de Thèse *</label>
                     <select
                       value={form.thesisYear}
                       onChange={e => setForm({ ...form, thesisYear: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500 font-medium"
                     >
                       <option value="1ère année de Thèse">1ère année de Thèse</option>
                       <option value="2ème année de Thèse">2ème année de Thèse</option>
@@ -411,14 +411,14 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Sujet de Thèse de Doctorat *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Sujet de Thèse de Doctorat *</label>
                     <Input
                       type="text"
                       required
                       value={form.thesisTopic}
                       onChange={e => setForm({ ...form, thesisTopic: e.target.value })}
                       placeholder="ex: La régulation juridique de l'Intelligence Artificielle en Europe"
-                      className="bg-slate-950 border-slate-800 text-white"
+                      className="bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-500"
                     />
                   </div>
                 </div>
@@ -428,7 +428,7 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-base shadow-lg transition-all"
+                  className="w-full py-3.5 rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-base shadow-md shadow-cyan-600/25 transition-all"
                 >
                   {loading ? "Création du compte..." : `Créer mon compte ${role === 'student' ? 'Étudiant' : role === 'professor' ? 'Professeur' : 'Doctorant'}`}
                 </Button>
@@ -443,22 +443,22 @@ const AcademicRegistrationForm: React.FC<AcademicRegistrationFormProps> = ({
       {showSuccessModal && (
         <Modal isOpen={true} onClose={() => navigate('/login')}>
           <div className="p-6 text-center space-y-4">
-            <div className="w-16 h-16 bg-emerald-950/80 border border-emerald-700/60 text-emerald-400 rounded-full flex items-center justify-center mx-auto shadow-lg">
+            <div className="w-16 h-16 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
               <CheckCircle2 className="w-10 h-10" />
             </div>
 
-            <h3 className="text-2xl font-black text-white">
+            <h3 className="text-2xl font-black text-slate-900">
               Compte créé avec succès !
             </h3>
 
-            <p className="text-slate-300 text-sm max-w-md mx-auto leading-relaxed">
-              Félicitations <strong className="text-white">{form.firstName} {form.lastName}</strong>. Votre profil <strong className="text-blue-400">{roleTitles[role].badge}</strong> a été créé et activé immédiatement.
+            <p className="text-slate-600 text-sm max-w-md mx-auto leading-relaxed">
+              Félicitations <strong className="text-slate-900">{form.firstName} {form.lastName}</strong>. Votre profil <strong className="text-cyan-700">{roleTitles[role].badge}</strong> a été créé et activé immédiatement.
             </p>
 
             <div className="pt-4 flex flex-col gap-2">
               <Button
                 onClick={() => navigate(role === 'student' ? '/dashboard/user' : '/dashboard/lawyer')}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl"
+                className="w-full py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl shadow-md shadow-cyan-600/25"
               >
                 Accéder à mon Espace {role === 'student' ? 'Étudiant' : role === 'professor' ? 'Enseignant' : 'Doctorant'}
               </Button>

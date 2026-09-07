@@ -119,11 +119,11 @@ const GeniaLAvocat: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden font-sans">
       
-      {/* HERO SECTION */}
-      <section className="relative bg-slate-900 text-white py-24 md:py-32 overflow-hidden">
-        {/* Decorative background gradients */}
-        <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-primary-600/20 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 left-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* HERO SECTION - LIGHT & LUMINOUS */}
+      <section className="relative bg-gradient-to-b from-cyan-50/80 via-white to-slate-50 text-slate-900 py-20 md:py-28 border-b border-slate-200/80 overflow-hidden">
+        {/* Decorative subtle cyan glows */}
+        <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-cyan-100/40 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 left-10 w-80 h-80 bg-teal-100/30 rounded-full blur-3xl pointer-events-none" />
         
         <div className="container px-4 mx-auto relative z-10">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
@@ -134,9 +134,9 @@ const GeniaLAvocat: React.FC = () => {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex items-center space-x-2 bg-primary-500/15 border border-primary-500/30 px-4 py-1.5 rounded-full text-primary-400 text-sm font-semibold"
+                className="inline-flex items-center space-x-2 bg-cyan-100/80 border border-cyan-200 px-4 py-1.5 rounded-full text-cyan-800 text-sm font-semibold shadow-xs"
               >
-                <Sparkles className="h-4 w-4" />
+                <Sparkles className="h-4 w-4 text-cyan-600" />
                 <span>{t('genia.hero_badge', "L'IA Juridique de Référence pour les Avocats")}</span>
               </motion.div>
               
@@ -144,12 +144,12 @@ const GeniaLAvocat: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight"
+                className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight text-slate-900"
               >
-                <span className="text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.4)]">
+                <span>
                   {t('genia.hero_title_left', "Décuplez la puissance de votre cabinet avec")}
                 </span>{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-300 drop-shadow-[0_4px_25px_rgba(252,211,77,0.4)]">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-500">
                   {t('genia.title', 'GénIA-L Avocat')}
                 </span>
               </motion.h1>
@@ -158,7 +158,7 @@ const GeniaLAvocat: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-2xl"
+                className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl"
               >
                 {t('genia.hero_desc', "Économisez jusqu'à 30 jours de travail par an. Effectuez des recherches de jurisprudence complexes en temps réel, analysez vos pièces et rédigez vos drafts en toute sécurité.")}
               </motion.p>
@@ -171,8 +171,8 @@ const GeniaLAvocat: React.FC = () => {
               >
                 <Button 
                   size="lg" 
-                  className="bg-primary-600 hover:bg-primary-500 text-white rounded-xl shadow-lg shadow-primary-600/30 px-8 py-4 text-base font-bold transition-all duration-300 hover:scale-105"
-                  onClick={() => navigate('/assistant')}
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl shadow-md shadow-cyan-600/25 px-8 py-4 text-base font-bold transition-all duration-300 hover:scale-105"
+                  onClick={() => navigate('/search')}
                 >
                   {t('genia.try_cta', "Essayer l'Assistant IA")}
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -180,21 +180,21 @@ const GeniaLAvocat: React.FC = () => {
                 <Button 
                   variant="outline" 
                   size="lg"
-                  className="border-slate-700 text-white hover:bg-slate-800 rounded-xl px-8 py-4 text-base font-bold"
+                  className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-xl px-8 py-4 text-base font-bold shadow-xs"
                   onClick={() => navigate('/contact')}
                 >
                   {t('genia.demo_cta', "Demander une Démo")}
                 </Button>
               </motion.div>
 
-              <div className="flex items-center space-x-6 pt-4 border-t border-slate-800 text-slate-400">
-                <div className="flex items-center space-x-1">
-                  <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
-                  <span className="font-bold text-white">4.8/5</span>
+              <div className="flex items-center space-x-6 pt-4 border-t border-slate-200 text-slate-600">
+                <div className="flex items-center space-x-1.5">
+                  <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                  <span className="font-bold text-slate-900">4.8/5</span>
                   <span>{t('genia.rating_by', 'par les cabinets')}</span>
                 </div>
-                <div className="h-4 w-px bg-slate-800" />
-                <div>{t('genia.compliance_tag', 'Conforme RGPD & Secret Pro')}</div>
+                <div className="h-4 w-px bg-slate-200" />
+                <div className="font-medium text-slate-700">{t('genia.compliance_tag', 'Conforme RGPD & Secret Pro')}</div>
               </div>
             </div>
 
@@ -204,40 +204,40 @@ const GeniaLAvocat: React.FC = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8 }}
-                className="relative mx-auto max-w-md lg:max-w-none bg-slate-800/60 border border-slate-700/50 backdrop-blur-xl rounded-3xl p-6 shadow-2xl overflow-hidden"
+                className="relative mx-auto max-w-md lg:max-w-none bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xl overflow-hidden"
               >
-                <div className="flex items-center justify-between pb-4 border-b border-slate-700/60 mb-4">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
                   <div className="flex space-x-2">
-                    <div className="w-3 height-3 rounded-full bg-red-500 h-3" />
-                    <div className="w-3 height-3 rounded-full bg-yellow-500 h-3" />
-                    <div className="w-3 height-3 rounded-full bg-green-500 h-3" />
+                    <div className="w-3 h-3 rounded-full bg-rose-400" />
+                    <div className="w-3 h-3 rounded-full bg-amber-400" />
+                    <div className="w-3 h-3 rounded-full bg-emerald-400" />
                   </div>
-                  <div className="text-xs text-slate-400 font-mono">GénIA-L Avocat Workspace</div>
+                  <div className="text-xs text-slate-500 font-mono">GénIA-L Avocat Workspace</div>
                 </div>
 
                 <div className="space-y-4 text-sm">
-                  <div className="bg-slate-900/50 border border-slate-700/40 rounded-xl p-3.5 text-slate-300">
-                    <span className="text-primary-400 font-bold block mb-1">{t('genia.mock_search_label', 'Recherche Assistée')}</span>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-700">
+                    <span className="text-cyan-700 font-bold block mb-1">{t('genia.mock_search_label', 'Recherche Assistée')}</span>
                     {t('genia.mock_query', '"Trouve la jurisprudence récente concernant le manquement à l\'obligation de délivrance conforme en matière de vente de matériel industriel."')}
                   </div>
                   
-                  <div className="bg-primary-950/40 border border-primary-500/20 rounded-xl p-4 text-slate-200">
-                    <div className="flex items-center space-x-2 text-primary-400 font-bold mb-2">
-                      <Sparkles className="h-4 w-4" />
+                  <div className="bg-cyan-50/70 border border-cyan-200/80 rounded-xl p-4 text-slate-800">
+                    <div className="flex items-center space-x-2 text-cyan-800 font-bold mb-2">
+                      <Sparkles className="h-4 w-4 text-cyan-600" />
                       <span>{t('genia.mock_reply_title', 'Synthèse GénIA-L')}</span>
                     </div>
-                    <p className="text-xs leading-relaxed mb-2 text-slate-300">
+                    <p className="text-xs leading-relaxed mb-2 text-slate-700">
                       {t('genia.mock_reply_text', "Selon l'art. 1604 du Code civil et la jurisprudence constante de la Cour de cassation (Com. 12 janv. 2024, n° 22-18.450), le vendeur est tenu de livrer une chose conforme aux spécifications contractuelles...")}
                     </p>
                     <div className="flex flex-wrap gap-1.5 text-[10px]">
-                      <span className="bg-slate-800 text-primary-300 px-2 py-0.5 rounded border border-slate-700">Art. 1604 C. Civ.</span>
-                      <span className="bg-slate-800 text-primary-300 px-2 py-0.5 rounded border border-slate-700">Com. 12 janv. 2024</span>
+                      <span className="bg-white text-cyan-800 px-2 py-0.5 rounded border border-cyan-200 font-semibold shadow-2xs">Art. 1604 C. Civ.</span>
+                      <span className="bg-white text-cyan-800 px-2 py-0.5 rounded border border-cyan-200 font-semibold shadow-2xs">Com. 12 janv. 2024</span>
                     </div>
                   </div>
 
-                  <div className="border border-dashed border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center text-center text-slate-400 cursor-pointer hover:bg-slate-700/20 transition-all duration-200">
-                    <span className="text-xs font-semibold block text-slate-300">{t('genia.mock_drag_drop', 'Glisser-déposer un contrat ou conclusions')}</span>
-                    <span className="text-[10px] text-slate-500">{t('genia.mock_formats', 'Formats supportés : PDF, DOCX (Max 20Mo)')}</span>
+                  <div className="border border-dashed border-slate-300 rounded-xl p-4 flex flex-col items-center justify-center text-center text-slate-500 cursor-pointer hover:bg-slate-50 transition-all duration-200">
+                    <span className="text-xs font-semibold block text-slate-700">{t('genia.mock_drag_drop', 'Glisser-déposer un contrat ou conclusions')}</span>
+                    <span className="text-[10px] text-slate-400">{t('genia.mock_formats', 'Formats supportés : PDF, DOCX (Max 20Mo)')}</span>
                   </div>
                 </div>
               </motion.div>
@@ -266,12 +266,12 @@ const GeniaLAvocat: React.FC = () => {
                 <motion.div 
                   key={i}
                   whileHover={{ y: -6 }}
-                  className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl hover:bg-white hover:border-primary-100 transition-all duration-300 flex flex-col text-left group"
+                  className="bg-slate-50/70 p-8 rounded-3xl border border-slate-200 hover:shadow-xl hover:bg-white hover:border-cyan-400 transition-all duration-300 flex flex-col text-left group"
                 >
-                  <div className="w-12 h-12 mb-6 bg-primary-50 rounded-2xl flex items-center justify-center text-primary-600 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300">
+                  <div className="w-12 h-12 mb-6 bg-cyan-50 rounded-2xl flex items-center justify-center text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white transition-all duration-300 shadow-2xs">
                     <Icon className="h-6 w-6" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3 text-slate-950">{f.title}</h3>
+                  <h3 className="text-xl font-bold mb-3 text-slate-900 group-hover:text-cyan-700 transition-colors">{f.title}</h3>
                   <p className="text-slate-600 text-sm leading-relaxed flex-1">{f.desc}</p>
                 </motion.div>
               );
@@ -280,59 +280,59 @@ const GeniaLAvocat: React.FC = () => {
         </div>
       </section>
 
-      {/* INTERACTIVE DEMO ACCORDION */}
-      <section className="py-24 bg-slate-900 text-white relative">
+      {/* INTERACTIVE DEMO ACCORDION - LIGHT */}
+      <section className="py-24 bg-slate-50 border-t border-b border-slate-200 text-slate-900 relative">
         <div className="container px-4 mx-auto">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             
             {/* Left side: content details */}
             <div className="lg:col-span-5 text-left space-y-6">
-              <div className="inline-flex items-center space-x-2 bg-indigo-500/10 border border-indigo-500/30 px-3.5 py-1 rounded-full text-indigo-300 text-xs font-semibold">
+              <div className="inline-flex items-center space-x-2 bg-cyan-100 border border-cyan-200 px-3.5 py-1 rounded-full text-cyan-800 text-xs font-semibold">
                 <span>{t('genia.demo_badge', 'Démo Interactive')}</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
                 {t('genia.demo_title', "Visualisez l'IA en action")}
               </h2>
-              <p className="text-slate-400 leading-relaxed">
+              <p className="text-slate-600 leading-relaxed">
                 {t('genia.demo_desc', "Découvrez comment GénIA-L analyse vos requêtes et structure instantanément ses rapports :")}
               </p>
               
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <div className="mt-1 flex items-center justify-center w-5 h-5 rounded-full bg-primary-500/20 text-primary-400">
-                    <Check className="w-3.5 h-3.5 font-bold" />
+                  <div className="mt-1 flex items-center justify-center w-5 h-5 rounded-full bg-cyan-100 text-cyan-700 font-bold shrink-0">
+                    <Check className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <strong className="text-white block text-sm">{t('genia.demo_point1_title', 'Synthèse Immédiate')}</strong>
-                    <span className="text-xs text-slate-400">{t('genia.demo_point1_desc', 'Une réponse concise et argumentée à votre problématique.')}</span>
+                    <strong className="text-slate-900 block text-sm">{t('genia.demo_point1_title', 'Synthèse Immédiate')}</strong>
+                    <span className="text-xs text-slate-600">{t('genia.demo_point1_desc', 'Une réponse concise et argumentée à votre problématique.')}</span>
                   </div>
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="mt-1 flex items-center justify-center w-5 h-5 rounded-full bg-primary-500/20 text-primary-400">
-                    <Check className="w-3.5 h-3.5 font-bold" />
+                  <div className="mt-1 flex items-center justify-center w-5 h-5 rounded-full bg-cyan-100 text-cyan-700 font-bold shrink-0">
+                    <Check className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <strong className="text-white block text-sm">{t('genia.demo_point2_title', 'Cas Pratiques & Exemples')}</strong>
-                    <span className="text-xs text-slate-400">{t('genia.demo_point2_desc', 'Des mises en situation concrètes pour appliquer la règle de droit.')}</span>
+                    <strong className="text-slate-900 block text-sm">{t('genia.demo_point2_title', 'Cas Pratiques & Exemples')}</strong>
+                    <span className="text-xs text-slate-600">{t('genia.demo_point2_desc', 'Des mises en situation concrètes pour appliquer la règle de droit.')}</span>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <div className="mt-1 flex items-center justify-center w-5 h-5 rounded-full bg-primary-500/20 text-primary-400">
-                    <Check className="w-3.5 h-3.5 font-bold" />
+                  <div className="mt-1 flex items-center justify-center w-5 h-5 rounded-full bg-cyan-100 text-cyan-700 font-bold shrink-0">
+                    <Check className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <strong className="text-white block text-sm">{t('genia.demo_point3_title', 'Points de Vigilance')}</strong>
-                    <span className="text-xs text-slate-400">{t('genia.demo_point3_desc', 'Mise en avant des risques juridiques et des délais d\'action.')}</span>
+                    <strong className="text-slate-900 block text-sm">{t('genia.demo_point3_title', 'Points de Vigilance')}</strong>
+                    <span className="text-xs text-slate-600">{t('genia.demo_point3_desc', 'Mise en avant des risques juridiques et des délais d\'action.')}</span>
                   </div>
                 </div>
               </div>
 
               <div className="pt-4">
                 <Button 
-                  className="bg-white hover:bg-slate-100 text-slate-900 font-bold px-6 rounded-xl transition-all"
-                  onClick={() => navigate('/assistant')}
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-3 rounded-xl shadow-md shadow-cyan-600/20 transition-all"
+                  onClick={() => navigate('/search')}
                 >
                   {t('genia.demo_cta_btn', 'Ouvrir mon assistant de recherche')}
                 </Button>
@@ -341,7 +341,7 @@ const GeniaLAvocat: React.FC = () => {
 
             {/* Right side: iframe simulation */}
             <div className="lg:col-span-7">
-              <div className="relative rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950 aspect-video w-full">
+              <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-white aspect-video w-full">
                 <iframe 
                   src="https://demo.arcade.software/XF8i48HBWJNPVUhgeLfL?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true" 
                   title="GenIA-L Avocat - Démo interactive" 
@@ -371,25 +371,25 @@ const GeniaLAvocat: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
-                <tr className="border-b-2 border-slate-100">
-                  <th className="py-4 px-6 text-sm font-extrabold text-slate-500 uppercase tracking-wider w-1/3">{t('genia.comp_header1', "Critères d'exigences")}</th>
-                  <th className="py-4 px-6 text-sm font-extrabold text-primary-600 uppercase tracking-wider bg-primary-50/40 rounded-t-2xl w-1/3 text-center">{t('nav.genia')}</th>
+                <tr className="border-b-2 border-slate-200">
+                  <th className="py-4 px-6 text-sm font-extrabold text-slate-600 uppercase tracking-wider w-1/3">{t('genia.comp_header1', "Critères d'exigences")}</th>
+                  <th className="py-4 px-6 text-sm font-extrabold text-cyan-700 uppercase tracking-wider bg-cyan-50/70 rounded-t-2xl w-1/3 text-center border-t border-x border-cyan-200">{t('nav.genia', 'GénIA-L Avocat')}</th>
                   <th className="py-4 px-6 text-sm font-extrabold text-slate-400 uppercase tracking-wider w-1/3 text-center">{t('genia.comp_header3', 'IA Grand Public')}</th>
                 </tr>
               </thead>
               <tbody>
                 {comparison.map((item, idx) => (
-                  <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+                  <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/60 transition-colors">
                     <td className="py-5 px-6 font-semibold text-slate-900 text-sm">{item.criterion}</td>
-                    <td className="py-5 px-6 bg-primary-50/20 text-center">
+                    <td className="py-5 px-6 bg-cyan-50/40 text-center border-x border-cyan-100">
                       <div className="flex flex-col items-center justify-center space-y-1">
-                        <CheckCircle className="h-5 w-5 text-emerald-600" />
-                        <span className="text-xs font-bold text-emerald-800">{item.genial}</span>
+                        <CheckCircle className="h-5 w-5 text-teal-600" />
+                        <span className="text-xs font-bold text-cyan-900">{item.genial}</span>
                       </div>
                     </td>
                     <td className="py-5 px-6 text-center text-slate-500">
                       <div className="flex flex-col items-center justify-center space-y-1">
-                        <XCircle className="h-5 w-5 text-red-400" />
+                        <XCircle className="h-5 w-5 text-rose-500" />
                         <span className="text-xs text-slate-500">{item.public}</span>
                       </div>
                     </td>
@@ -401,14 +401,14 @@ const GeniaLAvocat: React.FC = () => {
         </div>
       </section>
 
-      {/* IMPLEMENTATION / ONBOARDING TIMELINE */}
-      <section className="py-24 bg-slate-900 text-white relative">
+      {/* IMPLEMENTATION / ONBOARDING TIMELINE - LIGHT */}
+      <section className="py-24 bg-slate-50 border-t border-slate-200 text-slate-900 relative">
         <div className="container px-4 mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-6">
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-6 text-slate-900">
               {t('genia.steps_title', 'Votre cabinet équipé en 5 étapes')}
             </h2>
-            <p className="text-lg text-slate-400">
+            <p className="text-lg text-slate-600">
               {t('genia.steps_subtitle', "Un parcours d'intégration fluide et assisté pour maximiser le potentiel de l'outil.")}
             </p>
           </div>
@@ -417,15 +417,15 @@ const GeniaLAvocat: React.FC = () => {
             {steps.map((st, i) => (
               <div key={i} className="relative flex flex-col text-left space-y-4">
                 {i < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-6 left-12 right-0 h-0.5 bg-slate-800 z-0" />
+                  <div className="hidden md:block absolute top-6 left-12 right-0 h-0.5 bg-slate-200 z-0" />
                 )}
                 
-                <div className="relative z-10 w-12 h-12 rounded-2xl bg-primary-600 text-white font-extrabold flex items-center justify-center text-lg shadow-lg shadow-primary-600/30">
+                <div className="relative z-10 w-12 h-12 rounded-2xl bg-cyan-600 text-white font-extrabold flex items-center justify-center text-lg shadow-md shadow-cyan-600/25">
                   {st.num}
                 </div>
                 
-                <h3 className="text-lg font-bold text-white pt-2">{st.title}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">{st.desc}</p>
+                <h3 className="text-lg font-bold text-slate-900 pt-2">{st.title}</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">{st.desc}</p>
               </div>
             ))}
           </div>
@@ -433,14 +433,14 @@ const GeniaLAvocat: React.FC = () => {
       </section>
 
       {/* FAQ SECTION */}
-      <section className="py-24 bg-white relative">
+      <section className="py-24 bg-white border-t border-slate-200 relative">
         <div className="container max-w-4xl px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-slate-900">
-              {t('faq.title')}
+              {t('faq.title', 'Questions Fréquemment Posées')}
             </h2>
             <p className="text-lg text-slate-600">
-              {t('faq.subtitle')}
+              {t('faq.subtitle', 'Tout ce que vous devez savoir sur notre solution')}
             </p>
           </div>
 
@@ -451,19 +451,19 @@ const GeniaLAvocat: React.FC = () => {
                 className="border border-slate-200 rounded-2xl overflow-hidden transition-all duration-200"
               >
                 <button
-                  className="w-full flex items-center justify-between p-6 bg-slate-50 hover:bg-slate-100/60 font-semibold text-slate-900 text-base md:text-lg transition-colors text-left"
+                  className="w-full flex items-center justify-between p-6 bg-slate-50 hover:bg-slate-100/70 font-semibold text-slate-900 text-base md:text-lg transition-colors text-left"
                   onClick={() => setActiveFaq(activeFaq === i ? null : i)}
                 >
                   <span className="pr-4">{faq.q}</span>
                   {activeFaq === i ? (
-                    <ChevronDown className="h-5 w-5 text-slate-500 shrink-0" />
+                    <ChevronDown className="h-5 w-5 text-cyan-600 shrink-0" />
                   ) : (
-                    <ChevronRight className="h-5 w-5 text-slate-500 shrink-0" />
+                    <ChevronRight className="h-5 w-5 text-slate-400 shrink-0" />
                   )}
                 </button>
                 
                 {activeFaq === i && (
-                  <div className="p-6 bg-white border-t border-slate-100 text-slate-600 text-sm md:text-base leading-relaxed">
+                  <div className="p-6 bg-white border-t border-slate-100 text-slate-700 text-sm md:text-base leading-relaxed">
                     {faq.a}
                   </div>
                 )}
@@ -473,28 +473,27 @@ const GeniaLAvocat: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA BANNER */}
-      <section className="py-20 bg-primary-600 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-indigo-900" />
+      {/* CTA BANNER - CYAN GRADIENT */}
+      <section className="py-20 bg-gradient-to-r from-cyan-600 via-cyan-700 to-teal-700 text-white relative overflow-hidden">
         <div className="container relative z-10 text-center px-4 mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">
             {t('genia.cta_banner_title', 'Prêt à moderniser votre cabinet ?')}
           </h2>
-          <p className="text-lg text-primary-100 mb-10 max-w-2xl mx-auto">
+          <p className="text-lg text-cyan-50 mb-10 max-w-2xl mx-auto">
             {t('genia.cta_banner_desc', "Rejoignez des milliers de professionnels du droit et commencez à utiliser GénIA-L dès aujourd'hui.")}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button 
               size="lg" 
-              className="bg-white text-primary-700 hover:bg-primary-50 rounded-xl px-8 py-4 text-base font-bold shadow-xl transition-all"
-              onClick={() => navigate('/assistant')}
+              className="bg-white text-cyan-900 hover:bg-cyan-50 rounded-xl px-8 py-4 text-base font-bold shadow-xl transition-all"
+              onClick={() => navigate('/search')}
             >
               {t('genia.cta_banner_btn_try', 'Démarrer Gratuitement')}
             </Button>
             <Button 
               variant="outline"
               size="lg" 
-              className="border-primary-400 text-white hover:bg-primary-700/50 rounded-xl px-8 py-4 text-base font-bold"
+              className="border-white/50 text-white hover:bg-white/10 rounded-xl px-8 py-4 text-base font-bold"
               onClick={() => navigate('/contact')}
             >
               {t('genia.cta_banner_btn_contact', 'Contacter un conseiller')}
@@ -508,3 +507,4 @@ const GeniaLAvocat: React.FC = () => {
 };
 
 export default GeniaLAvocat;
+

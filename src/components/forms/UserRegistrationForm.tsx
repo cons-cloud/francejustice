@@ -101,25 +101,25 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-slate-100 py-12 px-4 relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 text-slate-900 py-12 px-4 relative">
       <Link 
         to="/" 
-        className="absolute top-8 left-8 flex items-center text-slate-400 hover:text-white font-semibold transition-colors group"
+        className="absolute top-8 left-8 flex items-center text-slate-500 hover:text-cyan-600 font-semibold transition-colors group"
       >
         <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" />
         Retour à l'accueil
       </Link>
 
-      <Card className="w-full max-w-2xl bg-slate-900 border-slate-800 shadow-2xl">
+      <Card className="w-full max-w-2xl bg-white border-slate-200 shadow-xl shadow-slate-200/50">
         <CardContent className="p-8">
           <div className="text-center mb-6">
-            <div className="mx-auto h-12 w-12 bg-primary-900/60 border border-primary-700/50 rounded-full flex items-center justify-center mb-4">
-              <UserPlus className="h-6 w-6 text-primary-400" />
+            <div className="mx-auto h-12 w-12 bg-cyan-50 border border-cyan-200 rounded-full flex items-center justify-center mb-4 shadow-sm">
+              <UserPlus className="h-6 w-6 text-cyan-600" />
             </div>
-            <h2 className="text-3xl font-extrabold text-white">
+            <h2 className="text-3xl font-extrabold text-slate-900">
               Créer un compte France Justice
             </h2>
-            <p className="text-slate-300 mt-2 text-sm">
+            <p className="text-slate-600 mt-2 text-sm">
               Rejoignez France Justice pour gérer vos démarches juridiques
             </p>
 
@@ -128,28 +128,28 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
               <button
                 type="button"
                 onClick={() => setForm({ ...form, role: 'user' })}
-                className={`p-2.5 rounded-xl text-xs font-bold transition-all border text-left ${form.role === 'user' ? 'bg-emerald-950 border-emerald-500 text-emerald-300 ring-2 ring-emerald-400' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}`}
+                className={`p-2.5 rounded-xl text-xs font-bold transition-all border text-left ${form.role === 'user' ? 'bg-cyan-50 border-cyan-300 text-cyan-800 ring-2 ring-cyan-500/40' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`}
               >
                 👤 Citoyen
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/register/student')}
-                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-indigo-950/80 border-indigo-700 text-indigo-300 hover:bg-indigo-900/80"
+                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
               >
                 🎓 Étudiant →
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/register/professor')}
-                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-blue-950/80 border-blue-700 text-blue-300 hover:bg-blue-900/80"
+                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
               >
                 👨‍🏫 Professeur →
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/register/doctorate')}
-                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-purple-950/80 border-purple-700 text-purple-300 hover:bg-purple-900/80"
+                className="p-2.5 rounded-xl text-xs font-bold transition-all border text-left bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
               >
                 🔬 Doctorant →
               </button>
@@ -158,13 +158,13 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-950/80 border-l-4 border-red-500 p-4 rounded-r-md font-medium">
-                <p className="text-sm text-red-200">{error}</p>
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md font-medium">
+                <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
 
             <div className="space-y-1.5">
-              <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider">Type de compte :</label>
+              <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Type de compte :</label>
               <select
                 value={form.role}
                 onChange={(e) => {
@@ -175,7 +175,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
                   else if (r === 'lawyer') navigate('/register/lawyer');
                   else setForm({ ...form, role: r });
                 }}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm font-bold text-white focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-cyan-500 focus:outline-none"
               >
                 <option value="user">👤 Citoyen / Particulier</option>
                 <option value="student">🎓 Étudiant en Droit</option>
@@ -186,9 +186,9 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
             </div>
 
             {(form.role === 'student' || form.role === 'professor' || form.role === 'doctorate') && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-cyan-50/50 p-4 rounded-2xl border border-cyan-100">
                 <div>
-                  <label className="text-[11px] font-bold text-indigo-900">Université / Établissement :</label>
+                  <label className="text-[11px] font-bold text-cyan-900">Université / Établissement :</label>
                   <Input
                     placeholder="ex: Université Paris 1 Panthéon-Sorbonne"
                     value={form.university}
@@ -196,7 +196,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-indigo-900">Spécialité / Discipline :</label>
+                  <label className="text-[11px] font-bold text-cyan-900">Spécialité / Discipline :</label>
                   <Input
                     placeholder="ex: Droit Privé / Droit Numérique & IA"
                     value={form.specialty}
@@ -208,7 +208,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="relative">
-                <UserIcon className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <UserIcon className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   required
                   placeholder="Prénom"
@@ -218,7 +218,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
                 />
               </div>
               <div className="relative">
-                <UserIcon className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <UserIcon className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   required
                   placeholder="Nom"
@@ -231,7 +231,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="relative">
-                <Mail className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <Mail className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   type="email"
                   required
@@ -242,11 +242,11 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
                 />
               </div>
               <div className="relative">
-                <Mail className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <Mail className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   type="email"
                   required
-                  placeholder="Confirmer"
+                  placeholder="Confirmer l'email"
                   className="!pl-14"
                   value={form.confirmEmail}
                   onChange={(e) => setForm({ ...form, confirmEmail: e.target.value })}
@@ -256,7 +256,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="relative">
-                <Lock className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <Lock className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   required
@@ -268,13 +268,13 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-secondary-400 hover:text-secondary-600 transition-colors"
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               <div className="relative">
-                <Lock className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <Lock className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
                   required
@@ -286,7 +286,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3 text-secondary-400 hover:text-secondary-600 transition-colors"
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -295,7 +295,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="relative md:col-span-1">
-                <MapPin className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <MapPin className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   required
                   placeholder="Ville"
@@ -307,13 +307,13 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
               <div className="relative md:col-span-1">
                 <Input
                   required
-                  placeholder="CP"
+                  placeholder="Code Postal"
                   value={form.postalCode}
                   onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
                 />
               </div>
               <div className="relative md:col-span-1">
-                <Calendar className="absolute left-5 top-3 h-5 w-5 text-secondary-400" />
+                <Calendar className="absolute left-5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   required
                   type="date"
@@ -324,15 +324,15 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
               </div>
             </div>
 
-            <Button className="w-full h-10 text-base font-bold mt-2" disabled={loading}>
+            <Button className="w-full h-11 text-base font-bold mt-2 bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20 transition-all" disabled={loading}>
               {loading ? 'Création en cours...' : 'Créer mon compte citoyen'}
             </Button>
 
-            <p className="text-center text-sm text-secondary-600">
+            <p className="text-center text-sm text-slate-600">
               Déjà un compte ?{' '}
               <button
                 type="button"
-                className="text-primary-600 font-semibold hover:underline"
+                className="text-cyan-600 font-semibold hover:underline"
                 onClick={() => {
                   const redirect = new URLSearchParams(window.location.search).get('redirect');
                   navigate(`/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`);

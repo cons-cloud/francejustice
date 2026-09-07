@@ -202,25 +202,25 @@ export const OfficialGovernmentLinks: React.FC = () => {
   });
 
   return (
-    <section className="py-14 bg-slate-950 text-slate-100 relative overflow-hidden border-t border-slate-800">
+    <section className="py-14 bg-white text-slate-900 relative overflow-hidden border-t border-slate-200">
       {/* Background ambient lighting */}
-      <div className="absolute top-0 right-1/3 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-1/3 w-96 h-96 bg-cyan-100/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-teal-100/30 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
         
         {/* Header Title */}
         <div className="text-center space-y-3 max-w-3xl mx-auto">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-blue-500/10 text-blue-300 border border-blue-500/30 shadow-md">
-            <Award className="w-4 h-4 text-blue-400" />
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-cyan-50 text-cyan-800 border border-cyan-200 shadow-sm">
+            <Award className="w-4 h-4 text-cyan-600" />
             <span>Portails Officiels de l'État & Références Légales Partenaires</span>
           </span>
 
-          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             Accès Direct aux Sources du Droit Français & Européen
           </h2>
 
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
             FranceJustice (francejustice.com) s'interconnecte en direct avec les plateformes gouvernementales officielles pour vous garantir la traçabilité juridique la plus stricte.
           </p>
         </div>
@@ -236,7 +236,7 @@ export const OfficialGovernmentLinks: React.FC = () => {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Rechercher un site officiel (ex: Légifrance, CNB, Pappers...)"
-              className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-inner"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all shadow-inner"
             />
           </div>
 
@@ -250,10 +250,10 @@ export const OfficialGovernmentLinks: React.FC = () => {
                   key={cat.id}
                   type="button"
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.03]'
-                      : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white hover:bg-slate-800'
+                      ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/20 scale-[1.03]'
+                      : 'bg-slate-50 text-slate-700 border border-slate-200 hover:text-cyan-800 hover:bg-cyan-50'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -269,32 +269,32 @@ export const OfficialGovernmentLinks: React.FC = () => {
           {filteredLinks.map((item, idx) => (
             <Card
               key={idx}
-              className="bg-slate-900/90 border-slate-800/90 hover:border-blue-500/50 transition-all duration-300 group hover:shadow-xl hover:shadow-blue-500/10 rounded-2xl overflow-hidden backdrop-blur-md"
+              className="bg-white border-slate-200/90 hover:border-cyan-500 transition-all duration-300 group hover:shadow-xl hover:shadow-cyan-500/10 rounded-2xl overflow-hidden shadow-sm"
             >
               <CardContent className="p-5 flex flex-col justify-between h-full space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-cyan-50 text-cyan-800 border border-cyan-200">
                       {item.badge}
                     </span>
 
                     {item.isPopular && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
                         ⭐ Incontournable
                       </span>
                     )}
                   </div>
 
-                  <h3 className="text-lg font-extrabold text-white group-hover:text-blue-300 transition-colors flex items-center gap-2">
+                  <h3 className="text-lg font-extrabold text-slate-900 group-hover:text-cyan-700 transition-colors flex items-center gap-2">
                     {item.name}
                   </h3>
 
-                  <p className="text-slate-400 text-xs leading-relaxed">
+                  <p className="text-slate-600 text-xs leading-relaxed">
                     {item.description}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between">
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                   <span className="text-[11px] font-mono text-slate-400 truncate max-w-[200px]">
                     {item.url.replace('https://www.', '').replace('https://', '')}
                   </span>
@@ -303,7 +303,7 @@ export const OfficialGovernmentLinks: React.FC = () => {
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 group-hover:text-blue-300 hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-700 group-hover:text-cyan-800 hover:underline"
                   >
                     <span>Visiter</span>
                     <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -316,8 +316,8 @@ export const OfficialGovernmentLinks: React.FC = () => {
 
         {/* Footer Note */}
         <div className="text-center pt-4">
-          <p className="text-xs text-slate-400 font-medium">
-            💡 FranceJustice.com est une initiative indépendante. Pour toute démarche officielle, vous pouvez également consulter le portail central <a href="https://www.service-public.fr" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300">Service-Public.fr</a>.
+          <p className="text-xs text-slate-500 font-medium">
+            💡 FranceJustice.com est une initiative indépendante. Pour toute démarche officielle, vous pouvez également consulter le portail central <a href="https://www.service-public.fr" target="_blank" rel="noopener noreferrer" className="text-cyan-700 underline hover:text-cyan-800 font-semibold">Service-Public.fr</a>.
           </p>
         </div>
 

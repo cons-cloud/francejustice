@@ -746,24 +746,24 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
 
       {/* Voice Assistant Glassmorphism Panel */}
       {isOpen && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-950/85 backdrop-blur-lg animate-fade-in">
-          <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl h-[92vh] sm:h-[86vh] max-h-[96vh] sm:max-h-[88vh] bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 border-2 border-indigo-500/30 rounded-2xl sm:rounded-3xl shadow-2xl shadow-black overflow-hidden flex flex-col animate-slide-up">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl h-[92vh] sm:h-[86vh] max-h-[96vh] sm:max-h-[88vh] bg-white border border-slate-200 rounded-2xl sm:rounded-3xl shadow-2xl shadow-cyan-950/10 overflow-hidden flex flex-col animate-slide-up">
             
             {/* Header */}
-            <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between shadow-sm shrink-0">
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-white border-b border-slate-100 flex items-center justify-between shadow-xs shrink-0">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                <div className="p-2 sm:p-2.5 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md shadow-indigo-500/30 shrink-0">
+                <div className="p-2 sm:p-2.5 bg-gradient-to-tr from-cyan-600 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md shadow-cyan-500/20 shrink-0">
                   <Sparkles className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-white animate-pulse" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-extrabold text-white text-sm sm:text-base md:text-lg tracking-tight flex items-center gap-1.5 sm:gap-2 truncate">
+                  <h3 className="font-extrabold text-slate-900 text-sm sm:text-base md:text-lg tracking-tight flex items-center gap-1.5 sm:gap-2 truncate">
                     <span>IA Vocale Law Just</span>
-                    <span className="text-[9px] sm:text-[10px] uppercase font-mono tracking-widest px-2 py-0.5 bg-amber-400/20 text-amber-300 rounded-full border border-amber-400/30 font-bold shrink-0">
+                    <span className="text-[9px] sm:text-[10px] uppercase font-mono tracking-widest px-2 py-0.5 bg-cyan-50 text-cyan-700 rounded-full border border-cyan-200 font-bold shrink-0">
                       En Direct
                     </span>
                   </h3>
-                  <p className="text-[11px] sm:text-xs text-slate-300 font-medium truncate">
-                    Assistant Juridique & Recherche Légifrance / UE par Gemini
+                  <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">
+                    Assistant Juridique &amp; Recherche Légifrance / UE par Gemini
                   </p>
                 </div>
               </div>
@@ -772,8 +772,8 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                   onClick={toggleMute}
                   className={`p-2 sm:p-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
                     isMuted 
-                      ? 'bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/30' 
-                      : 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700'
+                      ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' 
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                   }`}
                   title={isMuted ? "Activer le son" : "Désactiver le son"}
                 >
@@ -785,7 +785,7 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                     setIsOpen(false);
                     playChime(392, 'sine', 0.08);
                   }}
-                  className="p-2 sm:p-2.5 bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-700 rounded-xl transition-all duration-200 cursor-pointer"
+                  className="p-2 sm:p-2.5 bg-slate-100 text-slate-500 hover:text-slate-900 hover:bg-slate-200 border border-slate-200 rounded-xl transition-all duration-200 cursor-pointer"
                   title="Fermer"
                 >
                   <X className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
@@ -796,30 +796,30 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
             {/* Conversation Area */}
             <div 
               ref={scrollRef}
-              className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-6 scrollbar-thin bg-[#080c14]"
+              className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-6 scrollbar-thin bg-slate-50/70"
             >
               {/* Informative Welcome */}
               {history.length === 0 && !transcript && (
-                <div className="bg-[#131c2e] border-2 border-amber-400/40 rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4 shadow-xl text-white">
-                  <p className="text-white text-sm sm:text-base md:text-lg leading-relaxed font-semibold">
+                <div className="bg-white border border-cyan-200 rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4 shadow-sm text-slate-800">
+                  <p className="text-slate-800 text-sm sm:text-base md:text-lg leading-relaxed font-semibold">
                     Bonjour ! Je suis votre Assistant Juridique Vocal France Justice. J'analyse vos pièces jointes, réponds à vos questions juridiques et exécute vos instructions en direct.
                   </p>
-                  <div className="space-y-2 pt-2 border-t border-slate-700">
-                    <p className="text-[11px] sm:text-xs font-black text-amber-400 uppercase tracking-wider">
+                  <div className="space-y-2 pt-2 border-t border-slate-100">
+                    <p className="text-[11px] sm:text-xs font-black text-cyan-700 uppercase tracking-wider">
                       Exemples d'instructions à dicter ou écrire :
                     </p>
-                    <ul className="text-xs sm:text-sm md:text-base text-white space-y-2">
-                      <li className="flex items-center gap-2.5 sm:gap-3 bg-[#182033] hover:bg-[#222d47] p-2.5 sm:p-3 rounded-xl border border-slate-700 cursor-pointer transition-colors shadow-sm" onClick={() => handleVoiceCommand("Affiche mes rendez-vous")}>
-                        <ArrowRight className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-amber-400 shrink-0 font-bold" />
-                        <span className="text-white font-semibold">"Affiche mes rendez-vous de la semaine"</span>
+                    <ul className="text-xs sm:text-sm md:text-base text-slate-700 space-y-2">
+                      <li className="flex items-center gap-2.5 sm:gap-3 bg-slate-50 hover:bg-cyan-50/60 p-2.5 sm:p-3 rounded-xl border border-slate-200 cursor-pointer transition-colors shadow-xs" onClick={() => handleVoiceCommand("Affiche mes rendez-vous")}>
+                        <ArrowRight className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-cyan-600 shrink-0 font-bold" />
+                        <span className="text-slate-800 font-semibold">"Affiche mes rendez-vous de la semaine"</span>
                       </li>
-                      <li className="flex items-center gap-2.5 sm:gap-3 bg-[#182033] hover:bg-[#222d47] p-2.5 sm:p-3 rounded-xl border border-slate-700 cursor-pointer transition-colors shadow-sm" onClick={() => handleVoiceCommand("Qu'est ce que l'article 1240 du Code Civil ?")}>
-                        <ArrowRight className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-amber-400 shrink-0 font-bold" />
-                        <span className="text-white font-semibold">"Qu'est-ce que l'article 1240 du Code Civil ?"</span>
+                      <li className="flex items-center gap-2.5 sm:gap-3 bg-slate-50 hover:bg-cyan-50/60 p-2.5 sm:p-3 rounded-xl border border-slate-200 cursor-pointer transition-colors shadow-xs" onClick={() => handleVoiceCommand("Qu'est ce que l'article 1240 du Code Civil ?")}>
+                        <ArrowRight className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-cyan-600 shrink-0 font-bold" />
+                        <span className="text-slate-800 font-semibold">"Qu'est-ce que l'article 1240 du Code Civil ?"</span>
                       </li>
-                      <li className="flex items-center gap-2.5 sm:gap-3 bg-[#182033] hover:bg-[#222d47] p-2.5 sm:p-3 rounded-xl border border-slate-700 cursor-pointer transition-colors shadow-sm" onClick={() => handleVoiceCommand("Explique-moi le RGPD européen en matière de données")}>
-                        <ArrowRight className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-amber-400 shrink-0 font-bold" />
-                        <span className="text-white font-semibold">"Quelles sont les obligations du RGPD européen ?"</span>
+                      <li className="flex items-center gap-2.5 sm:gap-3 bg-slate-50 hover:bg-cyan-50/60 p-2.5 sm:p-3 rounded-xl border border-slate-200 cursor-pointer transition-colors shadow-xs" onClick={() => handleVoiceCommand("Explique-moi le RGPD européen en matière de données")}>
+                        <ArrowRight className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-cyan-600 shrink-0 font-bold" />
+                        <span className="text-slate-800 font-semibold">"Quelles sont les obligations du RGPD européen ?"</span>
                       </li>
                     </ul>
                   </div>
@@ -829,8 +829,8 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
               {/* Transcript bubble (User input) */}
               {transcript && (
                 <div className="flex items-start justify-end gap-2 sm:gap-3 animate-fade-in">
-                  <div className="bg-[#182033] border border-slate-600 rounded-2xl rounded-tr-none px-4 sm:px-5 py-3 sm:py-4 max-w-[90%] sm:max-w-[85%] text-white text-xs sm:text-base md:text-lg shadow-lg">
-                    <p className="font-extrabold text-[10px] sm:text-xs text-amber-400 uppercase tracking-wider mb-1">Vous</p>
+                  <div className="bg-gradient-to-r from-cyan-600 to-teal-600 rounded-2xl rounded-tr-none px-4 sm:px-5 py-3 sm:py-4 max-w-[90%] sm:max-w-[85%] text-white text-xs sm:text-base md:text-lg shadow-sm">
+                    <p className="font-extrabold text-[10px] sm:text-xs text-cyan-100 uppercase tracking-wider mb-1">Vous</p>
                     <p className="leading-relaxed text-white font-semibold">{transcript}</p>
                   </div>
                 </div>
@@ -839,24 +839,24 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
               {/* Response bubble (AI Reply) */}
               {response && (
                 <div className="flex items-start gap-2 sm:gap-3 animate-fade-in">
-                  <div className="bg-[#131c2e] border-2 border-amber-400/40 rounded-2xl rounded-tl-none p-4 sm:p-6 max-w-[96%] sm:max-w-[92%] text-white text-xs sm:text-base md:text-lg shadow-2xl space-y-3 sm:space-y-4">
-                    <p className="font-black text-[11px] sm:text-xs md:text-sm text-amber-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-700 pb-2">
-                      <Sparkles className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-amber-400 animate-pulse shrink-0" />
+                  <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-4 sm:p-6 max-w-[96%] sm:max-w-[92%] text-slate-800 text-xs sm:text-base md:text-lg shadow-sm space-y-3 sm:space-y-4">
+                    <p className="font-black text-[11px] sm:text-xs md:text-sm text-cyan-700 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                      <Sparkles className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-cyan-600 animate-pulse shrink-0" />
                       Assistant Juridique Law Just
                     </p>
                     
-                    <p className="leading-relaxed whitespace-pre-line text-white font-semibold font-sans text-xs sm:text-base md:text-lg">{response}</p>
+                    <p className="leading-relaxed whitespace-pre-line text-slate-800 font-medium font-sans text-xs sm:text-base md:text-lg">{response}</p>
 
                     {/* Extracted references/sources badge display */}
                     {sources.length > 0 && (
-                      <div className="pt-3 border-t border-slate-700 flex flex-wrap gap-1.5 sm:gap-2 items-center">
-                        <span className="text-[11px] sm:text-xs font-extrabold text-amber-400 uppercase flex items-center gap-1.5 mr-1">
-                          <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-400" /> Textes détectés :
+                      <div className="pt-3 border-t border-slate-100 flex flex-wrap gap-1.5 sm:gap-2 items-center">
+                        <span className="text-[11px] sm:text-xs font-extrabold text-slate-700 uppercase flex items-center gap-1.5 mr-1">
+                          <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-cyan-600" /> Textes détectés :
                         </span>
                         {sources.map((src, i) => (
                           <span 
                             key={i}
-                            className="text-[10px] sm:text-xs bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 sm:py-1 rounded-full font-black shadow-sm"
+                            className="text-[10px] sm:text-xs bg-cyan-50 text-cyan-800 border border-cyan-200 px-2.5 py-0.5 sm:py-1 rounded-full font-bold shadow-xs"
                           >
                             {src}
                           </span>
@@ -866,9 +866,9 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
 
                     {/* Real-time Google Search sources & articles display */}
                     {webSources && webSources.length > 0 && (
-                      <div className="pt-3 border-t border-slate-700 space-y-2">
-                        <span className="text-[11px] sm:text-xs font-black text-amber-400 uppercase flex items-center gap-1.5">
-                          <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-400 animate-pulse" /> Articles & Jurisprudences (Google Search) :
+                      <div className="pt-3 border-t border-slate-100 space-y-2">
+                        <span className="text-[11px] sm:text-xs font-black text-cyan-700 uppercase flex items-center gap-1.5">
+                          <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-cyan-600 animate-pulse" /> Articles &amp; Jurisprudences (Google Search) :
                         </span>
                         <div className="grid grid-cols-1 gap-2">
                           {webSources.slice(0, 4).map((source: any, i: number) => (
@@ -877,17 +877,17 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                               href={source.uri}
                               target="_blank"
                               rel="noreferrer"
-                              className="flex items-center justify-between gap-2.5 bg-[#1c2942] hover:bg-[#253658] border border-slate-700 hover:border-amber-400 rounded-xl p-2.5 sm:p-3 transition-all group cursor-pointer shadow-sm text-white"
+                              className="flex items-center justify-between gap-2.5 bg-slate-50 hover:bg-cyan-50/60 border border-slate-200 hover:border-cyan-400 rounded-xl p-2.5 sm:p-3 transition-all group cursor-pointer shadow-xs text-slate-800"
                             >
                               <div className="flex items-center gap-2 min-w-0">
-                                <div className="bg-amber-400/10 border border-amber-400/30 p-1.5 sm:p-2 rounded-lg group-hover:border-amber-400 transition-colors shrink-0">
-                                  <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-400" />
+                                <div className="bg-cyan-100 text-cyan-700 border border-cyan-200 p-1.5 sm:p-2 rounded-lg group-hover:border-cyan-400 transition-colors shrink-0">
+                                  <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-cyan-600" />
                                 </div>
-                                <span className="text-xs sm:text-sm text-white font-bold line-clamp-1 group-hover:text-amber-300 transition-colors">
+                                <span className="text-xs sm:text-sm text-slate-800 font-bold line-clamp-1 group-hover:text-cyan-800 transition-colors">
                                   {source.title || "Source Juridique Officielle"}
                                 </span>
                               </div>
-                              <span className="text-[11px] sm:text-xs text-amber-400 font-extrabold group-hover:underline flex items-center gap-0.5 whitespace-nowrap shrink-0">
+                              <span className="text-[11px] sm:text-xs text-cyan-700 font-extrabold group-hover:underline flex items-center gap-0.5 whitespace-nowrap shrink-0">
                                 Lire <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 transition-transform group-hover:translate-x-0.5" />
                               </span>
                             </a>
@@ -898,19 +898,19 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
 
                     {/* Dynamic PDF generation card widget */}
                     {generatedDoc && (
-                      <div className="mt-3 sm:mt-4 bg-gradient-to-br from-[#1c2942] to-[#131c2e] border-2 border-amber-400/40 rounded-2xl p-3.5 sm:p-4.5 space-y-3 shadow-lg text-white">
+                      <div className="mt-3 sm:mt-4 bg-slate-50 border border-cyan-200 rounded-2xl p-3.5 sm:p-4.5 space-y-3 shadow-sm text-slate-800">
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-center gap-2.5">
-                            <div className="bg-amber-400/20 p-2.5 rounded-xl border border-amber-400/40 shrink-0">
-                              <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-amber-400" />
+                            <div className="bg-cyan-100 text-cyan-700 p-2.5 rounded-xl border border-cyan-200 shrink-0">
+                              <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-700" />
                             </div>
                             <div className="space-y-0.5 min-w-0">
-                              <h4 className="text-[10px] sm:text-xs font-black text-amber-400 uppercase tracking-wide">Document PDF Prêt</h4>
-                              <p className="text-xs sm:text-base text-white font-black line-clamp-1">{generatedDoc.title}</p>
+                              <h4 className="text-[10px] sm:text-xs font-black text-cyan-700 uppercase tracking-wide">Document PDF Prêt</h4>
+                              <p className="text-xs sm:text-base text-slate-900 font-black line-clamp-1">{generatedDoc.title}</p>
                             </div>
                           </div>
-                          <span className="text-[10px] sm:text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-black flex items-center gap-1 shrink-0">
-                            <Check className="h-3 w-3 text-emerald-400" /> Enregistré
+                          <span className="text-[10px] sm:text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 shrink-0">
+                            <Check className="h-3 w-3 text-emerald-600" /> Enregistré
                           </span>
                         </div>
                         
@@ -918,7 +918,7 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                           <button 
                             type="button"
                             onClick={() => downloadDocAsPDF(generatedDoc)}
-                            className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs sm:text-sm font-black py-2 sm:py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
+                            className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white text-xs sm:text-sm font-extrabold py-2 sm:py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
                           >
                             <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             Télécharger PDF
@@ -926,7 +926,7 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                           <button 
                             type="button"
                             onClick={() => setPreviewDoc(generatedDoc)}
-                            className="bg-[#1c2942] hover:bg-[#253658] text-white border border-slate-700 text-xs sm:text-sm font-bold py-2 sm:py-2.5 px-3 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-sm"
+                            className="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs sm:text-sm font-bold py-2 sm:py-2.5 px-3 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-xs"
                           >
                             <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             Aperçu
@@ -940,23 +940,23 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
 
               {/* Error messages if any */}
               {errorMsg && (
-                <div className="bg-red-950/80 border-2 border-red-500/40 rounded-2xl p-3.5 sm:p-4 flex gap-2.5 sm:gap-3 text-red-200 text-xs sm:text-sm shadow-md">
-                  <AlertTriangle className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-red-400 shrink-0" />
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-3.5 sm:p-4 flex gap-2.5 sm:gap-3 text-red-800 text-xs sm:text-sm shadow-xs">
+                  <AlertTriangle className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-red-600 shrink-0" />
                   <div className="space-y-1 min-w-0">
-                    <p className="font-extrabold text-red-200">Une remarque est survenue</p>
-                    <p className="font-semibold text-red-300">{errorMsg}</p>
+                    <p className="font-extrabold text-red-900">Une remarque est survenue</p>
+                    <p className="font-semibold text-red-700">{errorMsg}</p>
                   </div>
                 </div>
               )}
 
               {/* Processing/Listening States */}
               {isListening && (
-                <div className="flex flex-col items-center justify-center py-5 sm:py-6 gap-2.5 sm:gap-3 bg-[#131c2e] rounded-2xl border-2 border-amber-400/40 shadow-lg text-white">
+                <div className="flex flex-col items-center justify-center py-5 sm:py-6 gap-2.5 sm:gap-3 bg-cyan-50/80 rounded-2xl border border-cyan-200 shadow-sm text-cyan-900">
                   <div className="flex gap-1.5 items-center justify-center h-7 sm:h-8">
                     {[1, 2, 3, 4, 5].map((bar) => (
                       <div
                         key={bar}
-                        className="w-1 sm:w-1.5 bg-amber-400 rounded-full animate-wave"
+                        className="w-1 sm:w-1.5 bg-cyan-600 rounded-full animate-wave"
                         style={{
                           animationDelay: `${bar * 0.15}s`,
                           height: '24px'
@@ -964,26 +964,26 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                       ></div>
                     ))}
                   </div>
-                  <p className="text-xs sm:text-base text-amber-400 animate-pulse font-black">
+                  <p className="text-xs sm:text-base text-cyan-800 animate-pulse font-bold">
                     Écoute en cours... Dites votre question juridique.
                   </p>
                 </div>
               )}
 
               {isProcessing && (
-                <div className="flex items-center gap-2.5 sm:gap-3 py-2.5 sm:py-3.5 px-3.5 sm:px-4 bg-[#131c2e] rounded-xl border border-slate-700 text-amber-300 text-xs sm:text-sm font-bold shadow-md">
-                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400 animate-spin shrink-0" />
+                <div className="flex items-center gap-2.5 sm:gap-3 py-2.5 sm:py-3.5 px-3.5 sm:px-4 bg-white rounded-xl border border-slate-200 text-cyan-700 text-xs sm:text-sm font-bold shadow-xs">
+                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-600 animate-spin shrink-0" />
                   <span>Recherche juridique et analyse en cours...</span>
                 </div>
               )}
 
               {isSpeaking && (
-                <div className="flex items-center gap-2.5 sm:gap-3 py-2.5 sm:py-3 px-3.5 sm:px-4 bg-[#131c2e] rounded-xl border border-amber-400/40 text-amber-300 text-xs sm:text-sm font-bold shadow-md">
-                  <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400 animate-pulse shrink-0" />
+                <div className="flex items-center gap-2.5 sm:gap-3 py-2.5 sm:py-3 px-3.5 sm:px-4 bg-white rounded-xl border border-cyan-200 text-cyan-700 text-xs sm:text-sm font-bold shadow-xs">
+                  <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-600 animate-pulse shrink-0" />
                   <span className="truncate">Narration vocale...</span>
                   <button 
                     onClick={stopSpeaking}
-                    className="ml-auto text-xs bg-[#1c2942] hover:bg-[#253658] border border-amber-400/30 px-2.5 py-1 rounded-lg text-amber-300 cursor-pointer font-black shrink-0"
+                    className="ml-auto text-xs bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700 cursor-pointer font-bold shrink-0"
                   >
                     Arrêter
                   </button>
@@ -992,23 +992,23 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
             </div>
 
             {/* Input Controls Bar */}
-            <div className="p-3 sm:p-4 bg-slate-950 border-t border-slate-800 space-y-2.5 sm:space-y-3 shrink-0">
+            <div className="p-3 sm:p-4 bg-white border-t border-slate-100 space-y-2.5 sm:space-y-3 shrink-0">
               
               {/* Attachment Chip List - Compact Icon Only */}
               {attachedFiles.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 pt-0.5 pb-1 border-b border-slate-800 max-h-16 overflow-y-auto">
-                  <div className="flex items-center gap-1 bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0 shadow-sm" title={`${attachedFiles.length} fichier(s) joint(s)`}>
-                    <Paperclip className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                <div className="flex flex-wrap items-center gap-1.5 pt-0.5 pb-1 border-b border-slate-100 max-h-16 overflow-y-auto">
+                  <div className="flex items-center gap-1 bg-cyan-50 border border-cyan-200 text-cyan-700 text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0 shadow-xs" title={`${attachedFiles.length} fichier(s) joint(s)`}>
+                    <Paperclip className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
                     <span>{attachedFiles.length}</span>
                   </div>
                   {attachedFiles.map((file, idx) => (
-                    <div key={idx} className="flex items-center gap-1 bg-[#141d30] border border-amber-400/30 text-white text-[10px] sm:text-[11px] px-2 py-0.5 rounded-lg shadow-sm max-w-[140px] sm:max-w-[180px]">
-                      <FileText className="h-3 w-3 text-amber-400 shrink-0" />
+                    <div key={idx} className="flex items-center gap-1 bg-slate-50 border border-slate-200 text-slate-700 text-[10px] sm:text-[11px] px-2 py-0.5 rounded-lg shadow-xs max-w-[140px] sm:max-w-[180px]">
+                      <FileText className="h-3 w-3 text-cyan-600 shrink-0" />
                       <span className="truncate font-medium">{file.name}</span>
                       <button
                         type="button"
                         onClick={() => removeAttachedFile(idx)}
-                        className="text-slate-400 hover:text-red-400 transition-colors ml-0.5 p-0.5 shrink-0"
+                        className="text-slate-400 hover:text-red-500 transition-colors ml-0.5 p-0.5 shrink-0"
                         title="Supprimer"
                       >
                         <X className="h-3 w-3" />
@@ -1024,17 +1024,17 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                   <button
                     onClick={isListening ? () => recognitionRef.current?.stop() : startListening}
                     disabled={isProcessing}
-                    className={`p-3.5 sm:p-4.5 rounded-full shadow-xl flex items-center justify-center cursor-pointer transition-all duration-300 scale-100 hover:scale-105 ${
+                    className={`p-3.5 sm:p-4.5 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all duration-300 scale-100 hover:scale-105 ${
                       isListening
                         ? 'bg-red-500 text-white animate-pulse shadow-red-500/30 border-2 border-white'
-                        : 'bg-gradient-to-tr from-amber-500 via-amber-600 to-amber-500 text-slate-950 shadow-amber-500/20 border border-amber-300 font-bold'
+                        : 'bg-gradient-to-tr from-cyan-600 via-cyan-500 to-teal-500 text-white shadow-cyan-500/20 border-none font-bold'
                     }`}
                     title={isListening ? "Arrêter l'écoute" : "Démarrer l'écoute vocale"}
                   >
                     {isListening ? <MicOff className="h-5 w-5 sm:h-6 sm:w-6" /> : <Mic className="h-5 w-5 sm:h-6 sm:w-6" />}
                   </button>
                 ) : (
-                  <p className="text-[11px] sm:text-xs text-red-300 text-center font-semibold bg-red-950/60 border border-red-500/30 px-3 py-1.5 rounded-xl">
+                  <p className="text-[11px] sm:text-xs text-red-600 text-center font-semibold bg-red-50 border border-red-200 px-3 py-1.5 rounded-xl">
                     La reconnaissance vocale n'est pas supportée sur ce navigateur. Utilisez le clavier ci-dessous.
                   </p>
                 )}
@@ -1045,7 +1045,7 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                 <button 
                   type="button"
                   onClick={() => voiceFileInputRef.current?.click()}
-                  className="p-2 sm:p-3 bg-[#131c2e] hover:bg-[#1c2942] text-amber-400 hover:text-amber-300 border border-slate-700 hover:border-amber-400/50 rounded-xl cursor-pointer transition-all flex items-center justify-center shrink-0 shadow-sm"
+                  className="p-2 sm:p-3 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl cursor-pointer transition-all flex items-center justify-center shrink-0 shadow-xs"
                   title="Joindre un document ou dossier"
                 >
                   <Paperclip className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
@@ -1066,7 +1066,7 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                     name="manualCommand"
                     placeholder={attachedFiles.length > 0 ? `Posez votre question sur les ${attachedFiles.length} document(s)...` : "Posez votre question juridique ici..."}
                     disabled={isProcessing}
-                    className="w-full bg-[#131c2e] border border-slate-700 text-white placeholder-slate-400 text-xs sm:text-sm rounded-xl pl-3 pr-7 py-2 sm:py-2.5 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/20 transition-all disabled:opacity-50 font-medium"
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs sm:text-sm rounded-xl pl-3 pr-7 py-2 sm:py-2.5 focus:bg-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/20 transition-all disabled:opacity-50 font-medium"
                   />
                   <span className="absolute right-2 top-2.5 sm:top-3 text-slate-400 text-xs font-semibold flex items-center">
                     <CornerDownLeft className="h-3.5 w-3.5" />
@@ -1076,7 +1076,7 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 hover:from-amber-400 hover:to-amber-500 active:from-amber-600 text-slate-950 border border-amber-300 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl cursor-pointer text-xs sm:text-sm font-black shadow-md shadow-amber-900/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center gap-1 sm:gap-1.5 shrink-0"
+                  className="bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl cursor-pointer text-xs sm:text-sm font-black shadow-md shadow-cyan-900/10 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center gap-1 sm:gap-1.5 shrink-0"
                 >
                   <span>Envoyer</span>
                   <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -1090,31 +1090,31 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
 
       {/* Floating preview modal for AI-generated document */}
       {previewDoc && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-[#0f172a] border border-secondary-700/50 rounded-2xl max-w-2xl w-full p-6 flex flex-col max-h-[85vh] shadow-2xl animate-slide-up backdrop-blur-lg">
-            <div className="flex items-center justify-between pb-4 border-b border-secondary-700/50 mb-4">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <FileText className="h-5 w-5 text-accent-400" />
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 flex flex-col max-h-[85vh] shadow-2xl shadow-cyan-900/10 animate-slide-up">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <FileText className="h-5 w-5 text-cyan-600" />
                 {previewDoc.title}
               </h3>
               <button 
                 type="button"
                 onClick={() => setPreviewDoc(null)}
-                className="text-secondary-300 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-lg transition-colors cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto whitespace-pre-wrap font-serif text-white text-sm leading-relaxed p-5 bg-[#1a2236] border border-secondary-700/40 rounded-xl scrollbar-thin">
+            <div className="flex-1 overflow-y-auto whitespace-pre-wrap font-serif text-slate-800 text-sm leading-relaxed p-5 bg-slate-50 border border-slate-200 rounded-2xl scrollbar-thin">
               {previewDoc.content}
             </div>
             
-            <div className="flex justify-end gap-3 pt-4 border-t border-white/10 mt-4">
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-4">
               <button 
                 type="button"
                 onClick={() => setPreviewDoc(null)}
-                className="bg-white/5 hover:bg-white/10 text-white text-xs font-semibold py-2 px-4 rounded-lg transition-colors border border-white/5 cursor-pointer"
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-4 rounded-xl transition-colors border border-slate-200 cursor-pointer"
               >
                 Fermer
               </button>
@@ -1124,7 +1124,7 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                   downloadDocAsPDF(previewDoc);
                   setPreviewDoc(null);
                 }}
-                className="bg-accent-600 hover:bg-accent-500 text-white text-xs font-semibold py-2 px-4 rounded-lg flex items-center gap-1.5 transition-colors shadow-md cursor-pointer"
+                className="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold py-2 px-4 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
               >
                 <Download className="h-4 w-4" />
                 Imprimer / PDF

@@ -60,15 +60,15 @@ const Footer: React.FC = () => {
       <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* OFFICIAL GOVERNMENT & INSTITUTIONAL EXTERNAL LINKS BAR */}
-        <div className="py-8 border-b border-slate-800/80">
+        <div className="py-8 border-b border-slate-200">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-amber-400" />
-              <h4 className="text-sm font-black uppercase tracking-wider text-white">
+              <Building2 className="w-5 h-5 text-cyan-600" />
+              <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">
                 {t('footer.gov_title', 'Sources Officielles Gouvernementales & Liens Institutionnels')}
               </h4>
             </div>
-            <span className="text-xs font-bold text-slate-400">
+            <span className="text-xs font-bold text-slate-500">
               {t('footer.ong_partner', '🔗 Partenaire d\'Accès Universel au Droit • ONG FranceJustice')}
             </span>
           </div>
@@ -80,17 +80,17 @@ const Footer: React.FC = () => {
                 href={gov.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-900/90 border border-slate-800/90 hover:border-indigo-500/60 p-2.5 rounded-xl transition-all group flex flex-col justify-between"
+                className="bg-white border border-slate-200 hover:border-cyan-400 hover:shadow-md p-2.5 rounded-xl transition-all group flex flex-col justify-between"
               >
                 <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-indigo-400 block mb-0.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-cyan-700 block mb-0.5">
                     {gov.category}
                   </span>
-                  <span className="text-xs font-bold text-slate-200 group-hover:text-white flex items-center gap-1">
+                  <span className="text-xs font-bold text-slate-800 group-hover:text-cyan-700 flex items-center gap-1">
                     {gov.name}
                   </span>
                 </div>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400 mt-2 self-end transition-colors" />
+                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-600 mt-2 self-end transition-colors" />
               </a>
             ))}
           </div>
@@ -101,31 +101,31 @@ const Footer: React.FC = () => {
           {/* Company Info */}
           <div className="space-y-5">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-indigo-700 shadow-lg shadow-primary-500/30">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-600 to-teal-500 text-white shadow-md shadow-cyan-600/20">
                 <Scale className="h-6 w-6 text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold text-white tracking-tight">France Justice</span>
-                <p className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5 mt-0.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  ONG Internationale & Services 100% Directs
+                <span className="text-xl font-extrabold text-slate-900 tracking-tight">France Justice</span>
+                <p className="text-xs text-cyan-700 font-bold flex items-center gap-1.5 mt-0.5">
+                  <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
+                  ONG Internationale & Services Directs
                 </p>
               </div>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              ONG internationale indépendante dédiée à la démocratisation du droit, l'assistance aux victimes, la formation certifiante et la mise en relation avec des avocats certifiés.
+            <p className="text-slate-600 text-sm leading-relaxed">
+              ONG internationale indépendante dédiée à la démocratisation du droit, l'assistance aux citoyens, la formation certifiante et la mise en relation avec des avocats certifiés.
             </p>
             <div className="space-y-2.5 pt-2">
-              <div className="flex items-center space-x-3 text-sm text-slate-300">
-                <Mail className="h-4 w-4 text-primary-400 shrink-0" />
+              <div className="flex items-center space-x-3 text-sm text-slate-700 font-medium">
+                <Mail className="h-4 w-4 text-cyan-600 shrink-0" />
                 <span>contact@francejustice.com</span>
               </div>
-              <div className="flex items-center space-x-3 text-sm text-slate-300">
-                <Phone className="h-4 w-4 text-primary-400 shrink-0" />
-                <span>+33607517416</span>
+              <div className="flex items-center space-x-3 text-sm text-slate-700 font-medium">
+                <Phone className="h-4 w-4 text-cyan-600 shrink-0" />
+                <span>+33 6 07 51 74 16</span>
               </div>
-              <div className="flex items-center space-x-3 text-sm text-slate-300">
-                <MapPin className="h-4 w-4 text-primary-400 shrink-0" />
+              <div className="flex items-center space-x-3 text-sm text-slate-700 font-medium">
+                <MapPin className="h-4 w-4 text-cyan-600 shrink-0" />
                 <span className="text-xs">1275 route de chateau neuf, 26320 Saint-Marcel-lès-Valence</span>
               </div>
             </div>
@@ -133,7 +133,7 @@ const Footer: React.FC = () => {
 
           {/* Services */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 mb-5 pb-2 border-b border-slate-800/80">
+            <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-5 pb-2 border-b border-slate-200">
               {t('footer.services_title', 'Nos Outils & Services')}
             </h3>
             <ul className="space-y-3">
@@ -141,9 +141,9 @@ const Footer: React.FC = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-slate-400 hover:text-primary-400 transition-colors text-sm font-medium flex items-center gap-2 group"
+                    className="text-slate-600 hover:text-cyan-700 transition-colors text-sm font-semibold flex items-center gap-2 group"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-primary-500 transition-colors" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-cyan-500 transition-colors" />
                     {link.name}
                   </a>
                 </li>
@@ -153,7 +153,7 @@ const Footer: React.FC = () => {
 
           {/* Resources */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 mb-5 pb-2 border-b border-slate-800/80">
+            <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-5 pb-2 border-b border-slate-200">
               {t('footer.resources_title', 'Ressources & ONG')}
             </h3>
             <ul className="space-y-3">
@@ -161,9 +161,9 @@ const Footer: React.FC = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-slate-400 hover:text-primary-400 transition-colors text-sm font-medium flex items-center gap-2 group"
+                    className="text-slate-600 hover:text-cyan-700 transition-colors text-sm font-semibold flex items-center gap-2 group"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-primary-500 transition-colors" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-cyan-500 transition-colors" />
                     {link.name}
                   </a>
                 </li>
@@ -174,21 +174,21 @@ const Footer: React.FC = () => {
           {/* Legal & Newsletter */}
           <div className="space-y-6">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 mb-5 pb-2 border-b border-slate-800/80">
+              <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-5 pb-2 border-b border-slate-200">
                 {t('footer.newsletter_title', 'Lettre d\'Information')}
               </h3>
-              <p className="text-slate-400 text-sm mb-3">
+              <p className="text-slate-600 text-sm mb-3">
                 Restez informé des évolutions de la loi et des nouvelles formations diplômantes.
               </p>
               <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
                 <input
                   type="email"
                   placeholder={t('footer.newsletter_placeholder', 'Votre e-mail...')}
-                  className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                 />
                 <button 
                   type="submit"
-                  className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 rounded-xl text-sm font-bold text-white shadow-md shadow-primary-600/20 transition-all shrink-0"
+                  className="px-4 py-2.5 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 rounded-xl text-sm font-bold text-white shadow-md shadow-cyan-600/20 transition-all shrink-0 cursor-pointer"
                 >
                   Rejoindre
                 </button>
@@ -196,10 +196,10 @@ const Footer: React.FC = () => {
             </div>
 
             <div>
-              <ul className="flex flex-wrap gap-4 text-xs text-slate-400">
+              <ul className="flex flex-wrap gap-4 text-xs text-slate-500 font-medium">
                 {footerLinks.legal.map((link) => (
                   <li key={link.name}>
-                    <a href={link.href} className="hover:text-slate-200 transition-colors">
+                    <a href={link.href} className="hover:text-cyan-700 transition-colors">
                       {link.name}
                     </a>
                   </li>
@@ -210,18 +210,18 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Footer */}
-        <div className="border-t border-slate-800/80 py-6">
+        <div className="border-t border-slate-200 py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex flex-col sm:flex-row items-center gap-2 text-xs text-slate-400">
+            <div className="flex flex-col sm:flex-row items-center gap-2 text-xs text-slate-500">
               <span>© {currentYear} ONG FranceJustice (Just-Law). Tous droits réservés.</span>
-              <span className="hidden sm:inline text-slate-700">•</span>
-              <span className="text-slate-400">
+              <span className="hidden sm:inline text-slate-300">•</span>
+              <span>
                 Développé avec excellence par{' '}
                 <a
                   href="https://www.marocgestionentreprendre.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold text-primary-400 hover:text-primary-300 transition-colors"
+                  className="font-bold text-cyan-700 hover:text-cyan-600 transition-colors"
                 >
                   Maroc Gestion Entreprendre
                 </a>
@@ -229,12 +229,12 @@ const Footer: React.FC = () => {
             </div>
 
             {/* Réseaux sociaux */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
-                  className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 hover:border-slate-700 transition-all"
+                  className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-cyan-600 hover:border-cyan-300 hover:bg-cyan-50 transition-all shadow-xs"
                   aria-label={social.name}
                 >
                   <social.icon className="h-4 w-4" />

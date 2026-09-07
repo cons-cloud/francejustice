@@ -12,7 +12,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="space-y-2">
         {label && (
-          <label className="text-sm font-medium text-secondary-700">
+          <label className="text-sm font-bold text-slate-800">
             {label}
           </label>
         )}

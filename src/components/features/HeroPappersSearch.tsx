@@ -156,21 +156,21 @@ export const HeroPappersSearch: React.FC = () => {
   const getTypeBadge = (type: string) => {
     switch (type) {
       case 'pappers_entreprise':
-        return { label: '🏢 Pappers Entreprise (RCS & RNE)', bg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' };
+        return { label: '🏢 Pappers Entreprise (RCS & RNE)', bg: 'bg-teal-50 text-teal-800 border-teal-200' };
       case 'jurisprudence':
-        return { label: 'Décision de Justice', bg: 'bg-amber-500/20 text-amber-300 border-amber-500/30' };
+        return { label: 'Décision de Justice', bg: 'bg-cyan-50 text-cyan-800 border-cyan-200' };
       case 'code':
-        return { label: 'Code & Texte de Loi', bg: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' };
+        return { label: 'Code & Texte de Loi', bg: 'bg-sky-50 text-sky-800 border-sky-200' };
       case 'convention_collective':
-        return { label: 'Convention Collective', bg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' };
+        return { label: 'Convention Collective', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' };
       case 'bofip':
-        return { label: 'BOFiP (Impôts)', bg: 'bg-blue-500/20 text-blue-300 border-blue-500/30' };
+        return { label: 'BOFiP (Impôts)', bg: 'bg-blue-50 text-blue-800 border-blue-200' };
       case 'boss':
-        return { label: 'BOSS (Secu)', bg: 'bg-teal-500/20 text-teal-300 border-teal-500/30' };
+        return { label: 'BOSS (Secu)', bg: 'bg-teal-50 text-teal-800 border-teal-200' };
       case 'convention_fiscale':
-        return { label: 'Convention Fiscale Int.', bg: 'bg-purple-500/20 text-purple-300 border-purple-400/30' };
+        return { label: 'Convention Fiscale Int.', bg: 'bg-indigo-50 text-indigo-800 border-indigo-200' };
       default:
-        return { label: 'Ressource Légale', bg: 'bg-slate-500/20 text-slate-300 border-slate-500/30' };
+        return { label: 'Ressource Légale', bg: 'bg-slate-100 text-slate-700 border-slate-200' };
     }
   };
 
@@ -185,18 +185,18 @@ export const HeroPappersSearch: React.FC = () => {
 
   return (
     <div className="w-full max-w-5xl mx-auto my-6 z-20 relative">
-      {/* Container with Pappers Justice Glassmorphism Aesthetic */}
-      <div className="bg-slate-900/90 backdrop-blur-2xl border border-indigo-500/30 rounded-3xl p-4 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)] text-white relative overflow-hidden">
+      {/* Container with Pappers Justice Aesthetic (Pure Light Mode) */}
+      <div className="bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-3xl p-4 sm:p-6 shadow-[0_15px_40px_rgba(6,182,212,0.08)] text-slate-900 relative overflow-hidden">
         
         {/* Glow Background accent */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-100/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-teal-100/30 rounded-full blur-3xl pointer-events-none" />
 
         {/* ── DROPDOWN MENU DE SÉLECTION (Category Dropdown Menu) ── */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-3.5 mb-4 gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200/80 pb-3.5 mb-4 gap-3 relative z-10">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
-            <label htmlFor="search-category-select" className="text-xs sm:text-sm font-extrabold text-amber-300 uppercase tracking-wider flex items-center gap-2">
-              <Scale className="w-4 h-4 text-amber-400" />
+            <label htmlFor="search-category-select" className="text-xs sm:text-sm font-extrabold text-cyan-800 uppercase tracking-wider flex items-center gap-2">
+              <Scale className="w-4 h-4 text-cyan-600" />
               <span>{t('search.domain_label', 'Domaine de Recherche :')}</span>
             </label>
             
@@ -210,38 +210,38 @@ export const HeroPappersSearch: React.FC = () => {
                   setActiveTab(newTab);
                   setSearchResults(null);
                 }}
-                className="w-full bg-slate-950 text-white font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl border-2 border-indigo-500/60 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 appearance-none cursor-pointer shadow-xl transition-all pr-10"
+                className="w-full bg-slate-50 text-slate-900 font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl border-2 border-cyan-500/40 outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-500/20 appearance-none cursor-pointer shadow-sm transition-all pr-10"
               >
-                <option value="pappers_entreprises" className="bg-slate-900 text-emerald-300 font-bold py-2">
+                <option value="pappers_entreprises" className="bg-white text-slate-900 font-bold py-2">
                   {t('search.opt_pappers', '🏢 Justice & Droit des Entreprises, Salariés & Sociétés (Pappers RNE)')}
                 </option>
-                <option value="decisions" className="bg-slate-900 text-amber-300 font-bold py-2">
+                <option value="decisions" className="bg-white text-slate-900 font-bold py-2">
                   {t('search.opt_decisions', '⚖️ Décisions & Jurisprudence')}
                 </option>
-                <option value="ia_question" className="bg-slate-900 text-indigo-300 font-bold py-2">
+                <option value="ia_question" className="bg-white text-slate-900 font-bold py-2">
                   {t('search.opt_ia', '✨ Question Juridique IA (GÉNIA-L)')}
                 </option>
-                <option value="codes" className="bg-slate-900 text-blue-300 font-bold py-2">
+                <option value="codes" className="bg-white text-slate-900 font-bold py-2">
                   {t('search.opt_codes', '📜 Textes de Loi & Codes Officiels')}
                 </option>
-                <option value="conventions" className="bg-slate-900 text-emerald-300 font-bold py-2">
+                <option value="conventions" className="bg-white text-slate-900 font-bold py-2">
                   {t('search.opt_conventions', '🤝 Conventions Collectives (IDCC)')}
                 </option>
-                <option value="bofip_boss" className="bg-slate-900 text-cyan-300 font-bold py-2">
+                <option value="bofip_boss" className="bg-white text-slate-900 font-bold py-2">
                   {t('search.opt_bofip', '💼 BOFiP, BOSS & Conventions Fiscales')}
                 </option>
               </select>
-              <ChevronDown className="w-4 h-4 text-amber-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-cyan-600 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
 
           {/* Quick Indicator Badge */}
           <div className="flex items-center gap-2 self-end sm:self-center">
-            <span className="text-[11px] font-semibold text-slate-400">{t('search.official_base', 'Base officielle :')}</span>
-            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-200 border border-emerald-500/40 shadow-sm flex items-center gap-1.5">
+            <span className="text-[11px] font-semibold text-slate-500">{t('search.official_base', 'Base officielle :')}</span>
+            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-cyan-50 text-cyan-800 border border-cyan-200 shadow-sm flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-600"></span>
               </span>
               {activeTab === 'pappers_entreprises' && t('search.base_pappers', '🏢 Justice & Droit des Entreprises (Pappers RNE Temps Réel)')}
               {activeTab === 'decisions' && t('search.base_decisions', '⚖️ Jurisprudence Française')}
@@ -255,9 +255,9 @@ export const HeroPappersSearch: React.FC = () => {
 
         {/* ── QUICK PRESETS FOR PAPPERS ENTREPRISES ── */}
         {activeTab === 'pappers_entreprises' && (
-          <div className="flex flex-wrap items-center gap-2 mb-3 px-1">
-            <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
-              <Building2 className="w-3.5 h-3.5 text-emerald-400" /> {t('search.popular_companies', 'Sociétés populaires :')}
+          <div className="flex flex-wrap items-center gap-2 mb-3 px-1 relative z-10">
+            <span className="text-xs font-bold text-slate-600 flex items-center gap-1">
+              <Building2 className="w-3.5 h-3.5 text-cyan-600" /> {t('search.popular_companies', 'Sociétés populaires :')}
             </span>
             {quickPappersPresets.map((p) => (
               <button
@@ -267,7 +267,7 @@ export const HeroPappersSearch: React.FC = () => {
                   setQuery(p.query);
                   handleSearch(undefined, p.query);
                 }}
-                className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/50 text-slate-300 hover:text-emerald-300 text-xs font-semibold transition-all cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-cyan-50 border border-slate-200 hover:border-cyan-300 text-slate-700 hover:text-cyan-800 text-xs font-semibold transition-all cursor-pointer"
               >
                 {p.label}
               </button>
@@ -276,11 +276,11 @@ export const HeroPappersSearch: React.FC = () => {
         )}
 
         {/* ── MAIN SEARCH FORM ── */}
-        <form onSubmit={(e) => handleSearch(e)} className="space-y-3">
-          <div className="relative flex flex-col md:flex-row items-stretch gap-2 bg-slate-950/80 border border-slate-700/80 rounded-2xl p-2 focus-within:border-indigo-500 transition-all shadow-inner">
+        <form onSubmit={(e) => handleSearch(e)} className="space-y-3 relative z-10">
+          <div className="relative flex flex-col md:flex-row items-stretch gap-2 bg-slate-50/80 border border-slate-200/90 rounded-2xl p-2 focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all shadow-inner">
             
             <div className="flex-1 flex items-center px-3 py-1 gap-2.5">
-              <Search className="w-5 h-5 text-indigo-400 shrink-0" />
+              <Search className="w-5 h-5 text-cyan-600 shrink-0" />
               <input
                 type="text"
                 value={query}
@@ -305,7 +305,7 @@ export const HeroPappersSearch: React.FC = () => {
                     ? t('search.ph_conventions', 'Nom d\'entreprise, IDCC 1486 (Syntec), HCR 1979, Bâtiment...')
                     : t('search.ph_bofip', 'BOFiP frais de déplacement, BOSS avantages en nature, Convention fiscale France-Maroc...')
                 }
-                className="w-full bg-transparent text-white placeholder:text-slate-400 text-sm sm:text-base outline-none font-medium"
+                className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none font-medium"
               />
               {query && (
                 <button 
@@ -314,7 +314,7 @@ export const HeroPappersSearch: React.FC = () => {
                     setQuery('');
                     if (activeTab === 'pappers_entreprises') handleSearch(undefined, '');
                   }} 
-                  className="text-slate-400 hover:text-white"
+                  className="text-slate-400 hover:text-slate-700"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -322,15 +322,15 @@ export const HeroPappersSearch: React.FC = () => {
             </div>
 
             {/* Controls right side */}
-            <div className="flex items-center gap-2 justify-end px-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
+            <div className="flex items-center gap-2 justify-end px-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200">
               {/* Exact Match Toggle */}
               <button
                 type="button"
                 onClick={() => setExactMatch(!exactMatch)}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   exactMatch 
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' 
-                    : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 border border-slate-700'
+                    ? 'bg-cyan-100 text-cyan-900 border border-cyan-300' 
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
                 }`}
                 title={t('search.exact_title', 'Rechercher l\'expression exacte')}
               >
@@ -344,11 +344,11 @@ export const HeroPappersSearch: React.FC = () => {
                 onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
                   showAdvancedFilters || filterJurisdiction !== 'all' || filterCategory !== 'all' || filterRef
-                    ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/50' 
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                    ? 'bg-cyan-50 text-cyan-800 border border-cyan-300' 
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
                 }`}
               >
-                <SlidersHorizontal className="w-4 h-4 text-indigo-400" />
+                <SlidersHorizontal className="w-4 h-4 text-cyan-600" />
                 <span>{t('search.advanced_btn', 'Recherche avancée')}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
               </button>
@@ -357,13 +357,13 @@ export const HeroPappersSearch: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSearching}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-indigo-600 to-purple-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
               >
                 {isSearching ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <Sparkles className="w-4 h-4 text-cyan-200" />
                     <span>{t('search.btn_submit', 'Rechercher')}</span>
                   </>
                 )}
@@ -380,18 +380,18 @@ export const HeroPappersSearch: React.FC = () => {
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="overflow-hidden border-t border-slate-800/80 mt-4 pt-4"
+              className="overflow-hidden border-t border-slate-200/80 mt-4 pt-4"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 {/* Jurisdiction filter */}
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
                     Juridiction / Greffe RCS
                   </label>
                   <select
                     value={filterJurisdiction}
                     onChange={(e) => setFilterJurisdiction(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-2.5 outline-none focus:border-indigo-500"
+                    className="w-full bg-white border border-slate-200 text-slate-800 text-xs rounded-xl p-2.5 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
                   >
                     <option value="all">Tous les greffes & juridictions</option>
                     <option value="Greffe Paris">Greffe du Tribunal de Commerce de Paris</option>
@@ -405,13 +405,13 @@ export const HeroPappersSearch: React.FC = () => {
 
                 {/* Category filter */}
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
                     Forme Juridique / Secteur
                   </label>
                   <select
                     value={filterCategory}
                     onChange={(e) => setFilterCategory(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-2.5 outline-none focus:border-indigo-500"
+                    className="w-full bg-white border border-slate-200 text-slate-800 text-xs rounded-xl p-2.5 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
                   >
                     <option value="all">Toutes les formes</option>
                     <option value="affaires">Sociétés commerciales (SAS, SA, SARL)</option>
@@ -424,13 +424,13 @@ export const HeroPappersSearch: React.FC = () => {
 
                 {/* Period filter */}
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
                     Année Immatriculation
                   </label>
                   <select
                     value={filterPeriod}
                     onChange={(e) => setFilterPeriod(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-2.5 outline-none focus:border-indigo-500"
+                    className="w-full bg-white border border-slate-200 text-slate-800 text-xs rounded-xl p-2.5 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
                   >
                     <option value="all">Toutes les années</option>
                     <option value="2026">2026 (Immatriculations récentes)</option>
@@ -442,7 +442,7 @@ export const HeroPappersSearch: React.FC = () => {
 
                 {/* Reference / SIREN Input */}
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
                     N° SIREN / SIRET / NAF
                   </label>
                   <input
@@ -450,13 +450,13 @@ export const HeroPappersSearch: React.FC = () => {
                     value={filterRef}
                     onChange={(e) => setFilterRef(e.target.value)}
                     placeholder="Ex: 808741870, 70.10Z..."
-                    className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl p-2.5 outline-none focus:border-indigo-500"
+                    className="w-full bg-white border border-slate-200 text-slate-800 text-xs rounded-xl p-2.5 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
                   />
                 </div>
               </div>
 
               <div className="flex justify-between items-center mt-3 px-1 text-xs">
-                <span className="text-slate-400">Base officielle synchronisée en temps réel avec Pappers.fr & le Registre National des Entreprises (RNE)</span>
+                <span className="text-slate-500">Base officielle synchronisée en temps réel avec Pappers.fr & le Registre National des Entreprises (RNE)</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -466,7 +466,7 @@ export const HeroPappersSearch: React.FC = () => {
                     setFilterRef('');
                     setExactMatch(false);
                   }}
-                  className="text-indigo-400 hover:underline font-semibold cursor-pointer"
+                  className="text-cyan-700 hover:underline font-semibold cursor-pointer"
                 >
                   Réinitialiser les filtres
                 </button>
@@ -482,11 +482,11 @@ export const HeroPappersSearch: React.FC = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 15 }}
-              className="mt-6 border-t border-slate-800 pt-6 space-y-4"
+              className="mt-6 border-t border-slate-200 pt-6 space-y-4"
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg font-extrabold flex items-center gap-2 text-white">
-                  <FileCheck className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-base sm:text-lg font-extrabold flex items-center gap-2 text-slate-900">
+                  <FileCheck className="w-5 h-5 text-cyan-600" />
                   <span>
                     {activeTab === 'pappers_entreprises' 
                       ? `Fiches Pappers Entreprises (${searchResults.length} résultat(s) certifié(s))` 
@@ -495,7 +495,7 @@ export const HeroPappersSearch: React.FC = () => {
                 </h3>
                 <button
                   onClick={() => setSearchResults(null)}
-                  className="text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded-lg bg-slate-800 cursor-pointer"
+                  className="text-xs text-slate-600 hover:text-slate-900 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 cursor-pointer"
                 >
                   Fermer
                 </button>
@@ -503,16 +503,16 @@ export const HeroPappersSearch: React.FC = () => {
 
               {/* AI Answer / Pappers Sync Banner */}
               {aiAnswer && (
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-950 via-emerald-950/70 to-indigo-950 border border-emerald-500/40 text-emerald-100 text-xs sm:text-sm leading-relaxed space-y-2 shadow-lg">
-                  <div className="flex items-center justify-between border-b border-emerald-500/30 pb-2">
-                    <span className="font-extrabold text-emerald-300 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Sync Pappers Entreprises (Temps Réel)
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-50 via-teal-50/70 to-sky-50 border border-cyan-200 text-slate-800 text-xs sm:text-sm leading-relaxed space-y-2 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-cyan-200/80 pb-2">
+                    <span className="font-extrabold text-cyan-900 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-cyan-600" /> Sync Pappers Entreprises (Temps Réel)
                     </span>
-                    <span className="text-[10px] bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded-full border border-emerald-400/30 font-bold">
+                    <span className="text-[10px] bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded-full border border-cyan-300 font-bold">
                       Base RNE / SIRENE
                     </span>
                   </div>
-                  <div className="whitespace-pre-line font-medium text-slate-200">{aiAnswer}</div>
+                  <div className="whitespace-pre-line font-medium text-slate-700">{aiAnswer}</div>
                 </div>
               )}
 
@@ -526,10 +526,10 @@ export const HeroPappersSearch: React.FC = () => {
                   return (
                     <div
                       key={res.id}
-                      className={`p-4 rounded-2xl bg-slate-950/90 border transition-all flex flex-col justify-between space-y-3 group ${
+                      className={`p-4 rounded-2xl bg-white border transition-all flex flex-col justify-between space-y-3 group ${
                         isPappers 
-                          ? 'border-emerald-500/40 hover:border-emerald-400 shadow-md shadow-emerald-950/30' 
-                          : 'border-slate-800 hover:border-indigo-500/60'
+                          ? 'border-cyan-200 hover:border-cyan-500 shadow-sm hover:shadow-md hover:shadow-cyan-500/10' 
+                          : 'border-slate-200 hover:border-cyan-500 hover:shadow-sm'
                       }`}
                     >
                       <div className="space-y-2">
@@ -537,66 +537,66 @@ export const HeroPappersSearch: React.FC = () => {
                           <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${badge.bg}`}>
                             {badge.label}
                           </span>
-                          <span className="text-[11px] font-semibold text-slate-400">
+                          <span className="text-[11px] font-semibold text-slate-500">
                             {res.date}
                           </span>
                         </div>
 
-                        <h4 className="font-bold text-sm sm:text-base text-white group-hover:text-emerald-300 transition-colors flex items-center gap-2">
-                          {isPappers && <Building2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                        <h4 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-cyan-700 transition-colors flex items-center gap-2">
+                          {isPappers && <Building2 className="w-4 h-4 text-cyan-600 shrink-0" />}
                           <span className="line-clamp-2">{res.title}</span>
                         </h4>
 
                         {/* Extra Pappers enterprise details grid */}
                         {isPappers && details && (
-                          <div className="grid grid-cols-2 gap-1.5 p-2.5 rounded-xl bg-slate-900/90 border border-emerald-900/50 text-[11px]">
+                          <div className="grid grid-cols-2 gap-1.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px]">
                             <div>
-                              <span className="text-slate-400">Forme : </span>
-                              <span className="text-emerald-300 font-semibold">{details.formeJuridique}</span>
+                              <span className="text-slate-500">Forme : </span>
+                              <span className="text-cyan-900 font-semibold">{details.formeJuridique}</span>
                             </div>
                             <div>
-                              <span className="text-slate-400">Capital : </span>
-                              <span className="text-amber-300 font-semibold">{details.capital || 'Variable'}</span>
+                              <span className="text-slate-500">Capital : </span>
+                              <span className="text-amber-800 font-semibold">{details.capital || 'Variable'}</span>
                             </div>
                             <div className="col-span-2">
-                              <span className="text-slate-400">Siège : </span>
-                              <span className="text-slate-200 font-medium">{details.adresse}</span>
+                              <span className="text-slate-500">Siège : </span>
+                              <span className="text-slate-800 font-medium">{details.adresse}</span>
                             </div>
                             {details.dirigeants && details.dirigeants[0] && (
                               <div className="col-span-2">
-                                <span className="text-slate-400">Dirigeant : </span>
-                                <span className="text-indigo-300 font-semibold">{details.dirigeants[0].nom} ({details.dirigeants[0].qualite})</span>
+                                <span className="text-slate-500">Dirigeant : </span>
+                                <span className="text-cyan-800 font-semibold">{details.dirigeants[0].nom} ({details.dirigeants[0].qualite})</span>
                               </div>
                             )}
                           </div>
                         )}
 
                         {!isPappers && (
-                          <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed font-normal">
+                          <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed font-normal">
                             {res.summary}
                           </p>
                         )}
                       </div>
 
                       {/* Card Footer Actions */}
-                      <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                        <span className="text-[11px] font-semibold text-emerald-300 truncate max-w-[180px]">
+                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span className="text-[11px] font-semibold text-cyan-700 truncate max-w-[180px]">
                           {res.reference}
                         </span>
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
                             onClick={() => copyToClipboard(details?.siren || res.reference, res.id)}
-                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
                             title="Copier le SIREN / la référence"
                           >
-                            {copiedId === res.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                            {copiedId === res.id ? <Check className="w-3.5 h-3.5 text-cyan-600" /> : <Copy className="w-3.5 h-3.5" />}
                           </button>
 
                           <button
                             type="button"
                             onClick={() => setSelectedDoc(res)}
-                            className="px-3 py-1 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm"
+                            className="px-3 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm"
                           >
                             <span>Fiche Pappers</span>
                             <ArrowRight className="w-3 h-3" />
@@ -615,33 +615,33 @@ export const HeroPappersSearch: React.FC = () => {
       {/* ── FULL DOCUMENT & PAPPERS ENTERPRISE VIEW MODAL ── */}
       <AnimatePresence>
         {selectedDoc && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-emerald-500/40 text-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+              className="bg-white border border-slate-200 text-slate-900 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
             >
               {/* Modal Header */}
-              <div className="p-6 border-b border-slate-800 flex items-start justify-between bg-slate-950/80">
+              <div className="p-6 border-b border-slate-200 flex items-start justify-between bg-slate-50/80">
                 <div className="space-y-1.5 pr-4">
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${getTypeBadge(selectedDoc.type).bg}`}>
                       {getTypeBadge(selectedDoc.type).label}
                     </span>
-                    <span className="text-xs text-slate-400 font-semibold">{selectedDoc.reference}</span>
+                    <span className="text-xs text-slate-500 font-semibold">{selectedDoc.reference}</span>
                   </div>
-                  <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
-                    {selectedDoc.type === 'pappers_entreprise' && <Building2 className="w-6 h-6 text-emerald-400" />}
+                  <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
+                    {selectedDoc.type === 'pappers_entreprise' && <Building2 className="w-6 h-6 text-cyan-600" />}
                     <span>{selectedDoc.title}</span>
                   </h3>
                   {selectedDoc.jurisdiction && (
-                    <p className="text-xs text-emerald-300 font-medium">{selectedDoc.jurisdiction}</p>
+                    <p className="text-xs text-cyan-700 font-medium">{selectedDoc.jurisdiction}</p>
                   )}
                 </div>
                 <button
                   onClick={() => setSelectedDoc(null)}
-                  className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                  className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -655,57 +655,57 @@ export const HeroPappersSearch: React.FC = () => {
                   <div className="space-y-6">
                     {/* Key Metrics Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Forme Juridique</span>
-                        <p className="text-xs font-bold text-emerald-300">{selectedDoc.pappersDetails.formeJuridique}</p>
+                      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Forme Juridique</span>
+                        <p className="text-xs font-bold text-cyan-900">{selectedDoc.pappersDetails.formeJuridique}</p>
                       </div>
 
-                      <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Capital Social</span>
-                        <p className="text-xs font-bold text-amber-300">{selectedDoc.pappersDetails.capital || 'Non communiqué'}</p>
+                      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Capital Social</span>
+                        <p className="text-xs font-bold text-amber-800">{selectedDoc.pappersDetails.capital || 'Non communiqué'}</p>
                       </div>
 
-                      <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Code NAF / APE</span>
-                        <p className="text-xs font-bold text-indigo-300">{selectedDoc.pappersDetails.codeNaf} - {selectedDoc.pappersDetails.libelleNaf}</p>
+                      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Code NAF / APE</span>
+                        <p className="text-xs font-bold text-cyan-900">{selectedDoc.pappersDetails.codeNaf} - {selectedDoc.pappersDetails.libelleNaf}</p>
                       </div>
 
-                      <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Statut RNE</span>
-                        <p className="text-xs font-bold text-emerald-400">{selectedDoc.pappersDetails.statut}</p>
+                      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Statut RNE</span>
+                        <p className="text-xs font-bold text-teal-700">{selectedDoc.pappersDetails.statut}</p>
                       </div>
 
-                      <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Chiffre d'Affaires</span>
-                        <p className="text-xs font-bold text-cyan-300">{selectedDoc.pappersDetails.chiffreAffaires}</p>
+                      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Chiffre d'Affaires</span>
+                        <p className="text-xs font-bold text-cyan-700">{selectedDoc.pappersDetails.chiffreAffaires}</p>
                       </div>
 
-                      <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Effectifs Salariés</span>
-                        <p className="text-xs font-bold text-purple-300">{selectedDoc.pappersDetails.effectifs}</p>
+                      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Effectifs Salariés</span>
+                        <p className="text-xs font-bold text-indigo-700">{selectedDoc.pappersDetails.effectifs}</p>
                       </div>
                     </div>
 
                     {/* Siège social Address */}
-                    <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
-                      <h4 className="font-extrabold text-emerald-300 text-xs uppercase tracking-wider flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-emerald-400" /> Siège Social & Immatriculation
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                      <h4 className="font-extrabold text-cyan-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-cyan-600" /> Siège Social & Immatriculation
                       </h4>
-                      <p className="text-xs text-slate-200 font-semibold">{selectedDoc.pappersDetails.adresse}</p>
-                      <p className="text-xs text-slate-400">{selectedDoc.pappersDetails.rcs}</p>
+                      <p className="text-xs text-slate-800 font-semibold">{selectedDoc.pappersDetails.adresse}</p>
+                      <p className="text-xs text-slate-500">{selectedDoc.pappersDetails.rcs}</p>
                     </div>
 
                     {/* Dirigeants List */}
                     {selectedDoc.pappersDetails.dirigeants && selectedDoc.pappersDetails.dirigeants.length > 0 && (
-                      <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
-                        <h4 className="font-extrabold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2">
-                          <Users className="w-4 h-4 text-amber-400" /> Dirigeants & Mandataires Sociaux
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                        <h4 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                          <Users className="w-4 h-4 text-cyan-600" /> Dirigeants & Mandataires Sociaux
                         </h4>
                         <div className="space-y-1.5">
                           {selectedDoc.pappersDetails.dirigeants.map((d, idx) => (
-                            <div key={idx} className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-900 border border-slate-800">
-                              <span className="font-bold text-white">{d.nom}</span>
-                              <span className="text-indigo-300 font-semibold bg-indigo-950 px-2 py-0.5 rounded-md border border-indigo-800/40">
+                            <div key={idx} className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-white border border-slate-200">
+                              <span className="font-bold text-slate-900">{d.nom}</span>
+                              <span className="text-cyan-800 font-semibold bg-cyan-50 px-2.5 py-0.5 rounded-md border border-cyan-200">
                                 {d.qualite}
                               </span>
                             </div>
@@ -716,26 +716,26 @@ export const HeroPappersSearch: React.FC = () => {
 
                     {/* Complete Document text */}
                     <div className="space-y-2">
-                      <h4 className="font-extrabold text-white text-xs uppercase tracking-wider">Synthèse Officielle Registre Pappers</h4>
-                      <div className="p-4 rounded-2xl bg-slate-950 font-mono text-xs text-slate-300 whitespace-pre-line border border-slate-800 leading-normal">
+                      <h4 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">Synthèse Officielle Registre Pappers</h4>
+                      <div className="p-4 rounded-2xl bg-slate-50 font-mono text-xs text-slate-700 whitespace-pre-line border border-slate-200 leading-normal">
                         {selectedDoc.fullText}
                       </div>
                     </div>
                   </div>
                 ) : (
                   <>
-                    <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/40 space-y-2">
-                      <h4 className="font-extrabold text-indigo-300 text-xs uppercase tracking-wider">Résumé Exécutif</h4>
-                      <p className="text-slate-200">{selectedDoc.summary}</p>
+                    <div className="p-4 rounded-2xl bg-cyan-50/70 border border-cyan-200 space-y-2">
+                      <h4 className="font-extrabold text-cyan-900 text-xs uppercase tracking-wider">Résumé Exécutif</h4>
+                      <p className="text-slate-800">{selectedDoc.summary}</p>
                     </div>
 
                     {selectedDoc.keyPoints && selectedDoc.keyPoints.length > 0 && (
                       <div className="space-y-2">
-                        <h4 className="font-extrabold text-amber-300 text-xs uppercase tracking-wider">Points Clés & Impact Juridique</h4>
+                        <h4 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">Points Clés & Impact Juridique</h4>
                         <ul className="space-y-1.5">
                           {selectedDoc.keyPoints.map((pt, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-slate-300 text-xs">
-                              <span className="text-amber-400 font-bold">•</span>
+                            <li key={idx} className="flex items-start gap-2 text-slate-700 text-xs">
+                              <span className="text-cyan-600 font-bold">•</span>
                               <span>{pt}</span>
                             </li>
                           ))}
@@ -744,8 +744,8 @@ export const HeroPappersSearch: React.FC = () => {
                     )}
 
                     <div className="space-y-2">
-                      <h4 className="font-extrabold text-white text-xs uppercase tracking-wider">Texte Intégral Officiel</h4>
-                      <div className="p-4 rounded-2xl bg-slate-950 font-mono text-xs text-slate-300 whitespace-pre-line border border-slate-800 leading-normal">
+                      <h4 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">Texte Intégral Officiel</h4>
+                      <div className="p-4 rounded-2xl bg-slate-50 font-mono text-xs text-slate-700 whitespace-pre-line border border-slate-200 leading-normal">
                         {selectedDoc.fullText}
                       </div>
                     </div>
@@ -754,12 +754,12 @@ export const HeroPappersSearch: React.FC = () => {
               </div>
 
               {/* Modal Footer */}
-              <div className="p-4 border-t border-slate-800 bg-slate-950 flex flex-wrap items-center justify-between gap-2">
+              <div className="p-4 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => copyToClipboard(selectedDoc.pappersDetails?.siren || selectedDoc.fullText, 'modal-full')}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center gap-2 transition-colors cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-2 transition-colors cursor-pointer"
                   >
                     <Copy className="w-4 h-4" />
                     <span>{copiedId === 'modal-full' ? 'Copié !' : selectedDoc.pappersDetails ? 'Copier le SIREN' : 'Copier le texte'}</span>
@@ -770,7 +770,7 @@ export const HeroPappersSearch: React.FC = () => {
                       href={selectedDoc.pappersDetails.pappersUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 transition-colors"
+                      className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors"
                     >
                       <ExternalLink className="w-4 h-4" />
                       <span>Consulter sur Pappers.fr</span>
@@ -781,7 +781,7 @@ export const HeroPappersSearch: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedDoc(null)}
-                  className="px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs cursor-pointer"
+                  className="px-6 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold text-xs cursor-pointer shadow-sm"
                 >
                   Fermer
                 </button>

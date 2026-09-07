@@ -206,19 +206,19 @@ export const FranceMap: React.FC<FranceMapProps> = ({
   const overseasBarreaux = useMemo(() => barreauxList.filter(b => b.isOverseas), []);
 
   return (
-    <div className="bg-slate-900 text-white rounded-3xl p-6 border border-slate-800 shadow-2xl relative flex flex-col gap-6 backdrop-blur-xl overflow-hidden">
-      {/* Background glow accents */}
-      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-72 h-72 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+    <div className="bg-white text-slate-900 rounded-3xl p-6 border border-slate-200 shadow-xl relative flex flex-col gap-6 overflow-hidden">
+      {/* Background subtle accents */}
+      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 rounded-full bg-cyan-100/30 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-72 h-72 rounded-full bg-teal-100/30 blur-3xl pointer-events-none" />
 
       {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 z-10 border-b border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 z-10 border-b border-slate-200 pb-4">
         <div>
-          <h3 className="text-xl font-black text-white flex items-center gap-2.5 tracking-tight">
-            <Globe className="h-6 w-6 text-indigo-400 animate-pulse" />
+          <h3 className="text-xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
+            <Globe className="h-6 w-6 text-cyan-600 animate-pulse" />
             Carte Officielle de France (L'Hexagone & Outre-Mer)
           </h3>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Carte géographique réelle et réseau national des 36 Barreaux & Cours d'Appel
           </p>
         </div>
@@ -229,20 +229,20 @@ export const FranceMap: React.FC<FranceMapProps> = ({
               setModalSearchFilter('');
               setAnnuaireOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition-all shadow-2xs"
           >
-            <Award className="h-3.5 w-3.5 text-amber-400" />
+            <Award className="h-3.5 w-3.5 text-amber-600" />
             36 Premiers Présidents
           </button>
 
           {/* View Mode Toggle */}
-          <div className="inline-flex p-1 bg-slate-950 rounded-2xl border border-slate-800">
+          <div className="inline-flex p-1 bg-slate-100 rounded-2xl border border-slate-200">
             <button
               onClick={() => setViewMode('barreaux')}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 viewMode === 'barreaux'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-cyan-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Building2 className="h-3.5 w-3.5" />
@@ -252,8 +252,8 @@ export const FranceMap: React.FC<FranceMapProps> = ({
               onClick={() => setViewMode('regions')}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 viewMode === 'regions'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-cyan-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <MapPin className="h-3.5 w-3.5" />
@@ -272,12 +272,12 @@ export const FranceMap: React.FC<FranceMapProps> = ({
             placeholder="Rechercher un Barreau ou une Cour d'Appel (ex: Paris, Lyon, Guadeloupe)..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-9 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+            className="w-full pl-10 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all shadow-2xs"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
             >
               <X className="h-4 w-4" />
             </button>
@@ -293,7 +293,7 @@ export const FranceMap: React.FC<FranceMapProps> = ({
                 if (onSelectRegion) onSelectRegion(null);
                 if (onSelectBarreau) onSelectBarreau(null);
               }}
-              className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-bold rounded-xl transition-all"
+              className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold rounded-xl transition-all"
             >
               <X className="h-3.5 w-3.5" />
               Réinitialiser ({selectedBarreau || selectedRegion})
@@ -306,17 +306,17 @@ export const FranceMap: React.FC<FranceMapProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start z-10">
         
         {/* Authentic Image Map of France Container */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-center bg-slate-950/90 rounded-2xl p-4 border border-slate-800/80 relative min-h-[460px] overflow-hidden">
+        <div className="lg:col-span-7 flex flex-col items-center justify-center bg-slate-50 rounded-2xl p-4 border border-slate-200 relative min-h-[460px] overflow-hidden">
           
           {/* Tooltip Overlay */}
           {hoveredItem && (
-            <div className="absolute top-4 left-4 z-30 bg-slate-900/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-indigo-500/30 text-xs shadow-2xl animate-fade-in pointer-events-none">
-              <div className="font-extrabold text-white flex items-center gap-1.5">
-                <Shield className="h-3.5 w-3.5 text-indigo-400" />
-                <span className="text-white">{hoveredItem.name}</span>
+            <div className="absolute top-4 left-4 z-30 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-cyan-200 text-xs shadow-xl animate-fade-in pointer-events-none">
+              <div className="font-extrabold text-slate-900 flex items-center gap-1.5">
+                <Shield className="h-3.5 w-3.5 text-cyan-600" />
+                <span>{hoveredItem.name}</span>
               </div>
-              {hoveredItem.extra && <div className="text-[10px] text-slate-300 mt-0.5">{hoveredItem.extra}</div>}
-              <div className="text-[11px] text-amber-300 font-bold mt-1">
+              {hoveredItem.extra && <div className="text-[10px] text-slate-500 mt-0.5">{hoveredItem.extra}</div>}
+              <div className="text-[11px] text-cyan-700 font-bold mt-1">
                 👥 Avocats : {activeLawyerCounts[hoveredItem.name] || activeLawyerCounts[hoveredItem.name.replace('Barreau de ', '')] || 5}
               </div>
             </div>
@@ -328,7 +328,7 @@ export const FranceMap: React.FC<FranceMapProps> = ({
             <img
               src={carteGif}
               alt="Carte Officielle de France"
-              className="w-full h-full object-contain rounded-xl filter drop-shadow-2xl brightness-105 contrast-110"
+              className="w-full h-full object-contain rounded-xl filter drop-shadow-md brightness-105 contrast-105"
             />
 
             {/* Region Interactive Badges Overlay (when viewMode === 'regions') */}
@@ -343,20 +343,20 @@ export const FranceMap: React.FC<FranceMapProps> = ({
                   onMouseEnter={() => setHoveredItem({ type: 'region', name: region.name, extra: `Région (${region.departments.length} dépts)` })}
                   onMouseLeave={() => setHoveredItem(null)}
                   style={{ left: `${region.labelX}%`, top: `${region.labelY}%` }}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-[10px] font-black transition-all z-20 shadow-lg border text-white ${
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-[10px] font-black transition-all z-20 shadow-md border ${
                     isSelected
-                      ? 'bg-indigo-600 border-indigo-300 scale-110 ring-2 ring-indigo-400'
+                      ? 'bg-cyan-600 text-white border-cyan-700 scale-110 ring-2 ring-cyan-400'
                       : isHovered
-                      ? 'bg-indigo-500 border-indigo-200 scale-105'
-                      : 'bg-slate-950/90 border-slate-700 hover:bg-indigo-600'
+                      ? 'bg-cyan-500 text-white border-cyan-300 scale-105'
+                      : 'bg-white/95 text-slate-800 border-slate-300 hover:bg-cyan-600 hover:text-white'
                   }`}
                 >
-                  <span className="text-white font-extrabold">{region.name}</span>
+                  <span className="font-extrabold">{region.name}</span>
                 </button>
               );
             })}
 
-            {/* Barreaux Pinpoints & Crisp White Labels (when viewMode === 'barreaux') */}
+            {/* Barreaux Pinpoints & Labels (when viewMode === 'barreaux') */}
             {viewMode === 'barreaux' && barreauxList.filter(b => !b.isOverseas).map((barreau) => {
               const isSelected = selectedBarreau === barreau.name;
               const isHovered = hoveredItem?.type === 'barreau' && hoveredItem?.name === barreau.name;
@@ -375,22 +375,22 @@ export const FranceMap: React.FC<FranceMapProps> = ({
                 >
                   <span className="relative flex items-center justify-center">
                     <span
-                      className={`w-3.5 h-3.5 rounded-full border-2 border-slate-950 shadow-md ${
-                        isSelected ? 'bg-amber-400' : count > 0 ? 'bg-emerald-400' : 'bg-indigo-400'
+                      className={`w-3.5 h-3.5 rounded-full border-2 border-white shadow-md ${
+                        isSelected ? 'bg-amber-500' : count > 0 ? 'bg-teal-500' : 'bg-cyan-500'
                       }`}
                     />
                     {isSelected && (
-                      <span className="absolute w-6 h-6 rounded-full border-2 border-amber-400 animate-ping opacity-75" />
+                      <span className="absolute w-6 h-6 rounded-full border-2 border-amber-500 animate-ping opacity-75" />
                     )}
                   </span>
 
-                  {/* Crisp White Text Badge under the pinpoint dot */}
-                  <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-extrabold whitespace-nowrap border shadow-md transition-all text-white ${
+                  {/* Text Badge under the pinpoint dot */}
+                  <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-extrabold whitespace-nowrap border shadow-sm transition-all ${
                     isSelected
-                      ? 'bg-amber-500 text-slate-950 border-amber-300 font-black'
+                      ? 'bg-cyan-700 text-white border-cyan-800 font-black'
                       : isHovered
-                      ? 'bg-indigo-600 text-white border-indigo-400'
-                      : 'bg-slate-950/90 text-white border-slate-800'
+                      ? 'bg-cyan-600 text-white border-cyan-700'
+                      : 'bg-white/95 text-slate-800 border-slate-300'
                   }`}>
                     {barreau.shortName}
                   </span>
@@ -400,18 +400,18 @@ export const FranceMap: React.FC<FranceMapProps> = ({
           </div>
 
           {/* Map Subtitle Legend */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-[10px] text-slate-300 z-10 font-bold">
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-[10px] text-slate-600 z-10 font-bold">
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-sm" />
-              <span className="text-white">Avocats Inscrits</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block shadow-xs" />
+              <span>Avocats Inscrits</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 inline-block shadow-sm" />
-              <span className="text-white">Barreau Actif</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 inline-block shadow-xs" />
+              <span>Barreau Actif</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-sm" />
-              <span className="text-white">Sélectionné</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block shadow-xs" />
+              <span>Sélectionné</span>
             </span>
           </div>
         </div>
@@ -419,13 +419,13 @@ export const FranceMap: React.FC<FranceMapProps> = ({
         {/* Right Sidebar: Barreaux & Regions Directory */}
         <div className="lg:col-span-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <Building2 className="h-4 w-4 text-indigo-400" />
-              <span className="text-white">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <Building2 className="h-4 w-4 text-cyan-600" />
+              <span>
                 {viewMode === 'barreaux' ? `Barreaux (${filteredBarreaux.length})` : `Régions (${filteredRegions.length})`}
               </span>
             </h4>
-            {searchQuery && <span className="text-[10px] text-indigo-400 font-semibold">Filtre actif</span>}
+            {searchQuery && <span className="text-[10px] text-cyan-700 font-semibold">Filtre actif</span>}
           </div>
 
           <div className="max-h-[380px] overflow-y-auto pr-1 space-y-1.5 scrollbar-thin">
@@ -442,19 +442,19 @@ export const FranceMap: React.FC<FranceMapProps> = ({
                     onMouseLeave={() => setHoveredItem(null)}
                     className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left text-xs font-semibold transition-all border ${
                       isSelected
-                        ? 'bg-indigo-600 text-white border-indigo-400 shadow-md font-bold'
-                        : 'bg-slate-950/60 text-slate-200 border-slate-800 hover:bg-slate-800/80 hover:text-white'
+                        ? 'bg-cyan-600 text-white border-cyan-600 shadow-xs font-bold'
+                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-cyan-50 hover:text-cyan-900 hover:border-cyan-300'
                     }`}
                   >
                     <div className="truncate pr-2">
-                      <div className="font-bold flex items-center gap-1.5 text-white">
-                        <MapPin className="h-3 w-3 shrink-0 text-amber-400" />
-                        <span className="truncate text-white font-extrabold">{barreau.name}</span>
+                      <div className="font-bold flex items-center gap-1.5">
+                        <MapPin className="h-3 w-3 shrink-0 text-cyan-600" />
+                        <span className="truncate">{barreau.name}</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 truncate mt-0.5">{barreau.courDAppel}</div>
+                      <div className="text-[10px] text-slate-500 truncate mt-0.5">{barreau.courDAppel}</div>
                     </div>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] shrink-0 font-extrabold ${
-                      isSelected ? 'bg-amber-400 text-slate-950' : count > 0 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-300'
+                      isSelected ? 'bg-white text-cyan-900' : count > 0 ? 'bg-cyan-100 text-cyan-800 border border-cyan-200' : 'bg-slate-200 text-slate-700'
                     }`}>
                       {count} {count > 1 ? 'avocats' : 'avocat'}
                     </span>
@@ -474,13 +474,13 @@ export const FranceMap: React.FC<FranceMapProps> = ({
                     onMouseLeave={() => setHoveredItem(null)}
                     className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left text-xs font-semibold transition-all border ${
                       isSelected
-                        ? 'bg-indigo-600 text-white border-indigo-400 shadow-md font-bold'
-                        : 'bg-slate-950/60 text-slate-200 border-slate-800 hover:bg-slate-800/80 hover:text-white'
+                        ? 'bg-cyan-600 text-white border-cyan-600 shadow-xs font-bold'
+                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-cyan-50 hover:text-cyan-900 hover:border-cyan-300'
                     }`}
                   >
-                    <span className="truncate text-white font-bold">{region.name}</span>
+                    <span className="truncate font-bold">{region.name}</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] shrink-0 font-extrabold ${
-                      isSelected ? 'bg-amber-400 text-slate-950' : count > 0 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-300'
+                      isSelected ? 'bg-white text-cyan-900' : count > 0 ? 'bg-cyan-100 text-cyan-800 border border-cyan-200' : 'bg-slate-200 text-slate-700'
                     }`}>
                       {count} {count > 1 ? 'avocats' : 'avocat'}
                     </span>
@@ -494,13 +494,13 @@ export const FranceMap: React.FC<FranceMapProps> = ({
       </div>
 
       {/* Outre-Mer Panel (DROM-COM: Guadeloupe, Martinique, Guyane, La Réunion, Mayotte, etc.) */}
-      <div className="z-10 border-t border-slate-800 pt-4 mt-2">
+      <div className="z-10 border-t border-slate-200 pt-4 mt-2">
         <div className="flex items-center justify-between mb-2.5">
-          <span className="text-xs font-extrabold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+          <span className="text-xs font-extrabold text-cyan-900 uppercase tracking-wider flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-cyan-600" />
             Outre-Mer (DROM-COM & Territoires)
           </span>
-          <span className="text-[10px] text-slate-400 font-semibold">
+          <span className="text-[10px] text-slate-500 font-semibold">
             7 Barreaux Régionaux
           </span>
         </div>
@@ -516,12 +516,12 @@ export const FranceMap: React.FC<FranceMapProps> = ({
                 onClick={(e) => handleBarreauClick(barreau, e)}
                 className={`p-2 rounded-xl text-center text-xs font-bold transition-all border flex flex-col items-center justify-center gap-1 ${
                   isSelected
-                    ? 'bg-amber-500 text-slate-950 border-amber-300 shadow-lg scale-105'
-                    : 'bg-slate-950/80 hover:bg-slate-800 text-slate-200 border-slate-800'
+                    ? 'bg-cyan-600 text-white border-cyan-600 shadow-md scale-105'
+                    : 'bg-slate-50 hover:bg-cyan-50 text-slate-700 border-slate-200 hover:border-cyan-300'
                 }`}
               >
-                <span className="text-[11px] truncate w-full text-white font-extrabold">{barreau.shortName}</span>
-                <span className={`text-[9px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-slate-300'}`}>
+                <span className="text-[11px] truncate w-full font-extrabold">{barreau.shortName}</span>
+                <span className={`text-[9px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-cyan-800 text-white' : 'bg-slate-200 text-slate-700'}`}>
                   {count} avocats
                 </span>
               </button>

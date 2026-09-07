@@ -15,6 +15,7 @@ import { exportToCSV, exportToJSON } from '../lib/exportUtils';
 import { regions } from '../components/features/FranceMap';
 import { useAuth } from '../hooks/useAuth';
 import NotificationBell from '../components/ui/NotificationBell';
+import SessionTimeoutManager from '../components/ui/SessionTimeoutManager';
 import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import { useTranslation } from '../i18n';
 import { AnnualPlanning } from '../components/features/AnnualPlanning';
@@ -859,22 +860,22 @@ const AdminDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pt-20 pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-50/40 via-white to-slate-50 text-slate-900 pt-20 pb-16">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Modern Hero Glassmorphism Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-950 to-indigo-950 p-6 sm:p-8 text-white shadow-2xl mb-8 border border-slate-800">
-          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 p-6 sm:p-8 text-white shadow-xl shadow-cyan-500/10 mb-8 border border-cyan-400/30">
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-teal-400/20 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2.5">
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-amber-500/20 text-amber-300 border border-amber-400/30 backdrop-blur-md">
-                  <Shield className="h-3.5 w-3.5 text-amber-400" />
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-white/20 text-white border border-white/30 backdrop-blur-md">
+                  <Shield className="h-3.5 w-3.5 text-white" />
                   Administration Centrale
                 </span>
-                <span className="bg-white/10 text-slate-200 text-xs font-bold px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                <span className="bg-white/15 text-white text-xs font-bold px-3 py-1 rounded-full border border-white/20 backdrop-blur-md">
                   Ressort National & Européen
                 </span>
               </div>
@@ -883,22 +884,23 @@ const AdminDashboard: React.FC = () => {
                 {t('admin_dashboard.title', 'Espace Administration France Justice')}
               </h1>
 
-              <p className="text-slate-300 text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
+              <p className="text-cyan-50 text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
                 Supervision globale de la plateforme, gestion des utilisateurs, validation des avocats & enseignants, contrôle des documents PDF et visioconférences.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 backdrop-blur-md bg-white/5 p-3 rounded-2xl border border-white/10">
+            <div className="flex flex-wrap items-center gap-3 backdrop-blur-md bg-white/15 p-3 rounded-2xl border border-white/20">
               <LiveSyncBadge status="connected" showText={true} />
+              <SessionTimeoutManager roleMode="admin" />
               <NotificationBell userId={user?.id ?? null} />
-              <Button onClick={() => { fetchUsers(); fetchMessages(); }} variant="outline" size="sm" className="hidden sm:flex bg-white/10 text-white hover:bg-white/20 border-white/20 rounded-xl">
+              <Button onClick={() => { fetchUsers(); fetchMessages(); }} variant="outline" size="sm" className="hidden sm:flex bg-white/15 text-white hover:bg-white/25 border-white/25 rounded-xl">
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 {t('common.refresh', 'Actualiser')}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="hidden sm:flex text-red-300 hover:text-white bg-red-500/10 hover:bg-red-600/80 border-red-400/30 rounded-xl"
+                className="hidden sm:flex text-rose-100 hover:text-white bg-red-600/30 hover:bg-red-600/60 border-red-300/30 rounded-xl"
                 onClick={async () => {
                   await supabase.auth.signOut();
                   window.location.href = '/login';
@@ -916,10 +918,10 @@ const AdminDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(true)}
-            className="w-full flex items-center justify-between px-4 py-3.5 bg-slate-900 border border-slate-800 rounded-2xl text-white font-extrabold text-sm shadow-xl hover:bg-slate-800 transition-all cursor-pointer"
+            className="w-full flex items-center justify-between px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-900 font-extrabold text-sm shadow-sm hover:bg-slate-50 transition-all cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
-              <Menu className="w-5 h-5 text-indigo-400" />
+              <Menu className="w-5 h-5 text-cyan-600" />
               <span>Menu Admin : {[
                 { id: 'overview', name: t('dashboard.overview', "Vue d'ensemble") },
                 { id: 'appointments', name: t('dashboard.appointments', "Rendez-vous") },
@@ -939,7 +941,7 @@ const AdminDashboard: React.FC = () => {
                 { id: 'monitoring', name: t('admin_dashboard.live_monitoring', "LIVE Monitoring") }
               ].find(t => t.id === activeTab)?.name || "Navigation"}</span>
             </div>
-            <span className="text-xs bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-full font-bold">
+            <span className="text-xs bg-cyan-50 text-cyan-700 border border-cyan-200 px-3 py-1 rounded-full font-bold">
               Menu Admin ☰
             </span>
           </button>
@@ -947,24 +949,24 @@ const AdminDashboard: React.FC = () => {
 
         {/* Mobile Sidebar Navigation Drawer Overlay */}
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 flex lg:hidden bg-slate-950/80 backdrop-blur-md transition-all">
-            <div className="relative w-4/5 max-w-sm bg-slate-900 text-slate-100 h-full p-6 shadow-2xl border-r border-slate-800 flex flex-col justify-between overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex lg:hidden bg-slate-900/40 backdrop-blur-sm transition-all">
+            <div className="relative w-4/5 max-w-sm bg-white text-slate-900 h-full p-6 shadow-2xl border-r border-slate-200 flex flex-col justify-between overflow-y-auto">
               <div>
-                <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
-                  <div className="flex items-center gap-2 font-extrabold text-white text-base">
-                    <Shield className="w-5 h-5 text-indigo-400" />
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+                  <div className="flex items-center gap-2 font-extrabold text-slate-900 text-base">
+                    <Shield className="w-5 h-5 text-cyan-600" />
                     Administration Centrale
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white"
+                    className="p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-900"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <nav className="space-y-2">
+                <nav className="space-y-1.5">
                   {[
                     { id: 'overview', name: t('dashboard.overview', "Vue d'ensemble"), icon: BarChart3 },
                     { id: 'appointments', name: t('dashboard.appointments', "Rendez-vous"), icon: RefreshCw },
@@ -995,11 +997,11 @@ const AdminDashboard: React.FC = () => {
                         }}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 text-sm font-semibold cursor-pointer ${
                           isActive
-                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 font-bold'
-                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                            ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/20 font-bold'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                         }`}
                       >
-                        <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-indigo-400'}`} />
+                        <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-cyan-600'}`} />
                         <span>{tab.name}</span>
                       </button>
                     );
@@ -1007,10 +1009,10 @@ const AdminDashboard: React.FC = () => {
                 </nav>
               </div>
 
-              <div className="pt-6 border-t border-slate-800">
+              <div className="pt-6 border-t border-slate-200">
                 <Button
                   variant="outline"
-                  className="w-full text-red-400 border-red-900/60 hover:bg-red-950 text-xs font-bold"
+                  className="w-full text-red-600 border-red-200 hover:bg-red-50 text-xs font-bold"
                   onClick={async () => {
                     await supabase.auth.signOut();
                     window.location.href = '/login';
@@ -1028,7 +1030,7 @@ const AdminDashboard: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <aside className="hidden lg:block lg:col-span-1">
-            <Card className="sticky top-6 overflow-hidden bg-slate-900/90 border-slate-800">
+            <Card className="sticky top-6 overflow-hidden bg-white border-slate-200 shadow-sm">
               <CardContent className="p-4 flex flex-col space-y-1.5">
                 {[
                   { id: 'overview', name: t('dashboard.overview', "Vue d'ensemble"), icon: BarChart3 },
@@ -1048,36 +1050,39 @@ const AdminDashboard: React.FC = () => {
                   { id: 'payments', name: t('admin_dashboard.platform_revenue', "Paiements"), icon: CreditCard },
                   { id: 'monitoring', name: t('admin_dashboard.live_monitoring', "LIVE Monitoring"), icon: RefreshCw },
                   { id: 'security', name: 'Sécurité BD & RGPD', icon: Lock },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
-                      activeTab === tab.id 
-                        ? 'bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-500/30' 
-                        : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                    }`}
-                  >
-                    <tab.icon className="h-4 w-4 mr-3 text-indigo-400" />
-                    <span className="font-medium whitespace-nowrap">{tab.name}</span>
-                  </button>
-                ))}
+                ].map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
+                        isActive 
+                          ? 'bg-cyan-600 text-white font-semibold shadow-md shadow-cyan-600/20' 
+                          : 'text-slate-600 hover:bg-cyan-50 hover:text-cyan-900'
+                      }`}
+                    >
+                      <tab.icon className={`h-4 w-4 mr-3 ${isActive ? 'text-white' : 'text-cyan-600'}`} />
+                      <span className="font-medium whitespace-nowrap">{tab.name}</span>
+                    </button>
+                  );
+                })}
 
                 {/* 📜 CONFORMITÉ & SÉCURITÉ DE LA BASE DE DONNÉES */}
-                <div className="pt-4 mt-4 border-t border-slate-800 space-y-1.5">
-                  <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest px-2 mb-1 flex items-center gap-1">
-                    <Shield className="w-3 h-3 text-emerald-400" /> Administration RGPD & BD
+                <div className="pt-4 mt-4 border-t border-slate-200 space-y-1.5">
+                  <div className="text-[10px] font-black text-emerald-700 uppercase tracking-widest px-2 mb-1 flex items-center gap-1">
+                    <Shield className="w-3 h-3 text-emerald-600" /> Administration RGPD & BD
                   </div>
-                  <a href="/legal#legal" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                  <a href="/legal#legal" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-600 hover:text-cyan-700 hover:bg-cyan-50/60 transition-colors">
                     ⚖️ Mentions Légales
                   </a>
-                  <a href="/legal#privacy" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                  <a href="/legal#privacy" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-600 hover:text-cyan-700 hover:bg-cyan-50/60 transition-colors">
                     🔒 Politique de Confidentialité
                   </a>
-                  <a href="/legal#cgv" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                  <a href="/legal#cgv" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-600 hover:text-cyan-700 hover:bg-cyan-50/60 transition-colors">
                     📜 CGV / CGU Plateforme
                   </a>
-                  <a href="/legal#retention" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors">
+                  <a href="/legal#retention" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-600 hover:text-cyan-700 hover:bg-cyan-50/60 transition-colors">
                     🛡️ Schedule Retention & BD
                   </a>
                 </div>
@@ -1090,14 +1095,14 @@ const AdminDashboard: React.FC = () => {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {systemStats.map((s, i) => (
-                    <Card key={i} className="border-none shadow-sm hover:shadow-md transition-shadow">
+                    <Card key={i} className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{s.label}</p>
-                            <p className="text-2xl font-bold text-white">{s.value}</p>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{s.label}</p>
+                            <p className="text-2xl font-bold text-slate-900">{s.value}</p>
                           </div>
-                          <div className="p-3 rounded-xl bg-primary-950/80 text-primary-400 border border-primary-800">
+                          <div className="p-3 rounded-2xl bg-cyan-50 text-cyan-600 border border-cyan-200">
                             <s.icon className="h-6 w-6" />
                           </div>
                         </div>
@@ -1142,14 +1147,14 @@ const AdminDashboard: React.FC = () => {
                       <CardDescription>Nouvelles demandes de contact</CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
-                      <div className="divide-y border-t border-slate-800">
+                      <div className="divide-y divide-slate-200 border-t border-slate-200">
                         {messages.slice(0, 5).map((m) => (
-                          <div key={m.id} className="p-4 hover:bg-slate-800/60 transition-colors">
+                          <div key={m.id} className="p-4 hover:bg-slate-50 transition-colors">
                             <div className="flex justify-between mb-1">
-                              <span className="font-bold text-sm text-white">{m.name}</span>
-                              <span className="text-[10px] text-slate-400">{new Date(m.created_at).toLocaleDateString()}</span>
+                              <span className="font-bold text-sm text-slate-900">{m.name}</span>
+                              <span className="text-[10px] text-slate-500">{new Date(m.created_at).toLocaleDateString()}</span>
                             </div>
-                            <p className="text-xs text-slate-300 truncate">{m.subject}</p>
+                            <p className="text-xs text-slate-600 truncate">{m.subject}</p>
                           </div>
                         ))}
                       </div>
@@ -1162,11 +1167,11 @@ const AdminDashboard: React.FC = () => {
                       <CardDescription>Demandes d'inscription à vérifier</CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
-                      <div className="divide-y border-t border-slate-800">
+                      <div className="divide-y divide-slate-200 border-t border-slate-200">
                         {users.filter(u => u.role === 'lawyer' && !u.is_verified).slice(0, 5).map((u) => (
                           <div key={u.id} className="p-4 flex items-center justify-between">
-                            <span className="text-sm font-medium text-slate-200">{u.first_name} {u.last_name}</span>
-                            <Button size="sm" variant="outline" onClick={() => handleApproveLawyer(u.id)} className="border-slate-700 text-slate-300 hover:bg-slate-800">Approuver</Button>
+                            <span className="text-sm font-medium text-slate-900">{u.first_name} {u.last_name}</span>
+                            <Button size="sm" onClick={() => handleApproveLawyer(u.id)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-sm">Approuver</Button>
                           </div>
                         ))}
                       </div>
@@ -1181,7 +1186,7 @@ const AdminDashboard: React.FC = () => {
                 <Card className="lg:col-span-1">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                       <RefreshCw className="h-5 w-5 text-primary-400 animate-spin" />
+                       <RefreshCw className="h-5 w-5 text-cyan-600 animate-spin" />
                        Flux Live
                     </CardTitle>
                     <CardDescription>Événements en temps réel</CardDescription>
@@ -1189,12 +1194,12 @@ const AdminDashboard: React.FC = () => {
                   <CardContent className="h-[600px] overflow-y-auto">
                     <div className="space-y-4">
                       {activities.map(act => (
-                        <div key={act.id} className="p-3 bg-slate-900 rounded-lg border-l-4 border-indigo-500 shadow-sm text-slate-100 border border-slate-800">
-                          <p className="text-sm font-bold text-white">{act.message}</p>
-                          <p className="text-[10px] text-slate-400 uppercase">{act.time} • {act.type}</p>
+                        <div key={act.id} className="p-3 bg-slate-50 rounded-xl border-l-4 border-cyan-500 shadow-sm text-slate-900 border border-slate-200">
+                          <p className="text-sm font-bold text-slate-900">{act.message}</p>
+                          <p className="text-[10px] text-slate-500 uppercase">{act.time} • {act.type}</p>
                         </div>
                       ))}
-                      {activities.length === 0 && <p className="text-center text-slate-400 py-10">En attente d'activité...</p>}
+                      {activities.length === 0 && <p className="text-center text-slate-500 py-10">En attente d'activité...</p>}
                     </div>
                   </CardContent>
                 </Card>
@@ -1204,16 +1209,16 @@ const AdminDashboard: React.FC = () => {
                     <CardHeader><CardTitle>Surveillance des Chats</CardTitle></CardHeader>
                     <CardContent className="p-0">
                       <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
+                        <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
                           <tr><th className="px-6 py-4">Avocat</th><th className="px-6 py-4">Citizen</th><th className="px-6 py-4">Logs</th></tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800 text-xs text-slate-300">
+                        <tbody className="divide-y divide-slate-200 text-xs text-slate-700">
                           {chatRooms.map(room => (
-                            <tr key={room.id} className="hover:bg-slate-800/60 transition-colors">
-                              <td className="px-6 py-4">Me {room.lawyer?.first_name} {room.lawyer?.last_name}</td>
-                              <td className="px-6 py-4">{room.client?.first_name} {room.client?.last_name}</td>
+                            <tr key={room.id} className="hover:bg-slate-50 transition-colors">
+                              <td className="px-6 py-4 font-semibold text-slate-900">Me {room.lawyer?.first_name} {room.lawyer?.last_name}</td>
+                              <td className="px-6 py-4 text-slate-700">{room.client?.first_name} {room.client?.last_name}</td>
                               <td className="px-6 py-4">
-                                <Button variant="ghost" size="sm" className="text-primary-400 hover:bg-slate-800">Visualiser</Button>
+                                <Button variant="ghost" size="sm" className="text-cyan-600 hover:bg-cyan-50">Visualiser</Button>
                               </td>
                             </tr>
                           ))}
@@ -1226,15 +1231,15 @@ const AdminDashboard: React.FC = () => {
                     <CardHeader><CardTitle>Statistiques Commissions Live</CardTitle></CardHeader>
                     <CardContent>
                        <div className="grid grid-cols-2 gap-4">
-                         <div className="p-4 bg-success-50 rounded-xl">
-                            <p className="text-xs font-bold text-success-600 uppercase">Total Commissions</p>
-                            <p className="text-2xl font-bold text-success-900">
+                         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+                            <p className="text-xs font-bold text-emerald-700 uppercase">Total Commissions</p>
+                            <p className="text-2xl font-bold text-emerald-900">
                               {quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD
                             </p>
                          </div>
-                         <div className="p-4 bg-warning-50 rounded-xl">
-                            <p className="text-xs font-bold text-warning-600 uppercase">En attente</p>
-                            <p className="text-2xl font-bold text-warning-900">
+                         <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                            <p className="text-xs font-bold text-amber-700 uppercase">En attente</p>
+                            <p className="text-2xl font-bold text-amber-900">
                               {quotes.filter(q => q.status === 'paid').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD
                             </p>
                          </div>
@@ -1248,13 +1253,13 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'users' && (
               <div className="space-y-6">
                 {/* Filters Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-sm text-slate-100">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-slate-900">
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 block mb-1">Rôle</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Rôle</label>
                     <select
                       value={filterRole}
                       onChange={(e) => setFilterRole(e.target.value)}
-                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     >
                       <option value="all">Tous les rôles</option>
                       <option value="user">Citoyens</option>
@@ -1263,11 +1268,11 @@ const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 block mb-1">Région</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Région</label>
                     <select
                       value={filterRegion}
                       onChange={(e) => setFilterRegion(e.target.value)}
-                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     >
                       <option value="">Toutes les régions</option>
                       {regions.map(r => (
@@ -1276,11 +1281,11 @@ const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 block mb-1">Barreau</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Barreau</label>
                     <select
                       value={filterBarreau}
                       onChange={(e) => setFilterBarreau(e.target.value)}
-                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     >
                       <option value="">Tous les barreaux</option>
                       {uniqueBarreaux.map(b => (
@@ -1289,11 +1294,11 @@ const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 block mb-1">Ville</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Ville</label>
                     <select
                       value={filterCity}
                       onChange={(e) => setFilterCity(e.target.value)}
-                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     >
                       <option value="">Toutes les villes</option>
                       {uniqueCities.map(c => (
@@ -1303,18 +1308,18 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <Card className="bg-slate-900 border-slate-800 text-slate-100 shadow-xl">
+                <Card className="bg-white border-slate-200 text-slate-900 shadow-sm">
                   <CardHeader>
-                    <CardTitle className="flex items-center text-white">
-                      <UserPlus className="h-5 w-5 mr-3 text-indigo-400" />
+                    <CardTitle className="flex items-center text-slate-900">
+                      <UserPlus className="h-5 w-5 mr-3 text-cyan-600" />
                       Création Administrative de Compte
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleCreateUser} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Input placeholder="Prénom" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} required className="bg-slate-800 border-slate-700 text-slate-100 placeholder-slate-400" />
-                      <Input placeholder="Nom" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} required className="bg-slate-800 border-slate-700 text-slate-100 placeholder-slate-400" />
-                      <Input type="email" placeholder="Email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} required className="bg-slate-800 border-slate-700 text-slate-100 placeholder-slate-400" />
+                      <Input placeholder="Prénom" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} required className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-cyan-500" />
+                      <Input placeholder="Nom" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} required className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-cyan-500" />
+                      <Input type="email" placeholder="Email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} required className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-cyan-500" />
                       <div className="relative">
                         <Input 
                           type={showPassword ? "text" : "password"} 
@@ -1322,18 +1327,18 @@ const AdminDashboard: React.FC = () => {
                           value={newUser.password} 
                           onChange={e => setNewUser({...newUser, password: e.target.value})} 
                           required
-                          className="pr-10 bg-slate-800 border-slate-700 text-slate-100 placeholder-slate-400"
+                          className="pr-10 bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-cyan-500"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
                       <select 
-                        className="w-full flex h-10 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-sans" 
+                        className="w-full flex h-10 rounded-xl border border-slate-200 bg-white text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 font-sans" 
                         value={newUser.role} 
                         onChange={e => setNewUser({...newUser, role: e.target.value})}
                       >
@@ -1344,23 +1349,23 @@ const AdminDashboard: React.FC = () => {
                         <option value="professor">👨‍🏫 Professeur de Droit</option>
                         <option value="doctorate">📜 Doctorant en Droit</option>
                       </select>
-                      <Button type="submit" disabled={isCreating} className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold">{isCreating ? 'En cours...' : 'Créer le Compte'}</Button>
+                      <Button type="submit" disabled={isCreating} className="bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold shadow-md shadow-cyan-600/20">{isCreating ? 'En cours...' : 'Créer le Compte'}</Button>
                     </form>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="bg-white border-slate-200 shadow-sm">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0">
                     <div>
                       <CardTitle>Répertoire des Utilisateurs</CardTitle>
                       <CardDescription>Gestion complète des comptes</CardDescription>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleExportData('users', 'csv')}>
+                      <Button variant="outline" size="sm" onClick={() => handleExportData('users', 'csv')} className="border-slate-200 text-slate-700 hover:bg-slate-100">
                         <FileSpreadsheet className="h-4 w-4 mr-2" />
                         CSV
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleExportData('users', 'json')}>
+                      <Button variant="outline" size="sm" onClick={() => handleExportData('users', 'json')} className="border-slate-200 text-slate-700 hover:bg-slate-100">
                         <FileJson className="h-4 w-4 mr-2" />
                         JSON
                       </Button>
@@ -1369,10 +1374,10 @@ const AdminDashboard: React.FC = () => {
                   <CardContent className="p-0">
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
-                          <tr><th className="px-6 py-3">Membre</th><th className="px-6 py-3">Rôle</th><th className="px-6 py-3 text-right">Actions</th></tr>
+                        <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
+                          <tr><th className="px-6 py-3 font-semibold">Membre</th><th className="px-6 py-3 font-semibold">Rôle</th><th className="px-6 py-3 font-semibold text-right">Actions</th></tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800 text-slate-300">
+                        <tbody className="divide-y divide-slate-200 text-slate-700">
                           {users
                             .filter(u => {
                               if (filterRole !== 'all' && u.role !== filterRole) return false;
@@ -1390,18 +1395,23 @@ const AdminDashboard: React.FC = () => {
                             .map((u) => {
                               const regName = getRegionFromPostalCode(u.postal_code);
                               return (
-                                <tr key={u.id} className="hover:bg-slate-800/60 transition-colors">
+                                <tr key={u.id} className="hover:bg-slate-50 transition-colors">
                                   <td className="px-6 py-4">
-                                    <div className="font-semibold text-white">{u.first_name} {u.last_name}</div>
-                                    <div className="text-xs text-slate-400">{u.email}</div>
-                                    <div className="text-[10px] text-slate-400 font-semibold mt-1">
+                                    <div className="font-semibold text-slate-900">{u.first_name} {u.last_name}</div>
+                                    <div className="text-xs text-slate-500">{u.email}</div>
+                                    <div className="text-[10px] text-slate-500 font-semibold mt-1">
                                       📍 {u.city || 'Non renseigné'}{u.postal_code ? ` (${u.postal_code.substring(0, 2)})` : ''} 
                                       {regName ? ` - Région : ${regName}` : ''}
                                     </div>
                                   </td>
+                                  <td className="px-6 py-4">
+                                    <span className="px-2.5 py-1 rounded-full text-xs font-bold capitalize bg-cyan-50 text-cyan-700 border border-cyan-200">
+                                      {u.role}
+                                    </span>
+                                  </td>
                                   <td className="px-6 py-4 text-right flex justify-end gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)} className="hover:bg-slate-800" title="Modifier le compte">
-                                      <Edit className="w-4 h-4 text-slate-300"/>
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)} className="hover:bg-slate-100" title="Modifier le compte">
+                                      <Edit className="w-4 h-4 text-slate-600"/>
                                     </Button>
                                     <Button
                                       variant="ghost"
@@ -1409,14 +1419,14 @@ const AdminDashboard: React.FC = () => {
                                       title={u.role === 'admin' ? "Interdit pour l'Admin" : "Réinitialiser le mot de passe de l'utilisateur"}
                                       disabled={u.role === 'admin'}
                                       onClick={() => handleAdminTriggerPasswordReset(u.email, u.role)}
-                                      className={u.role === 'admin' ? "text-slate-600 opacity-50 cursor-not-allowed" : "text-indigo-400 hover:bg-slate-800"}
+                                      className={u.role === 'admin' ? "text-slate-400 opacity-50 cursor-not-allowed" : "text-cyan-600 hover:bg-cyan-50"}
                                     >
                                       <KeyRound className="w-4 h-4"/>
                                     </Button>
-                                    <Button variant="ghost" size="sm" onClick={() => handleToggleSuspend(u)} className={u.is_verified ? "text-amber-400 hover:bg-slate-800" : "text-emerald-400 hover:bg-slate-800"}>
+                                    <Button variant="ghost" size="sm" onClick={() => handleToggleSuspend(u)} className={u.is_verified ? "text-amber-600 hover:bg-amber-50" : "text-emerald-600 hover:bg-emerald-50"}>
                                       {u.is_verified ? "Suspendre" : "Activer"}
                                     </Button>
-                                    <Button variant="ghost" size="sm" className="text-red-400 hover:bg-slate-800" onClick={() => handleDeleteUser(u.id)}>
+                                    <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => handleDeleteUser(u.id)}>
                                       <Trash2 className="w-4 h-4"/>
                                     </Button>
                                   </td>
@@ -1434,55 +1444,55 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'lawyers' && (
               <div className="space-y-6">
                 {/* Filters Row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-sm text-slate-100">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-slate-900">
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 block mb-1">Région</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Région</label>
                     <select
                       value={filterRegion}
                       onChange={(e) => setFilterRegion(e.target.value)}
-                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     >
-                      <option value="" className="bg-slate-900 text-slate-100">Toutes les régions</option>
+                      <option value="" className="bg-white text-slate-900">Toutes les régions</option>
                       {regions.map(r => (
-                        <option key={r.id} value={r.name} className="bg-slate-900 text-slate-100">{r.name}</option>
+                        <option key={r.id} value={r.name} className="bg-white text-slate-900">{r.name}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 block mb-1">Barreau</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Barreau</label>
                     <select
                       value={filterBarreau}
                       onChange={(e) => setFilterBarreau(e.target.value)}
-                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     >
-                      <option value="" className="bg-slate-900 text-slate-100">Tous les barreaux</option>
+                      <option value="" className="bg-white text-slate-900">Tous les barreaux</option>
                       {uniqueBarreaux.map(b => (
-                        <option key={b} value={b} className="bg-slate-900 text-slate-100">{b}</option>
+                        <option key={b} value={b} className="bg-white text-slate-900">{b}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 block mb-1">Ville</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">Ville</label>
                     <select
                       value={filterCity}
                       onChange={(e) => setFilterCity(e.target.value)}
-                      className="w-full h-10 px-3 border border-slate-700 rounded-lg text-sm bg-slate-800 text-white focus:outline-none"
+                      className="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     >
-                      <option value="" className="bg-slate-900 text-slate-100">Toutes les villes</option>
+                      <option value="" className="bg-white text-slate-900">Toutes les villes</option>
                       {uniqueCities.map(c => (
-                        <option key={c} value={c} className="bg-slate-900 text-slate-100">{c}</option>
+                        <option key={c} value={c} className="bg-white text-slate-900">{c}</option>
                       ))}
                     </select>
                   </div>
                 </div>
 
-                <Card>
+                <Card className="bg-white border-slate-200 shadow-sm">
                   <CardHeader>
                     <CardTitle>Validation des Avocats</CardTitle>
                     <CardDescription>Approuvez ou suspendez l'accès des avocats à la plateforme</CardDescription>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <div className="divide-y divide-slate-800 border-t border-slate-800">
+                    <div className="divide-y divide-slate-200 border-t border-slate-200">
                       {users
                         .filter(u => u.role === 'lawyer')
                         .filter(u => {
@@ -1501,74 +1511,74 @@ const AdminDashboard: React.FC = () => {
                           const lawyerInfo = Array.isArray(l.lawyers) ? l.lawyers[0] : l.lawyers;
                           const regName = getRegionFromPostalCode(l.postal_code);
                           return (
-                          <div key={l.id} className="p-6 space-y-3 animate-fade-in">
+                          <div key={l.id} className="p-6 space-y-3 animate-fade-in hover:bg-slate-50 transition-colors">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-4">
-                                <div className={`h-3 w-3 rounded-full shrink-0 ${l.is_verified ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                                <div className={`h-3 w-3 rounded-full shrink-0 ${l.is_verified ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
                                 <div>
-                                  <p className="font-bold text-white">Me {l.first_name} {l.last_name}</p>
-                                  <p className="text-xs text-slate-400">{l.email}</p>
-                                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                                  <p className="font-bold text-slate-900">Me {l.first_name} {l.last_name}</p>
+                                  <p className="text-xs text-slate-500">{l.email}</p>
+                                  <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
                                     📍 Cabinet : {l.city || 'Non renseigné'}{l.postal_code ? ` (${l.postal_code.substring(0, 2)})` : ''} 
                                     {regName ? ` - Région : ${regName}` : ''}
                                   </p>
                                 </div>
                               </div>
                               <div className="flex gap-2">
-                            {!l.is_verified && <Button size="sm" onClick={() => handleApproveLawyer(l.id)}>Approuver</Button>}
-                            <Button size="sm" variant="outline" className="text-red-400 border-slate-700 hover:bg-slate-800">Suspendre</Button>
-                          </div>
-                        </div>
-
-                        {lawyerInfo && (
-                          <div className="ml-7 space-y-2">
-                            <div className="flex flex-wrap gap-3 text-xs">
-                              {lawyerInfo.bar_association && (
-                                <span className="bg-slate-800 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-full font-medium">🏛️ Barreau : {lawyerInfo.bar_association}</span>
-                              )}
-                              {lawyerInfo.license_number && (
-                                <span className="bg-slate-800 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-full font-medium">📋 Licence : {lawyerInfo.license_number}</span>
-                              )}
-                              {lawyerInfo.experience_years != null && (
-                                <span className="bg-slate-800 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-full font-medium">⏳ {lawyerInfo.experience_years} ans d'expérience</span>
-                              )}
-                              <span className={`px-2.5 py-1 rounded-full font-medium ${lawyerInfo.verification_status === 'approved' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : lawyerInfo.verification_status === 'rejected' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}`}>
-                                {lawyerInfo.verification_status === 'approved' ? '✅ Approuvé' : lawyerInfo.verification_status === 'rejected' ? '❌ Rejeté' : '⏳ En attente'}
-                              </span>
+                                {!l.is_verified && <Button size="sm" onClick={() => handleApproveLawyer(l.id)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-sm">Approuver</Button>}
+                                <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">Suspendre</Button>
+                              </div>
                             </div>
 
-                            {lawyerInfo.verification_documents && lawyerInfo.verification_documents.length > 0 && (
-                              <div className="flex flex-wrap gap-2 pt-1">
-                                {lawyerInfo.verification_documents.map((docUrl: string, idx: number) => (
-                                  <a
-                                    key={idx}
-                                    href={docUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-primary-600 hover:underline flex items-center gap-1 bg-primary-50 px-2.5 py-1 rounded-full font-medium transition-colors hover:bg-primary-100"
-                                  >
-                                    📄 Document justificatif #{idx + 1}
-                                  </a>
-                                ))}
+                            {lawyerInfo && (
+                              <div className="ml-7 space-y-2">
+                                <div className="flex flex-wrap gap-3 text-xs">
+                                  {lawyerInfo.bar_association && (
+                                    <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-full font-medium">🏛️ Barreau : {lawyerInfo.bar_association}</span>
+                                  )}
+                                  {lawyerInfo.license_number && (
+                                    <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-full font-medium">📋 Licence : {lawyerInfo.license_number}</span>
+                                  )}
+                                  {lawyerInfo.experience_years != null && (
+                                    <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-full font-medium">⏳ {lawyerInfo.experience_years} ans d'expérience</span>
+                                  )}
+                                  <span className={`px-2.5 py-1 rounded-full font-medium ${lawyerInfo.verification_status === 'approved' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : lawyerInfo.verification_status === 'rejected' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+                                    {lawyerInfo.verification_status === 'approved' ? '✅ Approuvé' : lawyerInfo.verification_status === 'rejected' ? '❌ Rejeté' : '⏳ En attente'}
+                                  </span>
+                                </div>
+
+                                {lawyerInfo.verification_documents && lawyerInfo.verification_documents.length > 0 && (
+                                  <div className="flex flex-wrap gap-2 pt-1">
+                                    {lawyerInfo.verification_documents.map((docUrl: string, idx: number) => (
+                                      <a
+                                        key={idx}
+                                        href={docUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs text-cyan-700 hover:underline flex items-center gap-1 bg-cyan-50 border border-cyan-200 px-2.5 py-1 rounded-full font-medium transition-colors hover:bg-cyan-100"
+                                      >
+                                        📄 Document justificatif #{idx + 1}
+                                      </a>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {(!lawyerInfo.verification_documents || lawyerInfo.verification_documents.length === 0) && !l.is_verified && (
+                                  <p className="text-xs text-amber-600 italic">⚠️ Aucun document justificatif soumis</p>
+                                )}
                               </div>
                             )}
-
-                            {(!lawyerInfo.verification_documents || lawyerInfo.verification_documents.length === 0) && !l.is_verified && (
-                              <p className="text-xs text-orange-500 italic">⚠️ Aucun document justificatif soumis</p>
-                            )}
                           </div>
-                        )}
-                      </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
+                          );
+                        })}
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
 
             {activeTab === 'appointments' && (
-              <Card>
+              <Card className="bg-white border-slate-200 shadow-sm">
                 <CardHeader>
                   <CardTitle>Suivi Global des Rendez-vous</CardTitle>
                   <CardDescription>Tous les rendez-vous de consultation planifiés sur la plateforme</CardDescription>
@@ -1576,34 +1586,34 @@ const AdminDashboard: React.FC = () => {
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
-                      <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
+                      <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
                         <tr>
-                          <th className="px-6 py-3">Client</th>
-                          <th className="px-6 py-3">Avocat</th>
-                          <th className="px-6 py-3">Date planifiée</th>
-                          <th className="px-6 py-3">Statut</th>
-                          <th className="px-6 py-3 text-right">Actions</th>
+                          <th className="px-6 py-3 font-semibold">Client</th>
+                          <th className="px-6 py-3 font-semibold">Avocat</th>
+                          <th className="px-6 py-3 font-semibold">Date planifiée</th>
+                          <th className="px-6 py-3 font-semibold">Statut</th>
+                          <th className="px-6 py-3 font-semibold text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800 text-slate-300">
+                      <tbody className="divide-y divide-slate-200 text-slate-700">
                         {allAppointments.map((appt) => {
                           const statusLabels: Record<string, { text: string; color: string }> = {
-                            pending: { text: "En attente", color: "bg-amber-950 text-amber-300 border border-amber-800" },
-                            confirmed: { text: "Confirmé", color: "bg-emerald-950 text-emerald-300 border border-emerald-800" },
-                            cancelled: { text: "Annulé", color: "bg-red-950 text-red-300 border border-red-800" },
-                            completed: { text: "Terminé", color: "bg-indigo-950 text-indigo-300 border border-indigo-800" }
+                            pending: { text: "En attente", color: "bg-amber-50 text-amber-700 border border-amber-200" },
+                            confirmed: { text: "Confirmé", color: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
+                            cancelled: { text: "Annulé", color: "bg-red-50 text-red-700 border border-red-200" },
+                            completed: { text: "Terminé", color: "bg-cyan-50 text-cyan-700 border border-cyan-200" }
                           };
-                          const label = statusLabels[appt.status] || { text: appt.status, color: "bg-slate-800 text-slate-300" };
+                          const label = statusLabels[appt.status] || { text: appt.status, color: "bg-slate-100 text-slate-700 border border-slate-200" };
                           
                           return (
-                            <tr key={appt.id} className="hover:bg-slate-800/60 transition-colors">
-                              <td className="px-6 py-4 font-medium text-white">
+                            <tr key={appt.id} className="hover:bg-slate-50 transition-colors">
+                              <td className="px-6 py-4 font-semibold text-slate-900">
                                 {appt.client ? `${appt.client.first_name} ${appt.client.last_name}` : "Client inconnu"}
                               </td>
-                              <td className="px-6 py-4 text-slate-300">
+                              <td className="px-6 py-4 text-slate-700">
                                 {appt.lawyer ? `Me. ${appt.lawyer.first_name} ${appt.lawyer.last_name}` : "Avocat inconnu"}
                               </td>
-                              <td className="px-6 py-4 text-slate-400">
+                              <td className="px-6 py-4 text-slate-500">
                                 {new Date(appt.scheduled_at).toLocaleString('fr-FR')}
                               </td>
                               <td className="px-6 py-4">
@@ -1613,11 +1623,11 @@ const AdminDashboard: React.FC = () => {
                               </td>
                               <td className="px-6 py-4 text-right flex justify-end gap-2">
                                 {appt.status !== 'cancelled' && appt.status !== 'completed' && (
-                                  <Button size="sm" variant="outline" className="text-red-400 border-red-900/60 hover:bg-slate-800" onClick={() => handleCancelAppointmentByAdmin(appt.id)}>
+                                  <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => handleCancelAppointmentByAdmin(appt.id)}>
                                     Annuler
                                   </Button>
                                 )}
-                                <Button size="sm" variant="ghost" className="text-red-400 hover:bg-slate-800" onClick={() => handleDeleteAppointmentByAdmin(appt.id)}>
+                                <Button size="sm" variant="ghost" className="text-slate-500 hover:text-red-600 hover:bg-red-50" onClick={() => handleDeleteAppointmentByAdmin(appt.id)}>
                                   Supprimer
                                 </Button>
                               </td>
@@ -1626,14 +1636,14 @@ const AdminDashboard: React.FC = () => {
                         })}
                       </tbody>
                     </table>
-                    {allAppointments.length === 0 && <div className="p-8 text-center text-slate-400">Aucun rendez-vous sur la plateforme.</div>}
+                    {allAppointments.length === 0 && <div className="p-8 text-center text-slate-500">Aucun rendez-vous sur la plateforme.</div>}
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {activeTab === 'documents' && (
-              <Card>
+              <Card className="bg-white border-slate-200 shadow-sm">
                 <CardHeader>
                   <CardTitle>Documents Générés</CardTitle>
                   <CardDescription>Tous les documents créés sur la plateforme</CardDescription>
@@ -1641,78 +1651,78 @@ const AdminDashboard: React.FC = () => {
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
+                      <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
                         <tr>
-                          <th className="px-6 py-3">Document</th>
-                          <th className="px-6 py-3">Propriétaire</th>
-                          <th className="px-6 py-3">Type</th>
-                          <th className="px-6 py-3">Date</th>
+                          <th className="px-6 py-3 font-semibold">Document</th>
+                          <th className="px-6 py-3 font-semibold">Propriétaire</th>
+                          <th className="px-6 py-3 font-semibold">Type</th>
+                          <th className="px-6 py-3 font-semibold">Date</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800 text-slate-300">
+                      <tbody className="divide-y divide-slate-200 text-slate-700">
                         {allDocuments.map((doc) => (
-                          <tr key={doc.id} className="hover:bg-slate-800/60 transition-colors">
-                            <td className="px-6 py-4 font-medium text-white">{doc.name}</td>
-                            <td className="px-6 py-4 text-slate-300">
+                          <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-6 py-4 font-semibold text-slate-900">{doc.name}</td>
+                            <td className="px-6 py-4 text-slate-700">
                               {doc.profiles?.first_name} {doc.profiles?.last_name}
                             </td>
-                            <td className="px-6 py-4 text-slate-400">{doc.type}</td>
-                            <td className="px-6 py-4 text-slate-400">
+                            <td className="px-6 py-4 text-slate-500">{doc.type}</td>
+                            <td className="px-6 py-4 text-slate-500">
                               {new Date(doc.created_at).toLocaleDateString()}
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
-                    {allDocuments.length === 0 && <div className="p-8 text-center text-slate-400">Aucun document généré.</div>}
+                    {allDocuments.length === 0 && <div className="p-8 text-center text-slate-500">Aucun document généré.</div>}
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {activeTab === 'messages' && (
-              <Card>
+              <Card className="bg-white border-slate-200 shadow-sm">
                 <CardHeader>
                   <CardTitle>Messages de contact</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <div className="divide-y divide-slate-800 border-t border-slate-800">
+                  <div className="divide-y divide-slate-200 border-t border-slate-200">
                     {messages.map((m) => (
-                      <div key={m.id} className="p-6 hover:bg-slate-800/60 transition-colors">
+                      <div key={m.id} className="p-6 hover:bg-slate-50 transition-colors">
                         <div className="flex justify-between items-start mb-2">
                           <div>
-                            <h3 className="font-bold text-white">{m.subject}</h3>
-                            <p className="text-sm text-slate-400">De: {m.name} ({m.email})</p>
+                            <h3 className="font-bold text-slate-900">{m.subject}</h3>
+                            <p className="text-sm text-slate-500">De: {m.name} ({m.email})</p>
                           </div>
                           <span className="text-xs text-slate-400">{new Date(m.created_at).toLocaleString()}</span>
                         </div>
-                        <p className="text-slate-200 bg-slate-950 p-4 rounded-xl mt-2 border border-slate-800">{m.message}</p>
+                        <p className="text-slate-800 bg-slate-50 p-4 rounded-xl mt-2 border border-slate-200">{m.message}</p>
                       </div>
                     ))}
-                    {messages.length === 0 && <div className="p-8 text-center text-slate-400">Aucun message pour le moment.</div>}
+                    {messages.length === 0 && <div className="p-8 text-center text-slate-500">Aucun message pour le moment.</div>}
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {activeTab === 'system' && (
-              <Card>
+              <Card className="bg-white border-slate-200 shadow-sm">
                 <CardHeader><CardTitle>État du Système</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="p-4 border border-slate-800 rounded-xl flex items-center justify-between bg-slate-900 text-slate-100">
-                    <span className="font-semibold text-slate-200">Services France-Justice</span>
-                    <span className="px-3 py-1 rounded-lg bg-emerald-950 text-emerald-300 text-xs font-bold border border-emerald-800">100% Online</span>
+                  <div className="p-4 border border-slate-200 rounded-xl flex items-center justify-between bg-slate-50 text-slate-900">
+                    <span className="font-semibold text-slate-800">Services France-Justice</span>
+                    <span className="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">100% Online</span>
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {activeTab === 'payments' && (
-              <Card>
+              <Card className="bg-white border-slate-200 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
                   <CardTitle>Gestion des Paiements</CardTitle>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleExportData('payments', 'csv')} className="border-slate-700 text-slate-300 hover:bg-slate-800">
+                    <Button variant="outline" size="sm" onClick={() => handleExportData('payments', 'csv')} className="border-slate-200 text-slate-700 hover:bg-slate-100">
                       <Download className="h-4 w-4 mr-2" />
                       Rapport CSV
                     </Button>
@@ -1720,30 +1730,30 @@ const AdminDashboard: React.FC = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <table className="w-full text-left text-sm whitespace-nowrap">
-                    <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
+                    <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
                       <tr>
-                        <th className="px-6 py-4">Avocat</th>
-                        <th className="px-6 py-4">Client</th>
-                        <th className="px-6 py-4">Montant Devis</th>
-                        <th className="px-6 py-4">Commission (20%)</th>
-                        <th className="px-6 py-4">Statut</th>
+                        <th className="px-6 py-4 font-semibold">Avocat</th>
+                        <th className="px-6 py-4 font-semibold">Client</th>
+                        <th className="px-6 py-4 font-semibold">Montant Devis</th>
+                        <th className="px-6 py-4 font-semibold">Commission (20%)</th>
+                        <th className="px-6 py-4 font-semibold">Statut</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800 text-slate-300 relative">
+                    <tbody className="divide-y divide-slate-200 text-slate-700 relative">
                       {quotes.map(q => (
-                        <tr key={q.id} className="hover:bg-slate-800/60 transition-colors">
-                          <td className="px-6 py-4 font-medium text-white">{q.profiles?.first_name} {q.profiles?.last_name}</td>
-                          <td className="px-6 py-4 text-slate-300">{(q as any).client?.first_name} {(q as any).client?.last_name}</td>
-                          <td className="px-6 py-4 font-bold text-white">{q.amount} MAD</td>
-                          <td className="px-6 py-4 text-indigo-400 font-bold">{q.commission_amount} MAD</td>
+                        <tr key={q.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-6 py-4 font-semibold text-slate-900">{q.profiles?.first_name} {q.profiles?.last_name}</td>
+                          <td className="px-6 py-4 text-slate-700">{(q as any).client?.first_name} {(q as any).client?.last_name}</td>
+                          <td className="px-6 py-4 font-bold text-slate-900">{q.amount} MAD</td>
+                          <td className="px-6 py-4 text-cyan-600 font-bold">{q.commission_amount} MAD</td>
                           <td className="px-6 py-4">
-                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'commissioned' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}`}>
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'commissioned' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
                               {q.status}
                             </span>
                           </td>
                         </tr>
                       ))}
-                      {quotes.length === 0 && <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">Aucune transaction de devis.</td></tr>}
+                      {quotes.length === 0 && <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-500">Aucune transaction de devis.</td></tr>}
                     </tbody>
                   </table>
                 </CardContent>
@@ -1751,35 +1761,35 @@ const AdminDashboard: React.FC = () => {
             )}
 
             {activeTab === 'settings' && (
-              <Card>
+              <Card className="bg-white border-slate-200 shadow-sm">
                 <CardHeader><CardTitle>Paramètres Globaux du Système</CardTitle></CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                     <div>
-                      <h4 className="font-semibold text-white">Mode Maintenance</h4>
-                      <p className="text-sm text-slate-400">Désactiver l'accès public au site</p>
+                      <h4 className="font-semibold text-slate-900">Mode Maintenance</h4>
+                      <p className="text-sm text-slate-500">Désactiver l'accès public au site</p>
                     </div>
-                    <Button variant={settings?.maintenance_mode ? 'danger' : 'outline'} onClick={() => handleUpdateSettings('maintenance_mode', !settings?.maintenance_mode)} className={!settings?.maintenance_mode ? "border-slate-700 text-slate-300 hover:bg-slate-800" : ""}>
+                    <Button variant={settings?.maintenance_mode ? 'danger' : 'outline'} onClick={() => handleUpdateSettings('maintenance_mode', !settings?.maintenance_mode)} className={!settings?.maintenance_mode ? "border-slate-200 text-slate-700 hover:bg-slate-100" : ""}>
                       {settings?.maintenance_mode ? 'Désactiver le site' : 'Activer'}
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                     <div>
-                      <h4 className="font-semibold text-white">Commission Avocat (%)</h4>
-                      <p className="text-sm text-slate-400">Taux prélevé sur les consultations</p>
+                      <h4 className="font-semibold text-slate-900">Commission Avocat (%)</h4>
+                      <p className="text-sm text-slate-500">Taux prélevé sur les consultations</p>
                     </div>
                     <div className="flex gap-2">
-                       <Input type="number" defaultValue={settings?.commission_rate} id="comm_rate" className="w-20 bg-slate-900 border-slate-800 text-slate-100" />
-                       <Button variant="outline" onClick={() => handleUpdateSettings('commission_rate', (document.getElementById('comm_rate') as HTMLInputElement).value)} className="border-slate-700 text-slate-300 hover:bg-slate-800">Enregistrer</Button>
+                       <Input type="number" defaultValue={settings?.commission_rate} id="comm_rate" className="w-20 bg-white border-slate-200 text-slate-900 focus:border-cyan-500" />
+                       <Button onClick={() => handleUpdateSettings('commission_rate', (document.getElementById('comm_rate') as HTMLInputElement).value)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold">Enregistrer</Button>
                     </div>
                   </div>
                   <div className="flex items-center justify-between pb-2">
                     <div>
-                      <h4 className="font-semibold text-white">Message de Bienvenue</h4>
+                      <h4 className="font-semibold text-slate-900">Message de Bienvenue</h4>
                     </div>
                     <div className="flex gap-2 w-1/2">
-                       <Input type="text" defaultValue={settings?.welcome_message} id="welcome_msg" className="w-full bg-slate-900 border-slate-800 text-slate-100" />
-                       <Button variant="outline" onClick={() => handleUpdateSettings('welcome_message', (document.getElementById('welcome_msg') as HTMLInputElement).value)} className="border-slate-700 text-slate-300 hover:bg-slate-800">Sauver</Button>
+                       <Input type="text" defaultValue={settings?.welcome_message} id="welcome_msg" className="w-full bg-white border-slate-200 text-slate-900 focus:border-cyan-500" />
+                       <Button onClick={() => handleUpdateSettings('welcome_message', (document.getElementById('welcome_msg') as HTMLInputElement).value)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold">Sauver</Button>
                     </div>
                   </div>
                 </CardContent>
@@ -1789,34 +1799,34 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'assistance' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-semibold text-white">Tickets d'Assistance</h2>
+                  <h2 className="text-2xl font-semibold text-slate-900">Tickets d'Assistance</h2>
                 </div>
-                <Card>
+                <Card className="bg-white border-slate-200 shadow-sm">
                   <CardContent className="p-0">
                     <table className="w-full text-left text-sm whitespace-nowrap">
-                      <thead className="bg-slate-950 border-y border-slate-800 text-slate-400">
+                      <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
                         <tr>
-                          <th className="px-6 py-4">Utilisateur</th>
-                          <th className="px-6 py-4">Sujet</th>
-                          <th className="px-6 py-4">Statut</th>
-                          <th className="px-6 py-4">Date</th>
-                          <th className="px-6 py-4">Actions</th>
+                          <th className="px-6 py-4 font-semibold">Utilisateur</th>
+                          <th className="px-6 py-4 font-semibold">Sujet</th>
+                          <th className="px-6 py-4 font-semibold">Statut</th>
+                          <th className="px-6 py-4 font-semibold">Date</th>
+                          <th className="px-6 py-4 font-semibold">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800 text-slate-300 relative">
+                      <tbody className="divide-y divide-slate-200 text-slate-700 relative">
                         {tickets.map((ticket) => (
-                          <tr key={ticket.id} className="hover:bg-slate-800/60 transition-colors">
-                            <td className="px-6 py-4 font-medium text-white">{ticket.profiles ? `${ticket.profiles.first_name} ${ticket.profiles.last_name}` : ticket.user_id}</td>
-                            <td className="px-6 py-4 text-slate-300">{ticket.subject}</td>
+                          <tr key={ticket.id} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-6 py-4 font-semibold text-slate-900">{ticket.profiles ? `${ticket.profiles.first_name} ${ticket.profiles.last_name}` : ticket.user_id}</td>
+                            <td className="px-6 py-4 text-slate-700">{ticket.subject}</td>
                             <td className="px-6 py-4">
-                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${ticket.status === 'En cours' ? 'bg-amber-950 text-amber-300 border border-amber-800' : ticket.status === 'Résolu' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-indigo-950 text-indigo-300 border border-indigo-800'}`}>
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${ticket.status === 'En cours' ? 'bg-amber-50 text-amber-700 border border-amber-200' : ticket.status === 'Résolu' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-cyan-50 text-cyan-700 border border-cyan-200'}`}>
                                 {ticket.status}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-slate-400">{new Date(ticket.created_at).toLocaleDateString()}</td>
+                            <td className="px-6 py-4 text-slate-500">{new Date(ticket.created_at).toLocaleDateString()}</td>
                             <td className="px-6 py-4 flex items-center gap-2">
-                              <Button size="sm" variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => handleManageTicket(ticket.id, ticket.status)}>Statut</Button>
-                              <Button size="sm" variant="ghost" className="text-red-400 hover:bg-slate-800" onClick={() => handleDeleteTicket(ticket.id)}><Trash2 className="h-4 w-4" /></Button>
+                              <Button size="sm" variant="outline" className="border-slate-200 text-slate-700 hover:bg-slate-100" onClick={() => handleManageTicket(ticket.id, ticket.status)}>Statut</Button>
+                              <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50" onClick={() => handleDeleteTicket(ticket.id)}><Trash2 className="h-4 w-4" /></Button>
                             </td>
                           </tr>
                         ))}
@@ -1830,22 +1840,22 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'outils' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-semibold text-white">Gestion des Outils Avocats</h2>
-                  <Button onClick={handleAddOutil} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold"><Plus className="h-4 w-4 mr-2" /> Ajouter un Outil</Button>
+                  <h2 className="text-2xl font-semibold text-slate-900">Gestion des Outils Avocats</h2>
+                  <Button onClick={handleAddOutil} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-md shadow-cyan-600/20"><Plus className="h-4 w-4 mr-2" /> Ajouter un Outil</Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {outils.map((o) => (
-                    <Card key={o.id}>
+                    <Card key={o.id} className="bg-white border-slate-200 shadow-sm">
                       <CardContent className="p-6 space-y-4">
                         <div className="flex justify-between">
-                          <span className="text-xs font-bold text-indigo-400 uppercase">{o.category}</span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${o.status === 'Actif' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}`}>{o.status}</span>
+                          <span className="text-xs font-bold text-cyan-700 uppercase">{o.category}</span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${o.status === 'Actif' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>{o.status}</span>
                         </div>
-                        <h3 className="font-bold text-lg text-white">{o.title}</h3>
+                        <h3 className="font-bold text-lg text-slate-900">{o.title}</h3>
                         <div className="flex gap-2 pt-2">
-                          <Button variant="outline" className="flex-1 border-slate-700 text-slate-300 hover:bg-slate-800" size="sm" onClick={() => handleToggleOutilStatus(o.id, o.status)}>Statut</Button>
-                          <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => handleEditOutil(o)}><Edit className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="sm" className="text-red-400 hover:bg-slate-800" onClick={() => handleDeleteOutil(o.id)}><Trash2 className="h-4 w-4" /></Button>
+                          <Button variant="outline" className="flex-1 border-slate-200 text-slate-700 hover:bg-slate-100" size="sm" onClick={() => handleToggleOutilStatus(o.id, o.status)}>Statut</Button>
+                          <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:bg-slate-100" onClick={() => handleEditOutil(o)}><Edit className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => handleDeleteOutil(o.id)}><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -1858,55 +1868,55 @@ const AdminDashboard: React.FC = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-semibold text-white">Catalogue des Formations</h2>
-                    <p className="text-xs text-slate-400">Supervisez et créez des formations enrichies avec documents PDF et visuels d'illustration pour l'ensemble des utilisateurs.</p>
+                    <h2 className="text-2xl font-semibold text-slate-900">Catalogue des Formations</h2>
+                    <p className="text-xs text-slate-500">Supervisez et créez des formations enrichies avec documents PDF et visuels d'illustration pour l'ensemble des utilisateurs.</p>
                   </div>
-                  <Button onClick={handleAddFormation} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold"><Plus className="h-4 w-4 mr-2" /> Créer une formation</Button>
+                  <Button onClick={handleAddFormation} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-md shadow-cyan-600/20"><Plus className="h-4 w-4 mr-2" /> Créer une formation</Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {formations.map((f) => {
                     const atts = getFormationAttachments(f);
                     return (
-                      <Card key={f.id} className="flex flex-col justify-between">
+                      <Card key={f.id} className="flex flex-col justify-between bg-white border-slate-200 shadow-sm">
                         <CardContent className="p-6 flex flex-col justify-between h-full space-y-4">
                           <div className="space-y-2">
                             <div className="flex justify-between items-start">
-                              <span className="text-xs font-bold text-indigo-400 uppercase">{f.category || 'Général'}</span>
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${f.status === 'Publié' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-slate-800 text-slate-300 border border-slate-700'}`}>{f.status}</span>
+                              <span className="text-xs font-bold text-cyan-700 uppercase">{f.category || 'Général'}</span>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${f.status === 'Publié' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>{f.status}</span>
                             </div>
-                            <h3 className="font-bold text-base text-white line-clamp-2">{f.title}</h3>
-                            <p className="text-xs text-slate-400">{f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
+                            <h3 className="font-bold text-base text-slate-900 line-clamp-2">{f.title}</h3>
+                            <p className="text-xs text-slate-500">{f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
 
                             {f.description && (
-                              <p className="text-xs text-slate-300 line-clamp-2 italic bg-slate-950 p-2 rounded-xl border border-slate-800">
+                              <p className="text-xs text-slate-600 line-clamp-2 italic bg-slate-50 p-2 rounded-xl border border-slate-200">
                                 "{f.description}"
                               </p>
                             )}
 
                             {atts.length > 0 && (
-                              <div className="flex items-center justify-between text-xs text-indigo-300 bg-slate-950 border border-indigo-900/60 p-2 rounded-xl">
+                              <div className="flex items-center justify-between text-xs text-cyan-800 bg-cyan-50/70 border border-cyan-200 p-2 rounded-xl">
                                 <span className="font-bold flex items-center gap-1">
                                   <span>📑</span> {atts.length} fichier(s) joint(s)
                                 </span>
-                                <Button variant="ghost" size="sm" className="h-auto p-1 text-indigo-300 hover:text-indigo-100 hover:bg-slate-800" onClick={() => exportAllAttachments(atts)}>
+                                <Button variant="ghost" size="sm" className="h-auto p-1 text-cyan-700 hover:text-cyan-900 hover:bg-cyan-100" onClick={() => exportAllAttachments(atts)}>
                                   <Download className="w-3.5 h-3.5" />
                                 </Button>
                               </div>
                             )}
                           </div>
-                          <div className="flex gap-2 border-t border-slate-800 pt-3">
-                            <Button variant="outline" className="flex-1 text-xs border-slate-700 text-slate-300 hover:bg-slate-800" size="sm" onClick={() => handleToggleFormationStatus(f.id, f.status)}>Publier / Masquer</Button>
-                            <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => handleEditFormation(f)}><Edit className="h-4 w-4" /></Button>
-                            <Button variant="ghost" size="sm" className="text-red-400 hover:bg-slate-800" onClick={() => handleDeleteFormation(f.id)}><Trash2 className="h-4 w-4" /></Button>
+                          <div className="flex gap-2 border-t border-slate-200 pt-3">
+                            <Button variant="outline" className="flex-1 text-xs border-slate-200 text-slate-700 hover:bg-slate-100" size="sm" onClick={() => handleToggleFormationStatus(f.id, f.status)}>Publier / Masquer</Button>
+                            <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:bg-slate-100" onClick={() => handleEditFormation(f)}><Edit className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => handleDeleteFormation(f.id)}><Trash2 className="h-4 w-4" /></Button>
                           </div>
                         </CardContent>
                       </Card>
                     );
                   })}
                   {formations.length === 0 && (
-                    <div className="col-span-full text-center py-12 text-slate-400 border border-dashed border-slate-800 rounded-2xl bg-slate-900 space-y-3">
+                    <div className="col-span-full text-center py-12 text-slate-500 border border-dashed border-slate-300 rounded-2xl bg-white space-y-3">
                       <p className="text-base font-semibold">Aucun module de formation enregistré.</p>
-                      <Button onClick={handleAddFormation} size="sm"><Plus className="w-4 h-4 mr-1.5" /> Créer la première formation</Button>
+                      <Button onClick={handleAddFormation} size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold"><Plus className="w-4 h-4 mr-1.5" /> Créer la première formation</Button>
                     </div>
                   )}
                 </div>
@@ -1917,80 +1927,80 @@ const AdminDashboard: React.FC = () => {
                   onClose={() => setCreateFormationOpen(false)}
                   title="Créer une Formation (Mode Administration)"
                 >
-                  <form onSubmit={handleCreateFormationAdmin} className="space-y-4 text-sm font-sans text-slate-100">
+                  <form onSubmit={handleCreateFormationAdmin} className="space-y-4 text-sm font-sans text-slate-900">
                     <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">Titre de la formation *</label>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Titre de la formation *</label>
                       <input
                         type="text"
                         required
                         placeholder="Ex: Formation pratique au Contentieux et à la Rédaction d'Actes"
                         value={newFormation.title}
                         onChange={e => setNewFormation(prev => ({ ...prev, title: e.target.value }))}
-                        className="w-full text-xs bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
+                        className="w-full text-xs bg-white border border-slate-200 text-slate-900 placeholder-slate-400 rounded-xl focus:border-cyan-500 focus:ring-cyan-500 font-sans p-2.5"
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">Catégorie</label>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Catégorie</label>
                         <select
                           value={newFormation.category}
                           onChange={e => setNewFormation(prev => ({ ...prev, category: e.target.value }))}
-                          className="w-full text-xs bg-slate-900 border border-slate-800 text-slate-100 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
+                          className="w-full text-xs bg-white border border-slate-200 text-slate-900 rounded-xl focus:border-cyan-500 focus:ring-cyan-500 font-sans p-2.5"
                         >
-                          <option value="Droit des Contrats" className="bg-slate-900 text-slate-100">Droit des Contrats</option>
-                          <option value="Droit Social" className="bg-slate-900 text-slate-100">Droit Social / du Travail</option>
-                          <option value="Contentieux" className="bg-slate-900 text-slate-100">Contentieux & Procédure</option>
-                          <option value="Droit Numérique" className="bg-slate-900 text-slate-100">Droit Numérique & RGPD</option>
-                          <option value="Droit Pénal" className="bg-slate-900 text-slate-100">Droit Pénal des Affaires</option>
-                          <option value="Propriété Intellectuelle" className="bg-slate-900 text-slate-100">Propriété Intellectuelle</option>
-                          <option value="Pratique Juridique" className="bg-slate-900 text-slate-100">Pratique Juridique</option>
+                          <option value="Droit des Contrats">Droit des Contrats</option>
+                          <option value="Droit Social">Droit Social / du Travail</option>
+                          <option value="Contentieux">Contentieux & Procédure</option>
+                          <option value="Droit Numérique">Droit Numérique & RGPD</option>
+                          <option value="Droit Pénal">Droit Pénal des Affaires</option>
+                          <option value="Propriété Intellectuelle">Propriété Intellectuelle</option>
+                          <option value="Pratique Juridique">Pratique Juridique</option>
                         </select>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">Niveau</label>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Niveau</label>
                         <select
                           value={newFormation.level}
                           onChange={e => setNewFormation(prev => ({ ...prev, level: e.target.value }))}
-                          className="w-full text-xs bg-slate-900 border border-slate-800 text-slate-100 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
+                          className="w-full text-xs bg-white border border-slate-200 text-slate-900 rounded-xl focus:border-cyan-500 focus:ring-cyan-500 font-sans p-2.5"
                         >
-                          <option value="Débutant" className="bg-slate-900 text-slate-100">Débutant</option>
-                          <option value="Intermédiaire" className="bg-slate-900 text-slate-100">Intermédiaire</option>
-                          <option value="Avancé" className="bg-slate-900 text-slate-100">Avancé</option>
+                          <option value="Débutant">Débutant</option>
+                          <option value="Intermédiaire">Intermédiaire</option>
+                          <option value="Avancé">Avancé</option>
                         </select>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">Durée estimée</label>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Durée estimée</label>
                         <input
                           type="text"
                           required
                           placeholder="Ex: 3h 00"
                           value={newFormation.duration}
                           onChange={e => setNewFormation(prev => ({ ...prev, duration: e.target.value }))}
-                          className="w-full text-xs bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
+                          className="w-full text-xs bg-white border border-slate-200 text-slate-900 placeholder-slate-400 rounded-xl focus:border-cyan-500 focus:ring-cyan-500 font-sans p-2.5"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">Description & Sommaire Pédagogique</label>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Description & Sommaire Pédagogique</label>
                       <textarea
                         rows={3}
                         placeholder="Ex: Présentation des objectifs pédagogiques et du contenu du programme..."
                         value={newFormation.description}
                         onChange={e => setNewFormation(prev => ({ ...prev, description: e.target.value }))}
-                        className="w-full text-xs bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-500 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 font-sans p-2.5"
+                        className="w-full text-xs bg-white border border-slate-200 text-slate-900 placeholder-slate-400 rounded-xl focus:border-cyan-500 focus:ring-cyan-500 font-sans p-2.5"
                       />
                     </div>
 
                     {/* Import PDF & Image Attachments */}
-                    <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-3 text-slate-100">
-                      <label className="block text-xs font-extrabold text-slate-200 uppercase tracking-wider">
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3 text-slate-900">
+                      <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider">
                         📑 Importer des Documents PDF et Visuels (Images)
                       </label>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-slate-500">
                         Sélectionnez les supports PDF et visuels d'illustration rattachés à cette formation.
                       </p>
 
@@ -2015,20 +2025,20 @@ const AdminDashboard: React.FC = () => {
                             attachments: [...prev.attachments, ...newAtts]
                           }));
                         }}
-                        className="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-primary-600 file:text-white hover:file:bg-primary-500 cursor-pointer"
+                        className="w-full text-xs text-slate-700 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 cursor-pointer"
                       />
 
                       {newFormation.attachments.length > 0 && (
-                        <div className="space-y-2 pt-2 border-t border-slate-800">
-                          <p className="text-[11px] font-bold text-slate-300">Fichiers rattachés ({newFormation.attachments.length}) :</p>
+                        <div className="space-y-2 pt-2 border-t border-slate-200">
+                          <p className="text-[11px] font-bold text-slate-700">Fichiers rattachés ({newFormation.attachments.length}) :</p>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {newFormation.attachments.map((att, idx) => (
-                              <div key={att.id} className="p-2 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
+                              <div key={att.id} className="p-2 bg-white border border-slate-200 rounded-xl flex items-center justify-between text-xs shadow-sm">
                                 <div className="flex items-center gap-2 truncate">
-                                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
+                                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold ${att.type === 'pdf' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
                                     {att.type.toUpperCase()}
                                   </span>
-                                  <span className="truncate text-slate-200 text-[11px]">{att.name}</span>
+                                  <span className="truncate text-slate-800 text-[11px]">{att.name}</span>
                                 </div>
                                 <button
                                   type="button"
@@ -2036,7 +2046,7 @@ const AdminDashboard: React.FC = () => {
                                     ...prev,
                                     attachments: prev.attachments.filter((_, i) => i !== idx)
                                   }))}
-                                  className="text-slate-400 hover:text-red-400 p-1"
+                                  className="text-slate-400 hover:text-red-600 p-1"
                                 >
                                   ✕
                                 </button>
@@ -2047,11 +2057,11 @@ const AdminDashboard: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="flex gap-3 pt-4 border-t border-slate-800">
-                      <Button variant="outline" type="button" className="flex-1 border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => setCreateFormationOpen(false)}>
+                    <div className="flex gap-3 pt-4 border-t border-slate-200">
+                      <Button variant="outline" type="button" className="flex-1 border-slate-200 text-slate-700 hover:bg-slate-100" onClick={() => setCreateFormationOpen(false)}>
                         Annuler
                       </Button>
-                      <Button variant="primary" type="submit" className="flex-1 font-bold bg-indigo-600 hover:bg-indigo-500 text-white">
+                      <Button type="submit" className="flex-1 font-bold bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20">
                         Publier la Formation
                       </Button>
                     </div>
@@ -2063,17 +2073,17 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'classrooms' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-semibold text-white">Gestion des Visioconférences</h2>
-                  <Button onClick={handleAddClassroomByAdmin} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold">
+                  <h2 className="text-2xl font-semibold text-slate-900">Gestion des Visioconférences</h2>
+                  <Button onClick={handleAddClassroomByAdmin} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-md shadow-cyan-600/20">
                     <Plus className="h-4 w-4 mr-2" /> Créer une visio (Admin)
                   </Button>
                 </div>
-                <Card>
+                <Card className="bg-white border-slate-200 shadow-sm">
                   <CardContent className="p-0">
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-slate-950 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase">
+                          <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
                             <th className="px-6 py-4">Titre</th>
                             <th className="px-6 py-4">Description</th>
                             <th className="px-6 py-4">Type</th>
@@ -2083,29 +2093,29 @@ const AdminDashboard: React.FC = () => {
                             <th className="px-6 py-4">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800 text-sm text-slate-300">
+                        <tbody className="divide-y divide-slate-200 text-sm text-slate-700">
                           {classrooms.map((room) => (
-                            <tr key={room.id} className="hover:bg-slate-800/60 transition-colors">
-                              <td className="px-6 py-4 font-semibold text-white">{room.title}</td>
-                              <td className="px-6 py-4 text-slate-400 max-w-xs truncate" title={room.description}>{room.description}</td>
+                            <tr key={room.id} className="hover:bg-slate-50 transition-colors">
+                              <td className="px-6 py-4 font-semibold text-slate-900">{room.title}</td>
+                              <td className="px-6 py-4 text-slate-500 max-w-xs truncate" title={room.description}>{room.description}</td>
                               <td className="px-6 py-4">
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                                  room.type === 'direct' ? 'bg-red-950 text-red-300 border border-red-800' :
-                                  room.type === 'video' ? 'bg-indigo-950 text-indigo-300 border border-indigo-800' :
-                                  'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                                  room.type === 'direct' ? 'bg-red-50 text-red-700 border border-red-200' :
+                                  room.type === 'video' ? 'bg-cyan-50 text-cyan-700 border border-cyan-200' :
+                                  'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                 }`}>
                                   {room.type === 'direct' ? 'Direct' : room.type === 'video' ? 'Vidéo' : 'Différé'}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 text-slate-300">
+                              <td className="px-6 py-4 text-slate-700">
                                 {room.lawyer ? `Me ${room.lawyer.first_name} ${room.lawyer.last_name}` : 'Avocat / Admin'}
                               </td>
-                              <td className="px-6 py-4 text-slate-400">
+                              <td className="px-6 py-4 text-slate-500">
                                 {room.scheduled_at ? new Date(room.scheduled_at).toLocaleString('fr-FR') : 'Non planifié'}
                               </td>
                               <td className="px-6 py-4">
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                                  room.is_active !== false ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'
+                                  room.is_active !== false ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
                                 }`}>
                                   {room.is_active !== false ? 'Actif' : 'Suspendu'}
                                 </span>
@@ -2115,7 +2125,7 @@ const AdminDashboard: React.FC = () => {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="text-xs border-slate-700 text-slate-300 hover:bg-slate-800"
+                                    className="text-xs border-slate-200 text-slate-700 hover:bg-slate-100"
                                     onClick={() => handleToggleClassroomByAdmin(room.id, room.is_active !== false)}
                                     title={room.is_active !== false ? 'Suspendre' : 'Activer'}
                                   >
@@ -2124,16 +2134,16 @@ const AdminDashboard: React.FC = () => {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                                    className="border-slate-200 text-slate-700 hover:bg-slate-100"
                                     onClick={() => handleEditClassroomByAdmin(room)}
                                     title="Modifier"
                                   >
-                                    <Edit className="h-4 w-4 text-secondary-600" />
+                                    <Edit className="h-4 w-4 text-slate-600" />
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                                     onClick={() => handleDeleteClassroomByAdmin(room.id)}
                                     title="Supprimer"
                                   >
@@ -2145,7 +2155,7 @@ const AdminDashboard: React.FC = () => {
                           ))}
                           {classrooms.length === 0 && (
                             <tr>
-                              <td colSpan={7} className="px-6 py-8 text-center text-secondary-400 italic">
+                              <td colSpan={7} className="px-6 py-8 text-center text-slate-400 italic">
                                 Aucune visioconférence active.
                               </td>
                             </tr>
@@ -2200,24 +2210,24 @@ const AdminDashboard: React.FC = () => {
             )}
 
             {activeTab === 'security' && (
-              <div className="space-y-6 animate-fade-in text-slate-100">
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5 mb-6">
+              <div className="space-y-6 animate-fade-in text-slate-900">
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5 mb-6">
                     <div>
-                      <span className="text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
+                      <span className="text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                         {getSecurityStatusBadge().label}
                       </span>
-                      <h2 className="text-2xl font-black text-white mt-2">Console d'Administration Sécurité, RGPD & Database</h2>
-                      <p className="text-slate-400 text-xs mt-1">Contrôle central des règles RLS, protocoles d'isolation et politique de purge/conservation.</p>
+                      <h2 className="text-2xl font-black text-slate-900 mt-2">Console d'Administration Sécurité, RGPD & Database</h2>
+                      <p className="text-slate-500 text-xs mt-1">Contrôle central des règles RLS, protocoles d'isolation et politique de purge/conservation.</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <a href="/legal#legal" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all">
+                      <a href="/legal#legal" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 flex items-center gap-1.5 transition-all">
                         ⚖️ Mentions Légales
                       </a>
-                      <a href="/legal#privacy" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all">
+                      <a href="/legal#privacy" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 flex items-center gap-1.5 transition-all">
                         🔒 Confidentialité
                       </a>
-                      <a href="/legal#cgv" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition-all">
+                      <a href="/legal#cgv" target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all">
                         📜 CGV / CGU
                       </a>
                     </div>
@@ -2225,38 +2235,38 @@ const AdminDashboard: React.FC = () => {
 
                   {/* Security Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                      <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <Lock className="w-4 h-4 text-indigo-400" /> Infrastructure PostgreSQL & Auth
+                    <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2">
+                      <h4 className="text-xs font-bold text-cyan-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <Lock className="w-4 h-4 text-cyan-600" /> Infrastructure PostgreSQL & Auth
                       </h4>
-                      <ul className="text-xs text-slate-300 space-y-1.5">
-                        <li>• <strong>Chiffrement Transit :</strong> {DATABASE_SECURITY_INFO.encryptionTransit}</li>
-                        <li>• <strong>Chiffrement Repos :</strong> {DATABASE_SECURITY_INFO.encryptionRest}</li>
-                        <li>• <strong>Isolation RLS :</strong> {DATABASE_SECURITY_INFO.accessControl}</li>
-                        <li>• <strong>Auth JWT éphémère :</strong> {DATABASE_SECURITY_INFO.authStandard}</li>
+                      <ul className="text-xs text-slate-600 space-y-1.5">
+                        <li>• <strong className="text-slate-800">Chiffrement Transit :</strong> {DATABASE_SECURITY_INFO.encryptionTransit}</li>
+                        <li>• <strong className="text-slate-800">Chiffrement Repos :</strong> {DATABASE_SECURITY_INFO.encryptionRest}</li>
+                        <li>• <strong className="text-slate-800">Isolation RLS :</strong> {DATABASE_SECURITY_INFO.accessControl}</li>
+                        <li>• <strong className="text-slate-800">Auth JWT éphémère :</strong> {DATABASE_SECURITY_INFO.authStandard}</li>
                       </ul>
                     </div>
 
-                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                      <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <Shield className="w-4 h-4 text-emerald-400" /> Conformité Financière & Synchro Realtime
+                    <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2">
+                      <h4 className="text-xs font-bold text-teal-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <Shield className="w-4 h-4 text-teal-600" /> Conformité Financière & Synchro Realtime
                       </h4>
-                      <ul className="text-xs text-slate-300 space-y-1.5">
-                        <li>• <strong>Supervision :</strong> {DATABASE_SECURITY_INFO.complianceStandard}</li>
-                        <li>• <strong>Moteur Realtime :</strong> {DATABASE_SECURITY_INFO.realtimeSync}</li>
-                        <li>• <strong>Encaissements Stripe :</strong> Tokenized PCI-DSS Level 1</li>
-                        <li>• <strong>Sauvegardes BD :</strong> {DATABASE_SECURITY_INFO.backupFrequency}</li>
+                      <ul className="text-xs text-slate-600 space-y-1.5">
+                        <li>• <strong className="text-slate-800">Supervision :</strong> {DATABASE_SECURITY_INFO.complianceStandard}</li>
+                        <li>• <strong className="text-slate-800">Moteur Realtime :</strong> {DATABASE_SECURITY_INFO.realtimeSync}</li>
+                        <li>• <strong className="text-slate-800">Encaissements Stripe :</strong> Tokenized PCI-DSS Level 1</li>
+                        <li>• <strong className="text-slate-800">Sauvegardes BD :</strong> {DATABASE_SECURITY_INFO.backupFrequency}</li>
                       </ul>
                     </div>
                   </div>
 
                   {/* Data Retention Schedule Table */}
-                  <h3 className="text-sm font-extrabold text-white mb-3 flex items-center gap-2">
+                  <h3 className="text-sm font-extrabold text-slate-900 mb-3 flex items-center gap-2">
                     📅 Schedule de Conservation & Purge Réglementaire des Données
                   </h3>
-                  <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950">
-                    <table className="w-full text-xs text-left text-slate-300">
-                      <thead className="bg-slate-800/80 text-slate-200 uppercase font-bold text-[10px] border-b border-slate-800">
+                  <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <table className="w-full text-xs text-left text-slate-600">
+                      <thead className="bg-slate-50 text-slate-700 uppercase font-bold text-[10px] border-b border-slate-200">
                         <tr>
                           <th className="px-4 py-3">Type de Donnée</th>
                           <th className="px-4 py-3">Durée de Conservation</th>
@@ -2264,13 +2274,13 @@ const AdminDashboard: React.FC = () => {
                           <th className="px-4 py-3">Action à l'Échéance</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800/60">
+                      <tbody className="divide-y divide-slate-100">
                         {DATA_RETENTION_SCHEDULE.map((item) => (
-                          <tr key={item.id} className="hover:bg-slate-900/60">
-                            <td className="px-4 py-3 font-bold text-white">{item.dataType}</td>
-                            <td className="px-4 py-3 text-amber-300 font-semibold">{item.retentionPeriod}</td>
-                            <td className="px-4 py-3 text-slate-400">{item.legalBasis}</td>
-                            <td className="px-4 py-3 text-emerald-400 font-semibold">{item.actionAfterExpiry}</td>
+                          <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 py-3.5 font-bold text-slate-900">{item.dataType}</td>
+                            <td className="px-4 py-3.5 text-amber-700 font-semibold">{item.retentionPeriod}</td>
+                            <td className="px-4 py-3.5 text-slate-600">{item.legalBasis}</td>
+                            <td className="px-4 py-3.5 text-emerald-700 font-semibold">{item.actionAfterExpiry}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -2278,16 +2288,16 @@ const AdminDashboard: React.FC = () => {
                   </div>
 
                   {/* Password Reset Requests Audit Table */}
-                  <div className="pt-6 mt-6 border-t border-slate-800">
-                    <h3 className="text-sm font-extrabold text-white mb-3 flex items-center justify-between">
+                  <div className="pt-6 mt-6 border-t border-slate-200">
+                    <h3 className="text-sm font-extrabold text-slate-900 mb-3 flex items-center justify-between">
                       <span className="flex items-center gap-2">🔑 Journal Audit & Demandes de Réinitialisation de Mots de Passe</span>
-                      <span className="text-xs font-normal text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
+                      <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
                         {passwordResets.length} demande(s)
                       </span>
                     </h3>
-                    <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950">
-                      <table className="w-full text-xs text-left text-slate-300">
-                        <thead className="bg-slate-800/80 text-slate-200 uppercase font-bold text-[10px] border-b border-slate-800">
+                    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+                      <table className="w-full text-xs text-left text-slate-600">
+                        <thead className="bg-slate-50 text-slate-700 uppercase font-bold text-[10px] border-b border-slate-200">
                           <tr>
                             <th className="px-4 py-3">Email Utilisateur</th>
                             <th className="px-4 py-3">Rôle</th>
@@ -2296,7 +2306,7 @@ const AdminDashboard: React.FC = () => {
                             <th className="px-4 py-3 text-right">Actions Admin</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800/60">
+                        <tbody className="divide-y divide-slate-100">
                           {passwordResets.length === 0 ? (
                             <tr>
                               <td colSpan={5} className="px-4 py-6 text-center text-slate-500 italic">
@@ -2305,31 +2315,31 @@ const AdminDashboard: React.FC = () => {
                             </tr>
                           ) : (
                             passwordResets.map((pr) => (
-                              <tr key={pr.id || pr.email} className="hover:bg-slate-900/60 transition-colors">
-                                <td className="px-4 py-3 font-bold text-white">{pr.email}</td>
-                                <td className="px-4 py-3 font-semibold text-indigo-400 capitalize">{pr.user_role || 'user'}</td>
-                                <td className="px-4 py-3 text-slate-400">
+                              <tr key={pr.id || pr.email} className="hover:bg-slate-50/80 transition-colors">
+                                <td className="px-4 py-3.5 font-bold text-slate-900">{pr.email}</td>
+                                <td className="px-4 py-3.5 font-semibold text-cyan-700 capitalize">{pr.user_role || 'user'}</td>
+                                <td className="px-4 py-3.5 text-slate-500">
                                   {pr.requested_at ? new Date(pr.requested_at).toLocaleString('fr-FR') : 'Récemment'}
                                 </td>
-                                <td className="px-4 py-3">
+                                <td className="px-4 py-3.5">
                                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                                     pr.status === 'admin_triggered'
-                                      ? 'bg-purple-950 text-purple-300 border border-purple-800'
+                                      ? 'bg-purple-50 text-purple-700 border border-purple-200'
                                       : pr.status === 'completed'
-                                      ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                                      : 'bg-amber-950 text-amber-300 border border-amber-800'
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                      : 'bg-amber-50 text-amber-700 border border-amber-200'
                                   }`}>
                                     {pr.status === 'admin_triggered' ? 'Lancé par Admin' : pr.status === 'completed' ? 'Modifié' : 'En attente'}
                                   </span>
                                 </td>
-                                <td className="px-4 py-3 text-right flex items-center justify-end gap-2">
+                                <td className="px-4 py-3.5 text-right flex items-center justify-end gap-2">
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     title={pr.user_role === 'admin' ? "Interdit pour l'Admin" : "Renvoyer le lien de réinitialisation"}
                                     disabled={pr.user_role === 'admin'}
                                     onClick={() => handleAdminTriggerPasswordReset(pr.email, pr.user_role)}
-                                    className={pr.user_role === 'admin' ? "text-slate-600 opacity-50 cursor-not-allowed" : "text-primary-400 hover:bg-slate-800"}
+                                    className={pr.user_role === 'admin' ? "text-slate-400 opacity-50 cursor-not-allowed" : "text-cyan-700 hover:bg-cyan-50 font-bold"}
                                   >
                                     🔑 Renvoyer Lien
                                   </Button>
@@ -2337,7 +2347,7 @@ const AdminDashboard: React.FC = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeletePasswordResetLog(pr.id)}
-                                    className="text-red-400 hover:bg-slate-800"
+                                    className="text-red-600 hover:bg-red-50"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </Button>
@@ -2369,33 +2379,33 @@ const AdminDashboard: React.FC = () => {
           <div className="space-y-4">
             {modalConfig.fields.map(f => (
               <div key={f.name}>
-                <label className="block text-xs font-bold text-slate-300 mb-1">{f.label}</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{f.label}</label>
                 {f.type === 'select' ? (
-                  <select name={f.name} defaultValue={f.defaultValue} required className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
+                  <select name={f.name} defaultValue={f.defaultValue} required className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
                     {f.options?.map((opt: any) => (
-                      <option key={opt.value} value={opt.value} className="bg-slate-900 text-slate-100">{opt.label}</option>
+                      <option key={opt.value} value={opt.value} className="bg-white text-slate-900">{opt.label}</option>
                     ))}
                   </select>
                 ) : (
-                  <Input name={f.name} type={f.type || 'text'} defaultValue={f.defaultValue} required className="w-full bg-slate-950 border-slate-800 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500" />
+                  <Input name={f.name} type={f.type || 'text'} defaultValue={f.defaultValue} required className="w-full bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 rounded-xl" />
                 )}
               </div>
             ))}
             {modalConfig.fields.length === 0 && (
-              <div className="p-5 bg-slate-950 border border-slate-800/90 rounded-2xl text-slate-200 text-sm space-y-2 flex items-start gap-3.5 shadow-inner">
-                <div className={cn("p-2.5 rounded-xl shrink-0 mt-0.5", modalConfig.isDanger ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20")}>
+              <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 text-sm space-y-2 flex items-start gap-3.5 shadow-sm">
+                <div className={cn("p-2.5 rounded-xl shrink-0 mt-0.5", modalConfig.isDanger ? "bg-red-50 text-red-600 border border-red-200" : "bg-cyan-50 text-cyan-700 border border-cyan-200")}>
                   <AlertCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-extrabold text-white text-base">Confirmation Requise</p>
-                  <p className="text-xs text-slate-300 leading-relaxed mt-1">Êtes-vous sûr de vouloir exécuter cette opération ? Elle sera immédiatement répercutée en base de données.</p>
+                  <p className="font-extrabold text-slate-900 text-base">Confirmation Requise</p>
+                  <p className="text-xs text-slate-600 leading-relaxed mt-1">Êtes-vous sûr de vouloir exécuter cette opération ? Elle sera immédiatement répercutée en base de données.</p>
                 </div>
               </div>
             )}
           </div>
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
-            <Button type="button" variant="outline" onClick={closeModal} className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white rounded-xl">Annuler</Button>
-            <Button type="submit" variant={modalConfig.isDanger ? 'danger' : 'primary'} className={cn("font-extrabold rounded-xl px-5 shadow-lg", modalConfig.isDanger ? "bg-red-600 hover:bg-red-500 text-white shadow-red-900/30" : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-900/30")}>
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-200">
+            <Button type="button" variant="outline" onClick={closeModal} className="border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-xl">Annuler</Button>
+            <Button type="submit" variant={modalConfig.isDanger ? 'danger' : 'primary'} className={cn("font-extrabold rounded-xl px-5 shadow-sm", modalConfig.isDanger ? "bg-red-600 hover:bg-red-700 text-white" : "bg-cyan-600 hover:bg-cyan-700 text-white")}>
               {modalConfig.confirmText || 'Valider'}
             </Button>
           </div>

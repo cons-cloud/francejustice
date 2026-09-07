@@ -1,24 +1,26 @@
 @import "tailwindcss";
 
-/* Force Dark Theme for all Form Input Fields (including Typed Text & Browser Autofill) */
+/* Force Light Theme for all Form Input Fields (White background, Dark text, Cyan focus) */
 input,
 textarea,
 select,
 .input,
 .textarea {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  background-color: #1e293b !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #0891b2 !important;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2) !important;
 }
 
-/* Browser Webkit Autofill Override - Prevents White/Yellow background when text exists or autofilled */
+/* Browser Webkit Autofill Override - Clean White background & Dark text */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
@@ -27,13 +29,13 @@ textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,
 textarea:-webkit-autofill:focus,
 select:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #0f172a inset !important;
-  -webkit-text-fill-color: #f8fafc !important;
-  caret-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0f172a !important;
   transition: background-color 50000s ease-in-out 0s !important;
 }
 
 option {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
 }
