@@ -168,7 +168,7 @@ const LoginPage: React.FC = () => {
         navigate(redirect);
       } else {
         if (role === 'admin') navigate('/dashboard/admin');
-        else if (role === 'lawyer') navigate('/dashboard/lawyer');
+        else if (role === 'lawyer' || role === 'professor' || role === 'doctorate') navigate('/dashboard/lawyer');
         else navigate('/dashboard/user');
       }
     }

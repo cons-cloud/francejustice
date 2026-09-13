@@ -28,6 +28,7 @@ import {
   Lock
 } from 'lucide-react';
 import { DATA_RETENTION_SCHEDULE, DATABASE_SECURITY_INFO, getSecurityStatusBadge } from '../lib/dataSecurityUtils';
+import ProfessionalLoader from '../components/ui/ProfessionalLoader';
 import LawCodes from '../components/features/LawCodes';
 import ProcedureLibrary from '../components/features/ProcedureLibrary';
 import CodeAnalysis from '../components/features/CodeAnalysis';
@@ -776,7 +777,7 @@ DEVIS JURIDIQUE
 Avocat: Me ${quote.profiles?.first_name} ${quote.profiles?.last_name}
 Client: ${profile?.first_name} ${profile?.last_name}
 
-Montant: ${quote.amount} MAD
+Montant: ${quote.amount} €
 Description: ${quote.description || ''}
 Statut: ${quote.status === 'paid' ? 'Payé' : 'En attente'}
 
@@ -1552,7 +1553,13 @@ Ce document est généré par la plateforme France Justice.
 
           <main className="lg:col-span-3 order-1 lg:order-2">
             {loading ? (
-              <div className="flex items-center justify-center h-64"><RefreshCw className="h-8 w-8 animate-spin text-primary-600" /></div>
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <ProfessionalLoader
+                  title="Tableau de Bord Citoyen & Entreprise"
+                  subtitle="Synchronisation de vos dossiers, rendez-vous et pièces justificatives..."
+                  badge="Espace Personnel Sécurisé"
+                />
+              </div>
             ) : (
               <>
                 {activeTab === 'legal' && renderLegalComplianceTab()}
@@ -1579,7 +1586,7 @@ Ce document est généré par la plateforme France Justice.
                                 </div>
                                 <div>
                                   <h3 className="text-lg font-semibold text-secondary-900">Devis de Me {q.profiles?.last_name}</h3>
-                                  <p className="text-secondary-600">{q.amount} MAD • {q.description}</p>
+                                  <p className="text-secondary-600">{q.amount} € • {q.description}</p>
                                   <p className="text-xs text-secondary-400">Reçu le {new Date(q.created_at).toLocaleDateString()}</p>
                                 </div>
                               </div>
@@ -1600,7 +1607,7 @@ Ce document est généré par la plateforme France Justice.
                                         {t('dashboard.redirecting', 'Redirection...')}
                                       </span>
                                     ) : (
-                                      `${t('dashboard.pay', 'Payer')} ${q.amount} MAD`
+                                      `${t('dashboard.pay', 'Payer')} ${q.amount} €`
                                     )}
                                   </Button>
                                 ) : q.status === 'paid' ? (

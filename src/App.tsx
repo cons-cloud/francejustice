@@ -32,14 +32,22 @@ const Database             = lazy(() => import('./pages/Database'));
 const GeniaLAvocat         = lazy(() => import('./pages/GeniaLAvocat'));
 const ClassroomsPage       = lazy(() => import('./pages/Classrooms'));
 const ResetPasswordPage    = lazy(() => import('./pages/ResetPassword'));
-const ForgotPasswordPage   = lazy(() => import('./pages/ForgotPassword'));
+import ProfessionalLoader from './components/ui/ProfessionalLoader';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 
-// ─── Fast, non-blocking page transition loader ──────────────────────────
+const ForgotPasswordPage   = lazy(() => import('./pages/ForgotPassword'));
+const NotFoundPage         = lazy(() => import('./pages/NotFound'));
+const PaymentStatusPage    = lazy(() => import('./pages/PaymentStatus'));
+const DataPurgeStatusPage  = lazy(() => import('./pages/DataPurgeStatus'));
+
+// ─── Professional, high-end page transition loader ──────────────────────
 function PageLoader() {
   return (
-    <div className="w-full h-1 bg-slate-100 overflow-hidden relative">
-      <div className="w-1/2 h-full bg-gradient-to-r from-cyan-500 to-teal-500 animate-pulse transition-all duration-300" />
-    </div>
+    <ProfessionalLoader
+      title="France Justice"
+      subtitle="Chargement du portail juridique et synchronisation en temps réel..."
+      badge="Portail Juridique Officiel"
+    />
   );
 }
 
@@ -47,7 +55,15 @@ function RequireRole({ allowedRoles, children }: { allowedRoles: string[]; child
   const { role: current, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <ProfessionalLoader
+        title="Espace Sécurisé"
+        subtitle="Vérification de l'authentification et des droits d'accès..."
+        badge="Accès Réservé"
+      />
+    );
+  }
   if (!current) {
     const destination = encodeURIComponent(location.pathname + location.search);
     return <Navigate to={`/login?redirect=${destination}`} replace />;
@@ -67,7 +83,7 @@ function AppContent() {
   const hideLayout = isAuthPage || isDashboardPage;
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative bg-white text-slate-900">
       {!hideLayout && <Header />}
       <main className="flex-1">
         <Suspense fallback={<PageLoader />}>
@@ -127,6 +143,19 @@ function AppContent() {
             />
             <Route path="/reset-password"  element={<ResetPasswordPage />} />
             <Route path="/dashboard" element={<Navigate to="/dashboard/user" replace />} />
+
+            {/* 💳 Payment & Transaction Landing Pages */}
+            <Route path="/payment" element={<PaymentStatusPage />} />
+            <Route path="/payment/success" element={<PaymentStatusPage />} />
+            <Route path="/payment/cancel" element={<PaymentStatusPage />} />
+            <Route path="/payment/processing" element={<PaymentStatusPage />} />
+
+            {/* 🛡️ RGPD Data Purge Landing Page */}
+            <Route path="/data-purge" element={<DataPurgeStatusPage />} />
+
+            {/* 🧭 404 Not Found Page */}
+            <Route path="/404" element={<NotFoundPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </main>
@@ -140,11 +169,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

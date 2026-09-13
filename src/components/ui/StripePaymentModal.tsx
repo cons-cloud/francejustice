@@ -87,7 +87,7 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
         await supabase.from('notifications_just').insert([{
           user_id: quote.lawyer_id || authUser.user.id,
           title: isCommission ? 'Commission réglée avec succès' : 'Paiement de devis reçu',
-          message: `La somme de ${displayAmount} MAD a été traitée par Stripe (Réf ID: ${quote.id.slice(0, 8)}).`,
+          message: `La somme de ${displayAmount} € a été traitée par Stripe (Réf ID: ${quote.id.slice(0, 8)}).`,
           type: 'payment',
           read: false
         }]);
@@ -135,7 +135,7 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
             </div>
             <h4 className="text-xl font-extrabold text-slate-900">Paiement Confirmé !</h4>
             <p className="text-xs text-slate-600 max-w-sm mx-auto">
-              Votre transaction de <strong className="text-slate-900">{displayAmount} MAD</strong> a été enregistrée. Reçu envoyé par email.
+              Votre transaction de <strong className="text-slate-900">{displayAmount} €</strong> a été enregistrée. Reçu envoyé par email.
             </p>
             <div className="inline-flex items-center gap-2 text-xs text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl">
               <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Synchronisation temps réel en cours...
@@ -147,7 +147,7 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex justify-between items-center">
               <div>
                 <p className="text-xs text-slate-500 font-medium">Montant Total à Régler</p>
-                <p className="text-2xl font-black text-slate-900">{displayAmount} <span className="text-sm font-bold text-slate-500">MAD</span></p>
+                <p className="text-2xl font-black text-slate-900">{displayAmount} <span className="text-sm font-bold text-slate-500">€</span></p>
               </div>
               <div className="text-right">
                 <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
@@ -281,7 +281,7 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <ShieldCheck className="w-4 h-4 text-white" /> Payer {displayAmount} MAD via Stripe <ArrowRight className="w-4 h-4 ml-1" />
+                    <ShieldCheck className="w-4 h-4 text-white" /> Payer {displayAmount} € via Stripe <ArrowRight className="w-4 h-4 ml-1" />
                   </>
                 )}
               </Button>

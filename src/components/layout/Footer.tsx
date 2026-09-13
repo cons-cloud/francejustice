@@ -52,15 +52,15 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-slate-950 text-white relative overflow-hidden border-t border-slate-800">
-      {/* Glow Effects */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+    <footer className="bg-white text-slate-800 relative overflow-hidden border-t border-slate-200 shadow-xs">
+      {/* Subtle Cyan / Teal Ambient Halos */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* OFFICIAL GOVERNMENT & INSTITUTIONAL EXTERNAL LINKS BAR */}
-        <div className="py-8 border-b border-slate-200">
+        <div className="py-8 border-b border-slate-200 bg-slate-50/50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-2">
               <Building2 className="w-5 h-5 text-cyan-600" />

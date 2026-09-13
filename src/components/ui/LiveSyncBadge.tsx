@@ -16,10 +16,10 @@ export const LiveSyncBadge: React.FC<LiveSyncBadgeProps> = ({
     <div
       className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all duration-300 ${
         status === 'connected'
-          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
+          ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-700'
           : status === 'syncing'
-          ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
-          : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'
+          ? 'bg-amber-500/15 border-amber-500/30 text-amber-700'
+          : 'bg-rose-500/15 border-rose-500/30 text-rose-700'
       } ${className}`}
     >
       <span className="relative flex h-2 w-2">

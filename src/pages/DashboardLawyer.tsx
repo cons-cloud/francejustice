@@ -31,6 +31,7 @@ import {
   Lock
 } from "lucide-react"
 import { DATA_RETENTION_SCHEDULE, DATABASE_SECURITY_INFO, getSecurityStatusBadge } from '../lib/dataSecurityUtils';
+import ProfessionalLoader from '../components/ui/ProfessionalLoader';
 
 import { AdvancedAreaChart } from "../components/features/StatsCharts"
 import LawCodes from '../components/features/LawCodes';
@@ -177,14 +178,14 @@ const DashboardLawyer: React.FC = () => {
   // États pour l'outil Générateur de Contrat IA
   const [contractType, setContractType] = useState('service')
   const [contractClient, setContractClient] = useState('')
-  const [contractPrice, setContractPrice] = useState('5000')
+  const [contractPrice, setContractPrice] = useState('1500')
   const [contractGeneratedText, setContractGeneratedText] = useState('')
   const [contractGenerating, setContractGenerating] = useState(false)
 
   // États pour l'outil Calculateur d'Honoraires
-  const [calcHourlyRate, setCalcHourlyRate] = useState('1200')
+  const [calcHourlyRate, setCalcHourlyRate] = useState('250')
   const [calcHours, setCalcHours] = useState('10')
-  const [calcExpenses, setCalcExpenses] = useState('500')
+  const [calcExpenses, setCalcExpenses] = useState('100')
   const [calcVatRate, setCalcVatRate] = useState('20')
   const [calcClient, setCalcClient] = useState('')
   const [calcDescription, setCalcDescription] = useState('')
@@ -1610,7 +1611,13 @@ const DashboardLawyer: React.FC = () => {
 
           <main className={cn('lg:col-span-3', 'order-1', 'lg:order-2')}>
             {loading ? (
-              <div className={cn('flex', 'items-center', 'justify-center', 'h-64')}><RefreshCw className={cn('h-8', 'w-8', 'animate-spin', 'text-primary-600')} /></div>
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <ProfessionalLoader
+                  title="Cabinet & Espace Avocat Certifié"
+                  subtitle="Synchronisation du secrétariat, des dossiers RPVA/Télérecours et consultations..."
+                  badge="Espace Professionnel Sécurisé"
+                />
+              </div>
             ) : (
               <>
                 {activeTab === "legal" && (
@@ -2015,7 +2022,7 @@ const DashboardLawyer: React.FC = () => {
                           <thead className="bg-slate-50 border-y border-slate-200 text-slate-600 font-semibold">
                             <tr>
                               <th className={cn('px-6', 'py-4')}>Client</th>
-                              <th className={cn('px-6', 'py-4')}>Montant (MAD)</th>
+                              <th className={cn('px-6', 'py-4')}>Montant (€)</th>
                               <th className={cn('px-6', 'py-4')}>Status Devis</th>
                               <th className={cn('px-6', 'py-4')}>Status Commission (20%)</th>
                               <th className={cn('px-6', 'py-4', 'text-right')}>Actions</th>
@@ -2025,7 +2032,7 @@ const DashboardLawyer: React.FC = () => {
                             {quotes.map((q) => (
                               <tr key={q.id} className="hover:bg-cyan-50/40 transition-colors">
                                 <td className={cn('px-6', 'py-4', 'font-medium', 'text-slate-900')}>{q.profiles?.first_name} {q.profiles?.last_name}</td>
-                                <td className={cn('px-6', 'py-4', 'font-bold', 'text-slate-900')}>{q.amount}</td>
+                                <td className={cn('px-6', 'py-4', 'font-bold', 'text-slate-900')}>{q.amount} €</td>
                                 <td className={cn('px-6', 'py-4')}>
                                   <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
                                     {q.status}
@@ -2033,7 +2040,7 @@ const DashboardLawyer: React.FC = () => {
                                 </td>
                                 <td className={cn('px-6', 'py-4')}>
                                   {q.status === 'paid' ? (
-                                    <span className="text-slate-500">{q.commission_amount} MAD dû</span>
+                                    <span className="text-slate-500">{q.commission_amount} € dû</span>
                                   ) : q.status === 'commissioned' ? (
                                     <span className={cn('text-emerald-700', 'font-bold')}>Payée</span>
                                   ) : "-"}
@@ -2834,7 +2841,7 @@ const DashboardLawyer: React.FC = () => {
                           <input
                             type="text"
                             required
-                            placeholder="Ex: Réforme du code pénal marocain"
+                            placeholder="Ex: Réforme du code pénal français"
                             value={newClassroom.title}
                             onChange={e => setNewClassroom(prev => ({ ...prev, title: e.target.value }))}
                             className="w-full text-xs border border-slate-200 bg-white text-slate-900 rounded-xl focus:border-cyan-500 focus:ring-cyan-500 font-sans p-2.5"
@@ -3168,12 +3175,12 @@ const DashboardLawyer: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className={cn('block', 'text-sm', 'font-medium', 'mb-1', 'text-slate-700')}>Montant (MAD)</label>
+            <label className={cn('block', 'text-sm', 'font-medium', 'mb-1', 'text-slate-700')}>Montant (€)</label>
             <Input 
               type="number"
               value={newQuote.amount}
               onChange={(e) => setNewQuote({...newQuote, amount: e.target.value})}
-              placeholder="Ex: 5000"
+              placeholder="Ex: 500"
               required
               className="bg-white border-slate-200 text-slate-900 focus:border-cyan-500 focus:ring-cyan-500"
             />
@@ -3327,16 +3334,16 @@ const DashboardLawyer: React.FC = () => {
             Paiement Client Reçu !
           </h3>
           <p className={cn('text-sm', 'text-slate-600', 'leading-relaxed', 'px-2')}>
-            Le client <strong className="text-slate-900">{paymentAlarmQuote?.profiles?.first_name || 'Citoyen'} {paymentAlarmQuote?.profiles?.last_name || ''}</strong> a payé la somme de <strong>{paymentAlarmQuote?.amount} MAD</strong> pour le devis <strong>#{paymentAlarmQuote?.id?.slice(0, 8)}</strong>.
+            Le client <strong className="text-slate-900">{paymentAlarmQuote?.profiles?.first_name || 'Citoyen'} {paymentAlarmQuote?.profiles?.last_name || ''}</strong> a payé la somme de <strong>{paymentAlarmQuote?.amount} €</strong> pour le devis <strong>#{paymentAlarmQuote?.id?.slice(0, 8)}</strong>.
           </p>
           <div className={cn('bg-red-50/70', 'border', 'border-red-200', 'rounded-2xl', 'p-4.5', 'text-left', 'space-y-2')}>
             <div className={cn('flex', 'justify-between', 'text-xs', 'text-slate-600')}>
               <span>Montant versé par le client :</span>
-              <span className={cn('font-semibold', 'text-slate-900')}>{paymentAlarmQuote?.amount} MAD</span>
+              <span className={cn('font-semibold', 'text-slate-900')}>{paymentAlarmQuote?.amount} €</span>
             </div>
             <div className={cn('flex', 'justify-between', 'text-xs', 'text-red-600', 'font-semibold', 'border-t', 'border-red-200', 'pt-2')}>
               <span>Commission due (20%) :</span>
-              <span>{(paymentAlarmQuote?.amount * 0.2).toFixed(2)} MAD</span>
+              <span>{(paymentAlarmQuote?.amount * 0.2).toFixed(2)} €</span>
             </div>
           </div>
           <p className={cn('text-xs', 'text-slate-500', 'italic')}>
@@ -3620,9 +3627,9 @@ const DashboardLawyer: React.FC = () => {
                 
                 let contractText = "";
                 if (contractType === 'service') {
-                  contractText = `CONTRAT DE PRESTATION DE SERVICES JURIDIQUES\n\nENTRE LES SOUSSIGNÉS :\n- Maître ${profile?.last_name || 'Avocat'}, avocat au Barreau de ${(profile as any)?.bar_association || 'Casablanca'}.\n\nET :\n- M./Mme ${clientName}.\n\nIL A ÉTÉ CONVENU CE QUI SUIT :\n\nArticle 1 : Objet de la prestation\nLe Prestataire s'engage à fournir des services de conseil juridique et d'assistance pour le compte du Client.\n\nArticle 2 : Honoraires et facturation\nLes honoraires sont fixés d'un commun accord à la somme globale et forfaitaire de ${contractPrice} MAD Hors Taxes.\n\nArticle 3 : Droit applicable et Litiges\nLe présent contrat est soumis au droit marocain. Tout litige relatif à son interprétation sera porté devant les tribunaux compétents.`;
+                  contractText = `CONTRAT DE PRESTATION DE SERVICES JURIDIQUES\n\nENTRE LES SOUSSIGNÉS :\n- Maître ${profile?.last_name || 'Avocat'}, avocat au Barreau de ${(profile as any)?.bar_association || 'Paris'}.\n\nET :\n- M./Mme ${clientName}.\n\nIL A ÉTÉ CONVENU CE QUI SUIT :\n\nArticle 1 : Objet de la prestation\nLe Prestataire s'engage à fournir des services de conseil juridique et d'assistance pour le compte du Client.\n\nArticle 2 : Honoraires et facturation\nLes honoraires sont fixés d'un commun accord à la somme globale et forfaitaire de ${contractPrice} € Hors Taxes.\n\nArticle 3 : Droit applicable et Litiges\nLe présent contrat est soumis au droit français et européen. Tout litige relatif à son interprétation sera porté devant les tribunaux compétents.`;
                 } else if (contractType === 'lease') {
-                  contractText = `CONTRAT DE BAIL COMMERCIAL\n\nENTRE LES SOUSSIGNÉS :\n- Le Bailleur : Maître ${profile?.last_name || 'Avocat'} (mandataire).\n\nET :\n- Le Preneur : M./Mme ${clientName}.\n\nIL A ÉTÉ CONVENU CE QUI SUIT :\n\nArticle 1 : Destination des lieux\nLes locaux loués sont destinés exclusivement à l'activité commerciale du Preneur.\n\nArticle 2 : Loyer\nLe présent bail est consenti pour un loyer mensuel de ${contractPrice} MAD.\n\nArticle 3 : Durée\nLe présent contrat est conclu pour une durée de 3 ans ferme.`;
+                  contractText = `CONTRAT DE BAIL COMMERCIAL\n\nENTRE LES SOUSSIGNÉS :\n- Le Bailleur : Maître ${profile?.last_name || 'Avocat'} (mandataire).\n\nET :\n- Le Preneur : M./Mme ${clientName}.\n\nIL A ÉTÉ CONVENU CE QUI SUIT :\n\nArticle 1 : Destination des lieux\nLes locaux loués sont destinés exclusivement à l'activité commerciale du Preneur.\n\nArticle 2 : Loyer\nLe présent bail est consenti pour un loyer mensuel de ${contractPrice} €.\n\nArticle 3 : Durée\nLe présent contrat est conclu pour une durée de 3 ans ferme.`;
                 } else {
                   contractText = `ACCORD DE CONFIDENTIALITÉ (NDA)\n\nENTRE LES SOUSSIGNÉS :\n- Maître ${profile?.last_name || 'Avocat'} (mandataire).\n\nET :\n- M./Mme ${clientName}.\n\nIL A ÉTÉ CONVENU CE QUI SUIT :\n\nArticle 1 : Informations confidentielles\nSont considérées comme confidentielles toutes les informations techniques, financières ou juridiques partagées entre les parties.\n\nArticle 2 : Engagement de non-divulgation\nChaque partie s'engage à ne pas divulguer les informations confidentielles de l'autre partie à des tiers sans son consentement écrit préalable.`;
                 }
@@ -3685,12 +3692,12 @@ const DashboardLawyer: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Valeur / Budget de référence (MAD)</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Valeur / Budget de référence (€)</label>
                     <Input
                       type="number"
                       value={contractPrice}
                       onChange={e => setContractPrice(e.target.value)}
-                      placeholder="Ex: 5000"
+                      placeholder="Ex: 1500"
                       className="bg-white border-slate-200 text-slate-900 focus:border-cyan-500 focus:ring-cyan-500"
                     />
                   </div>
@@ -3753,7 +3760,7 @@ const DashboardLawyer: React.FC = () => {
               const { error: quoteErr } = await supabase.from('quotes_just').insert([{
                 client_id: calcClient,
                 amount: Math.round(totalTTC),
-                description: calcDescription || `Honoraires pour prestations juridiques - ${clientObj ? clientObj.name : 'Client'} (${calcHours} heures à ${calcHourlyRate} MAD/h)`,
+                description: calcDescription || `Honoraires pour prestations juridiques - ${clientObj ? clientObj.name : 'Client'} (${calcHours} heures à ${calcHourlyRate} €/h)`,
                 status: 'pending',
                 commission_amount: Math.round(totalTTC * 0.2)
               }]);
@@ -3772,7 +3779,7 @@ const DashboardLawyer: React.FC = () => {
                 
                 <div className="grid grid-cols-2 gap-3 border-t border-slate-200 pt-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Taux Horaire (MAD/h)</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Taux Horaire (€/h)</label>
                     <Input
                       type="number"
                       value={calcHourlyRate}
@@ -3790,7 +3797,7 @@ const DashboardLawyer: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Frais / Débours (MAD)</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Frais / Débours (€)</label>
                     <Input
                       type="number"
                       value={calcExpenses}
@@ -3812,15 +3819,15 @@ const DashboardLawyer: React.FC = () => {
                 <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2">
                   <div className="flex justify-between text-xs text-slate-600">
                     <span>Total Honoraires HT :</span>
-                    <span className="font-semibold text-slate-900">{totalHT.toFixed(2)} MAD</span>
+                    <span className="font-semibold text-slate-900">{totalHT.toFixed(2)} €</span>
                   </div>
                   <div className="flex justify-between text-xs text-slate-600">
                     <span>Montant TVA :</span>
-                    <span className="font-semibold text-slate-900">{vatAmount.toFixed(2)} MAD</span>
+                    <span className="font-semibold text-slate-900">{vatAmount.toFixed(2)} €</span>
                   </div>
                   <div className="flex justify-between text-sm font-bold text-cyan-700 border-t border-slate-200 pt-2">
                     <span>TOTAL TTC :</span>
-                    <span>{totalTTC.toFixed(2)} MAD</span>
+                    <span>{totalTTC.toFixed(2)} €</span>
                   </div>
                 </div>
 

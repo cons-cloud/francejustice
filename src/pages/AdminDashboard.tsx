@@ -174,8 +174,8 @@ const AdminDashboard: React.FC = () => {
         addActivity(`Nouveau message de ${data?.first_name || 'utilisateur'}`, 'chat');
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes_just' }, (p) => {
-        if (p.eventType === 'INSERT') addActivity(`Nouveau devis créé: ${p.new.amount} MAD`, 'quote');
-        if (p.eventType === 'UPDATE' && (p.new as any).status === 'paid') addActivity(`Devis payé: ${(p.new as any).amount} MAD`, 'payment');
+        if (p.eventType === 'INSERT') addActivity(`Nouveau devis créé: ${p.new.amount} €`, 'quote');
+        if (p.eventType === 'UPDATE' && (p.new as any).status === 'paid') addActivity(`Devis payé: ${(p.new as any).amount} €`, 'payment');
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'documents_just' }, async (p) => {
         const { data } = await supabase.from('profiles_just').select('first_name, last_name').eq('id', p.new.owner_id).single();
@@ -856,7 +856,7 @@ const AdminDashboard: React.FC = () => {
     { label: t('admin_dashboard.users', 'Membres & Citoyens'), value: users.length.toString(), icon: Users },
     { label: t('admin_dashboard.lawyers', 'Avocats & Enseignants'), value: users.filter(u => ['lawyer', 'professor', 'doctorate'].includes(u.role)).length.toString(), icon: Shield },
     { label: t('admin_dashboard.all_documents', 'Documents'), value: allDocuments.length.toString(), icon: FileText },
-    { label: t('admin_dashboard.platform_revenue', 'Commissions'), value: `${quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD`, icon: CreditCard },
+    { label: t('admin_dashboard.platform_revenue', 'Commissions'), value: `${quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} €`, icon: CreditCard },
   ];
 
   return (
@@ -1234,13 +1234,13 @@ const AdminDashboard: React.FC = () => {
                          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
                             <p className="text-xs font-bold text-emerald-700 uppercase">Total Commissions</p>
                             <p className="text-2xl font-bold text-emerald-900">
-                              {quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD
+                              {quotes.filter(q => q.status === 'commissioned').reduce((acc, q) => acc + Number(q.commission_amount), 0)} €
                             </p>
                          </div>
                          <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
                             <p className="text-xs font-bold text-amber-700 uppercase">En attente</p>
                             <p className="text-2xl font-bold text-amber-900">
-                              {quotes.filter(q => q.status === 'paid').reduce((acc, q) => acc + Number(q.commission_amount), 0)} MAD
+                              {quotes.filter(q => q.status === 'paid').reduce((acc, q) => acc + Number(q.commission_amount), 0)} €
                             </p>
                          </div>
                        </div>
@@ -1744,8 +1744,8 @@ const AdminDashboard: React.FC = () => {
                         <tr key={q.id} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 font-semibold text-slate-900">{q.profiles?.first_name} {q.profiles?.last_name}</td>
                           <td className="px-6 py-4 text-slate-700">{(q as any).client?.first_name} {(q as any).client?.last_name}</td>
-                          <td className="px-6 py-4 font-bold text-slate-900">{q.amount} MAD</td>
-                          <td className="px-6 py-4 text-cyan-600 font-bold">{q.commission_amount} MAD</td>
+                          <td className="px-6 py-4 font-bold text-slate-900">{q.amount} €</td>
+                          <td className="px-6 py-4 text-cyan-600 font-bold">{q.commission_amount} €</td>
                           <td className="px-6 py-4">
                             <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'commissioned' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
                               {q.status}

@@ -48,20 +48,20 @@ export async function apiPost<T = any>(path: string, body: object): Promise<T> {
  *
  * @param quoteId    - UUID of the quote/devis
  * @param type       - 'quote_payment' (citizen pays lawyer) | 'commission_payment' (lawyer pays platform)
- * @param amountMAD  - Amount in MAD (converted to centimes internally)
+ * @param amountEUR  - Amount in EUR (converted to centimes internally)
  * @returns The Stripe checkout URL
  */
 export async function createCheckoutSession(
   quoteId: string,
   type: 'quote_payment' | 'commission_payment',
-  amountMAD: number
+  amountEUR: number
 ): Promise<string> {
   const data = await apiPost<{ url?: string; error?: string }>(
     '/payments/create-checkout-session/',
     {
       quote_id: quoteId,
       type,
-      amount: Math.round(amountMAD * 100), // MAD → centimes
+      amount: Math.round(amountEUR * 100), // EUR → centimes
     }
   );
 
