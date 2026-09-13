@@ -36,7 +36,6 @@ import ProfessionalLoader from '../components/ui/ProfessionalLoader';
 import { AdvancedAreaChart } from "../components/features/StatsCharts"
 import LawCodes from '../components/features/LawCodes';
 import ProcedureLibrary from '../components/features/ProcedureLibrary';
-import CodeAnalysis from '../components/features/CodeAnalysis';
 import SearchPage from './Search';
 import { exportToCSV } from "../lib/exportUtils"
 import { StripePaymentModal } from '../components/ui/StripePaymentModal';
@@ -2364,12 +2363,6 @@ const DashboardLawyer: React.FC = () => {
                   </div>
                 )}
 
-                {activeTab === 'analyse' && (
-                  <div className={cn('space-y-4', 'animate-fade-in')}>
-                    <h2 className={cn('text-2xl', 'font-semibold', 'text-secondary-900')}>Analyse de Contrats & Codes (IA)</h2>
-                    <CodeAnalysis />
-                  </div>
-                )}
 
                 {activeTab === 'planning' && (
                   <div className="space-y-6 animate-fade-in">

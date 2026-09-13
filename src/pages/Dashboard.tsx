@@ -31,7 +31,6 @@ import { DATA_RETENTION_SCHEDULE, DATABASE_SECURITY_INFO, getSecurityStatusBadge
 import ProfessionalLoader from '../components/ui/ProfessionalLoader';
 import LawCodes from '../components/features/LawCodes';
 import ProcedureLibrary from '../components/features/ProcedureLibrary';
-import CodeAnalysis from '../components/features/CodeAnalysis';
 import { FranceMap, regions } from '../components/features/FranceMap';
 import { getCourDAppelForCity } from '../lib/jurisdictions';
 import { AdvancedAreaChart } from '../components/features/StatsCharts';
@@ -1650,12 +1649,6 @@ Ce document est généré par la plateforme France Justice.
                   <div className="space-y-4 animate-fade-in">
                     <h2 className="text-2xl font-semibold text-slate-900">{t('dashboard.procedures_library', 'Bibliothèque des Procédures')}</h2>
                     <ProcedureLibrary />
-                  </div>
-                )}
-                {activeTab === 'analyse' && (
-                  <div className="space-y-4 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-slate-900">{t('dashboard.ia_analysis', 'Analyse de Contrats & Codes (IA)')}</h2>
-                    <CodeAnalysis />
                   </div>
                 )}
                 {activeTab === 'formations' && (
