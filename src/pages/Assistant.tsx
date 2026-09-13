@@ -76,7 +76,7 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
     t('assistant.guide_step4', 'Ajoutez toute contrainte de délai connue (prescription).'),
   ];
 
-  // Binary PDF text parser in browser
+  // Binary PDF text parser in browser with multi-strategy decoding
   const extractTextFromPDFBuffer = (buffer: ArrayBuffer): string => {
     try {
       const bytes = new Uint8Array(buffer);
@@ -87,23 +87,56 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
         raw += String.fromCharCode.apply(null, Array.from(chunk));
       }
 
+      const extractedBlocks: string[] = [];
+
+      // 1. Extract literal text strings in PDF stream blocks
       const matches = raw.match(/\(([^()]{2,})\)/g);
       if (matches && matches.length > 0) {
         const extracted = matches
           .map(m => m.slice(1, -1))
           .filter(str => /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]/i.test(str) && !/^\/[A-Z]/i.test(str))
           .join(' ')
+          .replace(/\\([nrtbf\\])/g, ' ')
           .replace(/\s+/g, ' ');
-        if (extracted.trim().length > 20) {
-          return extracted;
+        if (extracted.trim().length > 25) {
+          extractedBlocks.push(extracted.trim());
         }
       }
 
+      // 2. Extract hex-encoded text strings <48656c6c6f>
+      const hexMatches = raw.match(/<([0-9A-Fa-f]{6,})>/g);
+      if (hexMatches && hexMatches.length > 0) {
+        try {
+          const hexDecoded = hexMatches
+            .map(h => {
+              const hex = h.slice(1, -1);
+              let str = '';
+              for (let i = 0; i < hex.length; i += 2) {
+                const code = parseInt(hex.substr(i, 2), 16);
+                if (code >= 32 && code <= 255) str += String.fromCharCode(code);
+              }
+              return str;
+            })
+            .filter(s => /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]{2,}/i.test(s))
+            .join(' ');
+          if (hexDecoded.trim().length > 25) {
+            extractedBlocks.push(hexDecoded.trim());
+          }
+        } catch {}
+      }
+
+      // 3. Fallback: extract meaningful words, numbers, and legal keywords
       const words = raw.match(/[A-Za-zÀ-ÿ0-9,.'’\-–—:;!?]{2,}/g);
       if (words && words.length > 0) {
         const pdfKeywords = new Set(['obj', 'endobj', 'stream', 'endstream', 'Catalog', 'Pages', 'Page', 'MediaBox', 'Resources', 'Font', 'Type', 'Subtype', 'BaseFont', 'Length', 'Filter', 'FlateDecode', 'ProcSet']);
         const cleanWords = words.filter(w => !pdfKeywords.has(w) && !w.startsWith('/'));
-        return cleanWords.join(' ').replace(/\s+/g, ' ');
+        if (cleanWords.length > 10) {
+          extractedBlocks.push(cleanWords.join(' ').replace(/\s+/g, ' '));
+        }
+      }
+
+      if (extractedBlocks.length > 0) {
+        return extractedBlocks.join('\n\n');
       }
     } catch (err) {
       console.warn("Erreur d'extraction du PDF:", err);

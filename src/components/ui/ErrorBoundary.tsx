@@ -41,7 +41,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 Une interruption temporaire est survenue
               </h1>
               <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-                Le module de protection de France Justice a sécurisé vos données. Vous pouvez recharger la page ou revenir à l&apos;accueil de la plateforme.
+                {"Le module de protection de France Justice a sécurisé vos données. Vous pouvez recharger la page ou revenir à l'accueil de la plateforme."}
               </p>
             </div>
 
@@ -60,7 +60,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 className="w-full justify-center rounded-xl py-3 border-slate-300 text-slate-700 hover:bg-slate-50 font-bold cursor-pointer"
               >
                 <Home className="w-4 h-4 mr-2" />
-                Retourner à l&apos;accueil
+                {"Retourner à l'accueil"}
               </Button>
             </div>
 

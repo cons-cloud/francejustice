@@ -422,13 +422,31 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
 
     stopSpeaking();
 
-    const cleanSpeechText = text
+    let cleanSpeechText = text
       .replace(/```[^`]*```/g, '')
-      .replace(/[*#`_-]/g, '')
+      .replace(/[*#`_~]/g, '')
+      .replace(/https?:\/\/\S+/g, '')
       .replace(/\[\d+\]/g, '')
+      .replace(/[👉💬📄💡⚖️✅⚠️1️⃣2️⃣3️⃣4️⃣5️⃣]/g, '')
+      .replace(/\n+/g, '. ')
+      .replace(/\s+/g, ' ')
       .trim();
 
     if (!cleanSpeechText) return;
+
+    // For fluid, human-like voice interaction, synthesize key findings dynamically and invite discussion
+    if (cleanSpeechText.length > 450) {
+      const sentences = cleanSpeechText.split('. ');
+      let vocalSummary = '';
+      for (const s of sentences) {
+        if ((vocalSummary + s).length < 350) {
+          vocalSummary += (vocalSummary ? '. ' : '') + s;
+        } else {
+          break;
+        }
+      }
+      cleanSpeechText = (vocalSummary || cleanSpeechText.slice(0, 350)) + ". J'ai affiché l'analyse complète, les articles de loi et la démarche sur votre écran. Souhaitez-vous que nous approfondissions un point particulier ?";
+    }
 
     const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
     utterance.lang = mapLangToSpeech(i18n.language);
