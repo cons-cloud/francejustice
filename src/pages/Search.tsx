@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Scale, ExternalLink, RefreshCw, AlertCircle, ArrowRight, Paperclip, FileText, X, Trash2 } from 'lucide-react';
+import { Search, Scale, ExternalLink, RefreshCw, AlertCircle, ArrowRight, Paperclip, FileText, X, Trash2, Sparkles, ChevronRight, BookOpen } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
-import { chatWithAI } from '../lib/gemini';
+import { chatWithAI, type LegalAISource, type LegalAutomation } from '../lib/gemini';
 import { AuthModal } from '../components/ui/AuthModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
@@ -16,6 +16,152 @@ interface SearchPageProps {
   skipAuthCheck?: boolean;
 }
 
+const LegalAIResultsView: React.FC<{
+  explanation: string;
+  sources: LegalAISource[];
+  suggestions: string[];
+  automations: LegalAutomation[];
+  loading: boolean;
+  onTriggerAction: (prompt: string) => void;
+  t: (key: string, fallback: string) => string;
+}> = ({ explanation, sources, suggestions, automations, loading, onTriggerAction, t }) => {
+  return (
+    <div className="space-y-6">
+      <Card className="border border-cyan-200 bg-white text-slate-900 shadow-xl rounded-2xl sm:rounded-3xl overflow-hidden">
+        <CardHeader className="bg-cyan-50/80 border-b border-cyan-100 py-4 px-6">
+          <CardTitle className="flex items-center gap-2 text-cyan-950 text-lg sm:text-xl font-black">
+            <Scale className="h-6 w-6 text-cyan-600 shrink-0" />
+            {t('search.analysis_title', "Analyse & Résolution Juridique par l'IA")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 sm:p-8 space-y-6">
+          {/* Main Legal Diagnostic & Analysis */}
+          <div className="whitespace-pre-wrap text-slate-800 font-normal text-base sm:text-lg leading-relaxed">
+            {explanation}
+          </div>
+
+          {/* Actionable Automations Widget */}
+          {automations && automations.length > 0 && (
+            <div className="pt-5 border-t border-slate-200 space-y-3">
+              <span className="text-xs sm:text-sm font-black text-cyan-950 uppercase flex items-center gap-2 tracking-wide">
+                <Sparkles className="h-4 w-4 text-cyan-600 animate-pulse shrink-0" />
+                Automatisations &amp; Actions Recommandées :
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {automations.map((auto, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => onTriggerAction(auto.actionPrompt)}
+                    disabled={loading}
+                    className="text-left bg-gradient-to-br from-cyan-50/90 to-white hover:from-cyan-100 hover:to-cyan-50 border border-cyan-200 hover:border-cyan-400 p-3.5 rounded-2xl transition-all shadow-xs cursor-pointer group flex flex-col justify-between gap-2"
+                  >
+                    <div>
+                      <span className="text-xs sm:text-sm font-black text-cyan-950 group-hover:text-cyan-800 transition-colors block">
+                        {auto.label}
+                      </span>
+                      <p className="text-xs text-slate-600 leading-snug line-clamp-2 mt-1">
+                        {auto.description}
+                      </p>
+                    </div>
+                    <span className="text-xs font-black text-cyan-700 flex items-center gap-1 group-hover:underline pt-1">
+                      ⚡ Déclencher en 1 clic <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Interactive Suggestions Chips */}
+          {suggestions && suggestions.length > 0 && (
+            <div className="pt-5 border-t border-slate-200 space-y-2.5">
+              <span className="text-xs sm:text-sm font-black text-slate-800 uppercase flex items-center gap-2 tracking-wide">
+                <ChevronRight className="h-4 w-4 text-cyan-600 shrink-0" />
+                Suggestions de Poursuite Personnalisées :
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {suggestions.map((sug, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => onTriggerAction(sug)}
+                    disabled={loading}
+                    className="text-xs sm:text-sm bg-slate-100 hover:bg-cyan-50 text-slate-800 hover:text-cyan-900 border border-slate-200 hover:border-cyan-300 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 text-left"
+                  >
+                    <span>{sug}</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Official State Sites & External Professional Portals */}
+          {sources && sources.length > 0 && (
+            <div className="pt-5 border-t border-slate-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-cyan-600 shrink-0" />
+                  Portails &amp; Sites Officiels Recommandés :
+                </span>
+                <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+                  {sources.length} sources vérifiées
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-2.5">
+                {sources.map((source, i) => {
+                  const isOfficial = source.category === 'officiel' || source.category === 'juridiction';
+                  return (
+                    <a 
+                      key={i}
+                      href={source.uri}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 hover:bg-cyan-50/70 border border-slate-200 hover:border-cyan-300 rounded-2xl p-3.5 transition-all group cursor-pointer shadow-2xs text-slate-900"
+                    >
+                      <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0">
+                        <div className={`p-2.5 rounded-xl shrink-0 ${isOfficial ? 'bg-emerald-100 border border-emerald-200 text-emerald-800' : 'bg-cyan-100 border border-cyan-200 text-cyan-800'}`}>
+                          <BookOpen className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                            <span className={`text-2xs font-black px-2 py-0.5 rounded-full border ${isOfficial ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-cyan-50 text-cyan-800 border-cyan-200'}`}>
+                              {source.badge || (isOfficial ? "🏛️ Site Officiel de l'État" : "🌐 Portail Métier")}
+                            </span>
+                            <span className="text-xs sm:text-sm text-slate-900 font-bold line-clamp-1 group-hover:text-cyan-800 transition-colors">
+                              {source.title || "Portail Juridique Officiel"}
+                            </span>
+                          </div>
+                          {source.description && (
+                            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                              {source.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-xs text-cyan-700 font-black group-hover:underline flex items-center gap-1 whitespace-nowrap shrink-0 self-end sm:self-center">
+                        Accéder au site officiel <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </span>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
+        <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+        <p className="text-amber-900 text-xs sm:text-sm leading-relaxed">
+          <strong>{t('search.warning_title', 'Attention:')}</strong> {t('search.warning_desc', "Cette analyse est générée par IA et fournie à titre informatif uniquement. Elle ne remplace pas l'avis d'un avocat inscrit au barreau. Pour une assistance personnalisée, nous vous recommandons de consulter un professionnel.")}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -24,6 +170,9 @@ const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+  const [aiSources, setAiSources] = useState<LegalAISource[]>([]);
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [aiAutomations, setAiAutomations] = useState<LegalAutomation[]>([]);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<{ name: string; content: string; type: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -78,6 +227,9 @@ const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
   const performSearch = async (q: string) => {
     setLoading(true);
     setAiExplanation(null);
+    setAiSources([]);
+    setAiSuggestions([]);
+    setAiAutomations([]);
 
     let fullQuery = q;
     if (attachedFiles.length > 0) {
@@ -90,18 +242,26 @@ const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
 ${fullQuery}
 
 INSTRUCTIONS DE TRAITEMENT :
-1. Recherche sur Internet les informations et jurisprudences les plus RÉCENTES sur ce sujet
-2. Analyse complètement les pièces jointes fournies (si présentes) et cite les extraits pertinents
-3. Cite les articles de loi exacts (Code Civil, Code du Travail, Code Pénal, etc.)
-4. Trouve les jurisprudences récentes (2024-2026) sur Internet
-5. Donne des conseils pratiques, synthétiques et directement applicables
-6. Cite tes sources avec les dates et références légales
+1. Analyse personnalisée et approfondie sans réponse générique ni passe-partout.
+2. Identifie précisément les parties, les dates clés, les montants en euros (€), la juridiction compétente.
+3. Analyse complète des pièces jointes (si présentes) avec citation textuelle et qualification juridique des faits.
+4. Indique clairement les points forts, les risques majeurs et la faisabilité procédurale.
+5. Cite les articles de loi exacts (Code Civil, Code du Travail, Code Pénal, etc.) et jurisprudences récentes.
+6. Donne des initiatives concrètes immédiates (actions sous 24h-48h, mise en demeure avec pénalités, saisine).
+7. Propose les portails et démarches officielles de l'État (service-public.fr, legifrance.gouv.fr, etc.).
 
-Réponds de manière structurée et professionnelle.`;
+Réponds de manière structurée, personnalisée et directement opérationnelle.`;
       
       const res = await chatWithAI(prompt, [], true);
       const explanationText = typeof res === 'string' ? res : res.text;
+      const webSources: LegalAISource[] = typeof res === 'string' ? [] : (res.sources_web || []);
+      const suggestions: string[] = typeof res === 'string' ? [] : (res.suggestions || []);
+      const automations: LegalAutomation[] = typeof res === 'string' ? [] : (res.automations || []);
+
       setAiExplanation(explanationText);
+      setAiSources(webSources);
+      setAiSuggestions(suggestions);
+      setAiAutomations(automations);
       
       if (user) {
         await supabase.from('search_history_just').insert([{
@@ -110,7 +270,7 @@ Réponds de manière structurée et professionnelle.`;
           results_count: 1
         }]);
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
     } finally {
       setLoading(false);
@@ -124,6 +284,15 @@ Réponds de manière structurée et professionnelle.`;
       return;
     }
     if (query.trim() || attachedFiles.length > 0) performSearch(query.trim());
+  };
+
+  const handleClear = () => {
+    setQuery('');
+    setAttachedFiles([]);
+    setAiExplanation(null);
+    setAiSources([]);
+    setAiSuggestions([]);
+    setAiAutomations([]);
   };
 
   if (skipAuthCheck) {
@@ -186,7 +355,7 @@ Réponds de manière structurée et professionnelle.`;
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={() => { setQuery(''); setAttachedFiles([]); }}
+                    onClick={handleClear}
                     className="text-slate-400 hover:text-rose-600 text-xs font-semibold py-1.5 px-2"
                   >
                     <Trash2 className="h-4 w-4 mr-1" /> Effacer
@@ -213,19 +382,15 @@ Réponds de manière structurée et professionnelle.`;
         )}
 
         {aiExplanation && (
-          <Card className="border border-cyan-200 bg-white text-slate-900 shadow-xl rounded-2xl overflow-hidden">
-            <CardHeader className="bg-cyan-50/70 border-b border-cyan-100">
-              <CardTitle className="flex items-center gap-2 text-cyan-900 text-lg font-black">
-                <Scale className="h-6 w-6 text-cyan-600" />
-                {t('search.analysis_title', "Analyse & Résolution Juridique par l'IA")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="whitespace-pre-wrap text-slate-800 font-normal text-base sm:text-lg leading-relaxed">
-                {aiExplanation}
-              </div>
-            </CardContent>
-          </Card>
+          <LegalAIResultsView
+            explanation={aiExplanation}
+            sources={aiSources}
+            suggestions={aiSuggestions}
+            automations={aiAutomations}
+            loading={loading}
+            onTriggerAction={(prompt: string) => performSearch(prompt)}
+            t={t}
+          />
         )}
 
         {!loading && !aiExplanation && (
@@ -320,7 +485,7 @@ Réponds de manière structurée et professionnelle.`;
                     <Button
                       type="button"
                       variant="ghost"
-                      onClick={() => { setQuery(''); setAttachedFiles([]); }}
+                      onClick={handleClear}
                       className="text-slate-400 hover:text-rose-600 text-xs font-semibold py-1.5 px-2"
                     >
                       <Trash2 className="h-4 w-4 mr-1" /> Effacer
@@ -349,27 +514,16 @@ Réponds de manière structurée et professionnelle.`;
         )}
 
         {aiExplanation && (
-          <div className="mt-12 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <Card className="border-l-4 border-l-cyan-600 bg-white shadow-xl border-t border-r border-b border-slate-200">
-              <CardHeader className="bg-cyan-50/70 border-b border-cyan-100">
-                <CardTitle className="flex items-center gap-2 text-cyan-950 font-bold text-xl">
-                  <Scale className="h-6 w-6 text-cyan-600" />
-                  {t('search.analysis_title', "Analyse Juridique par l'IA")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8 prose prose-slate max-w-none">
-                <div className="whitespace-pre-wrap text-slate-800 leading-relaxed text-lg font-normal">
-                  {aiExplanation}
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex items-start gap-4">
-              <AlertCircle className="h-6 w-6 text-amber-600 mt-1 shrink-0" />
-              <p className="text-amber-900 text-sm leading-relaxed">
-                <strong>{t('search.warning_title', 'Attention:')}</strong> {t('search.warning_desc', "Cette analyse est générée par IA et fournie à titre informatif uniquement. Elle ne remplace pas l'avis d'un avocat inscrit au barreau. Pour une assistance personnalisée, nous vous recommandons de consulter un professionnel.")}
-              </p>
-            </div>
+          <div className="mt-12 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <LegalAIResultsView
+              explanation={aiExplanation}
+              sources={aiSources}
+              suggestions={aiSuggestions}
+              automations={aiAutomations}
+              loading={loading}
+              onTriggerAction={(prompt: string) => performSearch(prompt)}
+              t={t}
+            />
           </div>
         )}
 

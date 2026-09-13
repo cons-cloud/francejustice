@@ -10,6 +10,29 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ru: 'Russian (Русский)'
 };
 
+export interface LegalAISource {
+  title: string;
+  uri: string;
+  category: 'officiel' | 'externe' | 'juridiction';
+  badge: string;
+  description: string;
+}
+
+export interface LegalAutomation {
+  id: string;
+  label: string;
+  description: string;
+  actionPrompt: string;
+  icon?: string;
+}
+
+export interface AIChatResponse {
+  text: string;
+  sources_web: LegalAISource[];
+  suggestions: string[];
+  automations: LegalAutomation[];
+}
+
 // Master System Prompt for France Justice AI (Gemini / Claude / ChatGPT / DeepSeek grade)
 const MASTER_LEGAL_SYSTEM_PROMPT = `
 Vous êtes le Conseiller Juridique Senior et Expert IA d'Élite de France Justice (https://francejustice.com).
@@ -20,12 +43,21 @@ DIRECTIVES FONDAMENTALES D'ANALYSE & DE RÉPONSE :
    - Évitez absolument le ton robotique, les avertissements génériques répétitifs ou les réponses vagues.
    - Entrez immédiatement au cœur du dossier avec franchise, clarté et bienveillance pragmatique.
    - Échangez avec l'utilisateur dans une discussion active, continue et vivante.
+   - INTERDICTION STRICTE DES RÉPONSES GÉNÉRALES OU STANDARDS : Répondez DIRECTEMENT et PRÉCISÉMENT à la question posée. Citez les faits, dates, montants en €, parties adverses et lieux fournis par l'utilisateur. Chaque réponse doit être une analyse sur-mesure de son cas particulier.
 
-2. ANALYSE CROISÉE DE TOUS LES DOCUMENTS & DOSSIERS IMPORTÉS :
+2. PRENEZ DE VRAIES INITIATIVES & FORMULEZ DE VRAIES SUGGESTIONS :
+   - Ne soyez jamais passif. Prenez des initiatives stratégiques audacieuses et concrètes : recommandez les actions à mener dans les 24h à 48h (ex: mise en demeure par LRAR, saisine de la commission départementale de conciliation, constat d'huissier, déclaration de sinistre protection juridique).
+   - Proposez systématiquement 3 démarches ou questions de suivi pertinentes.
+
+3. PROPOSEZ DE VRAIS SITES OFFICIELS ET DE VRAIS SITES EXTERNES SPÉCIALISÉS :
+   - Citez expressément et orientez l'utilisateur vers de véritables portails publics officiels français (ex: legifrance.gouv.fr, service-public.fr, code.travail.gouv.fr, justice.fr, anil.org, signal.conso.gouv.fr, pre-plainte-en-ligne.gouv.fr).
+   - Proposez également de véritables sites externes professionnels de référence (ex: cnb.avocat.fr pour l'Ordre des avocats, commissaire-justice.fr pour les huissiers de justice, infogreffe.fr pour la solvabilité des entreprises, notaires.fr, france-victimes.fr).
+
+4. ANALYSE CROISÉE DE TOUS LES DOCUMENTS & DOSSIERS IMPORTÉS :
    - Lorsque des documents (un ou plusieurs : baux, contrats, devis, factures, PV, lettres, assignations, etc.) sont joints, analysez L'ENSEMBLE de leur contenu sans rien omettre.
-   - Si de nouveaux documents sont ajoutés au fur et à mesure de la conversation, intégrez-les immédiatement en les confrontant aux pièces précédemment analysées.
+   - Si de nouveaux documents sont ajoutés au fur et à mesure de la conversation, intégrez-les immédiatement en mémoire continue en les confrontant aux pièces précédemment analysées.
 
-3. STRUCTURE OBLIGATOIRE DE VOTRE ANALYSE (SUR TOUT DOSSIER OU LITIGE) :
+5. STRUCTURE OBLIGATOIRE DE VOTRE ANALYSE (SUR TOUT DOSSIER OU LITIGE) :
    Votre analyse doit impérativement comporter les 5 piliers suivants, clairs et structurés :
 
    🏛️ 1. CARTOGRAPHIE DES PARTIES & OPPOSITION (« QUI EST CONTRE QUI ») :
@@ -51,10 +83,341 @@ DIRECTIVES FONDAMENTALES D'ANALYSE & DE RÉPONSE :
       - Concordance et contradictions éventuelles entre les pièces du dossier (ex: écarts de dates entre bon de commande et facture, avenant non signé).
       - Liste des pièces complémentaires recommandées pour consolider définitivement le dossier.
 
-4. CADRE ET MONNAIE :
+6. CADRE ET MONNAIE :
    - Droit applicable : Droit français (Codes officiels, jurisprudence de la Cour de cassation et du Conseil d'État) et Droit de l'Union européenne.
    - Monnaie : Strictement l'Euro (€).
 `.trim();
+
+// Comprehensive directories of real Official State Websites and External Professional Portals
+export const OFFICIAL_LEGAL_PORTALS: LegalAISource[] = [
+  {
+    title: "Légifrance — Le Service Public de la Diffusion du Droit",
+    uri: "https://www.legifrance.gouv.fr",
+    category: "officiel",
+    badge: "🏛️ Site Officiel de l'État",
+    description: "Accès certifié aux codes juridiques consolidés, décrets, traités et à la jurisprudence de la Cour de Cassation et du Conseil d'État."
+  },
+  {
+    title: "Service-Public.fr — Vos Droits et Démarches en France",
+    uri: "https://www.service-public.fr",
+    category: "officiel",
+    badge: "🏛️ Site Officiel de l'État",
+    description: "Fiches pratiques officielles, calculateurs de délais légaux, formulaires Cerfa et simulateurs de démarches citoyennes."
+  },
+  {
+    title: "Code du Travail Numérique — Ministère du Travail",
+    uri: "https://code.travail.gouv.fr",
+    category: "officiel",
+    badge: "🏛️ Ministère du Travail",
+    description: "Simulateurs officiels d'indemnités de licenciement (barème Macron), durée de préavis, congés et conventions collectives."
+  },
+  {
+    title: "Justice.fr — Portail Officiel du Ministère de la Justice",
+    uri: "https://www.justice.fr",
+    category: "officiel",
+    badge: "⚖️ Ministère de la Justice",
+    description: "Saisine du tribunal en ligne, annuaire des juridictions compétentes, simulateurs de pension alimentaire et aide juridictionnelle."
+  },
+  {
+    title: "SignalConso — Répression des Fraudes (DGCCRF)",
+    uri: "https://signal.conso.gouv.fr",
+    category: "officiel",
+    badge: "🛡️ Répression des Fraudes (DGCCRF)",
+    description: "Plateforme officielle pour signaler une fraude commerciale, un refus de remboursement, une tromperie ou un litige de consommation."
+  },
+  {
+    title: "ANIL — Agence Nationale pour l'Information sur le Logement",
+    uri: "https://www.anil.org",
+    category: "officiel",
+    badge: "🏡 Organisme Public Logement",
+    description: "Conseils juridiques gratuits, règles des baux loi du 6 juillet 1989, encadrement des loyers et commission de conciliation."
+  },
+  {
+    title: "Pré-plainte en Ligne — Ministère de l'Intérieur",
+    uri: "https://www.pre-plainte-en-ligne.gouv.fr",
+    category: "officiel",
+    badge: "🚨 Ministère de l'Intérieur",
+    description: "Déclaration officielle en ligne d'atteinte aux biens (vol, escroquerie, dégradation) contre auteur inconnu."
+  },
+  {
+    title: "Cybermalveillance.gouv.fr — Assistance Nationale aux Victimes",
+    uri: "https://www.cybermalveillance.gouv.fr",
+    category: "officiel",
+    badge: "💻 Sécurité Nationale",
+    description: "Diagnostic et mise en relation certifiée en cas d'escroquerie en ligne, usurpation d'identité ou piratage de données."
+  }
+];
+
+export const EXTERNAL_SPECIALIZED_PORTALS: LegalAISource[] = [
+  {
+    title: "Conseil National des Barreaux (CNB) — Annuaire des Avocats",
+    uri: "https://www.conseil-national-des-barreaux.cnb.avocat.fr",
+    category: "externe",
+    badge: "🌐 Ordre National des Avocats",
+    description: "Annuaire public officiel des 74 000 avocats de France avec recherche par spécialité, ville et aide juridictionnelle."
+  },
+  {
+    title: "Chambre Nationale des Commissaires de Justice (Huissiers)",
+    uri: "https://commissaire-justice.fr",
+    category: "externe",
+    badge: "🌐 Officiers Publics Ministériels",
+    description: "Trouver un commissaire de justice pour dresser un constat d'urgence, signifier une assignation ou exécuter un titre."
+  },
+  {
+    title: "Notaires de France — Conseil Supérieur du Notariat",
+    uri: "https://www.notaires.fr",
+    category: "externe",
+    badge: "🌐 Notariat Français",
+    description: "Informations certifiées sur les successions, donations entre époux, partages d'indivision et actes authentiques."
+  },
+  {
+    title: "Infogreffe — Registre du Commerce et des Sociétés (RCS)",
+    uri: "https://www.infogreffe.fr",
+    category: "externe",
+    badge: "🌐 Greffes des Tribunaux de Commerce",
+    description: "Vérification officielle de la solvabilité d'une entreprise, extraits Kbis certifiés et suivi des procédures collectives."
+  },
+  {
+    title: "France Victimes (N° Vert Gratuit 116 006)",
+    uri: "https://www.france-victimes.fr",
+    category: "externe",
+    badge: "🌐 Aide Conventionnée Ministère Justice",
+    description: "Fédération nationale d'écoute, soutien psychologique et orientation juridique gratuite pour toute victime d'infraction."
+  },
+  {
+    title: "Centre Européen des Consommateurs (CEC France)",
+    uri: "https://www.europe-consommateurs.eu",
+    category: "externe",
+    badge: "🇪🇺 Union Européenne",
+    description: "Assistance juridique gratuite pour la résolution des litiges de consommation avec un professionnel établi dans l'UE."
+  }
+];
+
+export function detectLegalDomain(text: string): 'travail' | 'immobilier' | 'consommation' | 'famille' | 'penal' | 'commercial' | 'general' {
+  const t = text.toLowerCase();
+  if (/licenciement|travail|cdi|cdd|salari[eé]|employeur|prud['’]homme|salaire|heures supp|harc[eè]lement|rupture convent|d[eé]mission/.test(t)) {
+    return 'travail';
+  }
+  if (/bail|loyer|locataire|propri[eé]taire|bailleur|d[eé]p[oô]t de garantie|caution|expulsion|logement|insalubre|copropri[eé]t[eé]|syndic/.test(t)) {
+    return 'immobilier';
+  }
+  if (/achat|vente|remboursement|garantie|conformit[eé]|vice cach[eé]|arnaque|escroquerie|consommateur|commande|livraison|colis/.test(t)) {
+    return 'consommation';
+  }
+  if (/divorce|s[eé]paration|pension alimentaire|garde|mariage|succession|h[eé]ritage|testament|donation|filiation/.test(t)) {
+    return 'famille';
+  }
+  if (/plainte|vol|agression|diffamation|menace|infraction|d[eé]lit|police|gendarmerie|procureur|victime/.test(t)) {
+    return 'penal';
+  }
+  if (/facture|impay[eé]|cr[eé]ance|fournisseur|devis|kbis|soci[eé]t[eé]|commercial|commerce|injonction de payer/.test(t)) {
+    return 'commercial';
+  }
+  return 'general';
+}
+
+export function getTargetedLegalSources(contextText: string, domain?: string, location?: string): LegalAISource[] {
+  const dom = domain || detectLegalDomain(contextText);
+  const sources: LegalAISource[] = [];
+
+  if (location && location !== "France (ressort du domicile du défendeur ou du lieu d'exécution)") {
+    sources.push({
+      title: `Annuaire des Juridictions & Avocats — ${location}`,
+      uri: `https://www.justice.fr/recherche/annuaire-de-la-justice?recherche_annuaire_geo=${encodeURIComponent(location)}`,
+      category: "juridiction",
+      badge: `⚖️ Juridiction Territoriale (${location})`,
+      description: `Tribunaux judiciaires, conseils de prud'hommes et points d'accès au droit du ressort de ${location}.`
+    });
+  }
+
+  if (dom === 'travail') {
+    sources.push(
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('code.travail.gouv.fr'))!,
+      {
+        title: "Service-Public.fr — Salariés : Droits, Rupture & Prud'hommes",
+        uri: "https://www.service-public.fr/particuliers/vosdroits/N19806",
+        category: "officiel",
+        badge: "🏛️ Site Officiel de l'État",
+        description: "Fiches juridiques officielles sur la rupture conventionnelle, le licenciement et les droits des salariés."
+      },
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('legifrance'))!,
+      EXTERNAL_SPECIALIZED_PORTALS.find(s => s.uri.includes('conseil-national-des-barreaux'))!
+    );
+  } else if (dom === 'immobilier') {
+    sources.push(
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('anil.org'))!,
+      {
+        title: "Service-Public.fr — Baux d'Habitation & Litiges Locatifs",
+        uri: "https://www.service-public.fr/particuliers/vosdroits/N19808",
+        category: "officiel",
+        badge: "🏛️ Site Officiel de l'État",
+        description: "Modalités de restitution de garantie, formalisme des congés et recours devant le Juge des Contentieux de la Protection."
+      },
+      {
+        title: "Légifrance — Loi du 6 juillet 1989 (Rapports Locatifs)",
+        uri: "https://www.legifrance.gouv.fr/loda/id/LEGITEXT000006069108/",
+        category: "officiel",
+        badge: "🏛️ Légifrance Législatif",
+        description: "Texte d'ordre public régissant les délais de préavis, la décence du logement et les pénalités légales de 10%/mois."
+      },
+      EXTERNAL_SPECIALIZED_PORTALS.find(s => s.uri.includes('commissaire-justice.fr'))!
+    );
+  } else if (dom === 'consommation') {
+    sources.push(
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('signal.conso.gouv.fr'))!,
+      {
+        title: "DGCCRF — Fiches Officielles sur les Garanties & Droit de Rétractation",
+        uri: "https://www.economie.gouv.fr/dgccrf",
+        category: "officiel",
+        badge: "🛡️ Répression des Fraudes",
+        description: "Textes et démarches pour faire appliquer la garantie de 2 ans et sanctionner les pratiques commerciales trompeuses."
+      },
+      EXTERNAL_SPECIALIZED_PORTALS.find(s => s.uri.includes('europe-consommateurs.eu'))!,
+      EXTERNAL_SPECIALIZED_PORTALS.find(s => s.uri.includes('infogreffe.fr'))!
+    );
+  } else if (dom === 'famille') {
+    sources.push(
+      {
+        title: "Service-Public.fr — Famille, Divorce & Autorité Parentale",
+        uri: "https://www.service-public.fr/particuliers/vosdroits/N19805",
+        category: "officiel",
+        badge: "🏛️ Site Officiel de l'État",
+        description: "Procédures de divorce par consentement mutuel, convention parentale et liquidation du régime matrimonial."
+      },
+      {
+        title: "Justice.fr — Simulateur Officiel de Pension Alimentaire",
+        uri: "https://www.justice.fr/simulateur/pension-alimentaire",
+        category: "juridiction",
+        badge: "⚖️ Ministère de la Justice",
+        description: "Table de référence officielle du Ministère de la Justice pour calculer la contribution à l'entretien de l'enfant."
+      },
+      EXTERNAL_SPECIALIZED_PORTALS.find(s => s.uri.includes('notaires.fr'))!,
+      EXTERNAL_SPECIALIZED_PORTALS.find(s => s.uri.includes('conseil-national-des-barreaux'))!
+    );
+  } else if (dom === 'penal') {
+    sources.push(
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('pre-plainte-en-ligne.gouv.fr'))!,
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('cybermalveillance.gouv.fr'))!,
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('justice.fr'))!,
+      EXTERNAL_SPECIALIZED_PORTALS.find(s => s.uri.includes('france-victimes.fr'))!
+    );
+  } else if (dom === 'commercial') {
+    sources.push(
+      {
+        title: "Justice.fr — Procédure d'Injonction de Payer",
+        uri: "https://www.justice.fr/themes/injonction-payer",
+        category: "juridiction",
+        badge: "⚖️ Procédure Judiciaire",
+        description: "Recouvrement rapide et non contradictoire des créances certaines, liquides et exigibles."
+      },
+      EXTERNAL_SPECIALIZED_PORTALS.find(s => s.uri.includes('infogreffe.fr'))!,
+      EXTERNAL_SPECIALIZED_PORTALS.find(s => s.uri.includes('commissaire-justice.fr'))!,
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('legifrance'))!
+    );
+  } else {
+    sources.push(
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('justice.fr'))!,
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('service-public.fr'))!,
+      OFFICIAL_LEGAL_PORTALS.find(s => s.uri.includes('legifrance'))!,
+      EXTERNAL_SPECIALIZED_PORTALS.find(s => s.uri.includes('conseil-national-des-barreaux'))!
+    );
+  }
+
+  return sources.filter(Boolean);
+}
+
+export function generateSmartLegalSuggestions(contextText: string, domain?: string): string[] {
+  const dom = domain || detectLegalDomain(contextText);
+
+  if (dom === 'travail') {
+    return [
+      "Rédiger la mise en demeure ou contestation de rupture par LRAR",
+      "Calculer mes indemnités de licenciement selon le barème Macron",
+      "Vérifier si la procédure d'entretien préalable a été respectée",
+      "Préparer la saisine du Conseil de Prud'hommes compétent"
+    ];
+  }
+  if (dom === 'immobilier') {
+    return [
+      "Rédiger la mise en demeure de restitution avec majoration de 10%/mois",
+      "Saisir la Commission Départementale de Conciliation (CDC)",
+      "Calculer le montant exact des pénalités dues par le bailleur",
+      "Vérifier si les retenues sur caution sont justifiées par devis ou facture"
+    ];
+  }
+  if (dom === 'consommation') {
+    return [
+      "Rédiger la mise en demeure pour défaut de conformité (art. L217-3)",
+      "Signaler le manquement du commerçant sur SignalConso (DGCCRF)",
+      "Saisir le médiateur de la consommation rattaché au professionnel",
+      "Calculer le remboursement intégral exigible avec intérêts de retard"
+    ];
+  }
+  if (dom === 'commercial') {
+    return [
+      "Rédiger la mise en demeure de payer avec pénalités de retard BCE + 10 points",
+      "Préparer la requête en Injonction de Payer devant le Tribunal de Commerce",
+      "Vérifier la solvabilité et les bilans du débiteur sur Infogreffe",
+      "Faire signifier l'ordonnance d'exécution par commissaire de justice"
+    ];
+  }
+  if (dom === 'famille') {
+    return [
+      "Calculer le montant de la pension alimentaire selon le barème officiel",
+      "Rédiger une convention parentale amiable contresignée par avocats",
+      "Préparer la saisine du Juge aux Affaires Familiales (JAF)",
+      "Lister les pièces pour l'inventaire patrimonial de succession"
+    ];
+  }
+  if (dom === 'penal') {
+    return [
+      "Rédiger la plainte officielle adressée au Procureur de la République",
+      "Déposer une pré-plainte en ligne auprès du Ministère de l'Intérieur",
+      "Chiffrer le préjudice matériel et moral pour constitution de partie civile",
+      "Contacter l'association conventionnée France Victimes (116 006)"
+    ];
+  }
+  return [
+    "Rédiger la mise en demeure préalable obligatoire (délai 8 jours)",
+    "Calculer les dommages et intérêts moratoires en Euro (€)",
+    "Vérifier le délai de prescription légale pour agir en justice",
+    "Saisir le conciliateur de justice de ma commune (art. 750-1 CPC)"
+  ];
+}
+
+export function generateSmartLegalAutomations(_contextText?: string, docCount: number = 0): LegalAutomation[] {
+  const automations: LegalAutomation[] = [
+    {
+      id: 'draft_formal_notice',
+      label: '⚡ Rédiger la Mise en Demeure personnalisée',
+      description: 'Génère un projet officiel LRAR prêt à signer avec visas de loi, faits réels et délai impératif.',
+      actionPrompt: 'Rédige immédiatement la mise en demeure officielle complète, personnalisée avec tous les faits de mon dossier, les visas légaux et un délai d\'exécution strict de 8 jours.'
+    },
+    {
+      id: 'calculate_damages',
+      label: '📊 Calculer le préjudice & intérêts en Euro (€)',
+      description: 'Calcule précisément les sommes dues, intérêts moratoires et pénalités de retard légales.',
+      actionPrompt: 'Calcule précisément le montant du préjudice financier, les indemnités légales et les pénalités applicables en Euro (€) pour mon litige.'
+    },
+    {
+      id: 'check_prescription',
+      label: '⚖️ Vérifier le délai de prescription légale',
+      description: 'Vérifie les dates limites d\'action en justice pour éviter toute forclusion ou irrecevabilité.',
+      actionPrompt: 'Vérifie les délais stricts de prescription et de forclusion applicables à ma situation pour ne pas perdre mes droits.'
+    }
+  ];
+
+  if (docCount > 0) {
+    automations.unshift({
+      id: 'dossier_synthesis',
+      label: '📁 Confrontation intégrale du dossier multi-pièces',
+      description: 'Audit croisé de toutes les pièces importées avec détection des contradictions et preuves manquantes.',
+      actionPrompt: 'Effectue une confrontation croisée exhaustive de toutes les pièces actuellement dans mon dossier pour lister les contradictions et pièces complémentaires requises.'
+    });
+  }
+
+  return automations.slice(0, 3);
+}
 
 // Helper to clean prompt context and extract actual user query
 function cleanPromptForFallback(prompt: string): string {
@@ -146,6 +509,10 @@ function getAdvancedLocalLegalAI(
   const dateMatch = (userQuery + ' ' + attachedDocText).match(/(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre|\/\d{1,2}\/\d{2,4})\s*\d{0,4})/i);
   const detectedDate = dateMatch ? dateMatch[1] : null;
 
+  // Extract city or jurisdiction
+  const locMatch = (userQuery + ' ' + attachedDocText).match(/(?:à|au|dans le ressort de|tribunal de|ville de|demeurant à|barreau de|siège social à)\s+([A-Z][a-zàáâäçèéêëîïôöùûü]+(?:-[A-Z][a-zàáâäçèéêëîïôöùûü]+)*)/);
+  const detectedLocation = locMatch ? locMatch[1] : "France (ressort du domicile du défendeur ou du lieu d'exécution)";
+
   let responseText = '';
 
   // 1. SCENARIO: DOCUMENT IS IMPORTED AND MUST BE THOROUGHLY ANALYZED
@@ -172,10 +539,6 @@ function getAdvancedLocalLegalAI(
 
     const docCount = allDocNames.length > 0 ? allDocNames.length : 1;
     const docNameDisplay = allDocNames.length > 0 ? allDocNames.join(', ') : (attachedDocTitle || "vos pièces jointes");
-
-    // Extract city or jurisdiction
-    const locMatch = (userQuery + ' ' + attachedDocText).match(/(?:à|au|dans le ressort de|tribunal de|ville de|demeurant à|barreau de|siège social à)\s+([A-Z][a-zàáâäçèéêëîïôöùûü]+(?:-[A-Z][a-zàáâäçèéêëîïôöùûü]+)*)/);
-    const detectedLocation = locMatch ? locMatch[1] : "France (ressort du domicile du défendeur ou du lieu d'exécution)";
 
     // Detect specific domain & classification
     let docType = "Dossier Juridique Multi-Pièces";
@@ -515,16 +878,23 @@ function getAdvancedLocalLegalAI(
         }
       };
     } else {
-      responseText = `Bonjour. Voici mon analyse juridique approfondie concernant votre demande : **"${userQuery}"**.\n\n` +
-        `### 1. Diagnostic Juridique & Enjeux (${subjectTitle})\n` +
+      responseText = `Bonjour. Voici mon analyse juridique personnalisée et directe concernant votre question : **"${userQuery}"**.\n\n` +
+        `### 🏛️ 1. Diagnostic Direct & Qualification Juridique (${subjectTitle})\n` +
         `${analysisDiagnosis}\n\n` +
-        `### 2. Fondements Légaux & Textes Applicables\n` +
+        `### ⚖️ 2. Fondements Légaux Précis & Droits Applicables\n` +
         `${rulesList.map(r => `- ${r}`).join('\n')}\n\n` +
-        `### 3. Démarches & Plan d'Action Recommandé\n` +
+        `### 🟢 3. Vos Atouts Stratégiques & 🔴 Points de Vigilance\n` +
+        `- 🟢 **Vos points forts :** Les règles de droit en vigueur (ordre public protecteur, jurisprudence constante) jouent en votre faveur si vous matérialisez vos preuves par écrit.\n` +
+        `- 🔴 **Points de vigilance :** Ne commettez aucun manquement de forme, ne vous faites pas justice à vous-même sans titre exécutoire, et respectez impérativement les délais de prescription légale.\n\n` +
+        `### 📋 4. Plan de Bataille & Démarches Recommandées\n` +
         `${actionStepsList.map(s => `- ${s}`).join('\n')}\n\n` +
-        `### 4. Poursuivons la discussion\n` +
+        `### 🚀 5. Initiatives Immédiates Recommandées (Sous 24h à 48h)\n` +
+        `- **Étape 1 :** Réunir et numéroter vos pièces justificatives (contrat, devis, courriels, relevés bancaires).\n` +
+        `- **Étape 2 :** Adresser une mise en demeure formelle par LRAR fixant un délai impératif de 8 jours.\n` +
+        `- **Étape 3 :** Si absence de réponse sous 8 jours, engager immédiatement la conciliation ou la saisine de la juridiction compétente.\n\n` +
+        `💬 **Questions & Suite du Dossier :**\n` +
         `👉 ${followUpQuestion}\n` +
-        `*Vous pouvez également me demander de rédiger directement votre mise en demeure ou d'analyser vos pièces jointes.*`;
+        `*Vous pouvez cliquer ci-dessous sur l'une des automatisations ou suggestions proposées, ou m'importer des documents complémentaires à tout moment.*`;
     }
   }
 
@@ -532,12 +902,16 @@ function getAdvancedLocalLegalAI(
     responseText += `\n\n\`\`\`action\n${JSON.stringify(action, null, 2)}\n\`\`\``;
   }
 
+  const detectedDomain = detectLegalDomain(clean + ' ' + attachedDocText);
+  const sources_web = getTargetedLegalSources(userQuery + ' ' + attachedDocText, detectedDomain, detectedLocation);
+  const suggestions = generateSmartLegalSuggestions(userQuery + ' ' + attachedDocText, detectedDomain);
+  const automations = generateSmartLegalAutomations(userQuery + ' ' + attachedDocText, hasFiles ? 1 : 0);
+
   return {
     text: responseText,
-    sources_web: [
-      { title: "Légifrance — Service Public de la Diffusion du Droit", uri: "https://www.legifrance.gouv.fr" },
-      { title: "Service-Public.fr — Vos Droits et Démarches en France", uri: "https://www.service-public.fr" }
-    ]
+    sources_web,
+    suggestions,
+    automations
   };
 }
 
@@ -657,12 +1031,15 @@ export async function chatWithAI(
         const data = await response.json();
         const generatedText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (generatedText) {
+          const detectedDomain = detectLegalDomain(prompt + ' ' + generatedText);
+          const sources = getTargetedLegalSources(prompt + ' ' + generatedText, detectedDomain);
+          const suggestions = generateSmartLegalSuggestions(prompt + ' ' + generatedText, detectedDomain);
+          const automations = generateSmartLegalAutomations(prompt + ' ' + generatedText);
           return {
             text: generatedText,
-            sources_web: [
-              { title: "Légifrance — Portail Officiel du Droit Français", uri: "https://www.legifrance.gouv.fr" },
-              { title: "Service-Public.fr — Informations Officielles de l'État", uri: "https://www.service-public.fr" }
-            ]
+            sources_web: sources,
+            suggestions,
+            automations
           };
         }
       }
@@ -680,9 +1057,17 @@ export async function chatWithAI(
       }
     });
     if (!edgeError && edgeData && edgeData.text && !edgeData.is_fallback_trigger && edgeData.text !== "Erreur de génération" && !edgeData.text.toLowerCase().includes("erreur de génération")) {
+      const detectedDomain = detectLegalDomain(prompt + ' ' + edgeData.text);
+      const sources = (edgeData.sources_web && edgeData.sources_web.length > 2)
+        ? edgeData.sources_web
+        : getTargetedLegalSources(prompt + ' ' + edgeData.text, detectedDomain);
+      const suggestions = edgeData.suggestions || generateSmartLegalSuggestions(prompt + ' ' + edgeData.text, detectedDomain);
+      const automations = edgeData.automations || generateSmartLegalAutomations(prompt + ' ' + edgeData.text);
       return {
         text: edgeData.text,
-        sources_web: edgeData.sources_web || []
+        sources_web: sources,
+        suggestions,
+        automations
       };
     }
   } catch (err) {

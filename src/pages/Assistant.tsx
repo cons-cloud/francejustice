@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Textarea } from '../components/ui/Textarea';
-import { Input } from '../components/ui/Input';
 import { 
   Paperclip, 
   Send, 
@@ -27,7 +26,7 @@ import {
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import { AuthModal } from '../components/ui/AuthModal';
-import { chatWithAI } from '../lib/gemini';
+import { chatWithAI, type LegalAISource, type LegalAutomation } from '../lib/gemini';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { useTranslation } from '../i18n';
@@ -43,15 +42,17 @@ type ChatMessage = {
   role: 'user' | 'assistant' | 'system'; 
   content: string; 
   ts: number;
-  sources_web?: any[];
+  sources_web?: LegalAISource[];
   sources?: string[];
   documents?: string[];
   generatedDoc?: { title: string; content: string } | null;
+  suggestions?: string[];
+  automations?: LegalAutomation[];
 };
 
 const AUTOSAVE_KEY = 'assistant_chat_draft_v2';
 
-const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
+const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded = false }) => {
   const { user } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -204,11 +205,13 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
 
       const res = await chatWithAI(fullPrompt, history, true);
       const replyText = typeof res === 'string' ? res : res.text;
-      const webSources = typeof res === 'string' ? [] : (res.sources_web || []);
+      const webSources: LegalAISource[] = typeof res === 'string' ? [] : (res.sources_web || []);
+      const suggestions: string[] = typeof res === 'string' ? [] : (res.suggestions || []);
+      const automations: LegalAutomation[] = typeof res === 'string' ? [] : (res.automations || []);
 
       // Extract legal references
-      const lawMatches = replyText.match(/Article\s+[A-Z0-9.\-]+(?:\s+du\s+Code\s+[a-zàáâäçèéêëîïôöùûü]+)?|Code\s+Civil|Code\s+du\s+Travail|Code\s+Pénal|Code\s+de\s+Commerce|Cour\s+de\s+Cassation|RGPD|CJUE|CEDH/gi) || [];
-      const uniqueSources = Array.from(new Set(lawMatches)).slice(0, 6);
+      const lawMatches = replyText.match(/Article\s+[A-Z0-9.-]+(?:\s+du\s+Code\s+[a-zàáâäçèéêëîïôöùûü]+)?|Code\s+Civil|Code\s+du\s+Travail|Code\s+Pénal|Code\s+de\s+Commerce|Cour\s+de\s+Cassation|RGPD|CJUE|CEDH/gi) || [];
+      const uniqueSources: string[] = Array.from(new Set<string>(lawMatches)).slice(0, 6);
 
       // Parse AI Action block if returned
       let cleanTextResponse = replyText;
@@ -231,7 +234,7 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
               navigate(`/dashboard/user?tab=${targetTab}`);
             }, 1800);
           }
-        } catch (e) {
+        } catch (e: unknown) {
           console.warn("Erreur parsing action JSON:", e);
         }
       }
@@ -243,25 +246,25 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
         ts: Date.now(),
         sources_web: webSources,
         sources: uniqueSources,
-        generatedDoc: generatedDocObj
+        generatedDoc: generatedDocObj,
+        suggestions,
+        automations
       };
 
       const updatedMessages = [...messages, newUserMsg, assistantMsg];
       setMessages(updatedMessages);
 
       if (user) {
-        await supabase
-          .from('ai_conversations_just')
-          .insert([
-            {
-              user_id: user.id,
-              title: promptText.slice(0, 40) || t('assistant.new_chat', 'Nouvelle conversation'),
-              messages: updatedMessages
-            }
-          ]);
+        await supabase.from('ai_conversations_just').insert([{
+          user_id: user.id,
+          prompt: fullPrompt,
+          response: cleanTextResponse,
+          sources: uniqueSources
+        }]);
       }
-    } catch (e: any) {
-      error(t('common.error'), e.message || t('assistant.failed', 'Le traitement a échoué.'));
+    } catch (err: unknown) {
+      console.error("Erreur IA Assistant:", err);
+      appendMessage('assistant', "Une erreur est survenue lors de l'analyse. Nos serveurs juridiques sécurisés restent disponibles.");
     } finally {
       setIsSending(false);
     }
@@ -401,33 +404,109 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
                       )}
 
                       {/* Real-time Google Search sources */}
-                      {m.sources_web && m.sources_web.length > 0 && (
+                      {/* Actionable Automations Widget */}
+                      {m.automations && m.automations.length > 0 && (
                         <div className="pt-3.5 border-t border-slate-200 space-y-2">
-                          <span className="text-xs font-black text-cyan-800 uppercase flex items-center gap-1.5">
-                            <Sparkles className="h-4 w-4 text-cyan-600 animate-pulse" /> Sources & Jurisprudences (Google Search) :
+                          <span className="text-xs font-black text-cyan-900 uppercase flex items-center gap-1.5">
+                            <Sparkles className="h-4 w-4 text-cyan-600 animate-pulse" /> Automatisations & Actions Recommandées :
                           </span>
-                          <div className="grid grid-cols-1 gap-2">
-                            {m.sources_web.slice(0, 4).map((source: any, i: number) => (
-                              <a 
-                                key={i}
-                                href={source.uri}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center justify-between gap-3 bg-slate-50 hover:bg-cyan-50 border border-slate-200 hover:border-cyan-300 rounded-xl p-3 transition-all group cursor-pointer shadow-2xs text-slate-900"
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {m.automations.map((auto: LegalAutomation, idx: number) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => executePrompt(auto.actionPrompt)}
+                                disabled={isSending}
+                                className="text-left bg-gradient-to-br from-cyan-50/90 to-white hover:from-cyan-100 hover:to-cyan-50 border border-cyan-200 hover:border-cyan-400 p-3 rounded-xl transition-all shadow-xs cursor-pointer group flex flex-col justify-between gap-1.5"
                               >
-                                <div className="flex items-center gap-2.5">
-                                  <div className="bg-cyan-100 border border-cyan-200 p-2 rounded-lg group-hover:bg-cyan-200 transition-colors">
-                                    <BookOpen className="h-4 w-4 text-cyan-700" />
-                                  </div>
-                                  <span className="text-xs sm:text-sm text-slate-900 font-bold line-clamp-1 group-hover:text-cyan-800 transition-colors">
-                                    {source.title || "Source Juridique Officielle"}
+                                <div>
+                                  <span className="text-xs font-black text-cyan-950 group-hover:text-cyan-800 transition-colors block">
+                                    {auto.label}
                                   </span>
+                                  <p className="text-2xs text-slate-600 leading-snug line-clamp-2 mt-0.5">
+                                    {auto.description}
+                                  </p>
                                 </div>
-                                <span className="text-xs text-cyan-700 font-extrabold group-hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
-                                  Lire <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                                <span className="text-2xs font-extrabold text-cyan-700 flex items-center gap-1 group-hover:underline pt-0.5">
+                                  ⚡ Déclencher en 1 clic <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                                 </span>
-                              </a>
+                              </button>
                             ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Interactive Suggestions Chips */}
+                      {m.suggestions && m.suggestions.length > 0 && (
+                        <div className="pt-3 border-t border-slate-200 space-y-2">
+                          <span className="text-xs font-black text-slate-700 uppercase flex items-center gap-1.5">
+                            <ChevronRight className="h-4 w-4 text-cyan-600" /> Suggestions de Poursuite :
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {m.suggestions.map((sug: string, idx: number) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => executePrompt(sug)}
+                                disabled={isSending}
+                                className="text-xs bg-slate-100 hover:bg-cyan-50 text-slate-800 hover:text-cyan-900 border border-slate-200 hover:border-cyan-300 py-1.5 px-3 rounded-full font-semibold transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 text-left"
+                              >
+                                <span>{sug}</span>
+                                <ArrowRight className="h-3 w-3 text-cyan-600 shrink-0" />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Official State Sites & External Professional Portals */}
+                      {m.sources_web && m.sources_web.length > 0 && (
+                        <div className="pt-3.5 border-t border-slate-200 space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
+                              <BookOpen className="h-4 w-4 text-cyan-600" /> Portails & Sites Officiels Recommandés :
+                            </span>
+                            <span className="text-2xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                              {m.sources_web.length} sources vérifiées
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2">
+                            {m.sources_web.map((source: LegalAISource, i: number) => {
+                              const isOfficial = source.category === 'officiel' || source.category === 'juridiction';
+                              return (
+                                <a 
+                                  key={i}
+                                  href={source.uri}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-50 hover:bg-cyan-50/70 border border-slate-200 hover:border-cyan-300 rounded-xl p-3 transition-all group cursor-pointer shadow-2xs text-slate-900"
+                                >
+                                  <div className="flex items-start sm:items-center gap-2.5 flex-1 min-w-0">
+                                    <div className={`p-2 rounded-lg shrink-0 ${isOfficial ? 'bg-emerald-100 border border-emerald-200 text-emerald-800' : 'bg-cyan-100 border border-cyan-200 text-cyan-800'}`}>
+                                      <BookOpen className="h-4 w-4" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+                                        <span className={`text-2xs font-black px-2 py-0.5 rounded-full border ${isOfficial ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-cyan-50 text-cyan-800 border-cyan-200'}`}>
+                                          {source.badge || (isOfficial ? "🏛️ Site Officiel de l'État" : "🌐 Portail Métier")}
+                                        </span>
+                                        <span className="text-xs sm:text-sm text-slate-900 font-bold line-clamp-1 group-hover:text-cyan-800 transition-colors">
+                                          {source.title || "Portail Juridique Officiel"}
+                                        </span>
+                                      </div>
+                                      {source.description && (
+                                        <p className="text-2xs text-slate-500 line-clamp-2 leading-relaxed">
+                                          {source.description}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <span className="text-xs text-cyan-700 font-extrabold group-hover:underline flex items-center gap-1 whitespace-nowrap shrink-0 self-end sm:self-center">
+                                    Accéder au site <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                                  </span>
+                                </a>
+                              );
+                            })}
                           </div>
                         </div>
                       )}
