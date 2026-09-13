@@ -10,6 +10,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useTranslation } from '../i18n';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
+import { parseMultipleFiles } from '../lib/documentParser';
 
 interface SearchPageProps {
   skipAuthCheck?: boolean;
@@ -48,84 +49,26 @@ const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
     }
   ];
 
-  // Binary PDF text parser in browser
-  const extractTextFromPDFBuffer = (buffer: ArrayBuffer): string => {
-    try {
-      const bytes = new Uint8Array(buffer);
-      let raw = '';
-      const chunkSize = 8192;
-      for (let i = 0; i < bytes.length; i += chunkSize) {
-        const chunk = bytes.subarray(i, i + chunkSize);
-        raw += String.fromCharCode.apply(null, Array.from(chunk));
-      }
-
-      const matches = raw.match(/\(([^()]{2,})\)/g);
-      if (matches && matches.length > 0) {
-        const extracted = matches
-          .map(m => m.slice(1, -1))
-          .filter(str => /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]/i.test(str) && !/^\/[A-Z]/i.test(str))
-          .join(' ')
-          .replace(/\s+/g, ' ');
-        if (extracted.trim().length > 20) {
-          return extracted;
-        }
-      }
-
-      const words = raw.match(/[A-Za-zÀ-ÿ0-9,.'’\-–—:;!?]{2,}/g);
-      if (words && words.length > 0) {
-        const pdfKeywords = new Set(['obj', 'endobj', 'stream', 'endstream', 'Catalog', 'Pages', 'Page', 'MediaBox', 'Resources', 'Font', 'Type', 'Subtype', 'BaseFont', 'Length', 'Filter', 'FlateDecode', 'ProcSet']);
-        const cleanWords = words.filter(w => !pdfKeywords.has(w) && !w.startsWith('/'));
-        return cleanWords.join(' ').replace(/\s+/g, ' ');
-      }
-    } catch (err) {
-      console.warn("Erreur d'extraction du PDF:", err);
-    }
-    return "Document PDF importé avec succès. Prêt pour l'analyse juridique.";
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-
-      if (file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf') {
-        reader.onload = (event) => {
-          const buffer = event.target?.result as ArrayBuffer;
-          if (buffer) {
-            const extractedText = extractTextFromPDFBuffer(buffer);
-            setAttachedFiles((prev) => [
-              ...prev,
-              {
-                name: file.name,
-                content: extractedText.length > 25000 ? extractedText.substring(0, 25000) + "\n...[Document PDF tronqué]" : extractedText,
-                type: 'application/pdf'
-              }
-            ]);
-            success(t('common.success', 'Succès'), `Pièce PDF "${file.name}" importée et analysée.`);
-          }
-        };
-        reader.readAsArrayBuffer(file);
-      } else {
-        reader.onload = (event) => {
-          const result = event.target?.result;
-          if (typeof result === 'string') {
-            setAttachedFiles((prev) => [
-              ...prev,
-              {
-                name: file.name,
-                content: result.length > 25000 ? result.substring(0, 25000) + "\n...[Contenu du document tronqué]" : result,
-                type: file.type || 'text/plain'
-              }
-            ]);
-            success(t('common.success', 'Succès'), `Document "${file.name}" chargé.`);
-          }
-        };
-        reader.readAsText(file);
-      }
-    });
-    e.target.value = '';
+    try {
+      const parsed = await parseMultipleFiles(files);
+      setAttachedFiles((prev) => [
+        ...prev,
+        ...parsed.map(p => ({
+          name: p.name,
+          content: p.content,
+          type: p.type
+        }))
+      ]);
+      success(t('common.success', 'Succès'), `${parsed.length} document(s) importé(s) pour la recherche.`);
+    } catch (err) {
+      console.warn("Erreur lecture fichiers search:", err);
+    } finally {
+      if (e.target) e.target.value = '';
+    }
   };
 
   const removeAttachedFile = (index: number) => {

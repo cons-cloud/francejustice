@@ -59,6 +59,7 @@ import {
   type SourceGrounding,
   type ContractRiskClause
 } from '../../lib/legalDiagnosticEngine';
+import { parseMultipleFiles } from '../../lib/documentParser';
 
 const SpeechRecognition = typeof window !== 'undefined' 
   ? ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition) 
@@ -131,26 +132,22 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
   }, [user]);
 
   // 2. File Upload & Text Extraction
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
       setFiles(prev => [...prev, ...selectedFiles]);
 
-      selectedFiles.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const content = event.target?.result as string;
-          if (content) {
-            setExtractedText(prev => `${prev}\n--- ${file.name} ---\n${content.substring(0, 4000)}`);
-          }
-        };
-        if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
-          reader.readAsText(file);
-        } else {
-          setExtractedText(prev => `${prev}\n--- ${file.name} (Pièce/Jugement/Acte importé pour audit) ---`);
-        }
-      });
-      success("Pièces juridiques importées avec succès pour traitement OCR & structuration.");
+      try {
+        const parsed = await parseMultipleFiles(selectedFiles);
+        parsed.forEach(doc => {
+          setExtractedText(prev => `${prev}\n--- ${doc.name} ---\n${doc.content.substring(0, 10000)}`);
+        });
+        success(`${selectedFiles.length} pièce(s) juridique(s) importée(s) et extraite(s) avec succès pour le diagnostic.`);
+      } catch (err) {
+        console.warn("Erreur lecture pièces diagnostic:", err);
+      } finally {
+        if (e.target) e.target.value = '';
+      }
     }
   };
 

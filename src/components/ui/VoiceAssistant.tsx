@@ -24,6 +24,7 @@ import {
 import { chatWithAI } from '../../lib/gemini';
 import { Button } from './Button';
 import { useTranslation } from '../../i18n';
+import { parseMultipleFiles } from '../../lib/documentParser';
 
 // Web Speech APIs wrappers
 const SpeechRecognition = typeof window !== 'undefined' 
@@ -202,79 +203,25 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
     return `Fichier "${fileName}" chargé avec succès. Contenu prêt pour l'analyse juridique.`;
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      const lowerName = file.name.toLowerCase();
-
-      if (lowerName.endsWith('.pdf') || file.type === 'application/pdf') {
-        reader.onload = (event) => {
-          const buffer = event.target?.result as ArrayBuffer;
-          if (buffer) {
-            const extractedText = extractTextFromPDFBuffer(buffer);
-            setAttachedFiles((prev) => [
-              ...prev,
-              {
-                name: file.name,
-                content: extractedText.length > 25000 ? extractedText.substring(0, 25000) + "\n...[Document PDF tronqué]" : extractedText,
-                type: 'application/pdf'
-              }
-            ]);
-          }
-        };
-        reader.readAsArrayBuffer(file);
-      } else if (lowerName.endsWith('.docx') || lowerName.endsWith('.doc') || lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls') || lowerName.endsWith('.odt') || lowerName.endsWith('.ods') || lowerName.endsWith('.rtf')) {
-        reader.onload = (event) => {
-          const buffer = event.target?.result as ArrayBuffer;
-          if (buffer) {
-            const extractedText = extractTextFromBinaryDocument(buffer, file.name);
-            setAttachedFiles((prev) => [
-              ...prev,
-              {
-                name: file.name,
-                content: extractedText.length > 25000 ? extractedText.substring(0, 25000) + "\n...[Document Word/Excel tronqué]" : extractedText,
-                type: file.type || 'application/msword'
-              }
-            ]);
-          }
-        };
-        reader.readAsArrayBuffer(file);
-      } else if (file.type.startsWith('image/')) {
-        reader.onload = (event) => {
-          const result = event.target?.result;
-          if (typeof result === 'string') {
-            setAttachedFiles((prev) => [
-              ...prev,
-              {
-                name: file.name,
-                content: `=== PIÈCE IMAGE JOINTE : ${file.name} ===\nL'utilisateur a transmis l'image / pièce visuelle "${file.name}" pour analyse du dossier.`,
-                type: file.type
-              }
-            ]);
-          }
-        };
-        reader.readAsDataURL(file);
-      } else {
-        reader.onload = (event) => {
-          const result = event.target?.result;
-          if (typeof result === 'string') {
-            setAttachedFiles((prev) => [
-              ...prev,
-              {
-                name: file.name,
-                content: result.length > 25000 ? result.substring(0, 25000) + "\n...[Contenu tronqué]" : result,
-                type: file.type || 'text/plain'
-              }
-            ]);
-          }
-        };
-        reader.readAsText(file);
-      }
-    });
-    e.target.value = '';
+    try {
+      const parsed = await parseMultipleFiles(files);
+      setAttachedFiles((prev) => [
+        ...prev,
+        ...parsed.map(p => ({
+          name: p.name,
+          content: p.content,
+          type: p.type
+        }))
+      ]);
+    } catch (err) {
+      console.warn("Erreur parsing fichiers audio/doc:", err);
+    } finally {
+      if (e.target) e.target.value = '';
+    }
   };
 
   const removeAttachedFile = (index: number) => {
@@ -593,7 +540,7 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
       
       if (actionMatch) {
         try {
-          let actionJson: any = null;
+          let actionJson: Record<string, any> | null = null;
           const jsonRaw = actionMatch[1].trim();
           try {
             actionJson = JSON.parse(jsonRaw);
@@ -602,7 +549,7 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
               // Fallback to JS object evaluation to support date concatenations or trailing commas
               const parseFn = new Function(`return (${jsonRaw});`);
               actionJson = parseFn();
-            } catch (e2) {
+            } catch {
               throw e; // Throw the original JSON parse error if fallback also fails
             }
           }
@@ -644,11 +591,6 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
       setResponse(cleanTextResponse);
       setSources(extractedSources);
       
-      // Store user prompt with linked attached document references in conversation history
-      const userDisplayMsg = attachedFiles.length > 0
-        ? `[📎 Dossier: ${attachedFiles.map(f => f.name).join(', ')}]\n${commandText}`
-        : commandText;
-
       setHistory(prev => [
         ...prev,
         { role: 'user', parts: [{ text: promptContext }] },

@@ -19,7 +19,10 @@ import {
   BookOpen, 
   ArrowRight, 
   Trash2, 
-  Loader2 
+  Loader2,
+  FolderOpen,
+  PlusCircle,
+  FileCheck
 } from 'lucide-react';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
@@ -29,6 +32,11 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { useTranslation } from '../i18n';
 import { generatePDF } from '../lib/pdfUtils';
+import { 
+  parseMultipleFiles, 
+  formatDocumentsForPrompt, 
+  type ParsedDocument 
+} from '../lib/documentParser';
 
 type ChatMessage = { 
   id: string; 
@@ -37,6 +45,7 @@ type ChatMessage = {
   ts: number;
   sources_web?: any[];
   sources?: string[];
+  documents?: string[];
   generatedDoc?: { title: string; content: string } | null;
 };
 
@@ -49,7 +58,8 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
   const { toasts, success, error, removeToast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [attachedFiles, setAttachedFiles] = useState<{ name: string; content: string; type: string }[]>([]);
+  const [dossierFiles, setDossierFiles] = useState<ParsedDocument[]>([]);
+  const [isParsingFiles, setIsParsingFiles] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [guided, setGuided] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -62,135 +72,47 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
     () => [
       t('assistant.suggest_comm', 'Litige commercial: impayé client B2B'),
       t('assistant.suggest_cons', 'Consommation: défaut de conformité e-commerce'),
-      t('assistant.suggest_work', 'Travail: harcèlement moral en entreprise'),
-      t('assistant.suggest_family', 'Famille: demande de pension alimentaire'),
+      t('assistant.suggest_work', 'Travail: contestation rupture et barème prud\'homal'),
+      t('assistant.suggest_family', 'Bail & Logement: retenue abusive du dépôt de garantie'),
     ],
     [t]
   );
 
   // Guided steps
   const guideSteps = [
-    t('assistant.guide_step1', 'Décrivez brièvement le litige (dates, parties, contexte).'),
-    t('assistant.guide_step2', 'Précisez les faits essentiels et les preuves disponibles.'),
-    t('assistant.guide_step3', 'Indiquez le préjudice et l’objectif recherché.'),
-    t('assistant.guide_step4', 'Ajoutez toute contrainte de délai connue (prescription).'),
+    t('assistant.guide_step1', 'Importez vos documents ou décrivez les faits (dates, montants, parties).'),
+    t('assistant.guide_step2', 'L\'IA analyse qui est contre qui, la chronologie et les forces du dossier.'),
+    t('assistant.guide_step3', 'Évaluez ce qui est en votre faveur vs contre vous avec les textes de loi.'),
+    t('assistant.guide_step4', 'Obtenez la procédure complète et générez la mise en demeure officielle.'),
   ];
 
-  // Binary PDF text parser in browser with multi-strategy decoding
-  const extractTextFromPDFBuffer = (buffer: ArrayBuffer): string => {
-    try {
-      const bytes = new Uint8Array(buffer);
-      let raw = '';
-      const chunkSize = 8192;
-      for (let i = 0; i < bytes.length; i += chunkSize) {
-        const chunk = bytes.subarray(i, i + chunkSize);
-        raw += String.fromCharCode.apply(null, Array.from(chunk));
-      }
-
-      const extractedBlocks: string[] = [];
-
-      // 1. Extract literal text strings in PDF stream blocks
-      const matches = raw.match(/\(([^()]{2,})\)/g);
-      if (matches && matches.length > 0) {
-        const extracted = matches
-          .map(m => m.slice(1, -1))
-          .filter(str => /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]/i.test(str) && !/^\/[A-Z]/i.test(str))
-          .join(' ')
-          .replace(/\\([nrtbf\\])/g, ' ')
-          .replace(/\s+/g, ' ');
-        if (extracted.trim().length > 25) {
-          extractedBlocks.push(extracted.trim());
-        }
-      }
-
-      // 2. Extract hex-encoded text strings <48656c6c6f>
-      const hexMatches = raw.match(/<([0-9A-Fa-f]{6,})>/g);
-      if (hexMatches && hexMatches.length > 0) {
-        try {
-          const hexDecoded = hexMatches
-            .map(h => {
-              const hex = h.slice(1, -1);
-              let str = '';
-              for (let i = 0; i < hex.length; i += 2) {
-                const code = parseInt(hex.substr(i, 2), 16);
-                if (code >= 32 && code <= 255) str += String.fromCharCode(code);
-              }
-              return str;
-            })
-            .filter(s => /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]{2,}/i.test(s))
-            .join(' ');
-          if (hexDecoded.trim().length > 25) {
-            extractedBlocks.push(hexDecoded.trim());
-          }
-        } catch {}
-      }
-
-      // 3. Fallback: extract meaningful words, numbers, and legal keywords
-      const words = raw.match(/[A-Za-zÀ-ÿ0-9,.'’\-–—:;!?]{2,}/g);
-      if (words && words.length > 0) {
-        const pdfKeywords = new Set(['obj', 'endobj', 'stream', 'endstream', 'Catalog', 'Pages', 'Page', 'MediaBox', 'Resources', 'Font', 'Type', 'Subtype', 'BaseFont', 'Length', 'Filter', 'FlateDecode', 'ProcSet']);
-        const cleanWords = words.filter(w => !pdfKeywords.has(w) && !w.startsWith('/'));
-        if (cleanWords.length > 10) {
-          extractedBlocks.push(cleanWords.join(' ').replace(/\s+/g, ' '));
-        }
-      }
-
-      if (extractedBlocks.length > 0) {
-        return extractedBlocks.join('\n\n');
-      }
-    } catch (err) {
-      console.warn("Erreur d'extraction du PDF:", err);
-    }
-    return "Document PDF importé avec succès. Prêt pour l'analyse juridique.";
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-
-      if (file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf') {
-        reader.onload = (event) => {
-          const buffer = event.target?.result as ArrayBuffer;
-          if (buffer) {
-            const extractedText = extractTextFromPDFBuffer(buffer);
-            setAttachedFiles((prev) => [
-              ...prev,
-              {
-                name: file.name,
-                content: extractedText.length > 25000 ? extractedText.substring(0, 25000) + "\n...[Document PDF tronqué]" : extractedText,
-                type: 'application/pdf'
-              }
-            ]);
-            success(t('common.success', 'Succès'), `Pièce PDF "${file.name}" importée et analysée.`);
-          }
-        };
-        reader.readAsArrayBuffer(file);
-      } else {
-        reader.onload = (event) => {
-          const result = event.target?.result;
-          if (typeof result === 'string') {
-            setAttachedFiles((prev) => [
-              ...prev,
-              {
-                name: file.name,
-                content: result.length > 25000 ? result.substring(0, 25000) + "\n...[Contenu du document tronqué]" : result,
-                type: file.type || 'text/plain'
-              }
-            ]);
-            success(t('common.success', 'Succès'), `Document "${file.name}" chargé.`);
-          }
-        };
-        reader.readAsText(file);
-      }
-    });
-    e.target.value = '';
+    setIsParsingFiles(true);
+    try {
+      const parsed = await parseMultipleFiles(files);
+      setDossierFiles((prev) => [...prev, ...parsed]);
+      success(
+        t('common.success', 'Succès'), 
+        `${parsed.length} document(s) importé(s) : ${parsed.map(p => p.name).join(', ')}.`
+      );
+    } catch (err: any) {
+      console.error("Erreur parsing multi-documents:", err);
+      error(t('common.error', 'Erreur'), "Impossible de lire certains fichiers joints.");
+    } finally {
+      setIsParsingFiles(false);
+      if (e.target) e.target.value = '';
+    }
   };
 
-  const removeAttachedFile = (index: number) => {
-    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  const removeDossierFile = (id: string) => {
+    setDossierFiles((prev) => prev.filter(f => f.id !== id));
+  };
+
+  const clearDossier = () => {
+    setDossierFiles([]);
   };
 
   // Fetch conversations from Supabase and subscribe Realtime
@@ -256,18 +178,22 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
   };
 
   const executePrompt = async (promptText: string) => {
-    if (!promptText.trim() && attachedFiles.length === 0) return;
+    if (!promptText.trim() && dossierFiles.length === 0) return;
 
     setIsSending(true);
     let fullPrompt = promptText;
 
-    if (attachedFiles.length > 0) {
-      fullPrompt = `=== PIÈCES JOINTES & DOSSIERS JURIDIQUES SOUMIS POUR ANALYSE ===\n${attachedFiles.map((f, idx) => `--- Document [${idx + 1}]: ${f.name} ---\n${f.content}`).join('\n\n')}\n\nQUESTION / INSTRUCTION UTILISATEUR :\n${promptText || "Analysez complètement ce dossier et donnez-moi la marche à suivre."}`;
+    if (dossierFiles.length > 0) {
+      const formattedDossier = formatDocumentsForPrompt(dossierFiles);
+      fullPrompt = `${formattedDossier}\n\nQUESTION / INSTRUCTION UTILISATEUR SUR CE DOSSIER :\n${promptText || "Procédez à l'analyse complète et croisée de ce dossier : cartographie des parties (qui est contre qui), chronologie rigoureuse des faits (où et quand cela s'est produit), points en ma faveur vs risques contre moi, et procédure complète à suivre."}`;
     }
 
-    const newUserMsg = appendMessage('user', promptText || `[Analyse de ${attachedFiles.length} document(s)]`);
-    const currentFiles = [...attachedFiles];
-    setAttachedFiles([]);
+    const docNames = dossierFiles.map(d => d.name);
+    const newUserMsg = appendMessage(
+      'user', 
+      promptText || `[Analyse approfondie de ${dossierFiles.length} document(s) du dossier : ${docNames.join(', ')}]`,
+      { documents: docNames.length > 0 ? docNames : undefined }
+    );
     setInput('');
 
     try {
@@ -442,6 +368,20 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
                         </Button>
                       </div>
 
+                      {/* Display attached dossier documents badges if present in this user message */}
+                      {m.documents && m.documents.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-1 pb-2 border-b border-white/25 mb-2">
+                          <span className="text-[11px] font-bold text-cyan-100 flex items-center gap-1 w-full uppercase tracking-wider">
+                            <FolderOpen className="h-3.5 w-3.5 text-cyan-200" /> Dossier lié ({m.documents.length} pièce(s)) :
+                          </span>
+                          {m.documents.map((docName, idx) => (
+                            <span key={idx} className="bg-white/20 text-white text-xs px-2.5 py-1 rounded-lg flex items-center gap-1.5 font-medium border border-white/20 shadow-2xs">
+                              <FileText className="h-3 w-3 text-cyan-200 shrink-0" /> {docName}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
                       <div className={`whitespace-pre-wrap leading-relaxed font-medium font-sans text-base sm:text-lg ${m.role === 'user' ? 'text-white' : 'text-slate-900'}`}>
                         {m.content}
                       </div>
@@ -536,31 +476,68 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
                 {isSending && (
                   <div className="flex items-center gap-3 py-3.5 px-4 bg-cyan-50 rounded-xl border border-cyan-200 text-cyan-900 text-sm font-bold shadow-2xs">
                     <Loader2 className="h-5 w-5 text-cyan-600 animate-spin" />
-                    <span>Recherche Légifrance et analyse approfondie du dossier...</span>
+                    <span>Analyse juridique approfondie du dossier (chronologie, parties, forces &amp; procédure)...</span>
                   </div>
                 )}
               </div>
 
-              {/* Attachment Chip List */}
-              {attachedFiles.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 pt-1 pb-1.5 border-b border-slate-200">
-                  <span className="text-xs font-bold text-cyan-800 uppercase tracking-wider flex items-center gap-1 w-full">
-                    <Paperclip className="h-3.5 w-3.5 text-cyan-600" /> {attachedFiles.length} Document(s) PDF / Pièce(s) importée(s) :
-                  </span>
-                  {attachedFiles.map((file, idx) => (
-                    <div key={idx} className="flex items-center gap-1.5 bg-cyan-50 border border-cyan-200 text-slate-800 text-xs px-2.5 py-1 rounded-xl shadow-2xs">
-                      <FileText className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
-                      <span className="line-clamp-1 max-w-[150px] font-semibold">{file.name}</span>
+              {/* Parsing status loader */}
+              {isParsingFiles && (
+                <div className="flex items-center gap-2 py-2 px-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-bold animate-pulse">
+                  <Loader2 className="h-4 w-4 animate-spin text-amber-600" />
+                  <span>Lecture et extraction du texte des pièces du dossier en cours...</span>
+                </div>
+              )}
+
+              {/* ACTIVE DOSSIER PANEL */}
+              {dossierFiles.length > 0 && (
+                <div className="bg-cyan-50/90 border-2 border-cyan-200 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-cyan-600 text-white rounded-lg">
+                        <FolderOpen className="h-4 w-4" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-black text-cyan-950 uppercase tracking-wide">
+                        Dossier Actif : {dossierFiles.length} document(s) sous analyse continue
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => removeAttachedFile(idx)}
-                        className="text-slate-400 hover:text-red-500 transition-colors ml-1 p-0.5"
-                        title="Supprimer la pièce jointe"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-xs font-bold text-cyan-700 hover:text-cyan-800 bg-white hover:bg-cyan-100 border border-cyan-300 px-2.5 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
                       >
-                        <X className="h-3.5 w-3.5" />
+                        <PlusCircle className="h-3.5 w-3.5 text-cyan-600" />
+                        <span>Ajouter d'autres pièces</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={clearDossier}
+                        className="text-xs font-bold text-slate-500 hover:text-red-600 px-2 py-1.5 cursor-pointer transition-colors"
+                        title="Vider les pièces du dossier actif"
+                      >
+                        Vider
                       </button>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto pr-1">
+                    {dossierFiles.map((file) => (
+                      <div key={file.id} className="flex items-center gap-2 bg-white border border-cyan-300 text-slate-900 text-xs px-3 py-1.5 rounded-xl shadow-2xs">
+                        <FileCheck className="h-4 w-4 text-cyan-600 shrink-0" />
+                        <span className="font-bold line-clamp-1 max-w-[200px]">{file.name}</span>
+                        <span className="text-[10px] text-slate-400 font-semibold">({Math.round(file.size / 1024)} Ko)</span>
+                        <button
+                          type="button"
+                          onClick={() => removeDossierFile(file.id)}
+                          className="text-slate-400 hover:text-red-500 transition-colors ml-1 p-0.5 cursor-pointer"
+                          title="Retirer cette pièce du dossier"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -570,7 +547,11 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
                   <Textarea 
                     value={input} 
                     onChange={(e) => setInput(e.target.value)} 
-                    placeholder={attachedFiles.length > 0 ? `Analysez et traitez les ${attachedFiles.length} document(s) PDF joint(s)... Posez votre question ou vos instructions ici.` : "Écrivez votre question juridique détaillée, votre litige ou importez un dossier PDF..."} 
+                    placeholder={
+                      dossierFiles.length > 0 
+                        ? `Dossier actif (${dossierFiles.length} pièces) : posez vos questions ou instructions (ex: Qui est contre qui ? Quels sont les risques contre moi ? Quelle est la procédure ? Rédige la mise en demeure...).` 
+                        : "Écrivez votre question juridique détaillée, votre litige ou importez plusieurs dossiers/documents (PDF, Word, Factures, Baux)..."
+                    } 
                     rows={8}
                     className="w-full min-h-[180px] sm:min-h-[220px] bg-white border-2 border-slate-300 focus:border-cyan-500 text-slate-900 placeholder-slate-400 text-base sm:text-lg rounded-2xl p-4 font-medium focus:ring-2 focus:ring-cyan-500/20 transition-all shadow-inner leading-relaxed resize-y"
                   />
@@ -592,16 +573,16 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
                       variant="outline" 
                       onClick={() => fileInputRef.current?.click()} 
                       className="bg-white hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 border-slate-300 hover:border-cyan-400 p-3 rounded-xl cursor-pointer shadow-xs flex items-center justify-center shrink-0"
-                      title="Joindre un document ou dossier (Word, Excel, PDF, Image, Texte)"
+                      title="Joindre un ou plusieurs documents au dossier (PDF, Word, Excel, Image, Texte)"
                     >
                       <Paperclip className="h-5 w-5 text-cyan-600" />
                     </Button>
 
-                    {(input || attachedFiles.length > 0) && (
+                    {(input || dossierFiles.length > 0) && (
                       <Button
                         type="button"
                         variant="ghost"
-                        onClick={() => { setInput(''); setAttachedFiles([]); }}
+                        onClick={() => { setInput(''); clearDossier(); }}
                         className="text-slate-500 hover:text-red-500 text-xs font-semibold py-2 px-3"
                       >
                         <Trash2 className="h-4 w-4 mr-1" /> Effacer
@@ -612,7 +593,7 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) =
                   <Button 
                     type="button" 
                     onClick={() => executePrompt(input)} 
-                    disabled={isSending || (!input.trim() && attachedFiles.length === 0)}
+                    disabled={isSending || isParsingFiles || (!input.trim() && dossierFiles.length === 0)}
                     className="bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white border border-cyan-400 px-6 py-3 rounded-xl font-black text-sm shadow-lg shadow-cyan-600/25 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer ml-auto"
                   >
                     <Send className="h-4.5 w-4.5" />

@@ -12,32 +12,48 @@ const LANGUAGE_NAMES: Record<string, string> = {
 
 // Master System Prompt for France Justice AI (Gemini / Claude / ChatGPT / DeepSeek grade)
 const MASTER_LEGAL_SYSTEM_PROMPT = `
-Vous êtes le Conseiller Juridique et Assistant IA d'Élite de France Justice (https://francejustice.com).
-Votre niveau d'expertise correspond à celui d'un juriste d'affaires chevronné et avocat au Barreau de Paris, combiné à la réactivité, à la clarté et à l'intelligence conversationnelle des meilleurs modèles d'IA mondiaux (Gemini 1.5 Pro, Claude 3.5 Sonnet, GPT-4o, DeepSeek).
+Vous êtes le Conseiller Juridique Senior et Expert IA d'Élite de France Justice (https://francejustice.com).
+Votre niveau d'expertise correspond à celui d'un avocat chevronné au Barreau de Paris, docteur en droit, combiné à la vivacité, à la rigueur et à l'intelligence conversationnelle des meilleurs modèles de frontière mondiaux (Gemini 1.5 Pro, Claude 3.5 Sonnet, GPT-4o, DeepSeek).
 
-VOS PRINCIPES FONDAMENTAUX DE RÉPONSE :
-1. RÉPONSE ULTRA-SPÉCIFIQUE ET SUR-MESURE :
-   - Ne donnez JAMAIS de réponses vagues, génériques, ni de formules robotiques impersonnelles.
-   - Entrez immédiatement dans le vif du sujet en répondant précisément aux faits, dates, montants en Euro (€), personnes et questions formulées par l'utilisateur.
-2. ANALYSE PERTINENTE DES DOCUMENTS IMPORTÉS (CONTRATS, FACTURES, BAUX, LETTRES, ETC.) :
-   - Si un document est fourni ou mentionné : lisez et analysez son contenu avec une rigueur absolue.
-   - Identifiez le type d'acte, les parties engagées, les clauses clés (clause résolutoire, pénalités de retard, période d'essai, clause de non-concurrence, délais de préavis, etc.).
-   - Détectez les éventuelles failles juridiques (clause abusive au sens de l'art. L212-1 C. consom. ou art. 1171 C. civ., vice de forme, absence de mention obligatoire).
-   - Donnez une évaluation pragmatique des forces, faiblesses et des leviers de négociation.
-3. STRUCTURE CLAIRE, PRAGMATIQUE ET ACTIONNABLE :
-   - Diagnostic juridique : Qualification précise des faits et fondements légaux (Code Civil, Code du Travail, Code de Commerce, Code de la Consommation, RGPD, jurisprudence Cour de Cassation / Conseil d'État).
-   - Analyse des risques et opportunités : Ce que la loi autorise, interdit ou impose.
-   - Stratégie par étapes concrètes :
-     * Étape 1 : Action amiable ou mise en demeure formelle (avec délais stricts, ex. 8 ou 15 jours).
-     * Étape 2 : Médiation, conciliation ou saisine de l'autorité compétente.
-     * Étape 3 : Voie judiciaire (Tribunal Judiciaire, Conseil de Prud'hommes, Tribunal de Commerce) et délais de prescription.
-4. DIALOGUE NATUREL, VIVANT ET PROPOSITIONNEL :
-   - Parlez comme un professionnel du droit humain, lucide, empathique et percutant.
-   - Posez des questions d'approfondissement pertinentes pour affiner le dossier.
-   - Proposez spontanément des solutions concrètes (ex: "Souhaitez-vous que je rédige immédiatement la lettre de mise en demeure avec accusé de réception adaptée à ces faits ?").
-5. RESPECT DE LA ZONE GÉOGRAPHIQUE :
-   - Cadre juridique : Droit français et droit de l'Union européenne.
-   - Monnaie : Exclusivement l'Euro (€).
+DIRECTIVES FONDAMENTALES D'ANALYSE & DE RÉPONSE :
+1. PARLEZ COMME UN JURISTE HUMAIN D'EXCELLENCE :
+   - Évitez absolument le ton robotique, les avertissements génériques répétitifs ou les réponses vagues.
+   - Entrez immédiatement au cœur du dossier avec franchise, clarté et bienveillance pragmatique.
+   - Échangez avec l'utilisateur dans une discussion active, continue et vivante.
+
+2. ANALYSE CROISÉE DE TOUS LES DOCUMENTS & DOSSIERS IMPORTÉS :
+   - Lorsque des documents (un ou plusieurs : baux, contrats, devis, factures, PV, lettres, assignations, etc.) sont joints, analysez L'ENSEMBLE de leur contenu sans rien omettre.
+   - Si de nouveaux documents sont ajoutés au fur et à mesure de la conversation, intégrez-les immédiatement en les confrontant aux pièces précédemment analysées.
+
+3. STRUCTURE OBLIGATOIRE DE VOTRE ANALYSE (SUR TOUT DOSSIER OU LITIGE) :
+   Votre analyse doit impérativement comporter les 5 piliers suivants, clairs et structurés :
+
+   🏛️ 1. CARTOGRAPHIE DES PARTIES & OPPOSITION (« QUI EST CONTRE QUI ») :
+      - Identifiez précisément les parties prenantes : qui agit, qui est attaqué, qui est défendeur, qui est créancier/débiteur, employeur/salarié, bailleur/locataire, tiers ou assureurs.
+      - Définissez qui a l'obligation légale, qui réclame quoi, et qui est juridiquement en tort ou en position de force.
+
+   📅 2. CHRONOLOGIE DÉTAILLÉE DES FAITS (« OÙ ET QUAND CELA S'EST PRODUIT ») :
+      - Reconstituez une chronologie rigoureuse, date par date, événement par événement.
+      - Précisez où les faits se sont produits (lieu d'exécution, siège social, ressort territorial du tribunal compétent) et quand (dates d'effet, délais de livraison, retards, notifications).
+
+   ⚖️ 3. ANALYSE STRATÉGIQUE DE POSITION : « EN VOTRE FAVEUR » vs « CONTRE VOUS » :
+      - 🟢 **Éléments & Arguments EN VOTRE FAVEUR** : ce qui vous donne raison, preuves matérielles acquises, violations contractuelles ou légales commises par la partie adverse, clauses illicites ou abusives dont vous pouvez demander la nullité.
+      - 🔴 **Éléments, Risques & Arguments CONTRE VOUS** : ce que la partie adverse peut légitimement vous reprocher, faiblesses probatoires éventuelles, manquements contractuels de votre part, clauses valides défavorables, risques de forclusion ou prescription.
+      - 🎯 **Évaluation de vos chances de succès** (position de négociation haute, moyenne ou de compromis).
+
+   📋 4. PROCÉDURE COMPLÈTE & PLAN D'ACTION TACTIQUE :
+      - **Phase 1 : Phase amiable impérative** (Mise en demeure par LRAR avec délai d'exécution strict de 8 à 15 jours).
+      - **Phase 2 : Tentative de règlement amiable / médiation** (Obligation préalable de l'art. 750-1 du CPC pour les litiges < 5 000 € ou conflits de voisinage).
+      - **Phase 3 : Juridiction compétente & saisine** (Tribunal Judiciaire, Conseil de Prud'hommes, Tribunal de Commerce, Juge des Contentieux de la Protection ; délais de prescription exacts ; nécessité ou dispense d'avocat).
+      - **Phase 4 : Exécution forcée & recouvrement** (Signification par Commissaire de Justice, saisie conservatoire ou attribution).
+
+   📁 5. CONFRONTATION & SYNTHÈSE MULTI-DOCUMENTS :
+      - Concordance et contradictions éventuelles entre les pièces du dossier (ex: écarts de dates entre bon de commande et facture, avenant non signé).
+      - Liste des pièces complémentaires recommandées pour consolider définitivement le dossier.
+
+4. CADRE ET MONNAIE :
+   - Droit applicable : Droit français (Codes officiels, jurisprudence de la Cour de cassation et du Conseil d'État) et Droit de l'Union européenne.
+   - Monnaie : Strictement l'Euro (€).
 `.trim();
 
 // Helper to clean prompt context and extract actual user query
@@ -141,116 +157,214 @@ function getAdvancedLocalLegalAI(
       .trim();
 
     const sampleText = docSnippet.substring(0, 400).replace(/\s+/g, ' ');
-    const docNameDisplay = attachedDocTitle || "votre document";
+    // Extract all attached document names and count
+    const docHeaderMatches = attachedDocText.match(/--- (?:PIÈCE|Document) (?:\[\d+\/\d+\]|\d+)?\s*:?\s*"([^"]+)"|---\s*(?:Nom de la pièce|Document)[^:]*:\s*([^\n-]+)\s*---/gi) || [];
+    const allDocNames: string[] = [];
+    if (docHeaderMatches.length > 0) {
+      docHeaderMatches.forEach(m => {
+        const cleanName = m.replace(/--- (?:PIÈCE|Document) (?:\[\d+\/\d+\]|\d+)?\s*:?\s*"|---\s*(?:Nom de la pièce|Document)[^:]*:\s*/i, '').replace(/"[\s\S]*|---/g, '').trim();
+        if (cleanName && !allDocNames.includes(cleanName)) allDocNames.push(cleanName);
+      });
+    }
+    if (allDocNames.length === 0 && attachedDocTitle) {
+      allDocNames.push(attachedDocTitle);
+    }
 
-    // Detect specific document type
-    let docType = "Document Juridique";
-    let legalClassification = "Acte sous seing privé";
-    let keyObservations: string[] = [];
-    let criticalClauses: string[] = [];
+    const docCount = allDocNames.length > 0 ? allDocNames.length : 1;
+    const docNameDisplay = allDocNames.length > 0 ? allDocNames.join(', ') : (attachedDocTitle || "vos pièces jointes");
+
+    // Extract city or jurisdiction
+    const locMatch = (userQuery + ' ' + attachedDocText).match(/(?:à|au|dans le ressort de|tribunal de|ville de|demeurant à|barreau de|siège social à)\s+([A-Z][a-zàáâäçèéêëîïôöùûü]+(?:-[A-Z][a-zàáâäçèéêëîïôöùûü]+)*)/);
+    const detectedLocation = locMatch ? locMatch[1] : "France (ressort du domicile du défendeur ou du lieu d'exécution)";
+
+    // Detect specific domain & classification
+    let docType = "Dossier Juridique Multi-Pièces";
+    let partiesMapping = {
+      demandeur: "Vous-même (Demandeur / Victime du préjudice)",
+      adversaire: "Partie adverse (Cocontractant, Débiteur ou Organisme)",
+      quiContreQui: "Vous-même agissez contre la partie défaillante pour inexécution ou violation contractuelle/légale.",
+      rapportDeForce: "Position favorable sous réserve du respect strict de la mise en demeure préalable."
+    };
+    let timeline: string[] = [];
+    let enVotreFaveur: string[] = [];
+    let contreVous: string[] = [];
+    let procedureEtapes: string[] = [];
     let statutoryArticles: string[] = [];
 
     // Combine document text, current query and conversation history
     const fullContent = (clean + ' ' + attachedDocText.toLowerCase() + ' ' + previousTurnsContext).trim();
-    const lowerDoc = fullContent;
 
-    if (lowerDoc.includes('bail') || lowerDoc.includes('locataire') || lowerDoc.includes('loyer') || lowerDoc.includes('bailleur')) {
-      docType = "Bail d'habitation ou commercial";
-      legalClassification = "Contrat de louage régi par la Loi n° 89-462 du 6 juillet 1989 ou art. L145-1 C. com.";
-      keyObservations = [
-        "Vérification des obligations respectives : délivrance d'un logement décent (art. 1719 C. civ.) et paiement ponctuel du loyer et des charges.",
-        detectedAmount ? `Montant du loyer ou dépôt de garantie identifié : **${detectedAmount}**.` : "Contrôle du plafonnement du dépôt de garantie (1 mois pour non meublé, 2 mois pour meublé).",
-        "Examen des clauses résolutoires et de solidarité pour identifier d'éventuelles clauses réputées non écrites."
+    if (fullContent.includes('bail') || fullContent.includes('locataire') || fullContent.includes('loyer') || fullContent.includes('bailleur') || fullContent.includes('expulsion') || fullContent.includes('dépôt de garantie')) {
+      docType = "Bail d'habitation ou commercial (Loi du 6 juillet 1989 / Art. L145-1 C. com.)";
+      partiesMapping = {
+        demandeur: fullContent.includes('locataire') ? "Locataire (occupant en titre)" : "Bailleur (propriétaire bailleur)",
+        adversaire: fullContent.includes('locataire') ? "Bailleur ou Société de gestion immobilière" : "Locataire ou Caution solidaire",
+        quiContreQui: "Conflit locatif entre le Bailleur et le Locataire concernant l'exécution des obligations du bail (loyers, état des lieux, décence ou restitution de garantie).",
+        rapportDeForce: "La loi du 6 juillet 1989 étant d'ordre public, toute clause du bail contraire à la loi est réputée non écrite de plein droit."
+      };
+      timeline = [
+        `**Date initiale identifiée :** Signature du contrat de bail ou entrée dans les lieux (${detectedDate || 'date contractuelle'}).`,
+        `**Lieu d'exécution :** Bien immobilier situé à ${detectedLocation}.`,
+        `**Fait générateur du litige :** Manquement constaté (restitution tardive du dépôt de garantie, impayé de ${detectedAmount || 'loyer'} ou défaut d'entretien).`,
+        `**Date limite / Prescription :** Prescription triennale (3 ans) pour les actions relatives aux loyers et charges (art. 7-1 Loi 1989).`
       ];
-      criticalClauses = [
-        "**Clause résolutoire automatique** : Exige la délivrance préalable d'un commandement de payer par commissaire de justice avec un délai légal impératif de 6 semaines (Loi anti-squat 2023).",
-        "**Révision du loyer** : Ne peut excéder la variation de l'Indice de Référence des Loyers (IRL) publié par l'INSEE."
+      enVotreFaveur = [
+        "🟢 **Ordre public protecteur :** Les articles 7, 20 et 22 de la loi de 1989 prévalent sur toute clause abusive insérée dans le bail.",
+        detectedAmount ? `🟢 **Montant chiffrable :** Préjudice liquide de **${detectedAmount}** dont le paiement peut être formellement exigé.` : "🟢 **Majoration de 10% par mois de retard :** Applicable de plein droit sur le loyer en cas de non-restitution du dépôt de garantie dans les délais légaux.",
+        "🟢 **Absence de retenue justifiée :** Toute retenue sur caution sans devis ou facture certifiée contradictoire est illégale (Cass. Civ. 3e)."
       ];
-      statutoryArticles = [
-        "**Article 7 de la Loi du 6 juillet 1989** (Obligations principales du locataire)",
-        "**Article 22 de la Loi du 6 juillet 1989** (Restitution du dépôt de garantie sous 1 à 2 mois maximum)",
-        "**Article 1719 du Code Civil** (Obligation de délivrance d'un bien en bon état d'usage)"
+      contreVous = [
+        "🔴 **Obligation de mise en demeure préalable :** Impossible de saisir le juge sans justificatif d'une mise en demeure par LRAR restée infructueuse.",
+        "🔴 **Interdiction de faire justice soi-même :** Le locataire ne peut pas suspendre unilatéralement le loyer, même en cas de désordre, sans consignation ordonnée par le juge.",
+        "🔴 **Médiation obligatoire (art. 750-1 CPC) :** Saisine obligatoire de la Commission Départementale de Conciliation (CDC) ou d'un conciliateur avant assignation si < 5 000 €."
       ];
-    } else if (lowerDoc.includes('travail') || lowerDoc.includes('cdi') || lowerDoc.includes('cdd') || lowerDoc.includes('salarié') || lowerDoc.includes('employeur') || lowerDoc.includes('licenciement')) {
-      docType = "Contrat de travail / Pièce sociale";
-      legalClassification = "Contrat de travail soumis au Code du Travail et à la convention collective de branche";
-      keyObservations = [
-        "Analyse de la qualification du poste, de la durée de travail et des clauses spécifiques d'exclusivité ou de mobilité.",
-        detectedAmount ? `Rémunération ou indemnité stipulée : **${detectedAmount}**.` : "Conformité de la rémunération au regard des minima conventionnels.",
-        "Vérification de la validité de la clause de non-concurrence (doit comporter une contrepartie financière obligatoire sans minoration)."
-      ];
-      criticalClauses = [
-        "**Période d'essai & Renouvellement** : Tout renouvellement doit être expressément prévu par la convention collective et faire l'objet d'un accord écrit du salarié avant l'échéance de la période initiale.",
-        "**Clause de non-concurrence** : Doit être limitée dans le temps et dans l'espace, indispensable à la protection des intérêts légitimes de l'entreprise, et assortie d'une indemnité pécuniaire."
-      ];
-      statutoryArticles = [
-        "**Article L1221-1 du Code du Travail** (Formation du contrat de travail)",
-        "**Article L1232-1 du Code du Travail** (Exigence d'une cause réelle et sérieuse pour toute rupture)",
-        "**Jurisprudence constante Cass. Soc.** (Nullité des clauses de non-concurrence sans indemnité financière)"
-      ];
-    } else if (lowerDoc.includes('facture') || lowerDoc.includes('devis') || lowerDoc.includes('impayé') || lowerDoc.includes('prestation') || lowerDoc.includes('fournisseur')) {
-      docType = "Facture commerciale / Devis contractuel";
-      legalClassification = "Obligation contractuelle commerciale ou civile (art. 1103 C. civ.)";
-      keyObservations = [
-        detectedAmount ? `Créance principale identifiée : **${detectedAmount}**.` : "Vérification des montants exigibles Hors Taxes et TTC en Euro (€).",
-        "Contrôle des mentions obligatoires (délai de règlement, taux des pénalités de retard, indemnité forfaitaire de recouvrement de 40 € en B2B).",
-        "Caractère certain, liquide et exigible de la créance pour engager un recouvrement immédiat."
-      ];
-      criticalClauses = [
-        "**Pénalités de retard (art. L441-10 C. com.)** : Exigibles dès le premier jour de dépassement de l'échéance légale sans qu'un rappel préalable ne soit requis.",
-        "**Clause de réserve de propriété** : Conserve la propriété des biens vendus jusqu'au parfait paiement du prix."
+      procedureEtapes = [
+        "1️⃣ **Mise en demeure par LRAR (Délai 8 à 15 jours) :** Réclamer l'exécution ou le remboursement avec décompte des pénalités légales sous peine de poursuites.",
+        "2️⃣ **Saisine de la Commission Départementale de Conciliation (CDC) :** Procédure gratuite et rapide, suspendant la prescription.",
+        "3️⃣ **Saisine du Juge des Contentieux de la Protection (JCP) :** Auprès du Tribunal Judiciaire compétent par simple requête ou assignation par commissaire de justice."
       ];
       statutoryArticles = [
-        "**Article 1103 du Code Civil** (Force obligatoire des engagements contractuels)",
-        "**Article 1344 du Code Civil** (Mise en demeure du débiteur)",
-        "**Article 1405 et suivants du Code de Procédure Civile** (Procédure d'injonction de payer)"
+        "**Article 22 de la Loi n° 89-462 du 6 juillet 1989** (Restitution du dépôt de garantie et majoration légale de 10%/mois)",
+        "**Article 1719 du Code Civil** (Obligation de délivrance d'un logement décent et en bon état)",
+        "**Article 750-1 du Code de Procédure Civile** (Préalable amiable obligatoire avant saisine judiciaire)"
       ];
+
+    } else if (fullContent.includes('travail') || fullContent.includes('cdi') || fullContent.includes('cdd') || fullContent.includes('salarié') || fullContent.includes('employeur') || fullContent.includes('licenciement') || fullContent.includes('rupture') || fullContent.includes('prud\'homme')) {
+      docType = "Contrat de Travail & Contentieux Social (Code du Travail)";
+      partiesMapping = {
+        demandeur: "Salarié (demandeur à l'action ou en défense face à la mesure disciplinaire)",
+        adversaire: "Employeur / Entreprise contractante",
+        quiContreQui: "Salarié contre Employeur sur la régularité de la relation de travail, l'exécution du contrat ou la légitimité de la rupture.",
+        rapportDeForce: "Le doute profite au salarié (art. L1235-1 C. trav.) ; la charge de la preuve d'une cause réelle et sérieuse pèse sur l'employeur."
+      };
+      timeline = [
+        `**Date d'embauche ou référence :** Entrée en fonction (${detectedDate || 'selon contrat'}).`,
+        `**Lieu du contrat :** Lieu habituel d'exécution de la prestation de travail ou siège de l'employeur (${detectedLocation}).`,
+        `**Point de bascule :** Notification de la rupture, modification unilatérale ou incident d'exécution.`,
+        `**Prescription impérative :** 12 mois pour contester la rupture du contrat (art. L1471-1 C. trav.) ; 3 ans pour les rappels de salaires (art. L3245-1).`
+      ];
+      enVotreFaveur = [
+        "🟢 **Absence de cause réelle et sérieuse :** Les motifs imprécis ou non matériellement vérifiables rendent le licenciement sans cause réelle et sérieuse.",
+        detectedAmount ? `🟢 **Créance salariale :** Montant identifié de **${detectedAmount}** à réclamer avec intérêts au taux légal.` : "🟢 **Indemnités légales et conventionnelles :** Cumul possible de l'indemnité compensatrice de préavis, congés payés, et dommages-intérêts selon le barème Macron.",
+        "🟢 **Nullité des clauses non rémunérées :** Toute clause de non-concurrence sans contrepartie financière intégrale est nulle de plein droit."
+      ];
+      contreVous = [
+        "🔴 **Barème Macron (art. L1235-3 C. trav.) :** Plafonnement des indemnités prud'homales fixé selon l'ancienneté (sauf harcèlement ou violation d'une liberté fondamentale).",
+        "🔴 **Délai de forclusion très court :** 1 an seulement pour saisir le CPH à compter de la notification de la rupture.",
+        "🔴 **Charge de la preuve des heures supplémentaires :** L'employé doit étayer sa demande avec un décompte précis des heures."
+      ];
+      procedureEtapes = [
+        "1️⃣ **Demande de précisions sur les motifs (art. R1232-13 C. trav.) :** Sous 15 jours suivant la notification de rupture par LRAR.",
+        "2️⃣ **Tentative de rupture conventionnelle ou protocole transactionnel :** Avec assistance d'un conseiller ou avocat pour sécuriser une indemnité forfaitaire.",
+        "3️⃣ **Saisine du Conseil de Prud'hommes (CPH) :** Bureau de Conciliation et d'Orientation (BCO), puis Bureau de Jugement territorialement compétent."
+      ];
+      statutoryArticles = [
+        "**Article L1232-1 du Code du Travail** (Exigence d'une cause réelle et sérieuse)",
+        "**Article L1235-3 du Code du Travail** (Barème des indemnités pour licenciement sans cause réelle et sérieuse)",
+        "**Article L1471-1 du Code du Travail** (Prescription d'un an pour contester la rupture)"
+      ];
+
+    } else if (fullContent.includes('facture') || fullContent.includes('devis') || fullContent.includes('impayé') || fullContent.includes('prestation') || fullContent.includes('fournisseur') || fullContent.includes('commerce') || fullContent.includes('client')) {
+      docType = "Facture commerciale / Devis & Contrat d'Entreprise (Code de Commerce / Code Civil)";
+      partiesMapping = {
+        demandeur: "Créancier / Prestataire (ou Client lésé en cas de malfaçon)",
+        adversaire: "Débiteur récalcitrant (ou Professionnel défaillant)",
+        quiContreQui: "Créancier contre Débiteur pour recouvrement d'une créance exigible ou résolution pour inexécution.",
+        rapportDeForce: "Créance certaine, liquide et exigible matérialisée par document écrit signé."
+      };
+      timeline = [
+        `**Émission / Commande :** Bon de commande ou devis accepté (${detectedDate || 'selon pièces'}).`,
+        `**Lieu de livraison / exécution :** ${detectedLocation}.`,
+        `**Échéance dépassée :** Dépassement du délai de paiement légal de 30 à 60 jours (art. L441-10 C. com.).`,
+        `**Prescription :** 5 ans entre professionnels (art. L110-4 C. com.) ; 2 ans contre un consommateur (art. L218-2 C. consom.).`
+      ];
+      enVotreFaveur = [
+        detectedAmount ? `🟢 **Montant certain :** Créance principale établie à **${detectedAmount}** HT/TTC.` : "🟢 **Créance exigible :** Preuve matérielle de la livraison ou prestation réalisée.",
+        "🟢 **Pénalités de retard de plein droit :** Taux BCE majoré de 10 points + 40 € d'indemnité forfaitaire de recouvrement par facture en B2B sans rappel nécessaire.",
+        "🟢 **Clause résolutoire ou de réserve de propriété :** Restitution possible des biens ou résiliation immédiate."
+      ];
+      contreVous = [
+        "🔴 **Exception d'inexécution (art. 1219 C. civ.) :** La partie adverse peut opposer un refus de paiement si la prestation n'a pas été parfaitement livrée.",
+        "🔴 **Absence de signature ou de bon de livraison :** Si le devis n'est pas signé ou s'il n'y a pas de récépissé de livraison, le recouvrement accéléré peut être rejeté.",
+        "🔴 **Procédure de contestation commerciale :** Risque de demande reconventionnelle pour retard de livraison."
+      ];
+      procedureEtapes = [
+        "1️⃣ **Mise en demeure formelle de payer par LRAR (Délai 8 jours) :** Faisant courir les intérêts moratoires au taux légal (art. 1344 C. civ.).",
+        "2️⃣ **Requête en Injonction de Payer (art. 1405 CPC) :** Procédure rapide et non contradictoire devant le Tribunal de Commerce ou Judiciaire.",
+        "3️⃣ **Signification par Commissaire de Justice de l'Ordonnance :** Pour apposition de la formule exécutoire et saisie des comptes bancaires."
+      ];
+      statutoryArticles = [
+        "**Article 1103 & 1104 du Code Civil** (Force obligatoire des contrats et exigence de bonne foi)",
+        "**Article L441-10 du Code de Commerce** (Délais de paiement et pénalités de retard impératives)",
+        "**Article 1405 et suivants du CPC** (Procédure d'Injonction de Payer)"
+      ];
+
     } else {
-      docType = "Acte juridique / Correspondance contractuelle";
-      legalClassification = "Document contractuel ou précontentieux";
-      keyObservations = [
-        "Identification des faits, des engagements souscrits et des dates limites d'exécution.",
-        detectedDate ? `Date ou échéance repérée : **${detectedDate}**.` : "Examen de la chronologie des faits présentés.",
-        "Absence de clause déséquilibrée privant l'une des parties de ses droits fondamentaux."
+      docType = "Dossier Contractuel & Responsabilité Civile / Litige Général";
+      partiesMapping = {
+        demandeur: "Vous-même (Demandeur / Victime du préjudice)",
+        adversaire: "Partie adverse mise en cause",
+        quiContreQui: "Vous-même engagez la responsabilité de la partie adverse pour manquement à ses engagements légaux ou contractuels.",
+        rapportDeForce: "Droit à réparation intégrale du préjudice direct et certain subi."
+      };
+      timeline = [
+        `**Origine des engagements :** Établissement des faits (${detectedDate || 'date des pièces'}).`,
+        `**Territorialité :** Faits survenus ou exécutés à ${detectedLocation}.`,
+        `**Manquement constaté :** Défaut d'exécution ou faute préjudiciable constatée.`,
+        `**Prescription légale :** 5 ans de droit commun pour les actions personnelles ou mobilières (art. 2224 C. civ.).`
       ];
-      criticalClauses = [
-        "**Force exécutoire & Déchéance de terme** : Respect des conditions formelles de notification par lettre recommandée avec accusé de réception (LRAR).",
-        "**Responsabilité contractuelle (art. 1231-1 C. civ.)** : Nécessité de prouver une inexécution, un préjudice direct et un lien de causalité."
+      enVotreFaveur = [
+        "🟢 **Preuve littérale :** Pièces et écrits produits à l'appui de votre demande.",
+        detectedAmount ? `🟢 **Montant du dommage :** Préjudice estimé ou réclamé de **${detectedAmount}**.` : "🟢 **Droit à réparation :** Réparation intégrale du préjudice causé par la faute d'autrui.",
+        "🟢 **Force obligatoire du contrat :** L'article 1103 du Code Civil lie strictement les parties."
+      ];
+      contreVous = [
+        "🔴 **Charge de la preuve (art. 1353 C. civ.) :** Il appartient au demandeur d'établir la réalité du dommage, de la faute et du lien de causalité.",
+        "🔴 **Diligence précontentieuse obligatoire :** Justification obligatoire d'une tentative de résolution amiable avant saisine du juge.",
+        "🔴 **Risque d'aléa judiciaire :** Frais irrépétibles (art. 700 CPC) en cas de rejet infondé."
+      ];
+      procedureEtapes = [
+        "1️⃣ **Mise en demeure préalable obligatoire par LRAR :** Exposant les griefs et fixant un délai impératif de 15 jours.",
+        "2️⃣ **Médiation ou Conciliation de justice :** Obligatoire selon l'art. 750-1 du CPC pour les litiges civils.",
+        "3️⃣ **Assignation ou Requête au Tribunal Judiciaire :** Compétent en fonction de la nature et du montant de la demande."
       ];
       statutoryArticles = [
-        "**Article 1104 du Code Civil** (Exigence générale de bonne foi contractuelle)",
-        "**Article 1240 du Code Civil** (Principe fondamental de la responsabilité civile)",
-        "**Article 2224 du Code Civil** (Délai de prescription de droit commun de 5 ans)"
+        "**Article 1103 du Code Civil** (Force obligatoire des contrats légalement formés)",
+        "**Article 1240 du Code Civil** (Principe de la responsabilité civile délictuelle)",
+        "**Article 2224 du Code Civil** (Prescription quinquennale de droit commun)"
       ];
     }
 
     if (isDocGeneration) {
-      const draftTitle = clean.includes('mise en demeure') ? 'Mise en Demeure Officielle' :
+      const draftTitle = clean.includes('mise en demeure') ? 'Mise en Demeure Officielle LRAR' :
                          clean.includes('plainte') ? 'Plainte auprès du Procureur de la République' :
                          clean.includes('contestation') ? 'Lettre de Contestation Formelle' :
-                         'Projet d\'Acte Juridique';
+                         'Projet d\'Acte Juridique & Injonction';
 
-      responseText = `J'ai examiné avec une attention rigoureuse votre document **"${docNameDisplay}"** ainsi que votre demande.\n\n` +
-        `Voici le document officiel rédigé sur-mesure, directement exploitable et prêt à l'envoi :\n\n` +
+      responseText = `J'ai examiné l'ensemble de votre dossier (**${docCount} pièce(s) analysée(s) :** *${docNameDisplay}*).\n\n` +
+        `Voici le projet d'acte officiel complet et immédiatement exploitable :\n\n` +
         `---\n` +
         `### ${draftTitle.toUpperCase()}\n` +
-        `**Dossier Référence :** FJ-${Math.floor(100000 + Math.random() * 900000)} / FRA\n` +
+        `**Référence dossier :** FJ-${Math.floor(100000 + Math.random() * 900000)} / FRA\n` +
         `**Date d'émission :** ${new Date().toLocaleDateString('fr-FR')}\n` +
-        `**Affaire :** ${userQuery.slice(0, 120)}\n\n` +
-        `**À l'attention de la partie adverse / du destinataire :**\n\n` +
+        `**Lieu :** ${detectedLocation}\n` +
+        `**Objet :** Mise en demeure formelle avant saisine judiciaire - ${userQuery.slice(0, 100)}\n\n` +
+        `**Parties :**\n` +
+        `- **Émetteur :** ${partiesMapping.demandeur}\n` +
+        `- **Destinataire :** ${partiesMapping.adversaire}\n\n` +
         `Madame, Monsieur,\n\n` +
-        `Par la présente, agissant en vertu des dispositions applicables du droit français, je fais suite au document intitulé *"${docNameDisplay}"* en date du ${detectedDate || 'récent'} ${detectedAmount ? `portant sur un montant de **${detectedAmount}**` : ''}.\n\n` +
-        `**1. Exposé des faits et manquements constatés :**\n` +
-        `Il ressort de l'analyse des pièces et de notre accord que vous avez manqué à vos obligations contractuelles et légales. En effet, ${userQuery || 'les engagements souscrits demeurent inexécutés à ce jour'}.\n\n` +
+        `Par la présente, agissant en application des règles impératives du droit français et au vu des pièces analysées (*${docNameDisplay}*),\n\n` +
+        `**1. Rappel des faits et chronologie :**\n` +
+        `Il ressort des documents contractuels que vous vous étiez engagé à exécuter vos obligations à ${detectedLocation}. Or, à ce jour, les manquements suivants sont formellement constatés : ${userQuery || 'inexécution flagrante des obligations contractuelles'}${detectedAmount ? ` pour un montant de **${detectedAmount}**` : ''}.\n\n` +
         `**2. Fondements juridiques :**\n` +
         `${statutoryArticles.map(a => `- ${a}`).join('\n')}\n\n` +
         `**3. Injonction et délai impératif :**\n` +
-        `En conséquence, je vous mets en demeure formelle par la présente de régulariser la situation dans un délai strict et non négociable de **HUIT (8) JOURS** à compter de la première présentation de ce courrier.\n\n` +
-        `À défaut d'exécution complète ou de proposition de règlement amiable dans ce délai, je saisirai immédiatement la juridiction compétente (Tribunal Judiciaire) pour obtenir l'exécution forcée, ainsi que des dommages et intérêts au titre de l'article 1231-1 du Code Civil et la condamnation aux dépens.\n\n` +
+        `En conséquence, je vous mets en demeure formelle de régulariser intégralement la situation dans un délai strict et non négociable de **HUIT (8) JOURS** à compter de la réception de la présente.\n\n` +
+        `À défaut d'exécution complète ou d'accord écrit dans ce délai, je saisirai immédiatement la juridiction compétente afin d'obtenir votre condamnation sous astreinte journalière, assortie de dommages et intérêts au titre de l'article 1231-1 du Code Civil ainsi que la charge des dépens et frais d'avocat au titre de l'article 700 du CPC.\n\n` +
         `Fait pour valoir ce que de droit.\n\n` +
-        `*Signature certifiée France Justice*\n` +
+        `*Signature certifiée*\n` +
         `---\n\n` +
-        `💡 **Conseil stratégique :** Envoyez ce document par **Lettre Recommandée avec Accusé de Réception (LRAR)** ou faites-le signifier par un commissaire de justice pour lui conférer une date certaine incontestable.`;
+        `💡 **Recommandation :** Envoyez ce document en **Lettre Recommandée avec Accusé de Réception (LRAR)** pour lui donner date certaine et ouvrir officiellement la phase contentieuse.`;
 
       action = {
         type: 'CREATE_DOCUMENT',
@@ -260,23 +374,30 @@ function getAdvancedLocalLegalAI(
         }
       };
     } else {
-      responseText = `Bonjour. J'ai analysé en détail le document transmis **"${docNameDisplay}"** (*${docType}*).\n\n` +
-        `> **Extrait identifié du document :**\n` +
-        `> *« ${sampleText} »*\n\n` +
-        `Voici mon diagnostic juridique précis et les opportunités d'action pour votre dossier :\n\n` +
-        `### 1. Qualification & Validité de l'Acte\n` +
-        `- **Nature juridique :** ${legalClassification}.\n` +
-        `${keyObservations.map(o => `- ${o}`).join('\n')}\n\n` +
-        `### 2. Clauses Critiques & Points d'Attention\n` +
-        `${criticalClauses.map(c => `- ${c}`).join('\n')}\n\n` +
-        `### 3. Textes de Loi Applicables\n` +
+      responseText = `Bonjour. J'ai réalisé une analyse complète et croisée de votre dossier (**${docCount} document(s) examiné(s) :** *${docNameDisplay}* — Domaine : *${docType}*).\n\n` +
+        `Voici l'expertise juridique détaillée, la chronologie des faits, les forces et faiblesses pour votre position, ainsi que la procédure à suivre :\n\n` +
+        `### 🏛️ 1. Cartographie des Parties (« Qui est contre qui »)\n` +
+        `- **Votre rôle (Demandeur / Victime) :** ${partiesMapping.demandeur}\n` +
+        `- **Partie adverse :** ${partiesMapping.adversaire}\n` +
+        `- **Nature de l'opposition :** ${partiesMapping.quiContreQui}\n` +
+        `- **Rapport de force juridique :** ${partiesMapping.rapportDeForce}\n\n` +
+        `### 📅 2. Chronologie Détaillée des Faits (« Où & Quand »)\n` +
+        `${timeline.map(t => `- ${t}`).join('\n')}\n\n` +
+        `### ⚖️ 3. Évaluation Stratégique : « En votre faveur » vs « Contre vous »\n` +
+        `#### 🟢 Éléments et Arguments EN VOTRE FAVEUR :\n` +
+        `${enVotreFaveur.map(f => `- ${f}`).join('\n')}\n\n` +
+        `#### 🔴 Éléments, Risques & Arguments CONTRE VOUS :\n` +
+        `${contreVous.map(c => `- ${c}`).join('\n')}\n\n` +
+        `### 📋 4. Procédure Complète & Plan d'Action Recommandé\n` +
+        `${procedureEtapes.map(e => `- ${e}`).join('\n')}\n\n` +
+        `### 📁 5. Confrontation & Synthèse des Pièces du Dossier\n` +
+        `- **Documents examinés :** ${docNameDisplay}\n` +
+        `- **Concordance :** Les pièces produites établissent l'existence du lien juridique et les obligations non respectées.\n` +
+        `- **Pièces complémentaires à joindre :** Conservez tous les échanges écrits (emails, SMS, accusés de réception, relevés de comptes bancaires ou constats d'huissier) pour sceller la preuve.\n\n` +
+        `### 📖 Textes de Loi Applicables\n` +
         `${statutoryArticles.map(a => `- ${a}`).join('\n')}\n\n` +
-        `### 4. Stratégie Recommandée & Démarches Concrètes\n` +
-        `1️⃣ **Phase Amiable Immédiate :** Notifier vos observations par écrit avec accusé de réception en vous fondant expressément sur les articles ci-dessus.\n` +
-        `2️⃣ **Mise en Demeure Précise :** Octroyer un délai formel de 8 à 15 jours pour contraindre la partie adverse à s'exécuter.\n` +
-        `3️⃣ **Recours Juridictionnel :** En cas d'inaction, engager une procédure de référé (urgence) ou au fond devant le Tribunal compétent.\n\n` +
-        `💬 **Pour poursuivre notre échange :**\n` +
-        `Souhaitez-vous que je rédige pour vous la mise en demeure formelle ou que nous examinions ensemble une clause en particulier de ce document ?`;
+        `💬 **Comment souhaitez-vous poursuivre ?**\n` +
+        `Vous pouvez importer d'autres pièces complémentaires au dossier à tout moment, ou me demander de rédiger immédiatement la mise en demeure formelle pour cette affaire.`;
     }
 
   // 2. SCENARIO: REGULAR CONVERSATIONAL QUESTION (WITHOUT DOCUMENT)
@@ -478,6 +599,7 @@ export async function chatWithAI(
   _useSearch: boolean = true,
   targetLang?: string
 ) {
+  void _useSearch;
   const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const activeLang = targetLang || (typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : 'fr') || 'fr';
   const langName = LANGUAGE_NAMES[activeLang] || 'French (Français)';
