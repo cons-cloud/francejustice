@@ -503,6 +503,35 @@ function getAdvancedLocalLegalAI(
     }
   }
 
+  // Handle greetings and casual queries naturally (ChatGPT / Claude / Gemini style)
+  const isGreeting = /^(bonjour|bonsoir|salut|hello|coucou|hi|hey|yo|qui es-tu|qui êtes-vous|aide|aidez-moi)[\s!?.]*$/i.test(clean);
+  if (isGreeting && !hasFiles) {
+    return {
+      text: "Bonjour ! Je suis l'intelligence juridique d'élite de France Justice.\n\nComment puis-je vous aider aujourd'hui ?\n\nVous pouvez me poser toute question sur vos droits, me décrire une situation de litige (droit du travail, bail d'habitation, litige de consommation, droit de la famille, etc.), ou joindre vos contrats et pièces justificatives pour obtenir une analyse juridique contradictoire approfondie.",
+      sources_web: OFFICIAL_LEGAL_PORTALS.slice(0, 3),
+      suggestions: [
+        "Contester une retenue sur mon dépôt de garantie",
+        "Calculer mes indemnités de rupture conventionnelle",
+        "Rédiger une mise en demeure formelle avec accusé de réception",
+        "Faire valoir la garantie légale de conformité de 2 ans"
+      ],
+      automations: [
+        {
+          id: 'demo_bail',
+          label: '🏠 Litige de Bail & Caution',
+          description: 'Calculer les pénalités de 10% par mois de retard sur la caution.',
+          actionPrompt: 'Comment contester la retenue injustifiée sur mon dépôt de garantie sous la loi du 6 juillet 1989 ?'
+        },
+        {
+          id: 'demo_travail',
+          label: '💼 Droit du Travail & Rupture',
+          description: 'Évaluer les indemnités légales et les délais de contestation.',
+          actionPrompt: 'Quelles sont les démarches et indemnités légales pour un licenciement sans cause réelle et sérieuse ?'
+        }
+      ]
+    };
+  }
+
   // Document creation or drafting intent
   const isDocGeneration = /(rédige|rédiger|générer|génère|créer|crée|fournir|lettre|mise en demeure|contrat|plainte|conclusions|accord|requête)/i.test(clean);
 

@@ -338,7 +338,10 @@ Réponds de manière structurée, personnalisée et directement opérationnelle.
                   multiple 
                   accept=".pdf,.txt,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg,.json,.csv,.odt,.ods,.rtf" 
                   onChange={handleFileUpload} 
+                  style={{ display: 'none' }}
                   className="hidden" 
+                  tabIndex={-1}
+                  aria-hidden="true"
                 />
                 <Button 
                   type="button" 
@@ -468,7 +471,10 @@ Réponds de manière structurée, personnalisée et directement opérationnelle.
                     multiple 
                     accept=".pdf,.txt,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg,.json,.csv,.odt,.ods,.rtf" 
                     onChange={handleFileUpload} 
+                    style={{ display: 'none' }}
                     className="hidden" 
+                    tabIndex={-1}
+                    aria-hidden="true"
                   />
                   <Button 
                     type="button" 

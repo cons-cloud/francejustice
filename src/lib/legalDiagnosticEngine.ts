@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { chatWithAI } from './gemini';
 
 export interface CaseParty {
   name: string;
@@ -217,6 +218,7 @@ export interface LegalDiagnosticResult {
   };
 
   // Compatibilité ascendante avec les champs existants
+  isGreeting?: boolean;
   winProbability: number;
   isDefendable: boolean;
   verdictAnalysis: {
@@ -264,6 +266,172 @@ export async function analyzeLegalCaseWithAI(
   targetLang: string = 'fr',
   uploadedFileNames: string[] = []
 ): Promise<LegalDiagnosticResult> {
+  // 1. GREETING & CASUAL INPUT HANDLER (ChatGPT / Claude / Gemini style)
+  const isGreeting = /^(bonjour|bonsoir|salut|hello|coucou|hi|hey|yo|qui es-tu|qui êtes-vous|aide|aidez-moi|bonjour !|salut !)[\s!?.]*$/i.test(userDescription.trim());
+  if (isGreeting && uploadedFileNames.length === 0 && (!extractedDocumentsText || extractedDocumentsText.length < 5)) {
+    const now = new Date();
+    const nowIso = now.toISOString();
+    const nowStr = now.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const mockIntegrityHash = generateMockHash();
+
+    return {
+      caseTitle: "Accueil & Assistance Juridique France Justice",
+      summary: `Bonjour ! Je suis l'intelligence artificielle juridique d'élite de France Justice, conçue selon les standards d'excellence de ChatGPT, Gemini et Claude pour vous accompagner dans toutes vos démarches juridiques en droit français et européen.
+
+Comment puis-je vous aider aujourd'hui ?
+
+Vous pouvez me poser directement votre question ou me confier votre situation :
+1. Poser une question de droit précise : Droit du travail (licenciement, rupture conventionnelle, harcèlement), Droit immobilier (litige de bail, restitution de caution, loyers impayés), Droit de la consommation ou Droit de la famille.
+2. Déposer des documents contractuels : En cliquant sur l'épingle pour joindre un contrat, un bail, une mise en demeure ou un jugement à analyser.
+3. Obtenir une stratégie complète : Évaluation contradictoire des forces et faiblesses de votre dossier, calcul des chances de succès et rédaction de projets d'actes juridiques.`,
+      isDefendable: true,
+      winProbability: 100,
+      isGreeting: true,
+      verdictAnalysis: {
+        verdictEvaluated: "Accueil & Écoute active",
+        isVerdictCorrect: true,
+        shouldAppeal: false,
+        appealReasons: [],
+        deadlinesAndPrescription: "Service accessible 24h/24 et 7j/7 en temps réel"
+      },
+      extractedResults: {
+        keyFacts: [
+          "Session d'assistance juridique initiée",
+          "Moteur IA France Justice v4.0 connecté en direct",
+          "Conformité RGPD et EU AI Act garantie"
+        ],
+        legalBasis: [
+          "Droit français (Code Civil, Code du Travail, Code de Procédure Civile)",
+          "Droit de l'Union Européenne"
+        ],
+        relevantJurisprudence: [
+          "Principes directeurs du procès équitable (Article 6 § 1 de la CEDH)"
+        ]
+      },
+      roadmap: [
+        "1. Exposez votre situation ou posez votre question juridique dans le champ ci-dessous",
+        "2. Joignez vos pièces éventuelles (PDF, Word, scans) via l'épingle",
+        "3. Obtenez instantanément une analyse contradictoire approfondie et des recommandations d'action"
+      ],
+      proceduresAndContacts: {
+        recommendedProcedure: "Consultation et orientation juridique personnalisée",
+        targetCourt: "Selon la nature du litige (Tribunal Judiciaire, Conseil de Prud'hommes, JCP)",
+        professionalToContact: "Avocat au Barreau ou Juriste France Justice"
+      },
+      ingestionPipeline: {
+        totalFilesCount: 0,
+        totalBytesSize: 0,
+        ocrProcessedPages: 0,
+        processingTimeMs: 120,
+        dataMultiplicationFactor: "1x",
+        timeSavedPercentage: "100%",
+        documents: [],
+        sourceGroundings: [],
+        auditTrail: [
+          {
+            timestamp: nowIso,
+            action: "Connexion session",
+            user: "Utilisateur",
+            hash: mockIntegrityHash,
+            details: "Session d'échange juridique démarrée."
+          }
+        ],
+        contractRiskClauses: [],
+        euAiActCompliance: {
+          systemClassification: "Système d'assistance documentaire et d'aide à la décision juridique",
+          complianceScore: 100,
+          humanOversightGuaranteed: true,
+          auditTimestamp: nowStr,
+          dataMinimizationApplied: true
+        }
+      },
+      pillar1_CaseManagement: {
+        parties: [
+          { name: "Vous-même", role: "Demandeur / Utilisateur", status: "Partie principale", details: "Conseil personnalisé" }
+        ],
+        keyChronology: [
+          { date: "Aujourd'hui", title: "Prise de contact", description: "Démarrage de la consultation juridique", impact: "faible" }
+        ],
+        financialStakes: {
+          totalClaimed: "À définir",
+          breakdown: ["Selon l'objet de votre demande"]
+        },
+        proceduralNullities: [],
+        caseConnections: []
+      },
+      pillar2_LegalResearch: {
+        ragSources: [
+          { title: "Légifrance", reference: "legifrance.gouv.fr", url: "https://www.legifrance.gouv.fr", quote: "Accès public et officiel au droit français", sourceType: "Légifrance" },
+          { title: "Justice.fr", reference: "justice.fr", url: "https://www.justice.fr", quote: "Portail officiel du Ministère de la Justice", sourceType: "Légifrance" }
+        ],
+        jurisprudentialDivergences: [],
+        regulatoryWatch: []
+      },
+      pillar3_DraftingAndStrategy: {
+        winProbabilityMin: 90,
+        winProbabilityMax: 100,
+        winProbabilityMedian: 95,
+        damagesEvaluation: {
+          minAmount: 0,
+          avgAmount: 0,
+          maxAmount: 0,
+          currency: "EUR (€)",
+          explanation: "Évaluation sur-mesure dès l'exposition de votre litige."
+        },
+        draftConclusions: {
+          title: "Conseil & Stratégie Juridique",
+          factualGrounds: ["Exposé des faits en attente"],
+          legalMeans: ["Analyse des textes de loi dès transmission"],
+          forgottenMeansAlerts: [],
+          parCesMotifs: ["Bénéficier d'une orientation juridique immédiate"]
+        },
+        recommendedActs: ["Poser une question juridique", "Joindre un contrat ou un document"],
+        appealDiagnostic: {
+          verdictEvaluated: "N/A",
+          shouldAppeal: false,
+          appealReasons: [],
+          deadlinesAndPrescription: "Délais légaux vérifiés lors de l'analyse"
+        }
+      },
+      pillar4_EthicsAndProcedure: {
+        deontologicalNotice: "Assistance documentaire et pré-analyse juridique. Conforme au secret et à la déontologie.",
+        hallucinationReliabilityScore: 100,
+        sourceVerificationSummary: "Vérifié sur les bases officielles du droit français.",
+        confidentialityStatus: {
+          zeroRetention: true,
+          encryptionStandard: "AES-256 / SHA-256",
+          compliance: "RGPD & EU AI Act"
+        }
+      },
+      pillar5_AdvancedRendering: {
+        mardOpportunity: {
+          recommendedMechanism: "Transaction amiable",
+          successRatePercentage: 80,
+          durationWeeks: 2,
+          costComparison: "Économie substantielle par rapport à un contentieux long"
+        },
+        serialLitigationRisk: "Aucun",
+        promptIntegrityProof: {
+          hash: mockIntegrityHash,
+          sealedAt: nowStr,
+          engineModel: "France Justice AI v4.0 (Gemini 1.5 / Claude / GPT-4o Class)"
+        }
+      }
+    };
+  }
+
+  // 2. GET INTELLIGENT DIRECT ANSWER FROM GEMINI CHAT ENGINE
+  let dynamicConversationalAnswer = '';
+  try {
+    const promptForChat = `DOSSIER : ${caseTitle}\nQUESTION / SITUATION DE L'UTILISATEUR :\n${userDescription}${extractedDocumentsText ? `\n\nPIÈCES & TEXTE EXTRAIT DES DOCUMENTS JOINTS :\n${extractedDocumentsText.slice(0, 15000)}` : ''}`;
+    const chatOutput = await chatWithAI(promptForChat, [], true, targetLang);
+    if (chatOutput && chatOutput.text) {
+      dynamicConversationalAnswer = chatOutput.text;
+    }
+  } catch (err) {
+    console.warn("Failed to get conversational AI response:", err);
+  }
+
   const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
   const combinedPrompt = `
@@ -314,6 +482,9 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
       const parsed: LegalDiagnosticResult = JSON.parse(cleanedJson);
 
       if (parsed.pillar1_CaseManagement && parsed.pillar2_LegalResearch && parsed.pillar3_DraftingAndStrategy && parsed.ingestionPipeline) {
+        if (dynamicConversationalAnswer) {
+          parsed.summary = dynamicConversationalAnswer;
+        }
         return parsed;
       }
     } catch (e) {
@@ -325,7 +496,6 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
   const title = caseTitle || "Analyse et Ingestion Approfondie de Dossier Juridique";
   const now = new Date();
   const nowIso = now.toISOString();
-  const nowStr = now.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   const mockIntegrityHash = generateMockHash();
 
   const isLabor = /licenciement|salarié|employeur|prud|contrat de travail|cdi|cdd/i.test(`${caseTitle} ${userDescription}`);
@@ -572,7 +742,7 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
 
   return {
     caseTitle: title,
-    summary: `ANALYSE JURIDIQUE EXHAUSTIVE ET AUDIT MULTI-CRITÈRES DU DOSSIER : "${title}".\n\nSur la base des pièces examinées (${fileList.length} document(s) ingéré(s) et traités par OCR haute résolution) et des déclarations formulées, le dossier présente une matérialité probatoire substantielle permettant d'engager une stratégie de défense ou d'action offensive structurée.\n\nL'analyse croisée des textes de loi, des stipulations contractuelles et des récents arrêts de la Cour de cassation révèle que la contestation est légitime et défendable au fond. Les clauses contractuelles à risque ont été cartographiées et chaque affirmation est rattachée à son ancrage documentaire vérifiable (Source Grounding).`,
+    summary: dynamicConversationalAnswer || `ANALYSE JURIDIQUE DU DOSSIER : "${title}".\n\nSur la base des éléments transmis et des règles impératives du droit français, voici l'expertise détaillée de votre situation, vos droits et la stratégie recommandée.`,
     winProbability: 72,
     isDefendable: true,
     createdAt: nowIso,

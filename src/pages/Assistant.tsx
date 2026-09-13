@@ -647,7 +647,10 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
                       multiple 
                       accept=".pdf,.txt,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg,.json,.csv,.odt,.ods,.rtf" 
                       onChange={handleFileUpload} 
+                      style={{ display: 'none' }}
                       className="hidden" 
+                      tabIndex={-1}
+                      aria-hidden="true"
                     />
                     <Button 
                       type="button" 

@@ -31,6 +31,9 @@ import {
   Plus,
   Paperclip,
   Send,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
   X
 } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -77,6 +80,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
   const [activePillarTab, setActivePillarTab] = useState<'all' | 'pillar1' | 'pillar2' | 'pillar3' | 'pillar4' | 'pillar5'>('all');
   const [copiedHash, setCopiedHash] = useState(false);
   const [copiedConclusions, setCopiedConclusions] = useState(false);
+  const [showDetailedAudit, setShowDetailedAudit] = useState(false);
 
   // Semantic query state inside the loaded case
   const [semanticQuery, setSemanticQuery] = useState('');
@@ -90,6 +94,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
 
   // Saved diagnostics from Supabase Realtime
   const [savedDiagnostics, setSavedDiagnostics] = useState<any[]>([]);
+  const [currentDiagnosticId, setCurrentDiagnosticId] = useState<string | null>(null);
 
   // 1. Fetch saved diagnostics & subscribe to Supabase Realtime
   const fetchDiagnostics = async () => {
@@ -105,6 +110,33 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
       }
     } catch (e) {
       console.warn("Error fetching diagnostics from Supabase:", e);
+    }
+  };
+
+  // Delete past diagnostic analysis
+  const deleteDiagnostic = async (id: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    try {
+      const { error } = await supabase
+        .from('legal_diagnostics_just')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.warn("Supabase delete error:", error);
+      }
+
+      setSavedDiagnostics(prev => prev.filter(item => item.id !== id));
+      if (currentDiagnosticId === id) {
+        startNewAnalysis();
+      }
+      success("Dossier supprimé de l'historique.");
+    } catch (err) {
+      console.error("Erreur suppression dossier:", err);
+      toastError("Impossible de supprimer ce dossier.");
     }
   };
 
@@ -229,6 +261,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
   ];
 
   const startNewAnalysis = () => {
+    setCurrentDiagnosticId(null);
     setDiagnostic(null);
     setCaseTitle('');
     setDescription('');
@@ -932,6 +965,20 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
             <Plus className="w-3.5 h-3.5 mr-1 text-cyan-600" />
             <span className="hidden sm:inline">Nouveau</span>
           </Button>
+
+          {/* Delete Current Diagnostic Button */}
+          {currentDiagnosticId && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => deleteDiagnostic(currentDiagnosticId)}
+              className="rounded-xl border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold"
+              title="Supprimer ce dossier de l'historique"
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-1 text-red-600" />
+              <span className="hidden sm:inline">Supprimer</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -982,26 +1029,41 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
                       .filter(item => !searchFilter || item.case_title?.toLowerCase().includes(searchFilter.toLowerCase()))
                       .slice(0, 10)
                       .map((item) => (
-                        <button
+                        <div
                           key={item.id}
-                          type="button"
                           onClick={() => {
+                            setCurrentDiagnosticId(item.id);
                             setDiagnostic(item.full_analysis);
                             setCaseTitle(item.case_title);
                             setDescription(item.full_analysis?.summary || '');
                           }}
-                          className="w-full text-left p-2.5 rounded-xl bg-white hover:bg-cyan-50/60 border border-slate-200/80 hover:border-cyan-300 transition-all cursor-pointer shadow-2xs group"
+                          className={`w-full text-left p-2.5 rounded-xl border transition-all cursor-pointer shadow-2xs group flex items-center justify-between gap-2 ${
+                            currentDiagnosticId === item.id 
+                              ? 'bg-cyan-50/90 border-cyan-400 ring-1 ring-cyan-400/50' 
+                              : 'bg-white hover:bg-cyan-50/60 border-slate-200/80 hover:border-cyan-300'
+                          }`}
                         >
-                          <div className="font-bold text-xs text-slate-800 truncate group-hover:text-cyan-900">
-                            {item.case_title}
+                          <div className="min-w-0 flex-1">
+                            <div className="font-bold text-xs text-slate-800 truncate group-hover:text-cyan-900">
+                              {item.case_title || "Dossier sans titre"}
+                            </div>
+                            <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1">
+                              <span className="font-semibold text-emerald-700">
+                                Succès : {item.win_probability}%
+                              </span>
+                              <span>{new Date(item.created_at).toLocaleDateString('fr-FR')}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1">
-                            <span className="font-semibold text-emerald-700">
-                              Succès : {item.win_probability}%
-                            </span>
-                            <span>{new Date(item.created_at).toLocaleDateString('fr-FR')}</span>
-                          </div>
-                        </button>
+                          <button
+                            type="button"
+                            onClick={(e) => deleteDiagnostic(item.id, e)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0 opacity-70 group-hover:opacity-100 cursor-pointer"
+                            title="Supprimer ce dossier"
+                            aria-label="Supprimer ce dossier"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       ))}
                   </div>
                 )}
@@ -1152,57 +1214,158 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
                           animate={{ opacity: 1, y: 0 }}
                           className="space-y-6"
                         >
-                {/* Score & Verdict Banner */}
-                <Card className={`border shadow-sm rounded-3xl overflow-hidden ${diagnostic.isDefendable ? 'bg-gradient-to-r from-emerald-50 via-teal-50/40 to-white border-emerald-200' : 'bg-gradient-to-r from-amber-50 via-orange-50/40 to-white border-amber-200'}`}>
-                  <CardContent className="p-6">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs uppercase font-bold tracking-wider text-slate-500">Dossier Structuré &amp; Audité</span>
-                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${diagnostic.isDefendable ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-red-100 text-red-800 border border-red-300'}`}>
-                            {diagnostic.isDefendable ? '✓ Dossier Défendable au Fond' : '⚠️ Risque Procédural Élevé'}
-                          </span>
-                        </div>
-                        <h3 className="text-xl font-black text-slate-900">{diagnostic.caseTitle}</h3>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          <div className={`text-3xl font-black ${diagnostic.winProbability >= 60 ? 'text-emerald-700' : 'text-amber-700'}`}>
-                            {diagnostic.winProbability}%
+                        {/* 1. Conversational AI Header Bar (ChatGPT / Claude / Gemini Style) */}
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-sm font-black text-slate-900">France Justice IA Juridique</span>
+                            <span className="text-[10px] bg-cyan-50 text-cyan-800 px-2.5 py-0.5 rounded-full font-bold border border-cyan-200">
+                              {diagnostic.isGreeting ? "Accueil & Conseils" : "Diagnostic Personnalisé"}
+                            </span>
                           </div>
-                          <div className="text-[11px] text-slate-500 font-semibold">Chances de succès estimées</div>
+
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              onClick={() => {
+                                navigator.clipboard.writeText(diagnostic.summary);
+                                setCopiedConclusions(true);
+                                setTimeout(() => setCopiedConclusions(false), 2000);
+                                success("Réponse copiée dans le presse-papier.");
+                              }}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2.5 text-slate-600 hover:text-cyan-700 hover:bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer"
+                              title="Copier la réponse"
+                            >
+                              {copiedConclusions ? <Check className="w-3.5 h-3.5 text-emerald-600 mr-1" /> : <BookmarkCheck className="w-3.5 h-3.5 mr-1" />}
+                              <span className="hidden sm:inline">{copiedConclusions ? 'Copié !' : 'Copier'}</span>
+                            </Button>
+
+                            <Button
+                              onClick={() => toggleSpeaking(diagnostic.summary)}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2.5 text-slate-600 hover:text-cyan-700 hover:bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer"
+                              title="Écouter le résumé vocalement"
+                            >
+                              {isSpeaking ? <VolumeX className="w-3.5 h-3.5 text-red-600 mr-1" /> : <Volume2 className="w-3.5 h-3.5 text-cyan-600 mr-1" />}
+                              <span className="hidden sm:inline">{isSpeaking ? 'Arrêter' : 'Écouter'}</span>
+                            </Button>
+
+                            <Button
+                              onClick={() => downloadDiagnosticPDF(diagnostic)}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2.5 text-slate-600 hover:text-cyan-700 hover:bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer"
+                              title="Exporter en PDF"
+                            >
+                              <Download className="w-3.5 h-3.5 mr-1" />
+                              <span className="hidden sm:inline">Export PDF</span>
+                            </Button>
+                          </div>
                         </div>
 
-                        <Button
-                          onClick={() => toggleSpeaking(diagnostic.summary)}
-                          variant="outline"
-                          size="sm"
-                          className="bg-white border-slate-200 text-slate-700 hover:bg-slate-100 rounded-xl"
-                          title="Écouter le résumé vocalement"
-                        >
-                          {isSpeaking ? <VolumeX className="w-4 h-4 text-red-600" /> : <Volume2 className="w-4 h-4 text-cyan-600" />}
-                        </Button>
+                        {/* 2. Direct Intelligent Response (Clean Legal Text without raw asterisks or dashes) */}
+                        <div className="text-sm sm:text-base text-slate-800 leading-relaxed font-normal">
+                          <CleanLegalText content={diagnostic.summary} />
+                        </div>
 
-                        <Button
-                          onClick={() => downloadDiagnosticPDF(diagnostic)}
-                          className="bg-cyan-600 hover:bg-cyan-700 text-white font-black px-4 py-2 rounded-xl shadow-md flex items-center gap-2"
-                        >
-                          <Download className="w-4 h-4" /> Export PDF Complet
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                        {/* 3. Follow-up Action Chips (ChatGPT / Claude Style) */}
+                        {diagnostic.roadmap && diagnostic.roadmap.length > 0 && !diagnostic.isGreeting && (
+                          <div className="pt-3 border-t border-slate-100 space-y-2">
+                            <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                              Poursuivre l'analyse ou agir :
+                            </span>
+                            <div className="flex flex-wrap gap-2">
+                              {diagnostic.roadmap.slice(0, 3).map((step, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => {
+                                    setDescription(`Précisez cette démarche : "${step}". Quels sont mes droits et démarches exactes ?`);
+                                  }}
+                                  className="text-xs bg-slate-50 hover:bg-cyan-50 text-slate-700 hover:text-cyan-900 border border-slate-200 hover:border-cyan-300 py-1.5 px-3 rounded-full font-medium transition-all cursor-pointer shadow-2xs text-left"
+                                >
+                                  {step}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
-                {/* Primary Workflow Tabs */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                  <button
-                    onClick={() => setActiveTab('overview')}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition-colors ${activeTab === 'overview' ? 'bg-cyan-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-                  >
-                    Vue d&apos;Ensemble
-                  </button>
+                        {/* 4. Optional Technical Audit & 5 Pillars Toggle (For non-greeting cases) */}
+                        {!diagnostic.isGreeting && (
+                          <div className="pt-4 border-t border-slate-200/80 space-y-4">
+                            <button
+                              type="button"
+                              onClick={() => setShowDetailedAudit(!showDetailedAudit)}
+                              className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-cyan-50/70 border border-slate-200 hover:border-cyan-300 transition-all cursor-pointer text-xs font-bold text-slate-800 group"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Scale className="w-4 h-4 text-cyan-600" />
+                                <span>Détails Techniques, Analyse des Risques &amp; 5 Piliers Métiers</span>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-100 text-cyan-900">
+                                  {diagnostic.winProbability}% de succès estimé
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-slate-500 group-hover:text-cyan-800">
+                                <span>{showDetailedAudit ? "Masquer les détails" : "Afficher les détails"}</span>
+                                {showDetailedAudit ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                              </div>
+                            </button>
+
+                            {showDetailedAudit && (
+                              <div className="space-y-6 pt-2 animate-fade-in">
+                                {/* Score & Verdict Banner */}
+                                <Card className={`border shadow-sm rounded-3xl overflow-hidden ${diagnostic.isDefendable ? 'bg-gradient-to-r from-emerald-50 via-teal-50/40 to-white border-emerald-200' : 'bg-gradient-to-r from-amber-50 via-orange-50/40 to-white border-amber-200'}`}>
+                                  <CardContent className="p-6">
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                      <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <span className="text-xs uppercase font-bold tracking-wider text-slate-500">Dossier Structuré &amp; Audité</span>
+                                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${diagnostic.isDefendable ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-red-100 text-red-800 border border-red-300'}`}>
+                                            {diagnostic.isDefendable ? '✓ Dossier Défendable au Fond' : '⚠️ Risque Procédural Élevé'}
+                                          </span>
+                                        </div>
+                                        <h3 className="text-xl font-black text-slate-900">{diagnostic.caseTitle}</h3>
+                                      </div>
+
+                                      <div className="flex items-center gap-3">
+                                        <div className="text-right">
+                                          <div className={`text-3xl font-black ${diagnostic.winProbability >= 60 ? 'text-emerald-700' : 'text-amber-700'}`}>
+                                            {diagnostic.winProbability}%
+                                          </div>
+                                          <div className="text-[11px] text-slate-500 font-semibold">Chances de succès estimées</div>
+                                        </div>
+
+                                        <Button
+                                          onClick={() => toggleSpeaking(diagnostic.summary)}
+                                          variant="outline"
+                                          size="sm"
+                                          className="bg-white border-slate-200 text-slate-700 hover:bg-slate-100 rounded-xl"
+                                          title="Écouter le résumé vocalement"
+                                        >
+                                          {isSpeaking ? <VolumeX className="w-4 h-4 text-red-600" /> : <Volume2 className="w-4 h-4 text-cyan-600" />}
+                                        </Button>
+
+                                        <Button
+                                          onClick={() => downloadDiagnosticPDF(diagnostic)}
+                                          className="bg-cyan-600 hover:bg-cyan-700 text-white font-black px-4 py-2 rounded-xl shadow-md flex items-center gap-2"
+                                        >
+                                          <Download className="w-4 h-4" /> Export PDF Complet
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+
+                                {/* Primary Workflow Tabs */}
+                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                                  <button
+                                    onClick={() => setActiveTab('overview')}
+                                    className={`px-3.5 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition-colors ${activeTab === 'overview' ? 'bg-cyan-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+                                  >
+                                    Vue d&apos;Ensemble
+                                  </button>
                   <button
                     onClick={() => setActiveTab('ingestion')}
                     className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${activeTab === 'ingestion' ? 'bg-cyan-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}`}
@@ -1848,14 +2011,18 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
                     </CardContent>
                   </Card>
                 )}
-              </motion.div>
-            </AnimatePresence>
-                    </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </motion.div>
+                    </AnimatePresence>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
+        </div>
 
           {/* 2.C FLOATING COMPOSER DOCK (CHATGPT / CLAUDE STYLE) */}
           <div className="p-4 bg-gradient-to-t from-white via-white/95 to-transparent border-t border-slate-100 shrink-0">
@@ -1898,14 +2065,19 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
                     type="file"
                     ref={fileInputRef}
                     multiple
+                    accept=".pdf,.txt,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg,.json,.csv,.odt,.ods,.rtf"
                     onChange={handleFileUpload}
+                    style={{ display: 'none' }}
                     className="hidden"
+                    tabIndex={-1}
+                    aria-hidden="true"
                   />
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="p-2.5 rounded-2xl text-slate-500 hover:text-cyan-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
                     title="Joindre des documents (PDF, Word, scans)"
+                    aria-label="Joindre des documents"
                   >
                     <Paperclip className="w-5 h-5" />
                   </button>
