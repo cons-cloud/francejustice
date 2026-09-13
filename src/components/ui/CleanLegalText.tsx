@@ -8,7 +8,7 @@ interface CleanLegalTextProps {
 
 /**
  * CleanLegalText: Formateur haute-fidélité pour les analyses juridiques de l'IA.
- * Supprime les astérisques bruts (**) et les tirets désordonnés (-),
+ * Supprime intégralement les balises brutes (###, ##, #, **),
  * applique du gras natif HTML (<strong>) avec typographie soignée,
  * et structure les listes à puces et étapes numérotées de manière élégante.
  */
@@ -22,19 +22,21 @@ export const CleanLegalText: React.FC<CleanLegalTextProps> = ({
   // Découpe le texte en lignes et nettoie les sauts de lignes redondants
   const rawLines = content.split('\n');
 
-  // Analyse et rendu d'une ligne avec mise en gras sans aucun astérisque
+  // Analyse et rendu d'une ligne avec mise en gras sans aucun astérisque ni dièse
   const renderInline = (text: string, keyPrefix: string) => {
-    // Si la ligne contient des marqueurs **texte**, on les découpe
-    // Regex pour capturer **gras** ou __gras__
-    const parts = text.split(/(\*\*.*?\*\*|__.*?__)/g);
+    // 1. Supprime les dièses résiduels (###, ##, #)
+    const withoutHashes = text.replace(/#{1,6}\s*/g, '');
+
+    // 2. Découpe sur les blocs gras (**texte** ou __texte__)
+    const parts = withoutHashes.split(/(\*\*.*?\*\*|__.*?__)/g);
 
     return parts.map((part, i) => {
       if ((part.startsWith('**') && part.endsWith('**')) || (part.startsWith('__') && part.endsWith('__'))) {
-        const cleanBold = part.slice(2, -2).replace(/\*/g, '').trim();
+        const cleanBold = part.slice(2, -2).replace(/\*/g, '').replace(/#{1,6}\s*/g, '').trim();
         return (
           <strong
             key={`${keyPrefix}-bold-${i}`}
-            className={`font-black ${isUser ? 'text-white font-extrabold' : 'text-slate-950 font-black'}`}
+            className={`font-bold ${isUser ? 'text-white font-extrabold' : 'text-slate-950 font-bold'}`}
           >
             {cleanBold}
           </strong>
@@ -60,11 +62,14 @@ export const CleanLegalText: React.FC<CleanLegalTextProps> = ({
       continue;
     }
 
-    // 1. Détection des Titres de section (ex: ### Titre, ## Titre, # Titre, ou **TITRE :**)
-    const headerMatch = trimmed.match(/^(?:#{1,4}\s+|(?:\*\*([A-Z0-9À-ÖØ-öø-ÿ\s:—–\-]{4,})\*\*)$)/);
-    if (headerMatch || (trimmed.startsWith('###') || trimmed.startsWith('##'))) {
+    // 1. Détection des Titres de section majeurs (ex: ### Titre, ## Titre, # Titre, ou **Titre de section**)
+    const isMarkdownHeader = /^#{1,6}\s+/.test(trimmed) || trimmed.startsWith('###') || trimmed.startsWith('##');
+    const isStandaloneBoldHeader = /^\*\*[A-Za-z0-9À-ÖØ-öø-ÿ\s:—–\-()'/.,!?]+\*\*$/.test(trimmed) && trimmed.length > 5 && !trimmed.includes('\n');
+    const isKnownSectionTitle = /^(?:Synthèse|Chronologie|Analyse stratégique|Plan d'action|Textes de loi|Fondements|Vos atouts|Points de vigilance|Suite de votre|Recommandations|Évaluation|Projet d'Acte)/i.test(trimmed.replace(/^[#*\s-]+/, ''));
+
+    if (isMarkdownHeader || (isStandaloneBoldHeader && isKnownSectionTitle) || (trimmed.startsWith('### ') || trimmed.startsWith('## '))) {
       const cleanTitle = trimmed
-        .replace(/^#{1,4}\s*/, '')
+        .replace(/^#{1,6}\s*/, '')
         .replace(/^\*\*/, '')
         .replace(/\*\*$/, '')
         .replace(/\*/g, '')
@@ -82,7 +87,27 @@ export const CleanLegalText: React.FC<CleanLegalTextProps> = ({
       continue;
     }
 
-    // 2. Détection des Étapes numérotées (ex: 1. Étape, 2️⃣ Étape, 1/ Étape)
+    // 2. Détection des Sous-titres en gras isolés (ex: **Vos points forts et atouts :**)
+    if (isStandaloneBoldHeader) {
+      const cleanSubTitle = trimmed
+        .replace(/^#{1,6}\s*/, '')
+        .replace(/^\*\*/, '')
+        .replace(/\*\*$/, '')
+        .replace(/\*/g, '')
+        .trim();
+
+      renderedElements.push(
+        <div key={`subh-${lineIdx}`} className="pt-2 pb-0.5">
+          <h5 className={`text-sm sm:text-base font-bold tracking-tight ${isUser ? 'text-white font-extrabold' : 'text-slate-900 font-bold'}`}>
+            {cleanSubTitle}
+          </h5>
+        </div>
+      );
+      lineIdx++;
+      continue;
+    }
+
+    // 3. Détection des Étapes numérotées (ex: 1. Étape, 2️⃣ Étape, 1/ Étape)
     const stepMatch = trimmed.match(/^(?:(\d+)[.)/-]\s+|([1-9]️⃣)\s*)(.*)/);
     if (stepMatch) {
       const stepNumber = stepMatch[1] || stepMatch[2];
@@ -108,7 +133,7 @@ export const CleanLegalText: React.FC<CleanLegalTextProps> = ({
       continue;
     }
 
-    // 3. Détection des Puces / Tirets (ex: - item, * item, • item, — item)
+    // 4. Détection des Puces / Tirets (ex: - item, * item, • item, — item)
     const bulletMatch = trimmed.match(/^(?:[-*•—–]+|\+\s+)\s*(.*)/);
     if (bulletMatch) {
       const bulletBody = bulletMatch[1] || '';
@@ -129,7 +154,7 @@ export const CleanLegalText: React.FC<CleanLegalTextProps> = ({
       continue;
     }
 
-    // 4. Paragraphe standard
+    // 5. Paragraphe standard
     renderedElements.push(
       <p key={`p-${lineIdx}`} className={`text-sm sm:text-base leading-relaxed my-2 font-normal ${isUser ? 'text-white' : 'text-slate-800'}`}>
         {renderInline(trimmed, `p-${lineIdx}`)}

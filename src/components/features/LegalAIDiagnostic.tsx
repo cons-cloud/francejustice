@@ -623,7 +623,12 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
           <div class="pillar-card">
             <div class="pillar-header">⚖️ Synthèse Exécutive & Diagnostic Stratégique</div>
             <div class="pillar-body">
-              <p style="margin: 0; line-height: 1.6; font-size: 9pt; white-space: pre-line;">${diag.summary}</p>
+              <div style="margin: 0; line-height: 1.6; font-size: 9pt; white-space: pre-line;">
+                ${diag.summary
+                  .replace(/^#{1,6}\s*(.*?)$/gm, '<strong style="display:block; margin-top:10px; margin-bottom:4px; color:#0e7490; font-size:10pt;">$1</strong>')
+                  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                  .replace(/\*/g, '')}
+              </div>
             </div>
           </div>
 
@@ -1205,7 +1210,12 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
                           <div className="flex items-center gap-1.5">
                             <Button
                               onClick={() => {
-                                navigator.clipboard.writeText(diagnostic.summary);
+                                const cleanTextToCopy = diagnostic.summary
+                                  .replace(/^#{1,6}\s*/gm, '')
+                                  .replace(/\*\*(.*?)\*\*/g, '$1')
+                                  .replace(/\*/g, '')
+                                  .trim();
+                                navigator.clipboard.writeText(cleanTextToCopy);
                                 setCopiedConclusions(true);
                                 setTimeout(() => setCopiedConclusions(false), 2000);
                                 success("Réponse copiée dans le presse-papier.");
@@ -1220,7 +1230,13 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
                             </Button>
 
                             <Button
-                              onClick={() => toggleSpeaking(diagnostic.summary)}
+                              onClick={() => {
+                                const cleanTextToSpeak = diagnostic.summary
+                                  .replace(/^#{1,6}\s*/gm, '')
+                                  .replace(/[*#]/g, '')
+                                  .trim();
+                                toggleSpeaking(cleanTextToSpeak);
+                              }}
                               variant="ghost"
                               size="sm"
                               className="h-8 px-2.5 text-slate-600 hover:text-cyan-700 hover:bg-slate-100 rounded-xl text-xs font-semibold cursor-pointer"

@@ -60,25 +60,25 @@ DIRECTIVES FONDAMENTALES D'ANALYSE & DE RÉPONSE :
 5. STRUCTURE ÉLÉGANTE ET NATURELLE DE VOTRE ANALYSE (STANDARD CHATGPT / CLAUDE / GEMINI) :
    Votre analyse doit être limpide, dynamique et parfaitement ordonnée, sans ton robotique ni accumulation d'émojis superflus :
 
-   ### 1. Synthèse du dossier & Qualification juridique :
+   1. Synthèse du dossier & Qualification juridique :
    - Présentation claire des faits, qualification du litige et identification des parties (qui réclame quoi, rapports d'obligations).
    - Position juridique globale et rapport de force.
 
-   ### 2. Analyse juridique approfondie & Textes applicables :
+   2. Analyse juridique approfondie & Textes applicables :
    - Visas des textes de lois précis (Code Civil, Code du Travail, Code de la Consommation, etc.).
    - Application concrète de la règle de droit et jurisprudence constante aux faits précis du dossier.
 
-   ### 3. Évaluation stratégique : Atouts & Points de vigilance :
+   3. Évaluation stratégique : Atouts & Points de vigilance :
    - Atouts et preuves solides en votre faveur.
    - Points de vigilance, risques procéduraux ou faiblesses à anticiper et pallier.
    - Estimation objective des chances d'issue favorable.
 
-   ### 4. Plan d'action recommandé & Démarches étape par étape :
+   4. Plan d'action recommandé & Démarches étape par étape :
    - Étape 1 : Phase amiable impérative (mise en demeure formelle par LRAR, sommation avec délai).
    - Étape 2 : Préalable de conciliation ou médiation obligatoire (ex: art. 750-1 CPC, CDC, médiateur).
    - Étape 3 : Voie contentieuse & Juridiction compétente (Tribunal Judiciaire, CPH, JAF, Tribunal de Commerce ; délais de prescription).
 
-   ### 5. Recommandations immédiates & Suite à donner :
+   5. Recommandations immédiates & Suite à donner :
    - Actions concrètes à mener sous 24h à 48h.
    - Proposition proactive de 2 à 3 démarches utiles ou rédaction d'actes juridiques.
 
@@ -87,9 +87,10 @@ DIRECTIVES FONDAMENTALES D'ANALYSE & DE RÉPONSE :
    - Monnaie : Strictement l'Euro (€).
 
 7. PROPRETÉ TYPOGRAPHIQUE ET RENDU SOIGNÉ :
-   - INTERDICTION STRICTE DES ASTÉRISQUES BRUTES ET TIRETS PARASITES : N'insérez pas d'astérisques parasites (* ou **) ni de tirets bruts (- ou --) au milieu de vos phrases.
+   - INTERDICTION STRICTE DES BALISES '###' ET ASTÉRISQUES PARASITES : N'insérez JAMAIS de préfixe markdown '###', '##' ou '#' devant vos titres.
+   - Mettez directement en gras les termes clés (**terme**) sans astérisques orphelins.
    - Structurez le texte de façon propre, fluide et aérée : titres clairs, étapes numérotées distinctes (1., 2., 3.) et paragraphes ordonnés.
-   - Mettez l'accent directement avec clarté et précision juridique, pour un rendu visuel impeccable et sans scories textuelles.
+   - Vos réponses doivent être immédiatement lisibles, nettes et visuellement élégantes.
 `.trim();
 
 // Comprehensive directories of real Official State Websites and External Professional Portals
@@ -891,7 +892,7 @@ function getAdvancedLocalLegalAI(
       responseText = `J'ai examiné l'ensemble de votre dossier (**${docCount} pièce(s) analysée(s) :** *${docNameDisplay}*).\n\n` +
         `Voici le projet d'acte officiel complet et immédiatement exploitable :\n\n` +
         `---\n` +
-        `### ${draftTitle.toUpperCase()}\n` +
+        `${draftTitle.toUpperCase()}\n` +
         `**Référence dossier :** FJ-${Math.floor(100000 + Math.random() * 900000)} / FRA\n` +
         `**Date d'émission :** ${new Date().toLocaleDateString('fr-FR')}\n` +
         `**Lieu :** ${detectedLocation}\n` +
@@ -923,23 +924,23 @@ function getAdvancedLocalLegalAI(
     } else {
       responseText = `Bonjour. J'ai examiné attentivement votre dossier (**${docCount} document(s) analysé(s) :** *${docNameDisplay}* — Domaine : *${docType}*).\n\n` +
         `Voici mon analyse juridique complète, personnalisée et directement applicable à votre situation :\n\n` +
-        `### Synthèse du dossier & Qualification juridique\n` +
+        `**Synthèse du dossier & Qualification juridique**\n` +
         `- **Votre position :** ${partiesMapping.demandeur}\n` +
         `- **Partie adverse :** ${partiesMapping.adversaire}\n` +
         `- **Objet du litige :** ${partiesMapping.quiContreQui}\n` +
         `- **Rapport de force juridique :** ${partiesMapping.rapportDeForce}\n\n` +
-        `### Chronologie des faits & Éléments clés\n` +
+        `**Chronologie des faits & Éléments clés**\n` +
         `${timeline.map(t => `- ${t}`).join('\n')}\n\n` +
-        `### Analyse stratégique : Atouts & Points de vigilance\n` +
+        `**Analyse stratégique : Atouts & Points de vigilance**\n` +
         `**Vos points forts et atouts :**\n` +
         `${enVotreFaveur.map(f => `- ${f}`).join('\n')}\n\n` +
         `**Points de vigilance et risques à anticiper :**\n` +
         `${contreVous.map(c => `- ${c}`).join('\n')}\n\n` +
-        `### Plan d'action recommandé & Démarches étape par étape\n` +
+        `**Plan d'action recommandé & Démarches étape par étape**\n` +
         `${procedureEtapes.map(e => `- ${e}`).join('\n')}\n\n` +
-        `### Textes de loi & Fondements juridiques applicables\n` +
+        `**Textes de loi & Fondements juridiques applicables**\n` +
         `${statutoryArticles.map(a => `- ${a}`).join('\n')}\n\n` +
-        `### Suite de votre dossier\n` +
+        `**Suite de votre dossier**\n` +
         `Vous pouvez me poser toute question complémentaire sur ces points, m'importer d'autres pièces justificatives, ou me demander de préparer directement la mise en demeure ou les actes nécessaires à cette démarche.`;
     }
 
@@ -1035,7 +1036,7 @@ function getAdvancedLocalLegalAI(
 
       responseText = `Voici le document juridique officiel rédigé spécialement pour votre dossier :\n\n` +
         `---\n` +
-        `### ${actTitle.toUpperCase()}\n` +
+        `${actTitle.toUpperCase()}\n` +
         `**RÉFÉRENCE DOSSIER :** FJ-${Math.floor(100000 + Math.random() * 900000)} / FRANCE\n` +
         `**DATE :** ${new Date().toLocaleDateString('fr-FR')}\n\n` +
         `**OBJET :** Demande formelle de régularisation et mise en demeure\n\n` +
@@ -1063,24 +1064,29 @@ function getAdvancedLocalLegalAI(
         : `vos droits en matière de ${subjectTitle.toLowerCase()}`;
 
       responseText = `Bonjour. Voici mon analyse juridique personnalisée et approfondie concernant ${topicIntro} :\n\n` +
-        `### Synthèse de la situation & Qualification juridique\n` +
+        `**Synthèse de la situation & Qualification juridique**\n` +
         `${analysisDiagnosis}\n\n` +
-        `### Fondements légaux précis & Droits applicables\n` +
+        `**Fondements légaux précis & Droits applicables**\n` +
         `${rulesList.map(r => `- ${r}`).join('\n')}\n\n` +
-        `### Vos atouts stratégiques & Points de vigilance\n` +
+        `**Vos atouts stratégiques & Points de vigilance**\n` +
         `- **Vos points forts :** Les règles d'ordre public protectrices et la jurisprudence constante jouent en votre faveur dès lors que vos preuves sont formalisées par écrit.\n` +
         `- **Points de vigilance :** Respectez scrupuleusement la procédure préalable, évitez toute initiative unilatérale sans titre exécutoire, et veillez aux délais stricts de prescription.\n\n` +
-        `### Plan d'action & Démarches recommandées\n` +
+        `**Plan d'action & Démarches recommandées**\n` +
         `${actionStepsList.map(s => `- ${s}`).join('\n')}\n\n` +
-        `### Démarches immédiates conseillées\n` +
+        `**Démarches immédiates conseillées**\n` +
         `- **Étape 1 :** Réunir et numéroter vos pièces justificatives (contrat, devis, courriels, relevés bancaires).\n` +
         `- **Étape 2 :** Adresser une mise en demeure formelle par LRAR fixant un délai impératif de 8 jours.\n` +
         `- **Étape 3 :** Si absence de réponse sous 8 jours, engager immédiatement la conciliation ou la saisine de la juridiction compétente.\n\n` +
-        `### Suite de votre dossier\n` +
+        `**Suite de votre dossier**\n` +
         `👉 ${followUpQuestion}\n\n` +
         `*Vous pouvez poursuivre la discussion, me poser une question de précision ou importer des documents pour approfondir cette analyse.*`;
     }
   }
+
+  // Nettoyage absolu : aucune balise '###', '##' ou '#' brute ne doit fuiter
+  responseText = responseText
+    .replace(/^#{1,6}\s*(.*?)$/gm, '**$1**')
+    .replace(/###\s*/g, '');
 
   if (action) {
     responseText += `\n\n\`\`\`action\n${JSON.stringify(action, null, 2)}\n\`\`\``;
