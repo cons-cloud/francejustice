@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { chatWithAI } from '../../lib/gemini';
 import { Button } from './Button';
+import { CleanLegalText } from './CleanLegalText';
 import { useTranslation } from '../../i18n';
 import { parseMultipleFiles } from '../../lib/documentParser';
 
@@ -805,7 +806,7 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                       Assistant Juridique Law Just
                     </p>
                     
-                    <p className="leading-relaxed whitespace-pre-line text-slate-800 font-medium font-sans text-xs sm:text-base md:text-lg">{response}</p>
+                    <CleanLegalText content={response} />
 
                     {/* Extracted references/sources badge display */}
                     {sources.length > 0 && (

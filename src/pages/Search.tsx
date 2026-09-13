@@ -4,6 +4,7 @@ import { Search, Scale, ExternalLink, RefreshCw, AlertCircle, ArrowRight, Paperc
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { chatWithAI, type LegalAISource, type LegalAutomation } from '../lib/gemini';
+import { CleanLegalText } from '../components/ui/CleanLegalText';
 import { AuthModal } from '../components/ui/AuthModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
@@ -36,9 +37,7 @@ const LegalAIResultsView: React.FC<{
         </CardHeader>
         <CardContent className="p-6 sm:p-8 space-y-6">
           {/* Main Legal Diagnostic & Analysis */}
-          <div className="whitespace-pre-wrap text-slate-800 font-normal text-base sm:text-lg leading-relaxed">
-            {explanation}
-          </div>
+          <CleanLegalText content={explanation} />
 
           {/* Actionable Automations Widget */}
           {automations && automations.length > 0 && (

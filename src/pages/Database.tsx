@@ -10,6 +10,7 @@ import { useTranslation } from '../i18n';
 import { chatWithAI } from '../lib/gemini';
 import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import { Button } from '../components/ui/Button';
+import { CleanLegalText } from '../components/ui/CleanLegalText';
 import { generatePDF } from '../lib/pdfUtils';
 
 interface LegalDoc {
@@ -653,8 +654,8 @@ const Database: React.FC = () => {
                 <Sparkles className="w-5 h-5 text-cyan-600" />
                 <span>Résultats de la Recherche Juridique IA Mondiale en Direct (Google & Bases Officielles)</span>
               </div>
-              <div className="whitespace-pre-wrap text-slate-800 text-sm leading-relaxed bg-cyan-50/50 p-4 rounded-xl border border-cyan-100">
-                {aiSearchResult}
+              <div className="bg-cyan-50/50 p-4 rounded-xl border border-cyan-100">
+                <CleanLegalText content={aiSearchResult} />
               </div>
             </motion.div>
           )}

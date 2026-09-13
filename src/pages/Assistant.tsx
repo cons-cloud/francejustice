@@ -27,6 +27,7 @@ import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import { AuthModal } from '../components/ui/AuthModal';
 import { chatWithAI, type LegalAISource, type LegalAutomation } from '../lib/gemini';
+import { CleanLegalText } from '../components/ui/CleanLegalText';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { useTranslation } from '../i18n';
@@ -339,11 +340,11 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
               <div className={`${messages.length === 0 ? 'h-36 sm:h-44' : 'h-[50vh] sm:h-[55vh]'} overflow-y-auto space-y-5 p-4 bg-slate-50/80 rounded-2xl border border-slate-200 scrollbar-thin`}>
                 {messages.length === 0 && (
                   <div className="bg-white border-2 border-cyan-200 rounded-2xl p-5 space-y-3 text-slate-900 shadow-sm">
-                    <p className="text-slate-900 text-base leading-relaxed font-semibold">
-                      Bonjour ! Bienvenue sur le module de recherche et d'analyse de l'**IA Juridique**.
+                    <p className="text-slate-900 text-base leading-relaxed">
+                      Bonjour ! Bienvenue sur le module de recherche et d&apos;analyse de <strong className="font-black text-slate-950">France Justice IA Juridique</strong>.
                     </p>
                     <p className="text-sm text-slate-600">
-                      Vous pouvez rédiger une question détaillée, importer vos **dossiers PDF, contrats et jugements**, ou choisir un exemple dans la colonne de droite.
+                      Vous pouvez rédiger une question détaillée, importer vos <strong className="font-bold text-slate-900">dossiers PDF, contrats et jugements</strong>, ou choisir un exemple dans la colonne de droite.
                     </p>
                   </div>
                 )}
@@ -385,9 +386,10 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
                         </div>
                       )}
 
-                      <div className={`whitespace-pre-wrap leading-relaxed font-medium font-sans text-base sm:text-lg ${m.role === 'user' ? 'text-white' : 'text-slate-900'}`}>
-                        {m.content}
-                      </div>
+                      <CleanLegalText
+                        content={m.content}
+                        isUser={m.role === 'user'}
+                      />
 
                       {/* Legal Sources badges */}
                       {m.sources && m.sources.length > 0 && (

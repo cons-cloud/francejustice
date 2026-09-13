@@ -86,6 +86,11 @@ DIRECTIVES FONDAMENTALES D'ANALYSE & DE RÉPONSE :
 6. CADRE ET MONNAIE :
    - Droit applicable : Droit français (Codes officiels, jurisprudence de la Cour de cassation et du Conseil d'État) et Droit de l'Union européenne.
    - Monnaie : Strictement l'Euro (€).
+
+7. PROPRETÉ TYPOGRAPHIQUE ET RENDU SOIGNÉ :
+   - INTERDICTION STRICTE DES ASTÉRISQUES BRUTES ET TIRETS PARASITES : N'insérez pas d'astérisques parasites (* ou **) ni de tirets bruts (- ou --) au milieu de vos phrases.
+   - Structurez le texte de façon propre, fluide et aérée : titres clairs, étapes numérotées distinctes (1., 2., 3.) et paragraphes ordonnés.
+   - Mettez l'accent directement avec clarté et précision juridique, pour un rendu visuel impeccable et sans scories textuelles.
 `.trim();
 
 // Comprehensive directories of real Official State Websites and External Professional Portals
