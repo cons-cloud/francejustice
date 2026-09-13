@@ -423,7 +423,10 @@ Vous pouvez me poser directement votre question ou me confier votre situation :
   // 2. GET INTELLIGENT DIRECT ANSWER FROM GEMINI CHAT ENGINE
   let dynamicConversationalAnswer = '';
   try {
-    const promptForChat = `DOSSIER : ${caseTitle}\nQUESTION / SITUATION DE L'UTILISATEUR :\n${userDescription}${extractedDocumentsText ? `\n\nPIÈCES & TEXTE EXTRAIT DES DOCUMENTS JOINTS :\n${extractedDocumentsText.slice(0, 15000)}` : ''}`;
+    const cleanUserQuery = (userDescription && userDescription.trim()) ? userDescription.trim() : (caseTitle || "Analyse juridique de ma situation");
+    const promptForChat = extractedDocumentsText
+      ? `${cleanUserQuery}\n\n=== DOCUMENTS ET PIÈCES JOINTES ===\n${extractedDocumentsText.slice(0, 12000)}`
+      : cleanUserQuery;
     const chatOutput = await chatWithAI(promptForChat, [], true, targetLang);
     if (chatOutput && chatOutput.text) {
       dynamicConversationalAnswer = chatOutput.text;
