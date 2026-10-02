@@ -61,7 +61,7 @@ Chaque rôle dispose d'un parcours sur mesure synchronisé avec **Supabase Auth 
 | 👤 **Citoyen / Particulier** | `just@gmail.com` | `Just1@` | Espace Citoyen & Agent IA Diagnostic |
 | 🎓 **Étudiant en Droit** | `etudjust@gmail.com` | `Etudjust1@` | Salles de Classe, Masterclasses & Revues |
 | 👨‍🏫 **Professeur de Droit** | `profjust@gmail.com` | `Profjust1@` | Animation Visioconférences & Cours Live |
-| 🔬 **Doctorant / Chercheur** | `doctjust@gmail.com` | `Doctjust1@` | Publications Scientifiques & Thèses |
+| 🔬 **Doctorant / Chercheur** | `doctjust@gmail.com` | `Doctjust1@` | DrD. IMAM — Espace Recherche & Thèses |
 | ⚖️ **Avocat au Barreau** | `lawyer@francejustice.fr` | `Lawyer123@` | Espace Cabinet, Devis & Visio Client |
 
 ---

@@ -127,7 +127,7 @@ const About: React.FC = () => {
     {
       id: 'art-7',
       title: t('about.art_7_title', 'Article 7 — Direction Académique & Conseil d\'Administration'),
-      content: t('about.art_7_content', 'L\'ONG est dirigée par un Conseil d\'Administration. La Direction Pédagogique et Scientifique des formations certifiantes est assurée par le Fondateur Dr. Imam Çoban, Docteur en Droit. Le Conseil veille à l\'excellence scientifique des cours et à l\'actualisation continue de la base de données juridique.')
+      content: t('about.art_7_content', 'L\'ONG est dirigée par un Conseil d\'Administration. La Direction Pédagogique et Scientifique des formations certifiantes est assurée par le Fondateur DrD. Imam Çoban, Docteur en Droit. Le Conseil veille à l\'excellence scientifique des cours et à l\'actualisation continue de la base de données juridique.')
     },
     {
       id: 'art-8',
@@ -163,8 +163,8 @@ const About: React.FC = () => {
     <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
       <SEO 
         title="À Propos — ONG FranceJustice, Règlement Intérieur & Direction Académique"
-        description="Découvrez l'ONG Internationale FranceJustice (Just-Law), son Règlement Intérieur officiel complet, son statut d'ONG d'accès au Droit et le Fondateur Dr. Imam Çoban."
-        keywords="ONG FranceJustice, ONG juridique, règlement intérieur ONG, accès au droit, imam coban docteur en droit, statut ong justice, legifrance, cnb, conseil detat"
+        description="Découvrez l'ONG Internationale FranceJustice (Just-Law), son Règlement Intérieur officiel complet, son statut d'ONG d'accès au Droit et le Fondateur DrD. Imam Çoban."
+        keywords="ONG FranceJustice, ONG juridique, règlement intérieur ONG, accès au droit, imam coban docteur en droit, drd imam coban, statut ong justice, legifrance, cnb, conseil detat"
       />
 
       {/* HERO SECTION */}
@@ -188,7 +188,7 @@ const About: React.FC = () => {
             </h1>
 
             <p className="text-lg md:text-xl text-slate-600 mb-8 leading-relaxed font-medium max-w-2xl">
-              FranceJustice est une <strong className="text-cyan-900 font-bold">Organisation Non Gouvernementale (ONG)</strong> internationale indépendante dédiée à la démocratisation de la justice, la protection des libertés fondamentales et la formation académique d'excellence supervisée par le <strong className="text-cyan-800 font-bold">Dr. Imam Çoban</strong>.
+              FranceJustice est une <strong className="text-cyan-900 font-bold">Organisation Non Gouvernementale (ONG)</strong> internationale indépendante dédiée à la démocratisation de la justice, la protection des libertés fondamentales et la formation académique d'excellence supervisée par le <strong className="text-cyan-800 font-bold">DrD. Imam Çoban</strong>.
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -243,7 +243,7 @@ const About: React.FC = () => {
                 <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/60">
                   <GraduationCap className="w-6 h-6 text-indigo-600 mb-2" />
                   <h4 className="text-xs font-bold text-slate-900">Direction Académique</h4>
-                  <p className="text-xs text-slate-600 font-medium mt-1">Supervisée par le Fondateur Dr. Imam Çoban.</p>
+                  <p className="text-xs text-slate-600 font-medium mt-1">Supervisée par le Fondateur DrD. Imam Çoban.</p>
                 </div>
 
                 <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/60">
@@ -406,7 +406,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* LEADERSHIP & FOUNDER SECTION (Dr. Imam Çoban) */}
+      {/* LEADERSHIP & FOUNDER SECTION (DrD. Imam Çoban) */}
       <section className="py-24 bg-white border-b border-slate-200/80 relative">
         <div className="container max-w-7xl mx-auto px-4">
           <motion.div 
@@ -423,7 +423,7 @@ const About: React.FC = () => {
                     <GraduationCap className="w-16 h-16 text-white" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-black text-slate-900">Dr. Imam Çoban</h3>
+                <h3 className="text-2xl font-black text-slate-900">DrD. Imam Çoban</h3>
                 <p className="text-xs font-bold text-cyan-700 uppercase tracking-wider mt-1">
                   Fondateur & Directeur Pédagogique
                 </p>
@@ -437,7 +437,7 @@ const About: React.FC = () => {
                   Une Direction Académique & Scientifique de Premier Plan
                 </h3>
                 <p className="text-slate-600 text-sm font-normal leading-relaxed">
-                  L'ONG <strong className="text-slate-900">FranceJustice</strong> a été pensée et fondée par le <strong className="text-slate-900">Dr. Imam Çoban</strong>, Docteur en Droit et Enseignant-Chercheur, avec une ambition claire : mettre la rigueur de la doctrine juridique universitaire et la puissance des technologies d'Intelligence Artificielle au service des citoyens et des professionnels du droit.
+                  L'ONG <strong className="text-slate-900">FranceJustice</strong> a été pensée et fondée par le <strong className="text-slate-900">DrD. Imam Çoban</strong>, Docteur en Droit et Enseignant-Chercheur, avec une ambition claire : mettre la rigueur de la doctrine juridique universitaire et la puissance des technologies d'Intelligence Artificielle au service des citoyens et des professionnels du droit.
                 </p>
                 <p className="text-slate-600 text-sm font-normal leading-relaxed">
                   Sous sa direction pédagogique, notre centre de formation garantit des programmes certifiants d'une haute précision académique, combinant théorie fondamentale, analyse jurisprudentielle et cas pratiques.

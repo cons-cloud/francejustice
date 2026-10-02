@@ -350,7 +350,7 @@ const LawyersPage: React.FC = () => {
                       <div>
                         <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                           {lawyer.role === 'professor' ? `Prof. ${lawyer.first_name} ${lawyer.last_name}` :
-                           lawyer.role === 'doctorate' ? `Dr. ${lawyer.first_name} ${lawyer.last_name}` :
+                           lawyer.role === 'doctorate' ? `${lawyer.first_name?.startsWith('Dr') ? '' : 'DrD. '}${lawyer.first_name} ${lawyer.last_name}` :
                            `Me. ${lawyer.first_name} ${lawyer.last_name}`}
                           <CheckCircle className="h-5 w-5 text-teal-600" />
                         </h3>

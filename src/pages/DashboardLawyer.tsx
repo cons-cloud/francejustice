@@ -1430,7 +1430,7 @@ const DashboardLawyer: React.FC = () => {
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="px-3.5 py-1 rounded-full text-xs font-extrabold backdrop-blur-md shadow-sm border bg-white/20 text-white border-white/30">
-                  {profile?.role === 'professor' ? '👨‍🏫 Professeur de Droit' : profile?.role === 'doctorate' ? '🔬 Doctorant & Chercheur' : '⚖️ Avocat au Barreau'}
+                  {profile?.role === 'professor' ? '👨‍🏫 Professeur de Droit' : profile?.role === 'doctorate' ? '🔬 DrD. Chercheur & Docteur en Droit' : '⚖️ Avocat au Barreau'}
                 </span>
                 {profile?.bar_number && (
                   <span className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30 backdrop-blur-md">
@@ -1441,7 +1441,7 @@ const DashboardLawyer: React.FC = () => {
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
                 {profile?.role === 'professor' && `Espace Enseignant — Prof. ${profile?.first_name} ${profile?.last_name}`}
-                {profile?.role === 'doctorate' && `Espace Recherche — ${profile?.first_name} ${profile?.last_name}`}
+                {profile?.role === 'doctorate' && `Espace Recherche — ${profile?.first_name?.startsWith('Dr') ? '' : 'DrD. '}${profile?.first_name} ${profile?.last_name}`}
                 {(!profile?.role || profile?.role === 'lawyer' || profile?.role === 'admin') && `Cabinet de Maître ${profile?.first_name} ${profile?.last_name}`}
               </h1>
 

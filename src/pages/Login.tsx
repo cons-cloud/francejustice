@@ -73,7 +73,11 @@ const LoginPage: React.FC = () => {
       const demoAccounts: Record<string, { role: string; firstName: string; lastName: string }> = {
         'etudjust@gmail.com': { role: 'student', firstName: 'Jean', lastName: 'Dupont (Étudiant)' },
         'profjust@gmail.com': { role: 'professor', firstName: 'Prof. Laurent', lastName: 'Moreau' },
-        'doctjust@gmail.com': { role: 'doctorate', firstName: 'Dr. Sophie', lastName: 'Bernard' },
+        'doctjust@gmail.com': { role: 'doctorate', firstName: 'DrD.', lastName: 'IMAM' },
+        'imam@francejustice.fr': { role: 'doctorate', firstName: 'DrD.', lastName: 'IMAM' },
+        'imam@gmail.com': { role: 'doctorate', firstName: 'DrD.', lastName: 'IMAM' },
+        'drdimam@gmail.com': { role: 'doctorate', firstName: 'DrD.', lastName: 'IMAM' },
+        'drimam@gmail.com': { role: 'doctorate', firstName: 'DrD.', lastName: 'IMAM' },
         'avocat@gmail.com': { role: 'lawyer', firstName: 'Me. Alexandre', lastName: 'Lefebvre' },
         'just@gmail.com': { role: 'user', firstName: 'Marc', lastName: 'Dubois (Citoyen)' },
         'user@gmail.com': { role: 'user', firstName: 'Marc', lastName: 'Dubois' },
