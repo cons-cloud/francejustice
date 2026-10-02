@@ -2402,11 +2402,8 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     )}
                   </div>
-                </div>
-              );
-            })()}
 
-                {/* Modal de création de formation Admin */}
+                  {/* Modal de création de formation Admin */}
                 <Modal
                   isOpen={createFormationOpen}
                   onClose={() => setCreateFormationOpen(false)}
@@ -2553,7 +2550,8 @@ const AdminDashboard: React.FC = () => {
                   </form>
                 </Modal>
               </div>
-            )}
+            );
+          })()}
 
             {activeTab === 'classrooms' && (
               <div className="space-y-6">
