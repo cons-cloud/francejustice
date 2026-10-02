@@ -846,5 +846,26 @@
     "disc_eu": "القانون الأوروبي والدولي",
     "disc_penal": "القانون الجنائي وعلم الإجرام",
     "disc_ai": "القانون الرقمي والذكاء الاصطناعي"
+  },
+  "role_selection": {
+    "badge_first_login": "أول تسجيل دخول — إعداد الملف الشخصي",
+    "welcome": "مرحباً بكم في",
+    "hello": "أهلاً",
+    "prompt": "يرجى تحديد صفتكم القانونية لتخصيص مساحتكم:",
+    "lawyer_title": "محامٍ",
+    "lawyer_badge": "هيئة المحامين",
+    "professor_title": "أستاذ قانون",
+    "professor_badge": "تعليم عالي",
+    "doctorate_title": "باحث دكتوراه",
+    "doctorate_badge": "دكتوراه",
+    "student_title": "طالب قانون",
+    "student_badge": "جامعة",
+    "citizen_title": "مواطن / متقاضٍ",
+    "citizen_badge": "مواطن",
+    "selected_profile": "الملف المحدد:",
+    "desc_customized": "سيتم تهيئة لوحة التحكم الخاصة بكم فوراً وفقاً لهذه الصفة.",
+    "submitting": "جارٍ المزامنة الفورية...",
+    "confirm_btn": "تأكيد ومتابعة",
+    "footer_note": "منصة France Justice — مزامنة مشفرة وفورية وآمنة."
   }
 }

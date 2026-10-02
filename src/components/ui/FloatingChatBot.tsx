@@ -114,7 +114,20 @@ export const FloatingChatBot: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await smartGlobalLegalAssistantQuery(promptToSend, (profile as any)?.role || 'public', i18n.language);
+      // Build conversation history for context (skip the static welcome message)
+      const chatHistory = messages
+        .filter(m => m.id !== 'welcome-1')
+        .map(m => ({
+          role: (m.sender === 'user' ? 'user' : 'model') as 'user' | 'model',
+          parts: [{ text: m.text }]
+        }));
+
+      const response = await smartGlobalLegalAssistantQuery(
+        promptToSend,
+        (profile as any)?.role || 'public',
+        i18n.language,
+        chatHistory
+      );
       
       const assistantMsg: Message = {
         id: `assistant-${Date.now()}`,

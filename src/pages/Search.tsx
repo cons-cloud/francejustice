@@ -236,7 +236,10 @@ const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
     }
 
     try {
-      const prompt = `RECHERCHE & ANALYSE DE DOSSIER JURIDIQUES EN TEMPS RÉEL :
+      const isGreeting = /^(bonjour|bonsoir|salut|hello|coucou|hi|hey|yo|qui es-tu|qui êtes-vous|comment ça va|ça va|merci|merci beaucoup|ok|d['']accord|parfait|au revoir|bonne journée|aide|aidez-moi)[\s!?.]*$/i.test(q.trim());
+      const prompt = (isGreeting && attachedFiles.length === 0)
+        ? q
+        : `RECHERCHE & ANALYSE DE DOSSIER JURIDIQUES EN TEMPS RÉEL :
 
 ${fullQuery}
 

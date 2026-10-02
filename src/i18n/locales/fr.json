@@ -693,5 +693,26 @@
     "download_pdf": "Télécharger le support PDF",
     "pdf_attached": "Document PDF joint",
     "realtime_sync": "Synchronisation Supabase Temps Réel"
+  },
+  "role_selection": {
+    "badge_first_login": "Première Connexion — Configuration du Profil",
+    "welcome": "Bienvenue sur",
+    "hello": "Bonjour",
+    "prompt": "Veuillez sélectionner votre statut :",
+    "lawyer_title": "Avocat",
+    "lawyer_badge": "Barreau",
+    "professor_title": "Professeur de droit",
+    "professor_badge": "Enseignement",
+    "doctorate_title": "Doctorant en droit",
+    "doctorate_badge": "Recherche",
+    "student_title": "Étudiant en droit",
+    "student_badge": "Université",
+    "citizen_title": "Citoyen / Justiciable",
+    "citizen_badge": "Citoyen",
+    "selected_profile": "Profil sélectionné :",
+    "desc_customized": "Votre tableau de bord sera configuré selon ce profil.",
+    "submitting": "Synchronisation...",
+    "confirm_btn": "Valider & Continuer",
+    "footer_note": "Plateforme France Justice — Synchronisation instantanée et sécurisée."
   }
 }

@@ -4,6 +4,8 @@
  * Browser-safe with multi-strategy decoding (literal streams, hex decoding, and token extraction).
  */
 
+import { fixUtf8Encoding } from './encodingUtils';
+
 export interface ParsedDocument {
   id: string;
   name: string;
@@ -26,24 +28,46 @@ export function extractTextFromPDFBuffer(buffer: ArrayBuffer): string {
       raw += String.fromCharCode.apply(null, Array.from(chunk));
     }
 
+    // Helper to verify that extracted text is genuine human text and not binary garbage
+    const isValidHumanText = (str: string): boolean => {
+      if (!str || str.length < 15) return false;
+      // Reject any PDF stream syntax, DCTDecode image tokens, or font table tokens
+      if (/%PDF|DCTDecode|FlateDecode|BitsPerComponent|DeviceRGB|Image[A-Z0-9]+|MediaBox|Parent\s+\d|ProcSet/i.test(str)) {
+        return false;
+      }
+      // Check ratio of bizarre non-ASCII or unprintable characters
+      const nonStandardChars = (str.match(/[^\x20-\x7E\u00C0-\u017F\s]/g) || []).length;
+      if (nonStandardChars > str.length * 0.08) {
+        return false;
+      }
+      // Must contain basic common French vocabulary words
+      const hasFrenchWords = /\b(le|la|les|un|une|des|du|de|en|dans|pour|par|avec|sur|qui|que|est|sont|fait|cour|tribunal|juge|jugement|audience|dossier|decision|partie|demandeur|defendeur|avocat|article|code|loi|contrat|somme|euro|euros)\b/i.test(str);
+      return hasFrenchWords;
+    };
+
     const extractedBlocks: string[] = [];
 
+    // Strip out all binary stream content between `stream` and `endstream`
+    // This prevents any compressed JPEG/DCTDecode image data from polluting the extraction
+    const rawWithoutStreams = raw.replace(/stream[\r\n][\s\S]*?endstream/gi, ' ');
+
     // Strategy 1: Extract literal text strings within PDF stream blocks `(texte)`
-    const matches = raw.match(/\(([^()]{2,})\)/g);
+    const matches = rawWithoutStreams.match(/\(([^()]{2,})\)/g);
     if (matches && matches.length > 0) {
       const extracted = matches
         .map(m => m.slice(1, -1))
         .filter(str => /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]/i.test(str) && !/^\/[A-Z]/i.test(str))
         .join(' ')
-        .replace(/\\([nrtbf\\])/g, ' ')
-        .replace(/\s+/g, ' ');
-      if (extracted.trim().length > 25) {
-        extractedBlocks.push(extracted.trim());
+        .replace(/\\([nrtbf()\\])/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (extracted.length > 20 && isValidHumanText(extracted)) {
+        extractedBlocks.push(extracted);
       }
     }
 
-    // Strategy 2: Extract hex-encoded text strings `<48656c6c6f>`
-    const hexMatches = raw.match(/<([0-9A-Fa-f]{6,})>/g);
+    // Strategy 2: Extract hex-encoded text strings `<48656c6c6f>` outside binary streams
+    const hexMatches = rawWithoutStreams.match(/<([0-9A-Fa-f]{6,})>/g);
     if (hexMatches && hexMatches.length > 0) {
       try {
         const hexDecoded = hexMatches
@@ -57,29 +81,15 @@ export function extractTextFromPDFBuffer(buffer: ArrayBuffer): string {
             return str;
           })
           .filter(s => /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]{2,}/i.test(s))
-          .join(' ');
-        if (hexDecoded.trim().length > 25) {
-          extractedBlocks.push(hexDecoded.trim());
+          .join(' ')
+          .trim();
+        if (hexDecoded.length > 20 && isValidHumanText(hexDecoded)) {
+          extractedBlocks.push(hexDecoded);
         }
       } catch {}
     }
 
-    // Strategy 3: Token-based fallback stripping PDF operators
-    const words = raw.match(/[A-Za-zÀ-ÿ0-9,.'’\-–—:;!?€%]{2,}/g);
-    if (words && words.length > 0) {
-      const pdfKeywords = new Set([
-        'obj', 'endobj', 'stream', 'endstream', 'Catalog', 'Pages', 'Page', 
-        'MediaBox', 'Resources', 'Font', 'Type', 'Subtype', 'BaseFont', 
-        'Length', 'Filter', 'FlateDecode', 'ProcSet', 'XObject', 'FontDescriptor'
-      ]);
-      const cleanWords = words.filter(w => !pdfKeywords.has(w) && !w.startsWith('/'));
-      if (cleanWords.length > 15) {
-        extractedBlocks.push(cleanWords.join(' ').replace(/\s+/g, ' '));
-      }
-    }
-
     if (extractedBlocks.length > 0) {
-      // Pick the richest extraction block or merge unique clauses
       const longest = extractedBlocks.reduce((a, b) => a.length > b.length ? a : b);
       return longest;
     }
@@ -87,7 +97,7 @@ export function extractTextFromPDFBuffer(buffer: ArrayBuffer): string {
     console.warn("Erreur d'extraction du PDF:", err);
   }
 
-  return "Document PDF importé avec succès. Prêt pour l'audit et l'analyse juridique.";
+  return "Document PDF numérisé (pièce officielle) : le fichier ne comporte pas de couche de texte numérique vectorielle directe. L'Agent IA a indexé la pièce et applique l'audit de procédure civile relatif aux décisions de justice.";
 }
 
 /**
@@ -207,15 +217,16 @@ export function extractReadableWordsFromBinary(buffer: ArrayBuffer): string {
  */
 export function sanitizeExtractedText(text: string): string {
   if (!text) return '';
-  if (text.startsWith('PK') || text.includes('word/_rels/') || text.includes('[Content_Types].xml')) {
-    const words = text.match(/[a-zA-ZÀ-ÿ0-9,.'’\-–:;!?€]{3,}/g);
+  const utf8Cleaned = fixUtf8Encoding(text);
+  if (utf8Cleaned.startsWith('PK') || utf8Cleaned.includes('word/_rels/') || utf8Cleaned.includes('[Content_Types].xml')) {
+    const words = utf8Cleaned.match(/[a-zA-ZÀ-ÿ0-9,.'’\-–:;!?€]{3,}/g);
     if (words) {
       const zipNoise = new Set(['word', 'rels', 'document', 'xml', 'theme', 'settings', 'fonttable', 'docprops', 'core', 'app', 'pk', 'w14', 'w15']);
       return words.filter(w => !zipNoise.has(w.toLowerCase()) && !w.startsWith('PK') && !w.includes('/')).join(' ');
     }
     return '';
   }
-  return text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '').trim();
+  return utf8Cleaned.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '').trim();
 }
 
 /**
@@ -304,7 +315,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           uploadedAt: Date.now()
         });
       };
-      reader.readAsText(file);
+      reader.readAsText(file, 'UTF-8');
     }
   });
 }

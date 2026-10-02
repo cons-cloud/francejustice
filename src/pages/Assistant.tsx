@@ -55,7 +55,7 @@ const AUTOSAVE_KEY = 'assistant_chat_draft_v2';
 
 const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded = false }) => {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { toasts, success, error, removeToast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -204,7 +204,7 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
         parts: [{ text: m.content }]
       }));
 
-      const res = await chatWithAI(fullPrompt, history, true);
+      const res = await chatWithAI(fullPrompt, history, true, i18n?.language);
       const replyText = typeof res === 'string' ? res : res.text;
       const webSources: LegalAISource[] = typeof res === 'string' ? [] : (res.sources_web || []);
       const suggestions: string[] = typeof res === 'string' ? [] : (res.suggestions || []);

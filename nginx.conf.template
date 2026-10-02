@@ -15,6 +15,12 @@ http {
     real_ip_header X-Forwarded-For;
     real_ip_recursive on;
 
+    # Map X-Forwarded-Proto header, falling back to $scheme
+    map $http_x_forwarded_proto $proxy_x_forwarded_proto {
+        default $http_x_forwarded_proto;
+        ''      $scheme;
+    }
+
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
@@ -35,7 +41,7 @@ http {
         index index.html;
 
         # Body buffer and upload limits
-        client_max_body_size 20M;
+        client_max_body_size 50M;
         client_body_buffer_size 128k;
 
         # Security headers (OWASP Recommended)
@@ -51,9 +57,21 @@ http {
             add_header Cache-Control "public, immutable";
         }
 
-        # Handle client-side routing
-        location / {
-            try_files $uri $uri/ /index.html;
+        # Django collectstatic static files
+        location ^~ /static/ {
+            alias /app/backend/staticfiles/;
+            expires 30d;
+            add_header Cache-Control "public, max-age=2592000";
+            try_files $uri @backend_upstream;
+        }
+
+        location @backend_upstream {
+            proxy_pass http://${BACKEND_UPSTREAM};
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
+            proxy_set_header X-Forwarded-Host $host;
         }
 
         # Proxy API requests to backend
@@ -62,10 +80,24 @@ http {
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
+            proxy_set_header X-Forwarded-Host $host;
             proxy_connect_timeout 10s;
-            proxy_read_timeout 60s;
-            proxy_send_timeout 60s;
+            proxy_read_timeout 120s;
+            proxy_send_timeout 120s;
+        }
+
+        # Proxy Django Admin to backend
+        location /admin/ {
+            proxy_pass http://${BACKEND_UPSTREAM};
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_connect_timeout 10s;
+            proxy_read_timeout 120s;
+            proxy_send_timeout 120s;
         }
 
         # Handle favicon.ico fallback to favicon.svg
@@ -81,18 +113,23 @@ http {
             return 204;
         }
 
-        # Health check for Railway
-        location /health {
+        # Health check for Railway edge / deploy verification
+        location = /health {
             access_log off;
             return 200 "healthy\n";
             add_header Content-Type text/plain;
         }
 
         # Backend debug
-        location /backend-debug {
+        location = /backend-debug {
             access_log off;
             return 200 "BACKEND_UPSTREAM: ${BACKEND_UPSTREAM}\n";
             add_header Content-Type text/plain;
+        }
+
+        # Handle client-side routing
+        location / {
+            try_files $uri $uri/ /index.html;
         }
     }
 }

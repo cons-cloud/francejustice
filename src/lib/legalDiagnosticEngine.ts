@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { chatWithAI } from './gemini';
+import { chatWithAI, detectConversationalGreeting } from './gemini';
 
 export interface CaseParty {
   name: string;
@@ -264,26 +264,20 @@ export async function analyzeLegalCaseWithAI(
   userDescription: string,
   extractedDocumentsText: string = '',
   targetLang: string = 'fr',
-  uploadedFileNames: string[] = []
+  uploadedFileNames: string[] = [],
+  conversationHistory: { role: 'user' | 'model'; parts: { text: string }[] }[] = []
 ): Promise<LegalDiagnosticResult> {
   // 1. GREETING & CASUAL INPUT HANDLER (ChatGPT / Claude / Gemini style)
-  const isGreeting = /^(bonjour|bonsoir|salut|hello|coucou|hi|hey|yo|qui es-tu|qui êtes-vous|aide|aidez-moi|bonjour !|salut !)[\s!?.]*$/i.test(userDescription.trim());
-  if (isGreeting && uploadedFileNames.length === 0 && (!extractedDocumentsText || extractedDocumentsText.length < 5)) {
+  const conv = detectConversationalGreeting(userDescription);
+  if (conv.isConversational && uploadedFileNames.length === 0 && (!extractedDocumentsText || extractedDocumentsText.length < 5)) {
     const now = new Date();
     const nowIso = now.toISOString();
     const nowStr = now.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     const mockIntegrityHash = generateMockHash();
 
     return {
-      caseTitle: "Accueil & Assistance Juridique France Justice",
-      summary: `Bonjour ! Je suis l'intelligence artificielle juridique d'élite de France Justice, conçue selon les standards d'excellence de ChatGPT, Gemini et Claude pour vous accompagner dans toutes vos démarches juridiques en droit français et européen.
-
-Comment puis-je vous aider aujourd'hui ?
-
-Vous pouvez me poser directement votre question ou me confier votre situation :
-1. Poser une question de droit précise : Droit du travail (licenciement, rupture conventionnelle, harcèlement), Droit immobilier (litige de bail, restitution de caution, loyers impayés), Droit de la consommation ou Droit de la famille.
-2. Déposer des documents contractuels : En cliquant sur l'épingle pour joindre un contrat, un bail, une mise en demeure ou un jugement à analyser.
-3. Obtenir une stratégie complète : Évaluation contradictoire des forces et faiblesses de votre dossier, calcul des chances de succès et rédaction de projets d'actes juridiques.`,
+      caseTitle: "Accueil & Assistance Juridique",
+      summary: conv.replyText || "Bonjour ! Comment puis-je vous aider aujourd'hui ?",
       isDefendable: true,
       winProbability: 100,
       isGreeting: true,
@@ -422,14 +416,20 @@ Vous pouvez me poser directement votre question ou me confier votre situation :
 
   // 2. GET INTELLIGENT DIRECT ANSWER FROM GEMINI CHAT ENGINE
   let dynamicConversationalAnswer = '';
+  let _chatSources: any[] = [];
+  let _chatSuggestions: string[] = [];
+  let _chatAutomations: any[] = [];
   try {
     const cleanUserQuery = (userDescription && userDescription.trim()) ? userDescription.trim() : (caseTitle || "Analyse juridique de ma situation");
     const promptForChat = extractedDocumentsText
       ? `${cleanUserQuery}\n\n=== DOCUMENTS ET PIÈCES JOINTES ===\n${extractedDocumentsText.slice(0, 12000)}`
       : cleanUserQuery;
-    const chatOutput = await chatWithAI(promptForChat, [], true, targetLang);
+    const chatOutput = await chatWithAI(promptForChat, conversationHistory, true, targetLang);
     if (chatOutput && chatOutput.text) {
       dynamicConversationalAnswer = chatOutput.text;
+      _chatSources = (chatOutput as any).sources_web || [];
+      _chatSuggestions = (chatOutput as any).suggestions || [];
+      _chatAutomations = (chatOutput as any).automations || [];
     }
   } catch (err) {
     console.warn("Failed to get conversational AI response:", err);
@@ -488,6 +488,10 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
         if (dynamicConversationalAnswer) {
           parsed.summary = dynamicConversationalAnswer;
         }
+        // Propagate rich metadata from chatWithAI
+        (parsed as any).sources_web = _chatSources;
+        (parsed as any).suggestions_ai = _chatSuggestions;
+        (parsed as any).automations_ai = _chatAutomations;
         return parsed;
       }
     } catch (e) {
@@ -1041,8 +1045,12 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
       recommendedProcedure: domainProcedure,
       targetCourt: targetCourt,
       professionalToContact: professional
-    }
-  };
+    },
+    // Propagate rich metadata from chatWithAI (sources, suggestions, automations)
+    ...(_chatSources.length > 0 ? { sources_web: _chatSources } : {}),
+    ...(_chatSuggestions.length > 0 ? { suggestions_ai: _chatSuggestions } : {}),
+    ...(_chatAutomations.length > 0 ? { automations_ai: _chatAutomations } : {})
+  } as LegalDiagnosticResult;
 }
 
 export async function saveLegalDiagnosticToSupabase(

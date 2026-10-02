@@ -11,6 +11,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import { useTranslation } from '../i18n';
+import { CleanLegalText } from '../components/ui/CleanLegalText';
 
 interface GeneratorProps {
   skipAuthCheck?: boolean;
@@ -369,8 +370,8 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
         return (
           <div className="space-y-6">
             <h3 className="text-2xl font-bold text-slate-900 mb-6">{t('generator.ready', 'Votre document est prêt !')}</h3>
-            <div className="p-8 bg-white border border-slate-200 rounded-2xl shadow-xl min-h-[400px] whitespace-pre-wrap font-serif text-slate-900 leading-relaxed ring-1 ring-slate-900/5">
-              {generatedContent}
+            <div className="p-8 bg-white border border-slate-200 rounded-2xl shadow-xl min-h-[400px] text-slate-900 ring-1 ring-slate-900/5">
+              <CleanLegalText content={generatedContent} />
             </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setCurrentStep(5)}>{t('common.edit')}</Button>

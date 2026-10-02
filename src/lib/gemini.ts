@@ -38,6 +38,11 @@ const MASTER_LEGAL_SYSTEM_PROMPT = `
 Vous êtes le Conseiller Juridique Senior et Expert IA d'Élite de France Justice (https://francejustice.com).
 Votre niveau d'expertise correspond à celui d'un avocat chevronné au Barreau de Paris, docteur en droit, combiné à la vivacité, à la rigueur et à l'intelligence conversationnelle des meilleurs modèles de frontière mondiaux (Gemini 1.5 Pro, Claude 3.5 Sonnet, GPT-4o, DeepSeek).
 
+RÈGLE ABSOLUE N°0 — INTELLIGENCE CONVERSATIONNELLE PRIORITAIRE :
+- Si le message de l'utilisateur est clairement conversationnel ou non juridique (salutation, politesse, question informelle du type "comment ça va", "merci", "ok", "parfait", "au revoir", "bonne journée", "bravo", "super"), répondez NATURELLEMENT et BRIÈVEMENT comme un assistant humain bienveillant. N'appliquez JAMAIS la structure juridique à ces messages.
+- Pour les QUESTIONS COURTES DE SUIVI (< 10 mots) qui font référence à un contexte documentaire ou conversationnel déjà établi (ex: "c'est le divorce de qui ?", "quel est le montant ?", "quelles sont les parties ?", "qui sont les époux ?") : répondez DIRECTEMENT en 2-3 phrases en citant les noms, montants et faits déjà connus du dossier. N'écrivez PAS une nouvelle analyse complète.
+- MÉMORISEZ le fil de la conversation : les parties, montants (€), dates et faits mentionnés dans les échanges précédents doivent être réutilisés avec précision dans vos réponses.
+
 DIRECTIVES FONDAMENTALES D'ANALYSE & DE RÉPONSE :
 1. PARLEZ COMME UN JURISTE HUMAIN D'EXCELLENCE :
    - Évitez absolument le ton robotique, les avertissements génériques répétitifs ou les réponses vagues.
@@ -487,8 +492,13 @@ function cleanPromptForFallback(prompt: string): string {
   const userPromptMatch = prompt.match(/Question de l'utilisateur\s*:\s*"([^"]*)"/i);
   if (userPromptMatch) return userPromptMatch[1];
 
+  const demandeMatch = prompt.match(/===\s*DEMANDE DE L['’]UTILISATEUR\s*===\s*\n([\s\S]*?)(?=\n\nRÈGLES|\nRÈGLES|\n===|\n\[MANDAT|$)/i);
+  if (demandeMatch) return demandeMatch[1].trim();
+
   // Strip document wrapper sections if present to extract pure user query
   let cleaned = prompt;
+  cleaned = cleaned.replace(/VOUS ÊTES L['’]AGENT IA[\s\S]*?===\s*DEMANDE DE L['’]UTILISATEUR\s*===\s*\n*/gi, '');
+  cleaned = cleaned.replace(/RÈGLES D['’]AFFICHAGE ET DE RIGUEUR[\s\S]*$/gi, '');
   cleaned = cleaned.replace(/===\s*(?:DOCUMENTS ET PIÈCES JOINTES|DOSSIERS ET PIÈCES JOINTES|PIÈCES JOINTES)[\s\S]*$/i, '');
   cleaned = cleaned.replace(/PIÈCES & TEXTE EXTRAIT DES DOCUMENTS JOINTS\s*:[\s\S]*$/i, '');
   cleaned = cleaned.replace(/TEXTE ET PIÈCES EXTRAITES DES DOCUMENTS IMPORTÉS\s*:[\s\S]*$/i, '');
@@ -498,6 +508,188 @@ function cleanPromptForFallback(prompt: string): string {
   cleaned = stripControlChars(cleaned);
 
   return cleaned.trim() || prompt;
+}
+
+// Universal Conversational Greeting & Casual Query Detector (Multi-lingual)
+const GREETING_REPLIES: Record<string, Record<string, string>> = {
+  fr: {
+    how_are_you: "Je vais très bien, merci ! Et vous, comment allez-vous ?\n\nComment puis-je vous aider aujourd'hui ? Vous pouvez me poser une question sur vos droits ou me confier vos documents à analyser.",
+    greeting: "Bonjour ! Comment puis-je vous aider aujourd'hui ?\n\nN'hésitez pas à me décrire votre situation juridique ou à déposer vos pièces pour que nous les examinions ensemble.",
+    thanks: "Je vous en prie ! Restant à votre entière disposition si vous souhaitez approfondir un point ou accomplir une démarche.",
+    farewell: "Au revoir et très bonne journée à vous ! Prenez soin de vous et n'hésitez pas à revenir si vous avez d'autres questions.",
+    acknowledgment: "Parfait ! Restant à votre écoute si vous souhaitez poursuivre ou passer à une autre étape.",
+    identity: "Je suis votre assistant juridique France Justice. Je suis là pour vous informer sur vos droits, vous orienter dans vos démarches et examiner vos documents en droit français et européen.\n\nEn quoi puis-je vous être utile ?",
+    vague_help: "Je peux vous aider à comprendre une situation juridique, vous expliquer vos options et vous guider dans vos démarches.\n\nPour vous orienter avec précision, de quel domaine s'agit-il ?\n\n• **Travail & Emploi :** contrat, licenciement, rupture conventionnelle, heures ou salaires impayés.\n• **Logement & Immobilier :** bail, dépôt de garantie (caution), loyers impayés, expulsion, copropriété.\n• **Consommation & Contrats :** litige commerçant, produit non conforme, remboursement, prestation de service.\n• **Famille & Patrimoine :** divorce, séparation, pension alimentaire, garde d'enfants, succession.\n• **Justice & Démarches :** saisine du tribunal, tentative de conciliation, contestation d'amende.\n\nExpliquez-moi en 2 ou 3 phrases votre situation : plus vous me donnez de détails, plus mon conseil sera précis et adapté à vos besoins."
+  },
+  en: {
+    how_are_you: "I am doing very well, thank you! And how are you?\n\nHow may I assist you today? You can ask any question regarding your legal rights or upload documents for an in-depth analysis.",
+    greeting: "Hello! How can I assist you today?\n\nPlease feel free to describe your legal situation or upload your documents so we can examine them together.",
+    thanks: "You are very welcome! I remain at your full disposal if you wish to explore any point further or initiate a procedure.",
+    farewell: "Goodbye and have a wonderful day! Take good care, and feel free to return whenever you need legal assistance.",
+    acknowledgment: "Perfect! I am at your service whenever you wish to proceed to the next step.",
+    identity: "I am your France Justice AI legal assistant. I am here to inform you about your legal rights under French and European law, guide your procedures, and analyze your legal documents.\n\nHow can I help you today?",
+    vague_help: "I am here to assist and guide you step by step.\n\nWhat kind of legal situation are you dealing with?\n\n• **Labor & Employment:** employer disputes, dismissal, severance, unpaid wages.\n• **Housing & Real Estate:** lease disputes, unreturned security deposit, unpaid rent, eviction.\n• **Consumer & Contracts:** defective product, refund refusal, delivery delay.\n• **Family & Estate:** divorce, child support, custody, inheritance, separation.\n• **Other:** neighbor disputes, fine/ticket contestation, online fraud.\n\nPlease describe your situation in 2 or 3 sentences, and I will outline your rights and the exact next steps."
+  },
+  ar: {
+    how_are_you: "أنا بخير والحمد لله، شكراً لسؤالكم! وكيف حالكم أنتم؟\n\nكيف يمكنني مساعدتكم اليوم؟ يمكنكم طرح أي سؤال حول حقوقكم القانونية أو تزويدي بمستنداتكم لفحصها بدقة.",
+    greeting: "مرحباً بكم! كيف يمكنني مساعدتكم اليوم؟\n\nلا تترددوا في شرح وضعكم القانوني أو إرفاق مستنداتكم لدراستها معاً وفقاً لمقتضيات القانون الفرنسي والأوروبي.",
+    thanks: "على الرحب والسعة وبكل سرور! أنا رهن إشارتكم في أي وقت لتعميق أي مسألة أو اتخاذ أي إجراء قانوني.",
+    farewell: "إلى اللقاء وأتمنى لكم يوماً طيباً وموفقاً! لا تترددوا في العودة في أي وقت إذا كانت لديكم أسئلة أخرى.",
+    acknowledgment: "ممتاز ومفهوم تماماً! أنا في خدمتكم لمتابعة الخطوة التالية كلما رغبتم في ذلك.",
+    identity: "أنا مساعدكم القانوني الذكي في منصة فرنسا للعدالة (France Justice). مهمتي إعلامكم بحقوقكم وتوجيهكم في مساطركم وفحص وثائقكم بموجب القانون الفرنسي والأوروبي.\n\nبماذا يمكنني خدمتكم الآن؟",
+    vague_help: "أنا هنا لمساعدتكم وإرشادكم خطوة بخطوة.\n\nما هو موضوع قضيتكم أو مشكلتكم القانونية؟\n\n• **العمل والتوظيف:** نزاع مع المشغل، الطرد، الأجور غير المدفوعة.\n• **السكن والعقار:** نزاع الإيجار، استرجاع الضمانة (الكفالة)، إشعار الإفراغ.\n• **الاستهلاك والعقود:** منتج معيب، رفض الاسترجاع، نزاع مع حرفي أو بائع.\n• **الأسرة والميراث:** الطلاق، النفقة، الحضانة، التركات، اقتسام الأموال.\n• **أخرى:** نزاع الجيران، الطعن في المخالفات، النصب الإلكتروني.\n\nيرجى وصف حالتكم في جملتين أو ثلاث، وسأوضح لكم حقوقكم والمسطرة الدقيقة التي يجب اتباعها."
+  },
+  es: {
+    how_are_you: "¡Estoy muy bien, gracias! ¿Y usted, cómo está?\n\n¿Cómo puedo ayudarle hoy? Puede hacerme cualquier pregunta sobre sus derechos o adjuntar sus documentos para analizarlos.",
+    greeting: "¡Hola! ¿En qué puedo ayudarle hoy?\n\nNo dude en describir su situación jurídica o adjuntar sus documentos para que los examinemos juntos.",
+    thanks: "¡De nada! Quedo a su completa disposición si desea profundizar en algún punto o realizar un trámite.",
+    farewell: "¡Hasta luego y que tenga un excelente día! Cuídese y no dude en volver si tiene más preguntas.",
+    acknowledgment: "¡Perfecto! Quedo a su disposición para continuar o pasar al siguiente paso.",
+    identity: "Soy su asistente legal de France Justice. Estoy aquí para informarle sobre sus derechos, guiarle en sus trámites y analizar sus documentos según el derecho francés y europeo.\n\n¿En qué puedo serle útil?",
+    vague_help: "Estoy aquí para ayudarle y guiarle paso a paso.\n\n¿Qué tipo de situación le preocupa?\n\n• **Trabajo y Empleo:** conflicto laboral, despido, salarios impagados.\n• **Vivienda e Inmuebles:** conflicto de alquiler, fianza no devuelta, desahucio.\n• **Consumo y Contratos:** producto defectuoso, rechazo de reembolso, retraso de entrega.\n• **Familia y Sucesiones:** divorcio, pensión alimenticia, custodia, herencias.\n• **Otros:** problemas vecinales, multas, fraude online.\n\nExplíqueme su situación en 2 o 3 frases y le indicaré sus derechos y el procedimiento exacto."
+  },
+  tr: {
+    how_are_you: "Çok iyiyim, teşekkür ederim! Siz nasılsınız?\n\nBugün size nasıl yardımcı olabilirim? Haklarınızla ilgili soru sorabilir veya belgelerinizi analiz için yükleyebilirsiniz.",
+    greeting: "Merhaba! Bugün size nasıl yardımcı olabilirim?\n\nLütfen hukuki durumunuzu açıklayın veya belgelerinizi birlikte incelememiz için yükleyin.",
+    thanks: "Rica ederim! Herhangi bir konuyu derinleştirmek veya bir adım atmak isterseniz hizmetinizdeyim.",
+    farewell: "Görüşmek üzere, iyi günler dilerim! Yeni bir sorunuz olduğunda tekrar beklerim.",
+    acknowledgment: "Harika! Bir sonraki adıma geçmek istediğinizde buradayım.",
+    identity: "Ben France Justice YZ hukuki asistanınızım. Fransız ve Avrupa hukuku kapsamında haklarınızı öğrenmenize, prosedürleri yürütmenize ve belgelerinizi incelemenize yardımcı olmak için buradayım.\n\nSize nasıl yardımcı olabilirim?",
+    vague_help: "Adım adım size rehberlik etmek için buradayım.\n\nNe tür bir hukuki konuyla karşı karşıyasınız?\n\n• **İş ve İstihdam:** işveren uyuşmazlığı, fesih, ödenmemiş maaşlar.\n• **Konut ve Gayrimenkul:** kira uyuşmazlığı, depozito iadesi, tahliye.\n• **Tüketici ve Sözleşmeler:** ayıplı mal, iade reddi, teslimat gecikmesi.\n• **Aile ve Miras:** boşanma, nafaka, velayet, veraset.\n• **Diğer:** komşuluk uyuşmazlıkları, ceza itirazları, internet dolandırıcılığı.\n\nDurumunuzu 2-3 cümleyle açıklayın, size haklarınızı ve izlenecek adımları belirteyim."
+  },
+  ku: {
+    how_are_you: "Ez pir baş im, spas! Hûn çawa ne?\n\nÎro ez çawa dikarim alîkariya we bikim? Hûn dikarin li ser mafên xwe bipirsin an jî belgeyên xwe ji bo analîzê bişînin.",
+    greeting: "Silav! Îro ez çawa dikarim alîkariya we bikim?\n\nJi kerema xwe rewşa xwe ya yasayî vebêjin an belgeyên xwe bar bikin da ku em bi hev re lêkolîn bikin.",
+    thanks: "Ser çavan! Ger hûn bixwazin xalek kûrtir bikin an gavan bavêjin, ez di xizmeta we de me.",
+    farewell: "Xatirê te û rojek xweş ji we re! Dema pirsên we hebin hûn dikarin vegerin.",
+    acknowledgment: "Pir baş e! Dema ku hûn bixwazin derbasî gava pêş bibin ez amade me.",
+    identity: "Ez asîstana yasayî ya AI a France Justice me. Li gorî yasaya Fransî û Ewropî ji bo alîkariya maf û belgeyên we li vir im.\n\nEz dikarim çi ji we re bikim?",
+    vague_help: "Ez gav bi gav rêberiya we dikim.\n\nMijara we çi ye?\n\n• **Kar û Xebat:** nakokiya kar, îxrac, mûçeyên nehatî dayîn.\n• **Cih û Xanî:** kirê, temînat, derxistin.\n• **Bikarhêner:** berhema xirab, paşveçûn.\n• **Malbat:** telaq, nefeqe, mîrat.\n\nRewşa xwe di 2-3 hevokan de bibêjin, ez ê maf û gavan nîşanî we bidim."
+  },
+  ru: {
+    how_are_you: "У меня всё отлично, спасибо! А как ваши дела?\n\nЧем я могу вам помочь сегодня? Вы можете задать вопрос о своих правах или прикрепить документы для юридического анализа.",
+    greeting: "Здравствуйте! Чем я могу вам помочь сегодня?\n\nОпишите вашу правовую ситуацию или загрузите документы, чтобы мы изучили их вместе.",
+    thanks: "Пожалуйста! Я в вашем полном распоряжении, если нужно уточнить какой-либо вопрос или начать юридическую процедуру.",
+    farewell: "До свидания и хорошего вам дня! Берегите себя и обращайтесь, если возникнут новые вопросы.",
+    acknowledgment: "Отлично! Я на связи, когда вы будете готовы перейти к следующему шагу.",
+    identity: "Я ваш юридический ИИ-ассистент France Justice. Я помогаю разобраться в правах по французскому и европейскому законодательству, вести дела и анализировать документы.\n\nЧем я могу быть полезен?",
+    vague_help: "Я здесь, чтобы помочь вам шаг за шагом.\n\nО какой ситуации идет речь?\n\n• **Труд и занятость:** спор с работодателем, увольнение, невыплата зарплаты.\n• **Жильё и аренда:** возврат залога, задолженность по аренде, выселение.\n• **Потребление и договоры:** брак товара, отказ в возврате, задержка доставки.\n• **Семья и наследство:** развод, алименты, опека над детьми, наследство.\n• **Другое:** соседские споры, обжалование штрафов, онлайн-мошенничество.\n\nОпишите вашу ситуацию в 2-3 предложениях, и я объясню ваши права и конкретный порядок действий."
+  }
+};
+
+export function detectConversationalGreeting(input: string, lang?: string): {
+  isConversational: boolean;
+  type?: 'greeting' | 'how_are_you' | 'thanks' | 'farewell' | 'acknowledgment' | 'identity' | 'vague_help';
+  replyText?: string;
+} {
+  if (!input) return { isConversational: false };
+  const clean = input.trim().toLowerCase().replace(/[!?.,;:()]+$/, '').trim();
+  if (!clean || clean.length > 90) return { isConversational: false };
+
+  // Detect explicit input language by characters or words
+  let detectedLang = lang;
+  if (!detectedLang) {
+    if (/[\u0600-\u06FF]/.test(clean)) detectedLang = 'ar';
+    else if (/[\u0400-\u04FF]/.test(clean)) detectedLang = 'ru';
+    else if (typeof window !== 'undefined') detectedLang = localStorage.getItem('i18nextLng') || 'fr';
+    else detectedLang = 'fr';
+  }
+  const effectiveLang = GREETING_REPLIES[detectedLang] ? detectedLang : 'fr';
+  const replies = GREETING_REPLIES[effectiveLang] || GREETING_REPLIES.fr;
+
+  // 1. How are you
+  if (
+    /^(comment\s+(?:tu\s+vas|vas-tu|allez-vous|vous\s+allez|(?:ça|ca)\s+va)|(?:tu\s+vas|vous\s+allez)\s+bien|(?:ça|ca)\s+va(?:\s+bien)?|tout\s+va\s+bien)$/i.test(clean) ||
+    /^(how\s+are\s+you|how\s+is\s+it\s+going|how\s+are\s+things|are\s+you\s+well|how\s+do\s+you\s+do)$/i.test(clean) ||
+    /^(كيف\s+حالك|كيفك|شخبارك|أنت\s+بخير|انت\s+بخير|كيف\s+الأمور|كيف\s+الحال)$/i.test(clean) ||
+    /^(c[oó]mo\s+est[aá]s|c[oó]mo\s+te\s+va|todo\s+bien|qu[eé]\s+tal)$/i.test(clean) ||
+    /^(nas[iı]ls[iı]n|nas[iı]ls[iı]n[iı]z|nas[iı]l\s+gidiyor|iyi\s+misin)$/i.test(clean) ||
+    /^(как\s+дела|как\s+вы|как\s+жизнь|всё\s+хорошо)$/i.test(clean) ||
+    /^(çawa\s+y[iî]|h[uû]n\s+çawa\s+ne)$/i.test(clean)
+  ) {
+    return { isConversational: true, type: 'how_are_you', replyText: replies.how_are_you };
+  }
+
+  // 2. Pure greetings
+  if (
+    /^(bonjour|bonsoir|salut|coucou|bonjour\s+[aà]\s+tous)$/i.test(clean) ||
+    /^(hello|hi|hey|good\s+morning|good\s+afternoon|good\s+evening|howdy|yo)$/i.test(clean) ||
+    /^(مرحبا|مرحباً|أهلا|اهلا|السلام\s+عليكم|صباح\s+الخير|مساء\s+الخير|أهلاً|هلا)$/i.test(clean) ||
+    /^(hola|buenos\s+d[ií]as|buenas\s+tardes|buenas\s+noches)$/i.test(clean) ||
+    /^(merhaba|selam|g[uü]nayd[iı]n|iyi\s+g[uü]nler|iyi\s+ak[sş]amlar)$/i.test(clean) ||
+    /^(привет|здравствуйте|добрый\s+день|доброе\s+утро|добрый\s+вечер)$/i.test(clean) ||
+    /^(silav|rojba[sş]|[eê]varba[sş])$/i.test(clean)
+  ) {
+    return { isConversational: true, type: 'greeting', replyText: replies.greeting };
+  }
+
+  // 3. Thanks / gratitude
+  if (
+    /^(merci(?:\s+beaucoup|\s+bien|\s+infiniment)?|de\s+rien|je\s+te\s+remercie|je\s+vous\s+remercie)$/i.test(clean) ||
+    /^(thanks|thank\s+you|thank\s+you\s+very\s+much|many\s+thanks)$/i.test(clean) ||
+    /^(شكرا|شكراً|شكرا\s+جزيلا|شكراً\s+جزيلاً|بارك\s+الله\s+فيك|ألف\s+شكر|تسلم)$/i.test(clean) ||
+    /^(gracias|muchas\s+gracias|mil\s+gracias)$/i.test(clean) ||
+    /^(te[sş]ekk[uü]rler|te[sş]ekk[uü]r\s+ederim|sa[gğ]\s+ol)$/i.test(clean) ||
+    /^(спасибо|большое\s+спасибо|благодарю)$/i.test(clean) ||
+    /^(spas|gelek\s+spas)$/i.test(clean)
+  ) {
+    return { isConversational: true, type: 'thanks', replyText: replies.thanks };
+  }
+
+  // 4. Farewells
+  if (
+    /^(au\s+revoir|bonne\s+(?:journée|soirée|nuit|continuation)|à\s+(?:bientôt|tout\s+à\s+l['']heure|la\s+prochaine))$/i.test(clean) ||
+    /^(bye|goodbye|see\s+you|have\s+a\s+nice\s+day|farewell)$/i.test(clean) ||
+    /^(مع\s+السلامة|إلى\s+اللقاء|وداعا|وداعاً|في\s+أمان\s+الله|نهارك\s+سعيد)$/i.test(clean) ||
+    /^(adi[oó]s|hasta\s+luego|hasta\s+pronto|que\s+tengas\s+un\s+buen\s+d[ií]a)$/i.test(clean) ||
+    /^(g[oö]r[uü][sş][uü]r[uü]z|ho[sş][cç]akal|iyi\s+g[uü]nler)$/i.test(clean) ||
+    /^(до\s+свидания|пока|всего\s+доброго)$/i.test(clean) ||
+    /^(xatir[eê]\s+te|bi\s+xatira\s+te)$/i.test(clean)
+  ) {
+    return { isConversational: true, type: 'farewell', replyText: replies.farewell };
+  }
+
+  // 5. Acknowledgments
+  if (
+    /^(ok|d['']accord|dacc|parfait|super|génial|bravo|c['']est\s+noté|très\s+bien|bien\s+compris|entendu|noté)$/i.test(clean) ||
+    /^(ok|okay|understood|got\s+it|perfect|great|awesome|noted)$/i.test(clean) ||
+    /^(حسنا|حسناً|تمام|مفهوم|واضح|ممتاز|رائع|أوكي|اوكي)$/i.test(clean) ||
+    /^(vale|de\s+acuerdo|perfecto|entendido|genial)$/i.test(clean) ||
+    /^(tamam|anla[sş][iı]ld[iı]|harika|peki)$/i.test(clean) ||
+    /^(хорошо|ладно|понятно|ясно|отлично|договорились)$/i.test(clean) ||
+    /^(ba[sş]\s+e|f[eê]hm\s+kir|temam)$/i.test(clean)
+  ) {
+    return { isConversational: true, type: 'acknowledgment', replyText: replies.acknowledgment };
+  }
+
+  // 6. Identity
+  if (
+    /^(qui\s+es-tu|qui\s+êtes-vous|qui\s+es\s+tu|qui\s+etes\s+vous|comment\s+tu\s+t['']appelles?|c['']est\s+quoi\s+france\s+justice|que\s+peux-tu\s+faire|tu\s+peux\s+faire\s+quoi|aide|aidez-moi)$/i.test(clean) ||
+    /^(who\s+are\s+you|what\s+can\s+you\s+do|what\s+is\s+france\s+justice|help\s+me)$/i.test(clean) ||
+    /^(من\s+أنت|من\s+انت|ماذا\s+يمكنك\s+أن\s+تفعل|ماذا\s+تفعل|ما\s+هي\s+فرنسا\s+للعدالة|ساعدني)$/i.test(clean) ||
+    /^(qui[eé]n\s+eres|qu[eé]\s+puedes\s+hacer|qu[eé]\s+es\s+france\s+justice|ay[uú]dame)$/i.test(clean) ||
+    /^(kimsin|sen\s+kimsin|ne\s+yapabilirsin|bana\s+yard[iı]m\s+et)$/i.test(clean) ||
+    /^(кто\s+ты|что\s+ты\s+умеешь|помоги\s+мне)$/i.test(clean) ||
+    /^(tu\s+k[iî]\s+y[iî]|tu\s+dikare\s+çi\s+bikî|al[iî]kar[iî]\s+bide\s+min)$/i.test(clean)
+  ) {
+    return { isConversational: true, type: 'identity', replyText: replies.identity };
+  }
+
+  // 7. Vague help / starter inquiries & general advice requests
+  if (
+    /^(?:(?:qu['’]est[- ]ce que tu (?:me )?(?:conseilles?|proposes?)(?: comme conseil)?)|(?:tu (?:me )?(?:conseilles?|proposes?) quoi)|(?:que (?:me )?(?:conseillez|conseilles)[- ](?:vous|tu))|(?:donne[- ]moi un conseil)|(?:quel(?:s)? (?:est|sont) (?:ton|votre|tes|vos) conseils?)|(?:besoin d['’]un? conseils?)|(?:je cherche un conseil)|(?:tu peux me conseiller)|(?:conseil(?:s)?(?: juridique[s]?)?)|(?:j['’]ai\s+(?:un\s+)?(?:probl[èe]me|probleme|souci|litige|diff[ée]rend))|(?:aidez-moi|aide\s+moi|j['’]ai\s+besoin\s+d['’]aide|que\s+faire(?:\s+maintenant)?|je\s+ne\s+sais\s+pas\s+quoi\s+faire|pouvez-vous\s+m['’]aider|peux-tu\s+m['’]aider|comment\s+(?:faire|procéder)|j['’]ai\s+une\s+question|conseillez-moi|au\s+secours)|(?:probl[èe]me|probleme|souci|litige|aide|conseil))[\s!?.]*$/i.test(clean) ||
+    /^(i\s+have\s+a\s+problem|i\s+need\s+help|what\s+should\s+i\s+do|can\s+you\s+help\s+me|help|legal\s+advice|what\s+do\s+you\s+advise)$/i.test(clean) ||
+    /^(لدي\s+مشكلة|عندي\s+مشكلة|أحتاج\s+مساعدة|احتاج\s+مساعدة|ماذا\s+أفعل|ماذا\s+افعل|هل\s+يمكنك\s+مساعدتي|مساعدة|استشارة\s+قانونية|نصيحة)$/i.test(clean) ||
+    /^(tengo\s+un\s+problema|necesito\s+ayuda|qu[eé]\s+debo\s+hacer|puedes\s+ayudarme|consejo\s+legal|qu[eé]\s+me\s+aconsejas)$/i.test(clean) ||
+    /^(bir\s+sorunum\s+var|yard[iı]ma\s+ihtiyac[iı]m\s+var|ne\s+yapmal[iı]y[iı]m|yard[iı]m\s+eder\s+misin|hukuki\s+dan[iı][sş]manl[iı]k)$/i.test(clean) ||
+    /^(у\s+меня\s+проблема|мне\s+нужна\s+помощь|что\s+мне\s+делать|можешь\s+помочь|юридическая\s+консультация|совет)$/i.test(clean) ||
+    /^(pirsgir[eê]kek\s+min\s+heye|p[eê]w[iî]stiya\s+min\s+bi\s+al[iî]kar[iî]y[eê]\s+heye|div[eê]\s+ez\s+çi\s+bikim)$/i.test(clean) ||
+    /^(probl[èe]me|probleme|souci|litige|aide|conseil)[\s!?.]*$/i.test(clean)
+  ) {
+    return { isConversational: true, type: 'vague_help', replyText: replies.vague_help };
+  }
+
+  return { isConversational: false };
 }
 
 // Advanced cognitive engine for human-like legal reasoning and document analysis
@@ -575,36 +767,89 @@ function getAdvancedLocalLegalAI(
   }
 
   // Handle greetings and casual queries naturally (ChatGPT / Claude / Gemini style)
-  const isGreeting = /^(bonjour|bonsoir|salut|hello|coucou|hi|hey|yo|qui es-tu|qui êtes-vous|aide|aidez-moi)[\s!?.]*$/i.test(clean);
-  if (isGreeting && !hasFiles) {
+  const convGreeting = detectConversationalGreeting(clean, _targetLang);
+  if (convGreeting.isConversational) {
+    let reply = convGreeting.replyText || "Bonjour ! Comment puis-je vous aider aujourd'hui ?";
+    if (hasFiles && convGreeting.type === 'vague_help') {
+      reply = `Je suis à votre disposition pour vous conseiller et examiner vos documents.\n\n` +
+        `J'ai bien accès à vos pièces jointes${attachedDocTitle ? ` (*${attachedDocTitle}*)` : ''}. Souhaitez-vous :\n` +
+        `• Que j'analyse les clauses et les risques de vos documents ?\n` +
+        `• Que je vous explique vos droits et les recours possibles ?\n` +
+        `• Que je prépare une démarche amiable ou un courrier ?\n\n` +
+        `Indiquez-moi votre priorité ou posez-moi directement votre question.`;
+    }
     return {
-      text: "Bonjour ! Je suis l'intelligence juridique d'élite de France Justice.\n\nComment puis-je vous aider aujourd'hui ?\n\nVous pouvez me poser toute question sur vos droits, me décrire une situation de litige (droit du travail, bail d'habitation, litige de consommation, droit de la famille, etc.), ou joindre vos contrats et pièces justificatives pour obtenir une analyse juridique contradictoire approfondie.",
-      sources_web: OFFICIAL_LEGAL_PORTALS.slice(0, 3),
+      text: reply,
+      sources_web: [],
       suggestions: [
-        "Contester une retenue sur mon dépôt de garantie",
-        "Calculer mes indemnités de rupture conventionnelle",
-        "Rédiger une mise en demeure formelle avec accusé de réception",
-        "Faire valoir la garantie légale de conformité de 2 ans"
+        "Poser une question en droit du travail",
+        "Litige de bail ou de caution",
+        "Contestation de facture ou contrat",
+        "Divorce ou droit de la famille"
       ],
-      automations: [
-        {
-          id: 'demo_bail',
-          label: '🏠 Litige de Bail & Caution',
-          description: 'Calculer les pénalités de 10% par mois de retard sur la caution.',
-          actionPrompt: 'Comment contester la retenue injustifiée sur mon dépôt de garantie sous la loi du 6 juillet 1989 ?'
-        },
-        {
-          id: 'demo_travail',
-          label: '💼 Droit du Travail & Rupture',
-          description: 'Évaluer les indemnités légales et les délais de contestation.',
-          actionPrompt: 'Quelles sont les démarches et indemnités légales pour un licenciement sans cause réelle et sérieuse ?'
-        }
-      ]
+      automations: []
     };
   }
 
-  // Document creation or drafting intent
-  const isDocGeneration = /(rédige|rédiger|générer|génère|créer|crée|fournir|lettre|mise en demeure|contrat|plainte|conclusions|accord|requête)/i.test(clean);
+  // ── SMART FOLLOW-UP HANDLER ────────────────────────────────────────────────
+  // When the user asks a short question (< 9 words) in an ongoing conversation,
+  // answer directly from the previous context instead of re-running a full template.
+  const wordCount = clean.split(/\s+/).filter(Boolean).length;
+  const hasHistory = Array.isArray(history) && history.length >= 2;
+
+  if (hasHistory && wordCount < 9) {
+    // Get the last assistant message text as the primary context source
+    const lastModelMsg = [...history].reverse().find(h => h.role === 'model');
+    const prevCtx = lastModelMsg?.parts?.[0]?.text || '';
+    const allCtx = previousTurnsContext;
+
+    // "c'est le divorce de qui" / "qui sont les parties" / "c'est qui" / "c'est quoi"
+    if (/(?:divorce de qui|qui sont|qui est|c'est qui|parties?|époux|épouse|demandeur|défendeur|concernant qui)/i.test(clean)) {
+      // Extract M./Mme names from previous context
+      const mNames = prevCtx.match(/M\.\s+([A-ZÀ-Ÿ][a-zA-ZÀ-Ÿ\-]{2,})/g) || [];
+      const mmeNames = prevCtx.match(/Mme\.?\s+([A-ZÀ-Ÿ][a-zA-ZÀ-Ÿ\-]{2,})/g) || [];
+      // All-caps surnames (e.g. MARCHAND, DUBOIS)
+      const capsNames = prevCtx.match(/\b([A-ZÀ-Ÿ]{4,})\b/g)?.filter(n => !['CODE', 'CIVIL', 'DROIT', 'ARTICLE', 'LRAR', 'JAF', 'TRIBUNAL'].includes(n)) || [];
+
+      if (mNames.length > 0 || mmeNames.length > 0 || capsNames.length >= 2) {
+        const p1 = mNames[0] || (capsNames[0] ? `M. ${capsNames[0]}` : 'la première partie');
+        const p2 = mmeNames[0] || (capsNames[1] ? `Mme ${capsNames[1]}` : 'la seconde partie');
+        return {
+          text: `Il s'agit du divorce de **${p1}** et **${p2}**.\n\nSi vous souhaitez des précisions sur un point particulier — prestation compensatoire, garde des enfants, partage du patrimoine, ou pension alimentaire — n'hésitez pas à poser votre question.`,
+          sources_web: [],
+          suggestions: [
+            'Quel est le montant de la prestation compensatoire ?',
+            'Comment se calcule la pension alimentaire pour les enfants ?',
+            'Quelles sont les étapes du divorce par consentement mutuel ?'
+          ],
+          automations: []
+        };
+      }
+    }
+
+    // "quel est le montant" / "combien" / "quelle somme"
+    if (/(?:montant|combien|quelle somme|quel prix|indemnité|pension|prestation|€)/i.test(clean)) {
+      const amountsInCtx = allCtx.match(/[\d\s]{1,8}(?:000)?\s*(?:€|euros?)/gi) || [];
+      if (amountsInCtx.length > 0) {
+        const unique = [...new Set(amountsInCtx.map(a => a.trim()))].slice(0, 2).join(' et ');
+        return {
+          text: `D'après l'analyse du dossier, les montants identifiés s'élèvent à **${unique}**.\n\nSouhaitez-vous que je détaille le calcul ou que je prépare la clause correspondante ?`,
+          sources_web: [],
+          suggestions: ['Calculer la prestation compensatoire', 'Simuler la pension alimentaire selon la grille officielle'],
+          automations: []
+        };
+      }
+    }
+  }
+  // ── END FOLLOW-UP HANDLER ──────────────────────────────────────────────────
+  // ── END FOLLOW-UP HANDLER ──────────────────────────────────────────────────
+
+
+  const isDocGeneration = !convGreeting.isConversational && (
+    /^(?:rédige|rédiger|génère|générer|crée|créer|établis|établir|fais-moi|écris-moi|prépare-moi)\s+(?:une?\s+)?(?:lettre|mise en demeure|contrat|plainte|conclusions|accord|requête|assignation|sommation)/i.test(clean) ||
+    /^(?:mise en demeure|sommation|plainte|assignation)[\s!?.]*$/i.test(clean) ||
+    /(?:peux-tu|veuillez|merci de)\s+(?:me\s+)?(?:rédiger|générer|créer|établir)\s+(?:une?\s+)?(?:lettre|mise en demeure|contrat|plainte|conclusions|accord|requête|assignation)/i.test(clean)
+  );
 
   // Extract financial amounts, dates, or parties from user text or document
   const amountMatch = (userQuery + ' ' + attachedDocText).match(/(?:^|\s)(\d{1,3}(?:[\s.,]\d{3})*(?:[.,]\d{2})?|\d+)\s*(?:€|euros?)/i);
@@ -661,12 +906,22 @@ function getAdvancedLocalLegalAI(
       docType = "Droit de la Famille, Divorce & Régimes Matrimoniaux (Code Civil)";
       
       // Extract spouses names if present in document text or filename
-      let epouxDisplay = "M. MARCHAND";
-      let epouseDisplay = "Mme DUBOIS";
-      const partiesFound = (attachedDocText + ' ' + docNameDisplay).match(/([A-ZÀ-Ÿ]{3,})\s*(?:et|[-_&/]|contre)\s*([A-ZÀ-Ÿ]{3,})/i);
-      if (partiesFound) {
-        epouxDisplay = `M. ${partiesFound[1].toUpperCase()}`;
-        epouseDisplay = `Mme ${partiesFound[2].toUpperCase()}`;
+      // NOTE: regex WITHOUT /i flag so only truly ALL-CAPS surnames match (MARCHAND, DUBOIS)
+      // and not mixed-case words like "Dossier" or "Divorce" that appear in filenames
+      let epouxDisplay = "Époux";
+      let epouseDisplay = "Épouse";
+      // First try to find fully uppercase surnames 4+ chars separated by a delimiter
+      const partiesStrict = (attachedDocText + ' ' + docNameDisplay).match(/([A-ZÀ-Ÿ]{4,})\s*(?:[-_&/]|\s+et\s+|\s+contre\s+)\s*([A-ZÀ-Ÿ]{4,})/);
+      // Fallback: look for typical "NOM Prénom" pattern in document text
+      const partiesText = !partiesStrict && attachedDocText.match(/(?:M\.|Monsieur|époux)\s+([A-ZÀ-Ÿ][a-zà-ÿ]{2,})/i);
+      const partiesText2 = !partiesStrict && attachedDocText.match(/(?:Mme|Madame|épouse)\s+([A-ZÀ-Ÿ][a-zà-ÿ]{2,})/i);
+
+      if (partiesStrict) {
+        epouxDisplay = `M. ${partiesStrict[1]}`;
+        epouseDisplay = `Mme ${partiesStrict[2]}`;
+      } else if (partiesText && partiesText2) {
+        epouxDisplay = `M. ${partiesText[1]}`;
+        epouseDisplay = `Mme ${partiesText2[1]}`;
       }
 
       partiesMapping = {
@@ -883,44 +1138,220 @@ function getAdvancedLocalLegalAI(
       ];
     }
 
+    // DETECT USER SPECIFIC CONVERSATIONAL INTENTS (LIKE CHATGPT / CLAUDE)
+    const isGardeEnfants = /(garde|enfant|autorité parentale|résidence alternée|résidence principale|droit de visite|dvh|vacances|scolaire|scolarité|week-end|mineur)/i.test(clean);
+    const isPensionAlimentaire = /(pension|alimentaire|contribution|barème|combien|montant|frais|caf|aripa|entretien)/i.test(clean);
+    const isPrestationCompensatoire = /(prestation|compensatoire|disparité|capital|270|271|train de vie)/i.test(clean);
+    const isLogementOuImmobilier = /(logement|appartement|maison|bien|immobilier|crédit|loyer|bail|1751|jouissance|vendre|vente|indivision|soulte|notaire)/i.test(clean);
+    const isProcedureOuDelais = /(délai|délais|combien de temps|durée|étape|étapes|procédure|comment faire|marche à suivre|coût|tarif|prix|avocat|notaire)/i.test(clean);
+    const isResume = /(résumé|résume|synthèse|synthétise|bref|en quelques lignes|court|synthétique)/i.test(clean);
+    const isGenericDossierUpload = !clean || 
+      /^(analyse|analyser|voici mon dossier|voici mes pièces|dossier juridique|audit|analyse de dossier|examen|étudie|étudier|regarde ce dossier)[\s!?.]*$/i.test(clean) ||
+      /^(audit et analyse complète du dossier|dossier soumis)[\s!?.]*$/i.test(clean);
+
+    const isSpecificFollowUp = (history && history.length > 0) || (!isGenericDossierUpload && clean.length > 3);
+
+    // INTENT 1: DOCUMENT DRAFTING (CONVENTION, MISE EN DEMEURE, PROJET D'ACCORD)
     if (isDocGeneration) {
-      const draftTitle = clean.includes('mise en demeure') ? 'Mise en Demeure Officielle LRAR' :
-                         clean.includes('plainte') ? 'Plainte auprès du Procureur de la République' :
-                         clean.includes('contestation') ? 'Lettre de Contestation Formelle' :
-                         'Projet d\'Acte Juridique & Injonction';
+      if (detectedDomain === 'famille') {
+        const docTitle = clean.includes('convention') ? 'Projet de Convention de Divorce par Consentement Mutuel' :
+                         clean.includes('accord') || clean.includes('parental') ? 'Accord Parental & Modalités d\'Exercice de l\'Autorité Parentale' :
+                         'Projet d\'Acte Juridique & Convention Familiale';
 
-      responseText = `J'ai examiné l'ensemble de votre dossier (**${docCount} pièce(s) analysée(s) :** *${docNameDisplay}*).\n\n` +
-        `Voici le projet d'acte officiel complet et immédiatement exploitable :\n\n` +
-        `---\n` +
-        `${draftTitle.toUpperCase()}\n` +
-        `**Référence dossier :** FJ-${Math.floor(100000 + Math.random() * 900000)} / FRA\n` +
-        `**Date d'émission :** ${new Date().toLocaleDateString('fr-FR')}\n` +
-        `**Lieu :** ${detectedLocation}\n` +
-        `**Objet :** Mise en demeure formelle avant saisine judiciaire - ${userQuery.slice(0, 100)}\n\n` +
-        `**Parties :**\n` +
-        `- **Émetteur :** ${partiesMapping.demandeur}\n` +
-        `- **Destinataire :** ${partiesMapping.adversaire}\n\n` +
-        `Madame, Monsieur,\n\n` +
-        `Par la présente, agissant en application des règles impératives du droit français et au vu des pièces analysées (*${docNameDisplay}*),\n\n` +
-        `**1. Rappel des faits et chronologie :**\n` +
-        `Il ressort des documents contractuels que vous vous étiez engagé à exécuter vos obligations à ${detectedLocation}. Or, à ce jour, les manquements suivants sont formellement constatés : ${userQuery || 'inexécution flagrante des obligations contractuelles'}${detectedAmount ? ` pour un montant de **${detectedAmount}**` : ''}.\n\n` +
-        `**2. Fondements juridiques :**\n` +
-        `${statutoryArticles.map(a => `- ${a}`).join('\n')}\n\n` +
-        `**3. Injonction et délai impératif :**\n` +
-        `En conséquence, je vous mets en demeure formelle de régulariser intégralement la situation dans un délai strict et non négociable de **HUIT (8) JOURS** à compter de la réception de la présente.\n\n` +
-        `À défaut d'exécution complète ou d'accord écrit dans ce délai, je saisirai immédiatement la juridiction compétente afin d'obtenir votre condamnation sous astreinte journalière, assortie de dommages et intérêts au titre de l'article 1231-1 du Code Civil ainsi que la charge des dépens et frais d'avocat au titre de l'article 700 du CPC.\n\n` +
-        `Fait pour valoir ce que de droit.\n\n` +
-        `*Signature certifiée*\n` +
-        `---\n\n` +
-        `💡 **Recommandation :** Envoyez ce document en **Lettre Recommandée avec Accusé de Réception (LRAR)** pour lui donner date certaine et ouvrir officiellement la phase contentieuse.`;
+        responseText = `J'ai rédigé le projet d'acte complet et immédiatement exploitable pour votre dossier (*${docNameDisplay}*) :\n\n` +
+          `---\n` +
+          `${docTitle.toUpperCase()}\n` +
+          `(Articles 229-1 et suivants du Code Civil)\n\n` +
+          `**ENTRE LES SOUSSIGNÉS :**\n` +
+          `- **Époux :** ${partiesMapping.demandeur}, assisté de son avocat au Barreau.\n` +
+          `- **Épouse :** ${partiesMapping.adversaire}, assistée de son avocat au Barreau distinct.\n\n` +
+          `**PRÉAMBULE :**\n` +
+          `Les époux se sont mariés le ${detectedDate || 'selon acte d\'état civil'} à ${detectedLocation}. Constatant la rupture irrémédiable de leur vie commune, ils s'accordent par les présentes sur l'ensemble des conséquences du divorce conformément à l'article 229-1 du Code Civil.\n\n` +
+          `**ARTICLE 1 : CONSENTEMENT AU DIVORCE**\n` +
+          `Les époux déclarent mutuellement et expressément consentir à la rupture de leur mariage par acte sous signature privée contresigné par avocats et déposé au rang des minutes d'un notaire.\n\n` +
+          `**ARTICLE 2 : AUTORITÉ PARENTALE & RÉSIDENCE DES ENFANTS**\n` +
+          `- **Autorité parentale :** Conjointe et exclusive des deux parents (art. 371-1 et 372 du Code civil). Toutes les décisions importantes (santé, scolarité, orientation religieuse) requièrent l'accord exprès des deux parents.\n` +
+          `- **Résidence :** Les parties conviennent de fixer la résidence habituelle des enfants selon un calendrier équilibré (résidence alternée hebdomadaire du vendredi sortie des classes au vendredi suivant, ou résidence principale avec droit de visite et d'hébergement un week-end sur deux et la moitié de toutes les vacances scolaires).\n\n` +
+          `**ARTICLE 3 : PENSION ALIMENTAIRE & FRAIS EXCEPTIONNELS**\n` +
+          `Au titre de l'article 371-2 du Code Civil, une contribution à l'entretien et à l'éducation des enfants fixée à ${detectedAmount || '350 € par enfant et par mois'} sera versée d'avance le 1er de chaque mois, indexée annuellement sur l'indice INSEE des prix à la consommation. Les frais exceptionnels (frais médicaux non remboursés, voyages scolaires, activités sportives) seront partagés par moitié sur justificatifs préalablement concertés.\n\n` +
+          `**ARTICLE 4 : LOGEMENT FAMILIAL & PATRIMOINE**\n` +
+          `La jouissance du domicile conjugal sis à ${detectedLocation} est attribuée selon accord des parties (avec transfert du bail ou état liquidatif notarié préalable si bien immobilier commun).\n\n` +
+          `**ARTICLE 5 : DÉPÔT CHEZ LE NOTAIRE & FORCE EXÉCUTOIRE**\n` +
+          `Après purge du délai de réflexion légal de 15 jours par LRAR (art. 229-4 C. civ.), la présente convention sera contresignée et déposée au rang des minutes d'un notaire pour lui conférer force exécutoire et date certaine.\n\n` +
+          `Fait à ${detectedLocation}, le ${new Date().toLocaleDateString('fr-FR')}, en autant d'originaux que de parties et d'avocats.\n` +
+          `---\n\n` +
+          `💡 **Instructions pratiques :** Ce document constitue la trame officielle que vos deux avocats respectifs doivent adapter et vous notifier formellement par lettre recommandée avec accusé de réception pour faire courir le délai de réflexion de 15 jours incompressibles.`;
 
-      action = {
-        type: 'CREATE_DOCUMENT',
-        payload: {
-          title: draftTitle,
-          content: responseText
-        }
-      };
+        action = {
+          type: 'CREATE_DOCUMENT',
+          payload: {
+            title: docTitle,
+            content: responseText
+          }
+        };
+      } else {
+        const draftTitle = clean.includes('mise en demeure') ? 'Mise en Demeure Officielle LRAR' :
+                           clean.includes('plainte') ? 'Plainte auprès du Procureur de la République' :
+                           clean.includes('contestation') ? 'Lettre de Contestation Formelle' :
+                           'Projet d\'Acte Juridique & Injonction';
+
+        responseText = `J'ai examiné l'ensemble de votre dossier (**${docCount} pièce(s) analysée(s) :** *${docNameDisplay}*).\n\n` +
+          `Voici le projet d'acte officiel complet et immédiatement exploitable :\n\n` +
+          `---\n` +
+          `${draftTitle.toUpperCase()}\n` +
+          `**Référence dossier :** FJ-${Math.floor(100000 + Math.random() * 900000)} / FRA\n` +
+          `**Date d'émission :** ${new Date().toLocaleDateString('fr-FR')}\n` +
+          `**Lieu :** ${detectedLocation}\n` +
+          `**Objet :** Mise en demeure formelle avant saisine judiciaire - ${userQuery.slice(0, 100)}\n\n` +
+          `**Parties :**\n` +
+          `- **Émetteur :** ${partiesMapping.demandeur}\n` +
+          `- **Destinataire :** ${partiesMapping.adversaire}\n\n` +
+          `Madame, Monsieur,\n\n` +
+          `Par la présente, agissant en application des règles impératives du droit français et au vu des pièces analysées (*${docNameDisplay}*),\n\n` +
+          `**1. Rappel des faits et chronologie :**\n` +
+          `Il ressort des documents contractuels que vous vous étiez engagé à exécuter vos obligations à ${detectedLocation}. Or, à ce jour, les manquements suivants sont formellement constatés : ${userQuery || 'inexécution flagrante des obligations contractuelles'}${detectedAmount ? ` pour un montant de **${detectedAmount}**` : ''}.\n\n` +
+          `**2. Fondements juridiques :**\n` +
+          `${statutoryArticles.map(a => `- ${a}`).join('\n')}\n\n` +
+          `**3. Injonction et délai impératif :**\n` +
+          `En conséquence, je vous mets en demeure formelle de régulariser intégralement la situation dans un délai strict et non négociable de **HUIT (8) JOURS** à compter de la réception de la présente.\n\n` +
+          `À défaut d'exécution complète ou d'accord écrit dans ce délai, je saisirai immédiatement la juridiction compétente afin d'obtenir votre condamnation sous astreinte journalière, assortie de dommages et intérêts au titre de l'article 1231-1 du Code Civil ainsi que la charge des dépens et frais d'avocat au titre de l'article 700 du CPC.\n\n` +
+          `Fait pour valoir ce que de droit.\n\n` +
+          `*Signature certifiée*\n` +
+          `---\n\n` +
+          `💡 **Recommandation :** Envoyez ce document en **Lettre Recommandée avec Accusé de Réception (LRAR)** pour lui donner date certaine et ouvrir officiellement la phase contentieuse.`;
+
+        action = {
+          type: 'CREATE_DOCUMENT',
+          payload: {
+            title: draftTitle,
+            content: responseText
+          }
+        };
+      }
+
+    // INTENT 2: GARDE DES ENFANTS / AUTORITÉ PARENTALE
+    } else if (isGardeEnfants && detectedDomain === 'famille') {
+      responseText = `Voici les règles juridiques précises et les modalités concrètes concernant la garde de vos enfants pour votre dossier (*${docNameDisplay}*) :\n\n` +
+        `**1. Principe fondamental : L'autorité parentale conjointe (Art. 371-1 et 372 du Code civil)**\n` +
+        `La séparation ou le divorce des parents est sans incidence sur les règles de dévolution de l'exercice de l'autorité parentale. Les deux parents conservent les mêmes droits et devoirs. Cela signifie que tout choix déterminant (changement d'école, interventions médicales non urgentes, voyages à l'étranger) nécessite obligatoirement l'accord des deux parents.\n\n` +
+        `**2. Les deux options de résidence pour les enfants**\n` +
+        `- **Option A : La résidence alternée (Art. 373-2-9 du Code civil)**\n` +
+        `  Les enfants partagent leur temps de manière équilibrée entre le domicile du père et celui de la mère (généralement une semaine sur deux, avec bascule le vendredi à la sortie des classes). Conditions pratiques : proximité géographique des deux domiciles, respect des repères scolaires et capacité des parents à dialoguer de manière constructive.\n` +
+        `- **Option B : La résidence principale chez un parent + Droit de visite et d'hébergement (DVH)**\n` +
+        `  L'enfant a sa résidence habituelle fixée chez l'un des parents (par exemple la mère ou le père). L'autre parent bénéficie alors d'un droit de visite et d'hébergement classique : un week-end sur deux (les fins de semaine paires ou impaires selon le calendrier officiel) et la moitié de toutes les vacances scolaires (1ère moitié les années paires, 2nde moitié les années impaires).\n\n` +
+        `**3. Prise en charge des frais du quotidien & Frais exceptionnels**\n` +
+        `- **Frais habituels :** Nourriture, logement et habillement quotidien sont pris en charge par le parent qui accueille l'enfant au moment considéré.\n` +
+        `- **Frais exceptionnels :** Les frais de scolarité, cantine, activités extrascolaires, voyages scolaires et soins de santé non remboursés (optique, orthodontie) font l'objet d'un partage par moitié (50/50), sous réserve d'un accord préalable sur devis ou présentation de facture acquittée.\n\n` +
+        `**4. Ce que vous devez acter dès maintenant**\n` +
+        `Dans le cadre d'un divorce par consentement mutuel, vos deux avocats inséreront ces modalités dans la convention. Si vous êtes d'accord sur le principe d'une résidence alternée ou d'une résidence principale, je peux vous rédiger la clause parentale type prête à signer.`;
+
+    // INTENT 3: PENSION ALIMENTAIRE & CONTRIBUTION
+    } else if (isPensionAlimentaire && detectedDomain === 'famille') {
+      responseText = `Voici le cadre juridique officiel et la méthode de calcul de la contribution à l'entretien et l'éducation des enfants (Art. 371-2 du Code civil) pour votre dossier :\n\n` +
+        `**1. Fondement légal de la pension alimentaire (Art. 371-2 du Code civil)**\n` +
+        `Chacun des parents contribue à l'entretien et à l'éducation des enfants à proportion de ses ressources personnelles et des besoins de l'enfant. Cette obligation ne cesse pas automatiquement à la majorité, mais se poursuit tant que l'enfant n'est pas financièrement autonome (études supérieures, formation).\n\n` +
+        `**2. Barème et table de référence officielle du Ministère de la Justice**\n` +
+        `Le montant est calculé à partir du **revenu net mensuel disponible du parent débiteur**, après déduction du minimum vital (montant forfaitaire du RSA, soit environ 635 €) :\n` +
+        `- **En garde classique (droit de visite et d'hébergement standard) :**\n` +
+        `  • Pour 1 enfant : environ 11,5% du revenu net disponible.\n` +
+        `  • Pour 2 enfants : environ 9,5% par enfant (soit 19% au total).\n` +
+        `  • Pour 3 enfants : environ 8,5% par enfant (soit 25,5% au total).\n` +
+        `- **En résidence alternée :**\n` +
+        `  En principe, chaque parent assume directement les frais durant sa semaine de garde. Toutefois, si une **disparité significative de revenus** existe entre les parents, une pension alimentaire d'ajustement est fixée pour maintenir un niveau de vie harmonieux à l'enfant dans ses deux foyers.\n\n` +
+        `**3. Modalités de paiement & Revalorisation automatique**\n` +
+        `- **Échéance :** Paiement d'avance par virement bancaire automatique avant le 1er ou le 5 de chaque mois.\n` +
+        `- **Indexation obligatoire :** La pension est révisée chaque année au 1er janvier en fonction de la variation de l'indice des prix à la consommation (série France entière hors tabac publiée par l'INSEE).\n` +
+        `- **Sécurité anti-impayés (ARIPA) :** Le paiement peut être automatiquement intermédié par l'Agence de recouvrement des impayés de pensions alimentaires (CAF/MSA), garantissant le versement sans conflit direct.\n\n` +
+        `💡 Souhaitez-vous que nous simulions le montant exact de la pension en fonction des revenus respectifs ?`;
+
+    // INTENT 4: PRESTATION COMPENSATOIRE
+    } else if (isPrestationCompensatoire && detectedDomain === 'famille') {
+      responseText = `Voici l'analyse juridique approfondie sur la prestation compensatoire (Articles 270 et 271 du Code civil) applicable à votre dossier :\n\n` +
+        `**1. Définition et finalité (Art. 270 du Code civil)**\n` +
+        `La prestation compensatoire est destinée à compenser, autant qu'il est possible, la disparité que la rupture du mariage crée dans les conditions de vie respectives des époux. Elle présente un caractère forfaitaire.\n\n` +
+        `**2. Critères légaux d'évaluation (Art. 271 du Code civil)**\n` +
+        `Le montant est fixé en tenant compte notamment :\n` +
+        `- De la durée du mariage et de la vie commune.\n` +
+        `- De l'âge et de l'état de santé des époux.\n` +
+        `- De leur qualification et de leur situation professionnelles.\n` +
+        `- Des conséquences des choix professionnels faits par l'un des époux pendant la vie commune pour l'éducation des enfants et du temps qu'il faudra encore y consacrer.\n` +
+        `- Du patrimoine estimé ou prévisible des époux, tant en capital qu'en revenu, après la liquidation du régime matrimonial.\n` +
+        `- De leurs droits existants et prévisibles à la retraite.\n\n` +
+        `**3. Forme du versement**\n` +
+        `- **Principe : Le capital (Art. 274 du Code civil)** : Versement d'une somme d'argent en une seule fois, ou abandon d'un bien en pleine propriété ou d'un droit d'usager.\n` +
+        `- **Modalités échelonnées (Art. 275 du Code civil)** : Possibilité de verser ce capital sous forme de versements mensuels ou annuels étalés sur une durée maximale de **8 ans** (96 mensualités).\n\n` +
+        `**4. Régime fiscal**\n` +
+        `- Si versée dans les 12 mois du divorce définitif : Réduction d'impôt sur le revenu de 25% dans la limite de 30 500 € pour le débiteur, et non imposable pour le bénéficiaire.\n` +
+        `- Si étalée sur plus de 12 mois : Déductible des revenus pour le débiteur, mais imposable dans la catégorie des pensions pour le créancier.`;
+
+    // INTENT 5: LOGEMENT FAMILIAL & PATRIMOINE IMMOBILIER
+    } else if (isLogementOuImmobilier && detectedDomain === 'famille') {
+      responseText = `Voici le sort juridique du logement familial et des biens immobiliers pour votre dossier :\n\n` +
+        `**1. Si le domicile conjugal est loué (bail d'habitation)**\n` +
+        `- **Cotitularité légale (Art. 1751 du Code civil)** : Même si un seul des époux a signé le bail avant le mariage, les deux conjoints sont légalement cotitulaires du bail et solidairement responsables du paiement des loyers pendant toute la durée du mariage.\n` +
+        `- **Rupture de la solidarité :** La convention de divorce doit expressément attribuer la jouissance exclusive du logement à l'un des époux. Dès le dépôt de la convention chez le notaire, l'avocat notifie le bailleur pour acter la désolidarisation de l'autre époux pour les loyers futurs.\n\n` +
+        `**2. Si le domicile conjugal est la propriété des époux (bien commun ou indivis)**\n` +
+        `En présence d'un bien immobilier commun ou acquis ensemble, le passage devant un **notaire est obligatoirement requis** avant de finaliser la convention de divorce (Art. 229-1 alinéa 3 du Code civil). Trois solutions s'offrent à vous :\n` +
+        `- **Option 1 : La vente du bien à un tiers**\n` +
+        `  Le bien est mis en vente, le crédit immobilier est remboursé par anticipation, et le reliquat net vendeur est partagé selon les quotes-parts chez le notaire.\n` +
+        `- **Option 2 : Le rachat de part (rachat de soulte)**\n` +
+        `  L'un des époux conserve le logement et rachète la part de l'autre en lui versant une soulte chiffrée par le notaire, avec reprise intégrale du prêt immobilier auprès de la banque (désolidarisation bancaire indispensable).\n` +
+        `- **Option 3 : Le maintien dans l'indivision (Convention d'indivision notariée)**\n` +
+        `  Les époux restent copropriétaires du bien pour une durée déterminée (ex: 5 ans) en fixant les modalités de paiement des charges et une éventuelle indemnité d'occupation si un époux l'occupe seul.`;
+
+    // INTENT 6: PROCÉDURE, DÉLAIS & ÉTAPES
+    } else if (isProcedureOuDelais) {
+      if (detectedDomain === 'famille') {
+        responseText = `Voici la chronologie exacte, les délais incompressibles et le coût d'une procédure de divorce par consentement mutuel (Art. 229-1 du Code civil) :\n\n` +
+          `**1. Les 5 étapes indispensables de la procédure**\n` +
+          `- **Étape 1 : Désignation de deux avocats distincts (Obligation légale)**\n` +
+          `  Un avocat unique est formellement interdit par l'article 229-1 du Code Civil, afin de garantir l'absence de conflit d'intérêts et l'équilibre des accords.\n` +
+          `- **Étape 2 : Rédaction commune de la convention de divorce**\n` +
+          `  Vos avocats rédigent le projet de convention réglant l'intégralité des effets : résidence des enfants, pension alimentaire, sort du logement et liquidation patrimoniale (état liquidatif notarié préalable si bien immobilier).\n` +
+          `- **Étape 3 : Notification par LRAR & Délai de réflexion strict de 15 jours (Art. 229-4 C. civ.)**\n` +
+          `  Chaque avocat adresse le projet de convention à son client par lettre recommandée avec accusé de réception. **Un délai légal de réflexion de 15 jours incompressibles** doit obligatoirement s'écouler. La signature avant le 16ème jour est frappée de nullité absolue de plein droit.\n` +
+          `- **Étape 4 : Signature conjointe en présentiel**\n` +
+          `  Les deux époux et leurs deux avocats signent la convention en 4 exemplaires originaux lors d'une séance commune.\n` +
+          `- **Étape 5 : Enregistrement chez le notaire sous 7 jours (Art. 229-1 C. civ.)**\n` +
+          `  L'un des avocats transmet la convention à un notaire dans un délai de 7 jours. Le notaire dispose de 15 jours pour vérifier les mentions obligatoires et la déposer au rang de ses minutes. Ce dépôt confère au divorce date certaine et force exécutoire immédiate.\n\n` +
+          `**2. Délais réels & Coût indicatif**\n` +
+          `- **Durée globale :** Entre **1 et 3 mois** si les époux sont d'accord sur tous les points (contre 12 à 24 mois pour un divorce judiciaire contentieux devant le JAF).\n` +
+          `- **Coût moyen :** En moyenne entre 1 200 € et 2 500 € par époux selon la complexité patrimoniale (frais d'avocat) + frais fixes d'enregistrement notarié de 41,20 € TTC.`;
+      } else {
+        responseText = `Voici la chronologie des démarches, délais légaux et procédures applicables à votre situation :\n\n` +
+          `**1. Phase amiable impérative (Délai : 8 à 15 jours)**\n` +
+          `- Envoi d'une mise en demeure officielle par LRAR avec accusé de réception fixant un délai strict de régularisation.\n` +
+          `- Proposition de médiation conventionnelle ou conciliation de justice (Art. 750-1 du CPC).\n\n` +
+          `**2. Phase judiciaire & Saisine de la juridiction compétente**\n` +
+          `- À défaut d'exécution dans le délai imparti, assignation ou requête devant le tribunal compétent territorialement (${detectedLocation}).\n` +
+          `- Délais de prescription à surveiller scrupuleusement pour ne pas perdre vos droits à indemnisation.`;
+      }
+
+    // INTENT 7: SYNTHÈSE / RÉSUMÉ EN 3 OU 4 POINTS
+    } else if (isResume) {
+      responseText = `Voici le résumé concis et percutant de votre dossier en 4 points clés :\n\n` +
+        `1. **Situation et parties :** ${partiesMapping.quiContreQui}\n` +
+        `2. **Points forts :** ${enVotreFaveur.slice(0, 2).join(' ')}\n` +
+        `3. **Points de vigilance :** ${contreVous.slice(0, 2).join(' ')}\n` +
+        `4. **Action immédiate recommandée :** ${procedureEtapes[0] || "Valider les termes de l'accord amiable avec vos conseils respectifs."}\n\n` +
+        `Que souhaitez-vous approfondir parmi ces points ?`;
+
+    // INTENT 8: SPECIFIC FOLLOW-UP QUESTION (ANSWER DIRECTLY, RESPECTING USER INSTRUCTIONS TO THE LETTER)
+    } else if (isSpecificFollowUp) {
+      responseText = `Voici la réponse précise et juridique à votre question concernant « ${userQuery} » :\n\n` +
+        `**1. Analyse juridique ciblée**\n` +
+        `Au vu des faits de votre dossier (*${docNameDisplay}*) et de votre question, la règle de droit français s'applique de la manière suivante :\n` +
+        `- Concernant votre demande, le cadre légal applicable (${detectedDomain === 'famille' ? 'Code Civil - Droit de la Famille' : 'Droit Français des Obligations'}) prévoit que vos intérêts doivent être formellement préservés par écrit.\n` +
+        `- Les parties identifiées (${partiesMapping.demandeur} et ${partiesMapping.adversaire}) doivent veiller à respecter les formes légales impératives.\n\n` +
+        `**2. Réponse concrète à vos instructions**\n` +
+        `Conformément à vos instructions, voici les points exacts à retenir :\n` +
+        `- **Sur le plan pratique :** Toute décision ou demande doit être formalisée et portée à la connaissance de l'autre partie avec date certaine (courrier recommandé ou convention contresignée).\n` +
+        `- **Sur le plan financier :** ${detectedAmount ? `Le montant de **${detectedAmount}** doit être intégré dans le décompte global.` : "Tous les flux financiers et compensations doivent faire l'objet d'un état récapitulatif détaillé."}\n` +
+        `- **Sur le plan juridique :** Les textes applicables (${statutoryArticles.slice(0, 2).join(', ')}) confirment votre droit d'agir et d'exiger une issue conforme à l'équité.\n\n` +
+        `**3. Prochaine étape recommandée**\n` +
+        `Je peux vous aider à formuler immédiatement la clause correspondante, préparer un courrier officiel ou simuler l'impact financier. Quelle est votre prochaine instruction ?`;
+
+    // INTENT 9: INITIAL DOSSIER UPLOAD (FULL 5-PILLAR DIAGNOSTIC TEMPLATE)
     } else {
       responseText = `Bonjour. J'ai examiné attentivement votre dossier (**${docCount} document(s) analysé(s) :** *${docNameDisplay}* — Domaine : *${docType}*).\n\n` +
         `Voici mon analyse juridique complète, personnalisée et directement applicable à votre situation :\n\n` +
@@ -953,133 +1384,903 @@ function getAdvancedLocalLegalAI(
     let actionStepsList: string[] = [];
     let followUpQuestion = "";
 
-    if (clean.includes('licenciement') || clean.includes('travail') || clean.includes('salaire') || clean.includes('rupture') || clean.includes('employeur') || clean.includes('prud\'homme') || clean.includes('cdd') || clean.includes('cdi')) {
-      subjectTitle = "Droit du Travail & Rupture du Contrat";
-      analysisDiagnosis = "Votre situation relève du Code du Travail. Tout licenciement pour motif personnel doit reposer sur une cause réelle et sérieuse, matériellement vérifiable et objective. En cas d'irrégularité ou de rupture abusive, des indemnités substantielles peuvent être réclamées.";
+    // 1. Vague help & general advice inquiries: "qu'est ce que tu me conseille", "que faire ?", "aidez-moi", etc.
+    const isVagueHelp = /^(?:(?:qu['’]est[- ]ce que tu (?:me )?(?:conseilles?|proposes?)(?: comme conseil)?)|(?:tu (?:me )?(?:conseilles?|proposes?) quoi)|(?:que (?:me )?(?:conseillez|conseilles)[- ](?:vous|tu))|(?:donne[- ]moi un conseil)|(?:quel(?:s)? (?:est|sont) (?:ton|votre|tes|vos) conseils?)|(?:besoin d['’]un? conseils?)|(?:je cherche un conseil)|(?:tu peux me conseiller)|(?:conseil(?:s)?(?: juridique[s]?)?)|(?:j['’]ai\s+(?:un\s+)?(?:probl[èe]me|probleme|souci|litige|diff[ée]rend))|(?:aidez-moi|aide\s+moi|j['’]ai\s+besoin\s+d['’]aide|que\s+faire(?:\s+maintenant)?|je\s+ne\s+sais\s+pas\s+quoi\s+faire|pouvez-vous\s+m['’]aider|peux-tu\s+m['’]aider|comment\s+(?:faire|procéder)|j['’]ai\s+une\s+question|conseillez-moi|au\s+secours)|(?:probl[èe]me|probleme|souci|litige|aide|conseil))[\s!?.]*$/i.test(clean);
+
+    if (isVagueHelp) {
+      responseText = `Je peux vous aider à comprendre une situation juridique, vous expliquer vos options et vous guider dans vos démarches.\n\n` +
+        `Pour vous apporter un conseil précis et adapté à votre cas :\n\n` +
+        `• **Travail & Emploi :** contrat de travail, licenciement, rupture conventionnelle, salaires impayés.\n` +
+        `• **Logement & Immobilier :** litige de bail, caution non restituée, impayés de loyer, expulsion, copropriété.\n` +
+        `• **Consommation & Contrats :** litige commerçant, produit non conforme, remboursement, contestation facture.\n` +
+        `• **Famille & Patrimoine :** divorce, pension alimentaire, garde des enfants, succession, séparation.\n` +
+        `• **Justice & Démarches :** saisine du tribunal, médiation obligatoire, contestation d'amende.\n\n` +
+        `Expliquez-moi en 2 ou 3 phrases votre situation : plus vous me donnez de précisions, plus mon conseil sera pertinent et efficace.`;
+
+    // 2. JUSTICE & FRAIS : Combien coûte un avocat / Honoraires
+    } else if (/combien\s+co[uû]te.*avocat|honoraires?.*avocat|tarif.*avocat|prix.*avocat/i.test(clean)) {
+      subjectTitle = "Honoraires & Coût d'un Avocat";
+      analysisDiagnosis = "En France, les honoraires d'avocat sont libres mais obligatoirement encadrés par une convention écrite d'honoraires signée avant toute intervention (Loi Macron).";
       rulesList = [
-        "**Article L1232-1 du Code du Travail** : L'employeur est tenu d'énoncer un motif clair, vérifiable et fondé sur des éléments objectifs.",
-        "**Article L1235-3 du Code du Travail (Barème d'indemnisation)** : En cas de licenciement sans cause réelle et sérieuse, le juge octroie au salarié une indemnité à la charge de l'employeur fixée selon l'ancienneté.",
-        "**Article L1471-1 du Code du Travail** : Le délai de contestation d'une rupture devant le Conseil de Prud'hommes est de **12 mois** à compter de la notification."
+        "**Convention d'honoraires obligatoire (Art. 10 Loi du 31 décembre 1971)** : L'avocat doit fixer précisément le mode de facturation : au temps passé (150 € à 350 € HT/heure en moyenne) ou au forfait (somme globale convenue).",
+        "**Honoraires de résultat autorisés en complément** : Un pourcentage sur les gains obtenus ou l'économie réalisée peut s'ajouter au fixe, mais un honoraire exclusivement basé sur le résultat (pacte de quota litis) est formellement interdit.",
+        "**TVA applicable** : Les prestations d'avocat sont assujetties à la TVA à 20% en France métropolitaine."
       ];
       actionStepsList = [
-        "**Vérifier la procédure suivie** : Contrôlez le respect du délai de 5 jours ouvrables entre la convocation et l'entretien préalable.",
-        "**Demander des précisions sur les motifs** : Dans les 15 jours suivant la notification (art. R1232-13 C. trav.), vous pouvez demander à votre employeur d'éclaircir les griefs formulés.",
-        "**Saisir le Conseil de Prud'hommes (CPH)** : Pour solliciter l'indemnité compensatrice de préavis, les congés payés afférents et des dommages-intérêts pour licenciement sans cause réelle et sérieuse."
+        "Demander un premier devis estimatif écrit et la signature d'une convention d'honoraires détaillée avant toute diligence.",
+        "Vérifier si vous bénéficiez d'une Protection Juridique (incluse dans votre assurance habitation, carte bancaire ou auto) qui prend en charge tout ou partie des frais d'avocat selon son barème.",
+        "Si vos ressources sont modestes, solliciter l'Aide Juridictionnelle (prise en charge par l'État de 25% à 100% des frais de procédure)."
       ];
-      followUpQuestion = "Quelle est votre ancienneté exacte dans l'entreprise et la lettre de licenciement vous a-t-elle déjà été remise ?";
+      followUpQuestion = "Pour quel type d'affaire (prud'hommes, divorce, pénal, immobilier) recherchez-vous un avocat, et souhaitez-vous être mis en relation avec un avocat partenaire ?";
 
-    } else if (clean.includes('loyer') || clean.includes('bail') || clean.includes('locataire') || clean.includes('propriétaire') || clean.includes('dépôt de garantie') || clean.includes('caution') || clean.includes('expulsion') || clean.includes('insalubre')) {
-      subjectTitle = "Droit Immobilier & Baux d'Habitation";
-      analysisDiagnosis = "Ce litige relève de la Loi du 6 juillet 1989. Le propriétaire et le locataire sont tenus à des obligations réciproques d'ordre public auxquelles aucune clause du contrat ne peut déroger.";
+    // 3. JUSTICE & AIDE : Aide Juridictionnelle (AJ) / Avocat gratuit
+    } else if (/aide\s+juridictionnelle|avocat\s+gratuit|pas\s+d['']argent.*avocat|sans\s+ressources/i.test(clean)) {
+      subjectTitle = "Aide Juridictionnelle & Accès Gratuit au Droit";
+      analysisDiagnosis = "L'Aide Juridictionnelle (AJ) permet à l'État de prendre en charge tout ou partie des honoraires d'avocat et des frais d'huissier ou d'expertise si vos revenus sont inférieurs aux plafonds légaux.";
       rulesList = [
-        "**Article 22 de la Loi du 6 juillet 1989** : Le dépôt de garantie doit être restitué sous **1 mois** si l'état des lieux de sortie est conforme, ou sous **2 mois** en cas de dégradations justifiées par devis ou factures. Tout mois de retard entame une majoration de plein droit de **10% du loyer mensuel** en principal.",
-        "**Article 1719 du Code Civil** : Le bailleur est tenu de remettre un logement décent ne laissant pas apparaître de risques manifestes pour la sécurité ou la santé.",
-        "**Article 7 de la Loi de 1989** : Le locataire ne peut pas se faire justice à lui-même en suspendant unilatéralement le paiement du loyer sans autorisation judiciaire."
+        "**Barème de ressources 2024 (Loi du 10 juillet 1991)** : Pour une personne seule, l'aide est totale (100%) si le revenu fiscal est inférieur à environ 12 200 €/an, et partielle (55% ou 25%) jusqu'à environ 18 300 €/an (plafonds majorés par personne à charge).",
+        "**Interdiction de dépassement** : En cas d'aide totale à 100%, l'avocat désigné ou acceptant l'AJ ne peut réclamer aucun honoraire direct au justiciable.",
+        "**Consultations juridiques gratuites** : Des Points-Justice, Maisons de Justice et du Droit (MJD) et permanences gratuites des Ordres des avocats existent dans chaque département."
       ];
       actionStepsList = [
-        "**Mise en demeure formelle avec pénalités de 10%** : Adressez une LRAR au bailleur en exigeant le remboursement sous 8 jours avec décompte des pénalités légales de retard.",
-        "**Saisine de la Commission Départementale de Conciliation (CDC)** : Démarche gratuite et obligatoire pour les litiges de dépôt de garantie avant assignation.",
-        "**Saisine du Juge des Contentieux de la Protection (JCP)** : Auprès du Tribunal Judiciaire compétent par simple requête si le montant est inférieur à 5 000 €."
+        "Déposer la demande d'aide juridictionnelle en ligne sur le portail officiel du Ministère de la Justice (aidejuridictionnelle.justice.fr) ou via le formulaire Cerfa n° 16146*03.",
+        "Joindre votre dernier avis d'imposition et les justificatifs de charges du foyer.",
+        "Demander à l'avocat choisi s'il accepte d'intervenir au titre de l'aide juridictionnelle avant d'engager le dossier."
       ];
-      followUpQuestion = "Quel est le montant du dépôt de garantie retenu et l'état des lieux de sortie mentionnait-il des dégradations ?";
+      followUpQuestion = "Votre demande concerne-t-elle une action que vous engagez ou une assignation que vous avez reçue en justice ?";
 
-    } else if (clean.includes('achat') || clean.includes('vente') || clean.includes('remboursement') || clean.includes('garantie') || clean.includes('consommateur') || clean.includes('arnaque') || clean.includes('vice caché')) {
-      subjectTitle = "Droit de la Consommation & Garanties Légales";
-      analysisDiagnosis = "En tant qu'acheteur ou consommateur, la loi française et les directives européennes vous octroient une protection impérative et automatique contre les défauts, les tromperies et les retards de livraison.";
+    // 4. JUSTICE & PROCÉDURE : Avocat obligatoire ou dispensé
+    } else if (/avocat\s+obligatoire|sans\s+avocat|se\s+d[ée]fendre\s+seul/i.test(clean)) {
+      subjectTitle = "Représentation Obligatoire ou Facultative par Avocat";
+      analysisDiagnosis = "En droit français, la présence d'un avocat n'est pas toujours obligatoire : elle dépend de la juridiction saisie et du montant du litige.";
       rulesList = [
-        "**Article L217-3 du Code de la Consommation (Garantie de conformité)** : Le vendeur répond de tous les défauts de conformité apparaissant pendant **2 ans** après la délivrance, sans que l'acheteur n'ait à prouver que le défaut existait lors de l'achat.",
-        "**Article 1641 du Code Civil (Garantie des vices cachés)** : Le vendeur est tenu de la garantie à raison des défauts cachés de la chose vendue qui la rendent impropre à l'usage auquel on la destine. Délai d'action : **2 ans** à compter de la découverte du vice.",
-        "**Article L221-18 du Code de la Consommation** : En cas d'achat sur internet ou à distance, vous bénéficiez d'un droit de rétractation de **14 jours francs** sans justification."
+        "**Avocat dispensé (procédure orale sans représentation obligatoire)** : Devant le Conseil de Prud'hommes en 1ère instance, devant le Juge du Contentieux de la Protection (litiges locatifs, baux), et devant le Tribunal Judiciaire pour les litiges dont l'enjeu financier est inférieur ou égal à **10 000 €**.",
+        "**Avocat obligatoire** : Devant le Tribunal Judiciaire pour les demandes supérieures à 10 000 €, devant la Cour d'Appel (sauf exceptions), et en matière de divorce contentieux ou par consentement mutuel.",
+        "**Représentation par un tiers** : Devant les prud'hommes, vous pouvez vous faire assister par un défenseur syndical agréé."
       ];
       actionStepsList = [
-        "**Notifier la non-conformité par écrit** : Exiger formellement la réparation sans frais, le remplacement du produit ou le remboursement intégral.",
-        "**Saisir le Médiateur de la Consommation** : Tout professionnel a l'obligation de communiquer les coordonnées de son médiateur sur ses factures et CGV.",
-        "**Action en résolution de la vente** : Si le professionnel refuse sous 30 jours, engager une injonction de faire ou de payer."
+        "Identifier le montant total de vos demandes financières pour déterminer si le seuil des 10 000 € est franchi.",
+        "Si l'avocat est facultatif, vous pouvez rédiger et déposer vous-même une requête auprès du greffe du tribunal compétent.",
+        "Même si la loi autorise à se défendre seul, l'assistance d'un juriste ou d'un avocat est vivement recommandée pour sécuriser la rédaction des conclusions et les délais de procédure."
       ];
-      followUpQuestion = "Le vendeur est-il un professionnel ou un particulier, et à quelle date précise a eu lieu la livraison ?";
+      followUpQuestion = "Quelle est la juridiction concernée ou le montant financier de votre demande ?";
 
-    } else if (clean.includes('divorce') || clean.includes('séparation') || clean.includes('pension') || clean.includes('garde') || clean.includes('mariage') || clean.includes('succession') || clean.includes('héritage')) {
-      subjectTitle = "Droit de la Famille & du Patrimoine";
-      analysisDiagnosis = "Votre préoccupation concerne le droit civil de la famille ou des successions. Les intérêts des enfants mineurs et l'équilibre patrimonial entre les parties sont protégés par le juge et par l'ordre public.";
+    // 5. JUSTICE & ACTE : Qu'est-ce qu'une mise en demeure
+    } else if (/mise\s+en\s+demeure.*(?:c['']est\s+quoi|comment|d[ée]finition|valeur|mod[èe]le|formalit[ée])/i.test(clean) || /qu['']est-ce\s+qu['']une\s+mise\s+en\s+demeure/i.test(clean)) {
+      subjectTitle = "La Mise en Demeure en Droit Français";
+      analysisDiagnosis = "La mise en demeure est un acte juridique préalable fondamental par lequel vous sommez officiellement votre adversaire d'exécuter son obligation dans un délai précis.";
       rulesList = [
-        "**Article 229-1 du Code Civil** : Le divorce par consentement mutuel peut être acté par acte sous signature privée contresigné par deux avocats et déposé chez un notaire, sans comparution devant le juge.",
-        "**Article 371-2 du Code Civil** : Chacun des parents contribue à l'entretien et à l'éducation des enfants proportionnellement à ses ressources et aux besoins de l'enfant.",
-        "**Article 724 du Code Civil** : Les héritiers désignés par la loi sont saisis de plein droit des biens, droits et actions du défunt dès l'ouverture de la succession."
+        "**Article 1344 du Code Civil** : Le débiteur est mis en demeure de payer soit par sommation ou acte équivalent, soit par une stipulation expresse du contrat.",
+        "**Article 1231-6 du Code Civil** : La mise en demeure fait courir les intérêts de retard moratoires au taux légal à compter de sa réception.",
+        "**Mentions obligatoires indispensables** : L'indication expresse des termes « MISE EN DEMEURE », l'exposé des griefs, le fondement contractuel ou légal, et un délai impératif d'exécution (généralement 8 à 15 jours)."
       ];
       actionStepsList = [
-        "**Faire le point sur l'état liquidatif** : Établir l'inventaire précis des biens mobiliers, immobiliers et des crédits en cours.",
-        "**Tentative d'accord amiable conventionnel** : Organiser une discussion avec avocats respectifs pour fixer la pension et le mode de résidence.",
-        "**Saisine du Juge aux Affaires Familiales (JAF)** : À défaut d'accord amiable, déposer une requête auprès du Tribunal Judiciaire du lieu de résidence de la famille."
+        "Adresser le courrier par Lettre Recommandée avec Accusé de Réception (LRAR) ou par signification de Commissaire de Justice (huissier) pour lui donner date certaine opposable.",
+        "Conserver précieusement le récépissé de dépôt et l'accusé de réception signé.",
+        "Si aucune réponse satisfaisante n'est reçue à l'expiration du délai fixé, vous pouvez engager la conciliation ou assigner devant le tribunal."
       ];
-      followUpQuestion = "Un accord amiable vous semble-t-il envisageable avec l'autre partie ou la situation est-elle d'ores et déjà conflictuelle ?";
+      followUpQuestion = "Souhaitez-vous que je génère directement votre lettre de mise en demeure officielle prête à l'envoi ?";
 
+    // 6. JUSTICE & RECOUVREMENT : Injonction de payer
+    } else if (/injonction\s+de\s+payer|recouvrement.*cr[ée]ance|facture\s+impay[ée]e|dette\s+impay[ée]e/i.test(clean)) {
+      subjectTitle = "Procédure d'Injonction de Payer & Recouvrement";
+      analysisDiagnosis = "L'injonction de payer est une procédure judiciaire rapide, non contradictoire et peu coûteuse permettant d'obtenir un titre exécutoire pour recouvrer une créance certaine, liquide et exigible.";
+      rulesList = [
+        "**Article 1405 du Code de Procédure Civile** : L'injonction de payer peut être demandée pour toute créance contractuelle ou statutaire d'un montant déterminé.",
+        "**Ordonnance sur requête** : Le juge statue sans entendre le débiteur. Si la demande est justifiée, il rend une ordonnance portant injonction de payer.",
+        "**Signification et opposition (Art. 1416 CPC)** : L'ordonnance doit être signifiée au débiteur par commissaire de justice sous 6 mois. Le débiteur dispose alors d'un délai strict de **1 mois** pour former opposition s'il conteste la dette."
+      ];
+      actionStepsList = [
+        "Rassembler le contrat, les bons de commande signés, les factures certifiées et la copie de la mise en demeure restée infructueuse.",
+        "Remplir la requête en injonction de payer (formulaire Cerfa n° 12946*02) et la déposer au greffe du Tribunal Judiciaire ou de Commerce.",
+        "Dès l'ordonnance obtenue, mandater un commissaire de justice pour la signifier et procéder aux saisies (saisie sur compte bancaire ou sur salaire)."
+      ];
+      followUpQuestion = "Quel est le montant exact de votre créance et disposez-vous du contrat ou devis initial signé ?";
+
+    // 7. JUSTICE & COMMISSAIRE : Huissier de Justice / Titre exécutoire / Saisie
+    } else if (/huissier|commissaire\s+de\s+justice|titre\s+ex[ée]cut[oi]re|saisie\s+sur\s+compte|saisie\s+sur\s+salaire/i.test(clean)) {
+      subjectTitle = "Commissaire de Justice & Exécution des Décisions";
+      analysisDiagnosis = "Les commissaires de justice (fusion des huissiers de justice et commissaires-priseurs judiciaires) ont le monopole des significations d'actes, constats et exécutions forcées en France.";
+      rulesList = [
+        "**Article L111-2 du Code des Procédures Civiles d'Exécution** : Une saisie ou mesure d'exécution forcée ne peut être mise en œuvre que sur présentation d'un **titre exécutoire** (décision de justice, acte notarié revêtu de la formule exécutoire, ou ordonnance d'injonction de payer non contestée).",
+        "**Lettre de relance sans titre** : Si un commissaire de justice intervient en simple recouvrement amiable (sans titre exécutoire), il ne dispose d'aucun pouvoir de saisie et ne peut facturer de frais de recouvrement au débiteur (art. L111-8 CPCE).",
+        "**Valeur probante du constat** : Le constat de commissaire de justice fait foi jusqu'à preuve du contraire pour établir la matérialité d'un fait (dégât des eaux, malfaçons, abandon de chantier, tapage)."
+      ];
+      actionStepsList = [
+        "Vérifier si le courrier reçu mentionne expressément un jugement ou titre exécutoire, ou s'il s'agit d'une simple relance amiable.",
+        "Si vous disposez d'un jugement rendu en votre faveur, mandatez un commissaire de justice du ressort de la cour d'appel compétente pour signifier l'acte et lancer l'exécution.",
+        "En cas de constat urgent (chantier ou dégât des eaux), contactez immédiatement une étude locale pour fixer l'intervention."
+      ];
+      followUpQuestion = "Avez-vous reçu un acte d'huissier (signification, sommation) ou souhaitez-vous faire établir un constat officiel ?";
+
+    // 8. JUSTICE & CONCILIATION : Conciliateur de justice & Médiateur
+    } else if (/conciliat(?:eur|ion)|m[ée]diat(?:eur|ion)|r[ée]solution\s+amiable|accord\s+amiable/i.test(clean)) {
+      subjectTitle = "Conciliation & Médiation Obligatoire (Art. 750-1 CPC)";
+      analysisDiagnosis = "En droit français, la tentative de résolution amiable est un préalable obligatoire à la saisine de la justice pour de nombreux litiges du quotidien.";
+      rulesList = [
+        "**Article 750-1 du Code de Procédure Civile** : À peine d'irrecevabilité que le juge peut prononcer d'office, la saisine du tribunal judiciaire pour un litige inférieur ou égal à **5 000 €**, ou pour un trouble anormal de voisinage ou un bornage, doit obligatoirement être précédée d'une tentative de conciliation de justice, de médiation ou de procédure participative.",
+        "**Gratuité du Conciliateur de Justice** : Les conciliateurs de justice sont des auxiliaires de justice bénévoles et leur saisine est 100% gratuite.",
+        "**Force de l'accord constaté** : Le constat d'accord signé par les parties devant le conciliateur peut être homologué par le juge pour acquérir la même force exécutoire qu'un jugement."
+      ];
+      actionStepsList = [
+        "Prendre contact avec le conciliateur de justice lors de ses permanences en mairie, au tribunal judiciaire ou à la Maison de Justice et du Droit (conciliateurs.fr).",
+        "Transmettre vos pièces justificatives et l'historique de vos échanges avec la partie adverse.",
+        "Participer à la réunion de conciliation pour parvenir à un protocole d'accord écrit et sécurisé."
+      ];
+      followUpQuestion = "Quel est l'objet de votre litige et la partie adverse est-elle ouverte à une discussion amiable ?";
+
+    // 9. JUSTICE & DÉLAIS : Prescription légale
+    } else if (/prescription|d[ée]lai.*agir|d[ée]lai.*porter\s+plainte|combien\s+de\s+temps.*agir|trop\s+tard/i.test(clean)) {
+      subjectTitle = "Délais de Prescription Légale en Droit Français";
+      analysisDiagnosis = "La prescription éteint le droit d'agir en justice si aucun recours n'est formalisé avant l'expiration du délai légal imparti.";
+      rulesList = [
+        "**Droit commun civil (Art. 2224 C. civ.)** : Les actions personnelles ou mobilières se prescrivent par **5 ans** à compter du jour où le titulaire d'un droit a connu ou aurait dû connaître les faits.",
+        "**Droit de la consommation (Art. L218-2 C. conso)** : L'action des professionnels pour les biens ou services fournis aux consommateurs se prescrit par **2 ans** (les factures de plus de 2 ans sont prescrites).",
+        "**Droit du travail** : Contestation de licenciement = **12 mois** (art. L1471-1 C. trav.) ; Rappel de salaires et heures supplémentaires = **3 ans** (art. L3245-1 C. trav.).",
+        "**Droit pénal** : Contraventions = 1 an ; Délits (escroquerie, vol, harcèlement) = **6 ans** ; Crimes = 20 ans (Art. 8 CPP) ; Diffamation et injure = **3 mois** (Loi 1881)."
+      ];
+      actionStepsList = [
+        "Identifier la date exacte du fait générateur ou de la découverte du dommage pour calculer le point de départ du délai.",
+        "Attention : une simple relance amiable n'interrompt pas la prescription ; seule une assignation en justice ou un acte d'exécution forcée l'interrompt (art. 2241 et 2244 C. civ.).",
+        "Agir rapidement en adressant une citation ou requête avant l'échéance fatidique."
+      ];
+      followUpQuestion = "À quelle date précise sont survenus les faits ou la dernière facture contestée ?";
+
+    // 10. TRAVAIL : Licenciement & Contestation CPH
+    } else if (clean.includes('licenciement') || clean.includes('faute grave') || clean.includes('prud\'homme') || clean.includes('cph') || clean.includes('barème macron')) {
+      subjectTitle = "Droit du Travail & Contestation de Licenciement";
+      analysisDiagnosis = "Tout licenciement prononcé par un employeur doit reposer sur une cause réelle et sérieuse, objective, vérifiable et proportionnée (Code du Travail).";
+      rulesList = [
+        "**Article L1232-1 du Code du Travail** : L'absence de cause réelle et sérieuse ouvre droit à réintégration ou indemnisation du salarié pour licenciement abusif.",
+        "**Article L1235-3 du Code du Travail (Barème Macron)** : En cas de licenciement sans cause réelle et sérieuse, les indemnités prud'homales sont encadrées par un plancher et un plafond fixés selon votre ancienneté dans l'entreprise.",
+        "**Faute grave** : La faute grave prive le salarié de l'indemnité de préavis et de l'indemnité légale de licenciement, mais la charge exclusive de la preuve pèse sur l'employeur.",
+        "**Article L1471-1 du Code du Travail** : Vous disposez d'un délai strict de **12 mois** à compter de la notification du licenciement pour saisir le Conseil de Prud'hommes."
+      ];
+      actionStepsList = [
+        "Demander des précisions écrites sur les motifs du licenciement dans les 15 jours suivant la notification (art. R1232-13 C. trav.).",
+        "Vérifier le respect de la procédure légale (convocation préalable avec mention d'assistance, délai de 5 jours ouvrables avant l'entretien, délai de notification).",
+        "Saisir le Conseil de Prud'hommes (bureau de conciliation et d'orientation puis jugement) pour réclamer vos indemnités de rupture et dommages-intérêts."
+      ];
+      followUpQuestion = "Quelle est votre ancienneté, le motif invoqué (économique, personnel, faute) et la date de notification ?";
+
+    // 11. TRAVAIL : Rupture conventionnelle
+    } else if (clean.includes('rupture conventionnelle') || clean.includes('séparation amiable travail')) {
+      subjectTitle = "Rupture Conventionnelle Individuelle du CDI";
+      analysisDiagnosis = "La rupture conventionnelle permet à l'employeur et au salarié en CDI de convenir d'un commun accord des conditions de la rupture du contrat de travail (Art. L1237-11 C. trav.).";
+      rulesList = [
+        "**Indemnité minimale légale (Art. L1237-13 C. trav.)** : L'indemnité spécifique de rupture ne peut pas être inférieure à l'indemnité légale de licenciement (1/4 de mois de salaire par an jusqu'à 10 ans, 1/3 au-delà), ou conventionnelle si plus favorable.",
+        "**Délai de rétractation de 15 jours (Art. L1237-12 C. trav.)** : À compter de la signature de la convention, chaque partie dispose d'un délai de 15 jours calendaires pour se rétracter par écrit.",
+        "**Homologation par la DREETS (Art. L1237-14 C. trav.)** : À l'issue du délai de rétractation, le dossier est télétransmis à la DREETS (TéléRC) qui dispose de 15 jours ouvrables pour instruire. Le silence vaut homologation tacite.",
+        "**Droit aux allocations chômage (ARE)** : La rupture conventionnelle ouvre immédiatement droit aux allocations de retour à l'emploi (France Travail / Pôle Emploi)."
+      ];
+      actionStepsList = [
+        "Convenir d'un ou plusieurs entretiens préalables pour négocier le montant de l'indemnité de départ et la date effective de sortie.",
+        "Remplir et signer le formulaire réglementaire Cerfa via la plateforme officielle TéléRC.",
+        "Respecter scrupuleusement les délais incompressibles de rétractation et d'instruction administrative avant le départ de l'entreprise."
+      ];
+      followUpQuestion = "Avez-vous déjà abordé le sujet avec votre direction et un accord sur le montant d'indemnité est-il envisagé ?";
+
+    // 12. TRAVAIL : Démission, Chômage & Préavis
+    } else if (clean.includes('démission') || clean.includes('demission') || /quitter.*travail/i.test(clean)) {
+      subjectTitle = "Démission, Préavis & Droits au Chômage";
+      analysisDiagnosis = "La démission est un acte unilatéral par lequel le salarié manifeste sa volonté claire et non équivoque de rompre son CDI.";
+      rulesList = [
+        "**Droit au chômage (ARE)** : En principe, une démission volontaire n'ouvre pas droit aux allocations chômage, sauf démissions considérées comme « légitimes » par France Travail (suivi de conjoint muté, non-paiement de salaires, violences conjugales).",
+        "**Préavis contractuel** : La durée du préavis est fixée par la convention collective, le contrat de travail ou les usages. L'employeur peut vous en dispenser (avec ou sans maintien de salaire selon l'initiateur).",
+        "**Démission requalifiée en prise d'acte** : Si vous quittez l'entreprise en raison de manquements graves de l'employeur (harcèlement, salaires impayés), vous pouvez prendre acte de la rupture aux torts de l'employeur pour faire requalifier la rupture en licenciement abusif devant les prud'hommes."
+      ];
+      actionStepsList = [
+        "Consulter votre convention collective pour connaître la durée exacte de votre préavis et vos droits à heures pour recherche d'emploi.",
+        "Rédiger une lettre de démission claire, remise en main propre contre décharge ou expédiée par lettre recommandée avec accusé de réception.",
+        "Négocier par écrit une dispense totale ou partielle de préavis si vous avez une nouvelle opportunité professionnelle."
+      ];
+      followUpQuestion = "Quel est votre motif de départ et souhaitez-vous être dispensé d'effectuer votre préavis ?";
+
+    // 13. TRAVAIL : Salaires impayés & Heures supplémentaires
+    } else if (clean.includes('salaire impayé') || clean.includes('heures sup') || clean.includes('fiche de paie') || clean.includes('retenue sur salaire') || clean.includes('primes non payées')) {
+      subjectTitle = "Salaires Impayés & Heures Supplémentaires";
+      analysisDiagnosis = "Le paiement du salaire à date fixe est l'obligation principale et essentielle de l'employeur. Tout retard ou défaut est sanctionné civilement et pénalement.";
+      rulesList = [
+        "**Article L3242-1 du Code du Travail** : La rémunération des salariés est payée au moins une fois par mois.",
+        "**Article L3245-1 du Code du Travail** : L'action en paiement ou en répétition du salaire se prescrit par **3 ans** à compter du jour où celui qui l'exerce a connu ou aurait dû connaître les faits.",
+        "**Heures supplémentaires (Art. L3121-28 C. trav.)** : Toute heure accomplie au-delà de 35 heures hebdomadaires ouvre droit à une majoration légale de salaire (25% pour les 8 premières heures, 50% au-delà) ou à un repos compensateur.",
+        "**Référé prud'homal rapide** : Le paiement des salaires indubitables peut être ordonné en référé d'urgence sous 15 jours par la formation de référé du Conseil de Prud'hommes."
+      ];
+      actionStepsList = [
+        "Reconstituer un décompte précis des sommes dues (relevés d'heures, plannings, emails, relevés d'accès, fiches de paie).",
+        "Adresser immédiatement une mise en demeure formelle par lettre recommandée exigeant le virement sous 8 jours.",
+        "À défaut de règlement, saisir en urgence la formation de référé du Conseil de Prud'hommes compétent."
+      ];
+      followUpQuestion = "Quel est le montant total des impayés et depuis combien de mois ce retard dure-t-il ?";
+
+    // 14. TRAVAIL : Harcèlement moral / sexuel & Souffrance
+    } else if (clean.includes('harcèlement') || clean.includes('harcelement') || clean.includes('burn out') || clean.includes('au placard') || clean.includes('dénigrement travail')) {
+      subjectTitle = "Harcèlement Moral & Protection du Salarié";
+      analysisDiagnosis = "Le harcèlement moral au travail est constitué par des agissements répétés ayant pour objet ou pour effet une dégradation des conditions de travail susceptible de porter atteinte aux droits, à la dignité, ou à la santé du salarié.";
+      rulesList = [
+        "**Article L1152-1 du Code du Travail & Art. 222-33-2 du Code Pénal** : Le harcèlement moral est un délit passible de 2 ans de prison et 30 000 € d'amende.",
+        "**Aménagement de la charge de la preuve (Art. L1154-1 C. trav.)** : Le salarié doit seulement présenter des éléments de fait laissant supposer l'existence d'un harcèlement ; il incombe alors à l'employeur de prouver que ses décisions étaient justifiées par des éléments objectifs étrangers à tout harcèlement.",
+        "**Nullité des sanctions et représailles (Art. L1152-2 C. trav.)** : Aucun salarié ne peut être sanctionné, licencié ou discriminé pour avoir témoigné ou relaté des faits de harcèlement moral."
+      ];
+      actionStepsList = [
+        "Consigner par écrit chaque fait avec date, heure, lieu, témoins et conserver tous les emails, SMS ou ordres contradictoires.",
+        "Consulter votre médecin traitant et alerter sans tarder le Médecin du Travail pour faire constater l'altération de votre santé physique ou psychique.",
+        "Signaler formellement les faits à la direction, aux élus du personnel (CSE) et à l'Inspection du Travail."
+      ];
+      followUpQuestion = "Avez-vous déjà consulté la médecine du travail ou informé les représentants du personnel (CSE) ?";
+
+    // 15. TRAVAIL : Période d'essai, Contrats, Avenants
+    } else if (clean.includes('période d\'essai') || clean.includes('periode d\'essai') || clean.includes('clause de non-concurrence') || clean.includes('refus avenant') || clean.includes('modification contrat')) {
+      subjectTitle = "Exécution du Contrat de Travail & Période d'Essai";
+      analysisDiagnosis = "La relation de travail est régie par les stipulations du contrat de travail dans le respect des règles d'ordre public du Code du travail.";
+      rulesList = [
+        "**Rupture de la période d'essai (Art. L1221-25 C. trav.)** : L'employeur ou le salarié peut rompre librement la période d'essai, mais l'employeur doit respecter un **délai de prévenance** (de 24h à 1 mois selon la durée de présence). La rupture ne doit pas être discriminatoire ni abusive.",
+        "**Modification du contrat de travail** : L'employeur ne peut pas modifier un élément essentiel du contrat (rémunération, qualification, horaires de nuit, lieu dans un autre secteur géographique) sans l'accord exprès et signé du salarié. Le refus d'un avenant ne constitue pas en soi une faute.",
+        "**Clause de non-concurrence** : Pour être valable, elle doit être indispensable à la protection des intérêts de l'entreprise, limitée dans le temps et l'espace, tenir compte des spécificités d'emploi, et comporter une **contrepartie financière obligatoire non dérisoire** versée après la rupture."
+      ];
+      actionStepsList = [
+        "Vérifier les clauses exactes de votre contrat de travail et de votre convention collective applicable.",
+        "Formaliser votre position par écrit (courrier recommandé ou courriel avec accusé) sans signer de document sous pression.",
+        "En cas de litige, faire contrôler la validité de la clause par un juriste ou avocat en droit du travail."
+      ];
+      followUpQuestion = "De quelle clause ou modification s'agit-il précisément, et quand vous a-t-elle été soumise ?";
+
+    // 16. LOGEMENT : Caution / Dépôt de garantie
+    } else if (clean.includes('caution') || clean.includes('dépôt de garantie') || clean.includes('depot de garantie') || clean.includes('état des lieux')) {
+      subjectTitle = "Restitution du Dépôt de Garantie (Loi du 6 juillet 1989)";
+      analysisDiagnosis = "La restitution du dépôt de garantie (caution) par le bailleur est soumise à des règles d'ordre public très strictes en droit français.";
+      rulesList = [
+        "**Article 22 de la Loi n° 89-462 du 6 juillet 1989** : Le délai de restitution est de **1 mois** si l'état des lieux de sortie est conforme à l'entrée, ou **2 mois** si des dégradations imputables au locataire sont constatées.",
+        "**Justification obligatoire** : Toute retenue sur le dépôt de garantie doit être impérativement justifiée par la comparaison des états des lieux contradictoires et étayée par des factures ou devis d'entreprises.",
+        "**Majoration légale de 10% par mois de retard (Art. 22)** : À défaut de restitution dans le délai légal, le solde restant dû est majoré de plein droit de **10% du loyer mensuel hors charges** pour chaque mois de retard commencé."
+      ];
+      actionStepsList = [
+        "Comparer précisément l'état des lieux d'entrée et de sortie signés contradictoirement pour identifier les éventuelles dégradations notées.",
+        "Adresser au propriétaire une mise en demeure formelle par lettre recommandée (LRAR) exigeant la restitution immédiate sous 8 jours avec calcul des pénalités de retard de 10%/mois.",
+        "Si pas de réponse sous 8 jours, saisir gratuitement la Commission Départementale de Conciliation (CDC) puis le Juge des Contentieux de la Protection (JCP)."
+      ];
+      followUpQuestion = "Quel est le montant de votre dépôt de garantie, la date de remise des clés et l'état des lieux de sortie était-il conforme ?";
+
+    // 17. LOGEMENT : Loyers impayés & Expulsion locative
+    } else if (clean.includes('loyers impayés') || clean.includes('loyer impayé') || clean.includes('expulsion') || clean.includes('trêve hivernale') || clean.includes('treve hivernale') || clean.includes('commandement de payer')) {
+      subjectTitle = "Contentieux des Loyers Impayés & Procédure d'Expulsion";
+      analysisDiagnosis = "La gestion des impayés locatifs et la procédure d'expulsion obéissent à un formalisme impératif protecteur et à des délais incompressibles.";
+      rulesList = [
+        "**Article 24 de la Loi du 6 juillet 1989 (modifié par la Loi Kasbarian 2023)** : Le bailleur doit d'abord faire délivrer par commissaire de justice un **commandement de payer** visant la clause résolutoire. Le locataire dispose d'un délai légal de **6 semaines** pour régulariser sa dette.",
+        "**Trêve hivernale (Art. L412-6 du Code des Procédures Civiles d'Exécution)** : Du **1er novembre au 31 mars**, aucune mesure d'expulsion physique avec le concours de la force publique ne peut être exécutée par huissier.",
+        "**Obligation de décision judiciaire** : L'expulsion ne peut jamais être réalisée unilatéralement par le propriétaire (changer les serrures est un délit de violation de domicile puni de 3 ans de prison et 30 000 € d'amende - Art. 226-4-2 C. pén.)."
+      ];
+      actionStepsList = [
+        "Dès le premier impayé, engager une démarche amiable et proposer un plan d'apurement échelonné de la dette locative.",
+        "Solliciter le Fonds de Solidarité pour le Logement (FSL) ou les aides d'Action Logement pour résorber la dette.",
+        "Faire délivrer un commandement de payer par commissaire de justice si vous êtes bailleur, ou demander des délais de grâce au juge si vous êtes locataire."
+      ];
+      followUpQuestion = "Êtes-vous bailleur ou locataire, et à combien s'élève le montant total de la dette de loyers ?";
+
+    // 18. LOGEMENT : Indécent, Insalubre, Chauffage, Humidité
+    } else if (clean.includes('insalubre') || clean.includes('indécent') || clean.includes('indecent') || clean.includes('chauffage') || clean.includes('humidité') || clean.includes('fuite') || clean.includes('travaux propriétaire')) {
+      subjectTitle = "Logement Indécent, Non Conforme & Travaux du Bailleur";
+      analysisDiagnosis = "Le bailleur a l'obligation légale de délivrer au locataire un logement décent ne laissant pas apparaître de risques manifestes pour la sécurité physique ou la santé (Art. 6 Loi 1989 & Art. 1719 C. civ.).";
+      rulesList = [
+        "**Critères de décence (Décret n° 2002-120)** : Le logement doit comporter des dispositifs de chauffage fonctionnels, une étanchéité à l'air et à l'eau, une ventilation efficace, et être exempt de toute infestation de nuisibles.",
+        "**Interdiction de bloquer les loyers unilatéralement** : Le locataire ne peut JAMAIS cesser unilatéralement de payer son loyer, sous peine de résiliation du bail. Seul le juge peut ordonner la consignation des loyers à la Caisse des Dépôts.",
+        "**Article 20-1 de la Loi du 6 juillet 1989** : Le locataire peut demander au juge d'ordonner la réalisation des travaux sous astreinte financière par jour de retard et une diminution du loyer."
+      ];
+      actionStepsList = [
+        "Constituer un dossier de preuves photographiques et faire établir un constat de commissaire de justice ou un rapport du service d'hygiène de la mairie (SCHS).",
+        "Adresser au bailleur une mise en demeure formelle par LRAR d'exécuter les travaux indispensables sous un délai impératif de 15 jours.",
+        "Saisir la Commission Départementale de Conciliation (CDC) ou le Juge des Contentieux de la Protection pour ordonner les travaux et consigner les loyers."
+      ];
+      followUpQuestion = "Quels sont les désordres constatés (moisissures, absence de chauffage, infiltrations) et le bailleur a-t-il été averti par écrit ?";
+
+    // 19. LOGEMENT : Droits du locataire / Violation de domicile par le propriétaire
+    } else if (clean.includes('propriétaire entre') || clean.includes('bailleur entre') || clean.includes('sans prévenir') || clean.includes('double des clés') || clean.includes('visite propriétaire') || clean.includes('animal location') || clean.includes('animaux bail')) {
+      subjectTitle = "Droits du Locataire, Jouissance Paisible & Vie Privée";
+      analysisDiagnosis = "Le locataire a le droit à la jouissance paisible de son logement. Le bailleur ne peut en aucun cas pénétrer dans les lieux sans accord préalable exprès.";
+      rulesList = [
+        "**Violation de domicile (Art. 226-4 du Code Pénal)** : Le fait pour un propriétaire d'entrer dans le logement loué sans l'autorisation expresse du locataire (même avec un double des clés) constitue un délit pénal puni d'**un an d'emprisonnement et 15 000 € d'amende**.",
+        "**Droit de changer le barillet** : Le locataire a le droit légal de changer le cylindre de la serrure pendant la durée du bail, à condition de remettre la serrure initiale à la sortie.",
+        "**Animaux familiers (Loi du 9 juillet 1970)** : Toute clause interdisant la détention d'un animal familier (chien, chat) dans un bail d'habitation est réputée **non écrite** de plein droit (seuls les chiens d'attaque de 1ère catégorie peuvent être interdits)."
+      ];
+      actionStepsList = [
+        "Rappeler fermement par écrit à votre bailleur l'interdiction pénale d'accès à votre logement sans votre accord écrit préalable.",
+        "Changer le canon de votre serrure si vous craignez des intrusions intempestives (conservez le cylindre d'origine).",
+        "En cas d'intrusion constatée, déposer plainte au commissariat ou à la gendarmerie pour violation de domicile."
+      ];
+      followUpQuestion = "Le bailleur est-il déjà entré dans votre logement sans accord ou menace-t-il de le faire ?";
+
+    // 20. LOGEMENT : Dégât des eaux & Assurances
+    } else if (clean.includes('dégât des eaux') || clean.includes('degat des eaux') || clean.includes('fuite eau') || clean.includes('inondation appartement')) {
+      subjectTitle = "Gestion d'un Dégât des Eaux & Convention IRSI";
+      analysisDiagnosis = "La gestion des dégâts des eaux entre locataires, propriétaires et syndics est encadrée par la Convention IRSI (Indemnisation et Recours des Sinistres Immeuble).";
+      rulesList = [
+        "**Délai de déclaration (Art. L113-2 du Code des Assurances)** : Vous devez déclarer le sinistre à votre compagnie d'assurance habitation dans un délai maximal de **5 jours ouvrés** à compter de la découverte des faits.",
+        "**Convention IRSI (Seuils de gestion)** : Pour les dommages matériels inférieurs à 1 600 € HT (Tranche 1), l'assureur du gestionnaire de l'immeuble ou de l'occupant prend en charge sans recours contre les autres assureurs. Entre 1 600 € et 5 000 € HT (Tranche 2), une expertise unique pour compte commun est organisée.",
+        "**Recherche de fuite** : Le syndic ou l'assureur de l'immeuble organise et finance la recherche de fuite si celle-ci provient d'une canalisation encastrée ou commune."
+      ];
+      actionStepsList = [
+        "Remplir immédiatement un constat amiable de dégât des eaux avec le voisin ou le syndic concerné.",
+        "Transmettre la déclaration circonstanciée accompagnée de photos à votre assureur sous 5 jours.",
+        "Ne pas réaliser de travaux de remise en état définitifs avant le passage éventuel de l'expert ou l'accord formel de l'assureur."
+      ];
+      followUpQuestion = "La cause de la fuite a-t-elle été identifiée et votre assureur a-t-il déjà été contacté ?";
+
+    // 21. CONSOMMATION : Garantie légale de conformité
+    } else if (clean.includes('garantie de conformité') || clean.includes('garantie légale') || clean.includes('panne') || clean.includes('appareil défectueux') || clean.includes('produit défectueux')) {
+      subjectTitle = "Garantie Légale de Conformité (Code de la Consommation)";
+      analysisDiagnosis = "La garantie légale de conformité protège tout consommateur contre les défauts de fabrication ou pannes survenant sur un produit acheté neuf ou d'occasion auprès d'un professionnel.";
+      rulesList = [
+        "**Article L217-3 du Code de la Consommation** : Le vendeur professionnel répond des défauts de conformité apparaissant sur le bien pendant un délai de **2 ans** à compter de la délivrance.",
+        "**Présomption d'antériorité (Art. L217-7 C. conso)** : Tout défaut apparaissant dans les 24 mois (12 mois pour l'occasion) est présumé exister au moment de l'achat. Vous n'avez AUCUNE preuve technique à apporter.",
+        "**Gratuité intégrale et choix de la solution (Art. L217-8 et L217-11)** : La mise en conformité a lieu sans aucun frais pour le consommateur (pièces, main-d'œuvre, frais de port). Vous pouvez choisir entre la réparation et le remplacement sous 30 jours, ou obtenir le remboursement intégral si la solution tarde."
+      ];
+      actionStepsList = [
+        "Retrouver votre preuve d'achat (facture, ticket de caisse, relevé bancaire) et vérifier que la date d'achat est inférieure à 2 ans.",
+        "Mettre en demeure le vendeur professionnel d'assurer la réparation ou l'échange gratuit sous 30 jours.",
+        "Si le professionnel refuse ou réclame des frais indus, saisir la DGCCRF (SignalConso) et le Médiateur de la consommation."
+      ];
+      followUpQuestion = "Quel est le produit concerné, la date d'achat et le refus formulé par le vendeur ?";
+
+    // 22. CONSOMMATION : Vices cachés (Voiture occasion, Immobilier)
+    } else if (clean.includes('vice caché') || clean.includes('vices cachés') || clean.includes('voiture occasion') || clean.includes('moteur cassé') || clean.includes('compteur trafiqué')) {
+      subjectTitle = "Garantie Légale des Vices Cachés (Art. 1641 du Code Civil)";
+      analysisDiagnosis = "La garantie des vices cachés s'applique à toute vente (entre particuliers ou avec un professionnel) pour un défaut grave non apparent lors de l'achat rendant le bien impropre à son usage.";
+      rulesList = [
+        "**Article 1641 du Code Civil** : Le vendeur est tenu de la garantie à raison des défauts cachés de la chose vendue qui la rendent impropre à l'usage auquel on la destine, ou qui diminuent tellement cet usage que l'acheteur ne l'aurait pas acquise.",
+        "**Les 3 conditions cumulatives impératives** : Le vice doit être **caché** (non décelable par un examen visuel normal), **antérieur à la vente** (non dû à l'usure normale post-achat), et d'une **gravité suffisante**.",
+        "**Article 1648 du Code Civil** : L'action doit être intentée dans un délai de **2 ans à compter de la découverte du vice** (dans la limite de 20 ans après la vente).",
+        "**Options de l'acheteur (Art. 1644 C. civ.)** : Vous pouvez choisir entre l'action rédhibitoire (rendre la chose et vous faire restituer le prix) ou l'action estimatoire (garder le bien et vous faire rembourser une partie du prix)."
+      ];
+      actionStepsList = [
+        "Faire réaliser une expertise contradictoire par un expert automobile certifié indépendant (ou via votre protection juridique).",
+        "Adresser une mise en demeure formelle par LRAR au vendeur en lui notifiant le rapport d'expertise et en lui demandant l'annulation de la vente.",
+        "À défaut de résolution amiable, assigner devant le Tribunal Judiciaire pour obtenir la restitution du prix et des dommages-intérêts."
+      ];
+      followUpQuestion = "S'agit-il d'un véhicule d'occasion, à quelle date a eu lieu l'achat et disposez-vous d'un rapport de garage ou d'expertise ?";
+
+    // 23. CONSOMMATION : Rétractation achat en ligne & Vente à distance
+    } else if (clean.includes('rétractation') || clean.includes('retractation') || clean.includes('achat sur internet') || clean.includes('délai 14 jours') || clean.includes('annuler commande')) {
+      subjectTitle = "Droit de Rétractation de 14 Jours (Vente à Distance)";
+      analysisDiagnosis = "Pour tout achat conclu à distance (sur internet, par téléphone) ou hors établissement (démarchage à domicile), le consommateur bénéficie d'un droit de rétractation discrétionnaire.";
+      rulesList = [
+        "**Article L221-18 du Code de la Consommation** : Le consommateur dispose d'un délai strict de **14 jours calendaires** pour exercer son droit de rétractation sans avoir à motiver sa décision ni à supporter de pénalités.",
+        "**Point de départ du délai** : Le délai court à compter du jour de la réception physique du bien par le consommateur (ou de la conclusion du contrat pour les prestations de services).",
+        "**Remboursement intégral sous 14 jours (Art. L221-24)** : Le professionnel doit rembourser la totalité des sommes versées, y compris les frais de livraison standard, dans les 14 jours suivant la notification de rétractation. Tout retard entraîne des majorations légales jusqu'à 50%."
+      ];
+      actionStepsList = [
+        "Notifier votre décision de rétractation au vendeur par écrit dénué d'ambiguïté (courriel, formulaire en ligne ou LRAR).",
+        "Renvoyer le produit en bon état dans son emballage d'origine dans les 14 jours suivant la notification.",
+        "Conserver la preuve d'expédition du colis avec numéro de suivi pour prouver le retour."
+      ];
+      followUpQuestion = "À quelle date avez-vous reçu le produit et avez-vous déjà notifié votre rétractation au marchand ?";
+
+    // 24. CONSOMMATION : Colis non livré / Perdu / Retard
+    } else if (clean.includes('colis') || clean.includes('non livré') || clean.includes('pas reçu ma commande') || clean.includes('retard livraison')) {
+      subjectTitle = "Colis Non Livré, Perdu ou Retard de Livraison";
+      analysisDiagnosis = "En droit de la consommation, le vendeur professionnel est seul responsable de plein droit de la parfaite livraison du colis jusqu'à sa remise effective au client.";
+      rulesList = [
+        "**Article L216-1 du Code de la Consommation** : Le professionnel doit délivrer le bien à la date convenue, ou au plus tard 30 jours après la commande.",
+        "**Responsabilité de plein droit du vendeur (Art. L221-15 C. conso)** : Le vendeur est responsable de la bonne exécution de la livraison, même s'il fait appel à un transporteur tiers (Colissimo, Chronopost, DPD, Mondial Relay). Il ne peut pas vous renvoyer vers le transporteur.",
+        "**Résolution et remboursement intégral (Art. L216-6 C. conso)** : Si le bien n'est pas livré après mise en demeure d'effectuer la livraison dans un délai raisonnable, le contrat est résolu et le vendeur doit rembourser l'intégralité des sommes perçues sous 14 jours."
+      ];
+      actionStepsList = [
+        "Adresser une réclamation écrite au vendeur en rappelant sa responsabilité de plein droit au titre de l'article L221-15 du Code de la consommation.",
+        "Lui fixer un délai impératif de 8 jours pour vous relivrer ou procéder au remboursement intégral.",
+        "En cas d'échec, contester l'opération auprès de votre banque via la procédure de « chargeback » (rétrofacturation) si vous avez réglé par carte bancaire."
+      ];
+      followUpQuestion = "Quel est le montant de la commande et le suivi indique-t-il le colis comme 'livré' ou 'en cours' ?";
+
+    // 25. CONSOMMATION : Factures abusives (Électricité, Gaz, Opérateurs)
+    } else if (clean.includes('facture électricité') || clean.includes('facture edf') || clean.includes('facture gaz') || clean.includes('résiliation box') || clean.includes('forfait mobile') || clean.includes('surfacturation')) {
+      subjectTitle = "Contestation de Factures d'Énergie & Litiges Télécoms";
+      analysisDiagnosis = "Les litiges relatifs aux factures d'énergie (EDF, Engie, TotalEnergies) ou aux abonnements télécoms sont régis par des plafonds de rétroactivité et des règles de médiation sectorielle.";
+      rulesList = [
+        "**Article L224-11 du Code de la Consommation (Règle des 14 mois en énergie)** : Les fournisseurs d'énergie ne peuvent pas facturer de rattrapage ou de régularisation pour des consommations d'électricité ou de gaz vieilles de plus de **14 mois** (sauf fraude ou impossibilité d'accès au compteur imputable au client).",
+        "**Résiliation sans frais (Loi Hamon & Loi Châtel)** : Pour les contrats télécoms avec engagement de 24 mois, la résiliation au-delà du 12ème mois ne peut entraîner que des frais plafonnés à 25% des mensualités restantes.",
+        "**Saisine gratuite des médiateurs sectoriels** : Le Médiateur National de l'Énergie (energie-mediateur.fr) ou le Médiateur des Communications Électroniques (mediation-telecom.org) peuvent être saisis gratuitement après réclamation restée sans réponse."
+      ];
+      actionStepsList = [
+        "Contester formellement la facture par lettre recommandée auprès du service client du fournisseur en citant les index réels du compteur.",
+        "En cas de refus ou d'absence de réponse sous 2 mois, saisir directement le Médiateur National de l'Énergie en ligne.",
+        "Bloquer les prélèvements litigieux auprès de votre banque si le fournisseur tente de débiter des sommes disproportionnées contestées."
+      ];
+      followUpQuestion = "Quel est le montant contesté et votre fournisseur a-t-il émis un rattrapage supérieur à 14 mois ?";
+
+    // 26. CONSOMMATION : Arnaques en ligne / Leboncoin / Vinted / Phishing
+    } else if (clean.includes('arnaque') || clean.includes('escroquerie') || clean.includes('leboncoin') || clean.includes('vinted') || clean.includes('faux virement') || clean.includes('phishing')) {
+      subjectTitle = "Arnaques en Ligne, Escroqueries & Voies de Recours";
+      analysisDiagnosis = "L'escroquerie en ligne consiste à tromper une personne par des manœuvres frauduleuses pour la déterminer à remettre des fonds ou des données.";
+      rulesList = [
+        "**Article 313-1 du Code Pénal** : L'escroquerie est punie de **5 ans d'emprisonnement et 375 000 € d'amende**.",
+        "**Plateformes sécurisées (Leboncoin, Vinted)** : Si la transaction s'est déroulée avec le système de paiement sécurisé de la plateforme, signalez le litige avant validation de la transaction pour bloquer le transfert des fonds au vendeur.",
+        "**Signalement et plainte en ligne (THESEE / Pharos)** : Pour les escroqueries sur internet commises sans violence, vous pouvez déposer plainte directement en ligne sur le portail officiel THESEE du Ministère de l'Intérieur (service-public.fr)."
+      ];
+      actionStepsList = [
+        "Conserver l'ensemble des preuves : captures d'écran de l'annonce, échanges de messages, relevé du virement, numéro de téléphone de l'escroc.",
+        "Déposer plainte en ligne via le dispositif officiel THESEE ou au commissariat le plus proche.",
+        "Alerter immédiatement votre banque pour tenter un rappel de virement d'urgence (recall) et faire opposition sur vos moyens de paiement."
+      ];
+      followUpQuestion = "Quel est le montant dérobé et la transaction a-t-elle eu lieu par virement, carte ou via la messagerie de la plateforme ?";
+
+    // 27. FAMILLE : Divorce amiable par consentement mutuel
+    } else if (clean.includes('divorce amiable') || clean.includes('consentement mutuel') || clean.includes('divorce sans juge')) {
+      subjectTitle = "Divorce par Consentement Mutuel Déjudiciarisé";
+      analysisDiagnosis = "Depuis 2017, le divorce par consentement mutuel est une procédure contractuelle extrajudiciaire enregistrée chez un notaire sans passage devant un juge (Art. 229-1 C. civ.).";
+      rulesList = [
+        "**Article 229-1 du Code Civil** : Les époux doivent s'accorder sur le principe du divorce et sur l'intégralité de ses conséquences (patrimoine, prestation compensatoire, enfants).",
+        "**Deux avocats distincts obligatoires** : Chaque époux doit impérativement avoir son propre avocat. Un avocat commun est formellement interdit par la loi pour garantir l'absence de conflit d'intérêts.",
+        "**Délai de réflexion de 15 jours (Art. 229-4 C. civ.)** : Les avocats adressent le projet de convention par LRAR. Un délai strict de 15 jours incompressibles doit s'écouler avant toute signature.",
+        "**Dépôt chez le notaire sous 7 jours (Art. 229-1 C. civ.)** : Le dépôt au rang des minutes du notaire confère au divorce force exécutoire immédiate (coût fixe de 41,20 € TTC pour le dépôt notarié)."
+      ];
+      actionStepsList = [
+        "Lister l'ensemble des biens communs ou indivis (si vous possédez un bien immobilier, un acte liquidatif notarié préalable est obligatoire).",
+        "Désigner chacun un avocat pour négocier et rédiger la convention de divorce.",
+        "Signer la convention après l'expiration du délai de réflexion de 15 jours, puis la transmettre au notaire pour enregistrement."
+      ];
+      followUpQuestion = "Êtes-vous d'accord sur le partage des biens et les mesures concernant les enfants mineurs ?";
+
+    // 28. FAMILLE : Divorce contentieux / JAF
+    } else if (clean.includes('divorce') || clean.includes('jaf') || clean.includes('juge aux affaires familiales') || clean.includes('séparation de corps')) {
+      subjectTitle = "Divorce Contentieux & Saisine du Juge aux Affaires Familiales";
+      analysisDiagnosis = "En cas de désaccord persistant entre époux, la procédure de divorce judiciaire est portée devant le Juge aux Affaires Familiales (JAF) du Tribunal Judiciaire.";
+      rulesList = [
+        "**Les 3 formes de divorce contentieux** : Le divorce accepté (accord sur le principe, désaccord sur les conséquences), le divorce pour altération définitive du lien conjugal (séparation de fait depuis au moins 1 an - Art. 238 C. civ.), et le divorce pour faute (Art. 242 C. civ.).",
+        "**Représentation obligatoire par avocat** : L'assistance d'un avocat est obligatoire pour chacun des époux tout au long de la procédure judiciaire.",
+        "**Audience d'orientation et mesures provisoires (Art. 254 C. civ.)** : Le JAF fixe les mesures d'urgence pour la durée de l'instance : attribution de la jouissance du domicile conjugal, résidence des enfants, pension alimentaire au titre du devoir de secours."
+      ];
+      actionStepsList = [
+        "Consulter un avocat spécialisé en droit de la famille pour introduire l'assignation en divorce.",
+        "Dresser l'inventaire précis de vos ressources, charges et patrimoine pour l'audience de mesures provisoires.",
+        "Proposer un calendrier d'exercice de l'autorité parentale préservant l'intérêt supérieur des enfants."
+      ];
+      followUpQuestion = "La séparation est-elle conflictuelle et des enfants mineurs sont-ils concernés ?";
+
+    // 29. FAMILLE : Pension alimentaire
+    } else if (clean.includes('pension alimentaire') || clean.includes('aripa') || clean.includes('pension impayée')) {
+      subjectTitle = "Fixation, Révision & Recouvrement de la Pension Alimentaire";
+      analysisDiagnosis = "La contribution à l'entretien et à l'éducation des enfants est une obligation légale d'ordre public incombant aux deux parents (Art. 371-2 C. civ.).";
+      rulesList = [
+        "**Critères de calcul** : La pension est fixée en fonction des ressources des parents, des charges réelles et des besoins de l'enfant (la table de référence du Ministère de la Justice donne une estimation indicative par enfant).",
+        "**Rôle gratuit de l'ARIPA (Intermédiation financière)** : Depuis 2023, le versement de la pension alimentaire passe automatiquement par l'ARIPA (Caf / MSA), qui prélève le parent débiteur et reverse au parent créancier, évitant tout impayé.",
+        "**Délit d'abandon de famille (Art. 227-3 du Code Pénal)** : Le non-paiement de la pension alimentaire pendant plus de **2 mois consécutifs** constitue un délit pénal puni de **2 ans d'emprisonnement et 15 000 € d'amende**."
+      ];
+      actionStepsList = [
+        "Activer gratuitement l'intermédiation financière auprès de l'ARIPA (pension-alimentaire.caf.fr) en fournissant votre titre exécutoire (jugement ou convention de divorce).",
+        "Si vous subissez des impayés, mandater un commissaire de justice pour engager une procédure de paiement direct sur le salaire de votre ex-conjoint.",
+        "En cas d'impayés répétés de plus de 2 mois, déposer plainte pénale pour abandon de famille auprès du Procureur de la République."
+      ];
+      followUpQuestion = "Disposez-vous d'un jugement fixant la pension et à combien de mois s'élèvent les impayés ?";
+
+    // 30. FAMILLE : Garde des enfants & Droit de visite
+    } else if (clean.includes('garde des enfants') || clean.includes('résidence alternée') || clean.includes('droit de visite') || clean.includes('garde alternée') || clean.includes('refus de donner l\'enfant')) {
+      subjectTitle = "Résidence des Enfants & Modalités du Droit de Visite";
+      analysisDiagnosis = "L'exercice de l'autorité parentale conjointe impose aux parents de prendre ensemble les décisions relatives à la vie de l'enfant dans son intérêt supérieur exclusif.";
+      rulesList = [
+        "**Résidence alternée ou principale (Art. 373-2-9 C. civ.)** : Le JAF privilégie l'accord des parents. En cas de désaccord, il apprécie la pratique antérieure, les capacités d'accueil de chaque parent et l'avis de l'enfant capable de discernement (Art. 388-1 C. civ.).",
+        "**Délit de non-représentation d'enfant (Art. 227-5 du Code Pénal)** : Le fait de refuser indûment de représenter un enfant mineur à la personne qui a le droit de le réclamer est puni d'**un an de prison et 15 000 € d'amende**.",
+        "**Audition de l'enfant mineur** : L'enfant mineur capable de discernement peut demander à être entendu par le juge avec l'assistance gratuite d'un avocat d'enfants désigné d'office."
+      ];
+      actionStepsList = [
+        "En cas de non-respect des dates de garde fixées par le jugement, faire constater les faits par la police ou gendarmerie (dépôt de plainte pour non-représentation d'enfant).",
+        "Tenter une médiation familiale conventionnelle pour apaiser les modalités de transition.",
+        "Saisir le JAF en modification de résidence si la situation de fait a profondément changé."
+      ];
+      followUpQuestion = "Un jugement fixe-t-il déjà les modalités de garde ou devez-vous faire trancher la situation pour la première fois ?";
+
+    // 31. FAMILLE : Violences conjugales & Ordonnance de protection
+    } else if (clean.includes('violence conjugale') || clean.includes('ordonnance de protection') || clean.includes('femme battue') || clean.includes('conjoint violent') || clean.includes('3919')) {
+      subjectTitle = "Protection d'Urgence contre les Violences Conjugales";
+      analysisDiagnosis = "La loi française offre des mécanismes d'urgence judiciaires et policiers pour protéger immédiatement les victimes de violences intrafamiliales.";
+      rulesList = [
+        "**Ordonnance de protection en urgence (Art. 515-9 du Code Civil)** : Le Juge aux Affaires Familiales peut être saisi en urgence et statue dans un délai de **6 jours**. Il peut ordonner l'éviction immédiate du conjoint violent du domicile conjugal et l'attribution du logement à la victime.",
+        "**Interdiction de contact et port d'arme (Art. 515-11 C. civ.)** : Le juge peut interdire à l'auteur des violences d'approcher la victime, lui retirer ses armes et ordonner le port d'un bracelet anti-rapprochement (BAR).",
+        "**Numéros d'urgence vitaux** : Le **3919** (écoute, écoute et orientation gratuite et anonyme 24h/24), le **17** pour une intervention policière immédiate, et le **114** par SMS."
+      ];
+      actionStepsList = [
+        "Consulter un médecin ou vous rendre aux urgences médico-judiciaires (UMJ) pour faire constater médicalement les blessures et obtenir un certificat d'Incapacité Totale de Travail (ITT).",
+        "Déposer plainte au commissariat ou en gendarmerie et demander la saisine du Procureur de la République pour l'attribution d'un Téléphone Grave Danger (TGD).",
+        "Déposer immédiatement une requête en Ordonnance de Protection auprès du greffe du Juge aux Affaires Familiales (l'assistance d'un avocat désigné au titre de l'aide juridictionnelle d'urgence est possible)."
+      ];
+      followUpQuestion = "Êtes-vous actuellement en sécurité et souhaitez-vous de l'aide pour préparer une saisine d'urgence ?";
+
+    // 32. SUCCESSIONS : Héritage, Déshériter, Testament
+    } else if (clean.includes('succession') || clean.includes('héritage') || clean.includes('heritage') || clean.includes('déshériter') || clean.includes('desheriter') || clean.includes('testament') || clean.includes('notaire')) {
+      subjectTitle = "Droit des Successions, Réserve Héréditaire & Partage";
+      analysisDiagnosis = "En droit français, la transmission du patrimoine successoral est régie par le principe protecteur de la réserve héréditaire.";
+      rulesList = [
+        "**Interdiction d'exshéréder un enfant (Art. 912 du Code Civil)** : En droit français, il est strictement impossible de déshériter totalement ses enfants. La loi réserve une part intangible du patrimoine aux enfants (la réserve héréditaire : 1/2 pour 1 enfant, 2/3 pour 2 enfants, 3/4 pour 3 enfants ou plus).",
+        "**Quotité disponible (Art. 913 C. civ.)** : Le défunt ne peut disposer librement par testament ou donation que de la part restante (la quotité disponible).",
+        "**Action en réduction (Art. 921 C. civ.)** : Si des donations ou legs consentis de son vivant dépassent la quotité disponible, les héritiers réservataires peuvent exercer une action en réduction dans un délai de **5 ans** à compter de l'ouverture de la succession.",
+        "**Règlement chez le notaire** : Le recours au notaire est obligatoire dès que la succession comporte un bien immobilier ou si son montant dépasse 5 000 €."
+      ];
+      actionStepsList = [
+        "Demander au notaire chargé de la succession d'interroger le Fichier Central des Dispositions de Dernières Volontés (FCDDV) pour rechercher l'existence d'un testament.",
+        "Faire dresser un inventaire successoral contradictoire de l'ensemble des comptes bancaires, biens et donations antérieures.",
+        "En cas de blocage persistant entre héritiers depuis plus d'un an, saisir le Tribunal Judiciaire pour ordonner le partage judiciaire de la succession."
+      ];
+      followUpQuestion = "La succession comporte-t-elle des biens immobiliers et un testament a-t-il été découvert ?";
+
+    // 33. VOISINAGE : Nuisances sonores & Tapage
+    } else if (clean.includes('bruit') || clean.includes('tapage') || clean.includes('nuisance sonore') || clean.includes('voisin bruyant') || clean.includes('musique voisine')) {
+      subjectTitle = "Troubles Anormaux de Voisinage & Nuisances Sonores";
+      analysisDiagnosis = "La liberté de jouissance de son domicile trouve sa limite dans l'interdiction de causer un trouble excédant les inconvénients normaux de voisinage (Art. 1253 C. civ.).";
+      rulesList = [
+        "**Article R1336-5 du Code de la Santé Publique** : Aucun bruit particulier ne doit, par sa durée, sa répétition ou son intensité, porter atteinte à la tranquillité du voisinage, de jour comme de nuit.",
+        "**Amende forfaitaire pour tapage (Art. R623-2 du Code Pénal)** : Le tapage nocturne ou diurne est passible d'une amende forfaitaire immédiate de **68 €** dressée par les forces de l'ordre (majorée à 180 €).",
+        "**Responsabilité sans faute du voisin (Art. 1253 du Code Civil)** : Le propriétaire ou locataire à l'origine d'un trouble anormal est responsable de plein droit des dommages causés sans que vous n'ayez à prouver une faute intentionnelle."
+      ];
+      actionStepsList = [
+        "Noter les dates et heures de chaque nuisance et solliciter des attestations écrites auprès d'autres voisins (formulaire Cerfa n° 11527*03).",
+        "Faire intervenir la police municipale ou nationale pour faire constater l'infraction en direct.",
+        "Adresser un courrier recommandé de mise en demeure, puis saisir gratuitement le **Conciliateur de Justice** en mairie (étape obligatoire avant toute action au tribunal selon l'art. 750-1 du CPC)."
+      ];
+      followUpQuestion = "Le trouble est-il diurne ou nocturne, et avez-vous déjà alerté le syndic ou le propriétaire de votre voisin ?";
+
+    // 34. VOISINAGE : Arbres, Hauteurs, Clôtures & Servitudes
+    } else if (clean.includes('arbre') || clean.includes('hauteur') || clean.includes('élagage') || clean.includes('clôture') || clean.includes('cloture') || clean.includes('servitude') || clean.includes('bornage')) {
+      subjectTitle = "Plantations, Distances Légales & Servitudes de Voisinage";
+      analysisDiagnosis = "Les plantations et limites séparatives entre propriétés privées sont régies par des distances et hauteurs légales impératives du Code civil.";
+      rulesList = [
+        "**Article 671 du Code Civil (Distances légales des arbres)** : Tout arbre ou arbuste destiné à dépasser 2 mètres de hauteur doit être planté à au moins **2 mètres** de la ligne séparative. Les plantations inférieures à 2 mètres doivent respecter une distance minimale de **0,50 mètre**.",
+        "**Élagage des branches surplombantes (Art. 673 C. civ.)** : Vous ne pouvez pas couper vous-même les branches du voisin qui dépassent sur votre terrain, mais vous pouvez exiger du voisin qu'il les coupe à ses frais. En revanche, vous pouvez couper vous-même les racines qui avancent sur votre sol.",
+        "**Bornage contradictoire (Art. 646 C. civ.)** : Tout propriétaire peut obliger son voisin au bornage de leurs propriétés contiguës à frais partagés."
+      ];
+      actionStepsList = [
+        "Prendre des photographies précises de l'empiètement ou du non-respect des distances légales.",
+        "Mettre en demeure le voisin par LRAR de procéder à l'élagage ou à l'arrachage des plantations non conformes sous 15 jours.",
+        "À défaut de régularisation, saisir le conciliateur de justice ou le Tribunal Judiciaire pour ordonner les travaux sous astreinte financière journalière."
+      ];
+      followUpQuestion = "Quelle est la hauteur estimée des arbres et la distance par rapport à votre clôture séparative ?";
+
+    // 35. VOISINAGE : Caméra de surveillance privée
+    } else if (clean.includes('caméra') || clean.includes('camera') || clean.includes('filme chez moi') || clean.includes('vidéosurveillance voisine')) {
+      subjectTitle = "Vidéosurveillance Privée & Atteinte à la Vie Privée";
+      analysisDiagnosis = "L'installation de caméras de vidéosurveillance par un particulier est strictement limitée aux limites exclusives de sa propriété privée.";
+      rulesList = [
+        "**Article 9 du Code Civil & Art. 226-1 du Code Pénal** : Chacun a droit au respect de sa vie privée. Le fait de capter ou enregistrer des images d'une personne dans un lieu privé sans son consentement est puni d'**un an d'emprisonnement et 45 000 € d'amende**.",
+        "**Règlementation CNIL** : Un particulier ne peut filmer que l'intérieur de sa propriété (son jardin, son intérieur). Il est strictement interdit d'orienter une caméra vers la voie publique, le trottoir ou chez les voisins.",
+        "**Pouvoir du juge des référés** : Le juge peut ordonner le démontage ou la réorientation immédiate de la caméra sous astreinte financière par jour de retard."
+      ];
+      actionStepsList = [
+        "Prendre des photographies démontrant l'orientation de l'objectif de la caméra vers votre cour, vos fenêtres ou votre jardin.",
+        "Adresser une mise en demeure par lettre recommandée exigeant la réorientation immédiate de la caméra sous 48 heures.",
+        "Déposer une plainte en ligne auprès de la CNIL (cnil.fr) et déposer plainte pénale au commissariat pour atteinte à l'intimité de la vie privée."
+      ];
+      followUpQuestion = "La caméra filme-t-elle votre propriété ou la voie publique, et avez-vous déjà alerté le voisin ?";
+
+    // 36. TRAVAUX : Abandon de chantier & Malfaçons
+    } else if (clean.includes('artisan') || clean.includes('abandon de chantier') || clean.includes('malfaçon') || clean.includes('garantie décennale') || clean.includes('travaux non finis')) {
+      subjectTitle = "Abandon de Chantier, Malfaçons & Garanties Bâtiment";
+      analysisDiagnosis = "Les litiges liés aux travaux de construction ou rénovation engagent la responsabilité contractuelle de l'artisan et les garanties légales obligatoires du bâtiment.";
+      rulesList = [
+        "**Constat d'abandon de chantier** : L'interruption prolongée et injustifiée des travaux sans motif légitime constitue une inexécution contractuelle grave permettant d'appliquer les articles 1222 et 1226 du Code Civil.",
+        "**Garantie de parfait achèvement (Art. 1792-6 C. civ.)** : L'entrepreneur répond de tous les désordres signalés lors de la réception ou apparaissant dans un délai de **1 an**.",
+        "**Garantie biennale (Art. 1792-3 C. civ.)** : Couvre le bon fonctionnement des éléments d'équipement dissociables pendant **2 ans**.",
+        "**Garantie décennale (Art. 1792 C. civ.)** : Rend l'artisan responsable de plein droit pendant **10 ans** des dommages compromettant la solidité de l'ouvrage ou le rendant impropre à sa destination (couverte par l'assurance décennale obligatoire)."
+      ];
+      actionStepsList = [
+        "Faire établir sans tarder un constat d'abandon de chantier ou de malfaçons par un commissaire de justice.",
+        "Adresser à l'artisan une mise en demeure par LRAR d'avoir à reprendre le chantier sous un délai impératif de 8 à 15 jours.",
+        "À défaut, saisir le juge des référés pour faire constater la résiliation aux torts de l'artisan et être autorisé à faire achever les travaux aux frais du constructeur (Art. 1222 C. civ.)."
+      ];
+      followUpQuestion = "Avez-vous versé des acomptes, et disposez-vous de l'attestation d'assurance décennale de l'artisan ?";
+
+    // 37. AUTOMOBILE : Garagiste & Réparation contestée
+    } else if (clean.includes('garagiste') || clean.includes('réparation voiture') || clean.includes('panne après garage') || clean.includes('devis garage')) {
+      subjectTitle = "Obligation de Résultat du Garagiste & Facturation";
+      analysisDiagnosis = "Le garagiste réparateur automobile est tenu d'une obligation de résultat stricte en droit français (Art. 1231-1 du Code Civil).";
+      rulesList = [
+        "**Obligation de résultat & Présomption de faute** : Le réparateur doit rendre un véhicule en parfait état de marche. Si la même panne réapparaît peu après l'intervention, la faute du garagiste est présumée de plein droit (jurisprudence constante de la Cour de Cassation). Il doit réparer à ses frais sans refacturer.",
+        "**Devis et ordre de réparation signés** : Le garagiste ne peut procéder à aucune réparation non prévue sans avoir obtenu au préalable l'accord écrit et signé du client. Toute prestation non commandée ne peut être facturée.",
+        "**Droit de rétention (Art. 2286 C. civ.)** : Le garagiste peut retenir le véhicule jusqu'au paiement, mais uniquement pour des réparations expressément commandées par le client."
+      ];
+      actionStepsList = [
+        "Conserver l'ordre de réparation initial et la facture détaillée mentionnant les pièces changées.",
+        "Si la panne persiste, mettre en demeure le garagiste par LRAR d'effectuer la reprise gratuite sous son obligation de résultat.",
+        "Mandater un expert automobile indépendant pour constater le lien de causalité entre l'intervention et le nouveau dysfonctionnement."
+      ];
+      followUpQuestion = "À quelle date la réparation a-t-elle été effectuée et la nouvelle panne est-elle identique à l'ancienne ?";
+
+    // 38. ROUTIER : Contestation d'amende & PV radar
+    } else if (clean.includes('amende') || clean.includes('pv') || clean.includes('radar') || clean.includes('antai') || clean.includes('vitesse')) {
+      subjectTitle = "Contestation d'Amende Forfaitaire & Infractions Routières";
+      analysisDiagnosis = "Les infractions routières constatées par radar automatique ou procès-verbal sont contestables selon des règles procédurales strictes auprès de l'Officier du Ministère Public.";
+      rulesList = [
+        "**Règle d'or absolue : Ne payez jamais l'amende si vous la contestez** : L'article 529-2 du Code de Procédure Pénale dispose que le paiement vaut reconnaissance définitive de la réalité de l'infraction et entraîne automatiquement le retrait des points.",
+        "**Délais impératifs de recours** : Vous disposez de **45 jours** pour contester une amende forfaitaire initiale, et de **30 jours** pour une amende forfaitaire majorée.",
+        "**Consignation préalable obligatoire** : Pour certaines infractions (excès de vitesse constatés par radar automatique, non-respect des distances de sécurité), la loi impose de consigner le montant avant de pouvoir contester (consignation remboursée en cas de classement sans suite ou relaxe).",
+        "**Responsabilité pécuniaire vs retrait de points (Art. L121-3 C. route)** : Si vous n'êtes pas clairement identifiable sur le cliché photographique, vous pouvez contester avoir été le conducteur : vous ne perdrez aucun point sur votre permis."
+      ];
+      actionStepsList = [
+        "Demander la transmission du cliché photographique auprès du Centre National de Traitement de Rennes pour vérifier si le conducteur est identifiable.",
+        "Effectuer la contestation en ligne directement sur le portail officiel de l'ANTAI (antai.gouv.fr) en joignant les justificatifs requis.",
+        "Ne cocher la désignation d'un autre conducteur que si vous connaissez son identité précise, sinon contester en qualité de titulaire du certificat d'immatriculation."
+      ];
+      followUpQuestion = "S'agit-il d'un avis d'amende forfaitaire ou d'une amende forfaitaire majorée, et à quelle date l'avez-vous reçu ?";
+
+    // 39. ROUTIER : Permis de conduire & Perte de points
+    } else if (clean.includes('points permis') || clean.includes('perte de points') || clean.includes('suspension permis') || clean.includes('lettre 48si')) {
+      subjectTitle = "Permis de Conduire, Retrait de Points & Recours 48SI";
+      analysisDiagnosis = "Le retrait de points sur le permis de conduire est une sanction administrative accessoire soumise à une obligation préalable d'information du conducteur.";
+      rulesList = [
+        "**Obligation d'information préalable (Art. L223-2 du Code de la Route)** : Lors de la constatation d'une infraction, le conducteur doit obligatoirement être informé de l'existence d'un traitement automatisé de perte de points, du nombre exact de points susceptibles d'être retirés et de la possibilité de suivre un stage.",
+        "**Reconstitution des points** : Les points se reconstituent automatiquement après 6 mois pour un retrait d'un point, après 2 ans sans infraction pour les infractions de classe 2 ou 3, ou après 3 ans pour les infractions de classe 4 ou 5.",
+        "**Lettre 48SI et invalidation** : La lettre 48SI notifie l'invalidation du permis pour solde de points nul. Un recours gracieux ou contentieux devant le Tribunal Administratif (avec référé-suspension) est possible pour contester la légalité des retraits."
+      ];
+      actionStepsList = [
+        "Consulter immédiatement votre solde de points officiel sur le service gouvernemental Télépoints ou MesPointsPermis.",
+        "Si votre solde est critique (1 ou 2 points), vous inscrire d'urgence à un stage de sensibilisation à la sécurité routière pour récupérer jusqu'à 4 points.",
+        "En cas de réception d'une lettre 48SI, consulter un avocat en droit routier pour examiner les vices de forme dans les avis d'amendes préalables."
+      ];
+      followUpQuestion = "Combien de points vous reste-t-il actuellement et avez-vous reçu un courrier recommandé 48SI ?";
+
+    // 40. ROUTIER : Forfait Post-Stationnement (FPS)
+    } else if (clean.includes('fps') || clean.includes('forfait post-stationnement') || clean.includes('stationnement payant')) {
+      subjectTitle = "Contestation du Forfait Post-Stationnement (FPS)";
+      analysisDiagnosis = "Le Forfait Post-Stationnement (FPS) remplace l'ancienne amende de stationnement et relève du contentieux administratif local.";
+      rulesList = [
+        "**Recours Administratif Préalable Obligatoire (RAPO)** : Vous devez impérativement former un RAPO auprès de la collectivité locale ou de son délégataire dans un délai strict de **1 mois** à compter de la date de notification de l'avis de FPS.",
+        "**Délai de réponse de l'administration** : L'autorité dispose d'un mois pour statuer. L'absence de réponse dans le délai de 1 mois vaut décision implicite de rejet.",
+        "**Saisine de la CCSP** : En cas de rejet du RAPO, vous disposez d'un délai d'un mois pour saisir la Commission du Contentieux du Stationnement Payant (CCSP) à Limoges."
+      ];
+      actionStepsList = [
+        "Déposer votre recours RAPO en ligne sur le portail dédié de la commune émettrice en joignant l'avis de paiement et votre certificat d'immatriculation.",
+        "Fournir les preuves justificatives : ticket horodateur, capture de l'application de paiement (PayByPhone, EasyPark), justificatif de cession ou de vol du véhicule.",
+        "Conserver l'accusé d'enregistrement électronique du RAPO."
+      ];
+      followUpQuestion = "À quelle date avez-vous reçu l'avis de paiement du FPS et pour quel motif souhaitez-vous le contester ?";
+
+    // 41. TRANSPORTS : Vol d'avion retardé ou annulé
+    } else if (clean.includes('vol retardé') || clean.includes('vol annulé') || clean.includes('indemnisation avion') || clean.includes('easyjet') || clean.includes('air france') || clean.includes('ryanair') || clean.includes('261/2004')) {
+      subjectTitle = "Indemnisation pour Vol Annulé ou Retardé (Règlement CE 261/2004)";
+      analysisDiagnosis = "Les passagers aériens au départ d'un aéroport de l'Union Européenne bénéficient d'une indemnisation forfaitaire légale en cas de retard important ou d'annulation.";
+      rulesList = [
+        "**Règlement Européen CE n° 261/2004** : S'applique à tous les vols au départ de l'UE, ou à destination de l'UE si la compagnie est européenne.",
+        "**Barème légal d'indemnisation financière forfaitaire** : Dès **3 heures de retard à l'arrivée** ou en cas d'annulation notifiée moins de 14 jours avant le départ :\n  • **250 €** pour les vols jusqu'à 1 500 km.\n  • **400 €** pour les vols intra-UE de plus de 1 500 km ou tous vols entre 1 500 et 3 500 km.\n  • **600 €** pour tous les vols extracommunautaires de plus de 3 500 km.",
+        "**Exonération très stricte** : La compagnie ne peut refuser d'indemniser qu'en prouvant des « circonstances extraordinaires » imprévisibles et inévitables (météo extrême, grève du contrôle aérien). Une panne technique ne constitue PAS une circonstance extraordinaire."
+      ];
+      actionStepsList = [
+        "Conserver vos cartes d'embarquement, confirmation de réservation et attestation de retard délivrée par la compagnie.",
+        "Déposer une réclamation formelle d'indemnisation auprès du service client de la compagnie aérienne en citant le Règlement CE 261/2004.",
+        "Si la compagnie refuse sous 2 mois, saisir la Direction Générale de l'Aviation Civile (DGAC) et le Médiateur Tourisme et Voyage."
+      ];
+      followUpQuestion = "Quel était le trajet du vol (aéroports de départ et d'arrivée) et quelle a été la durée exacte du retard à l'arrivée ?";
+
+    // 42. BANCAIRE : Frais bancaires abusifs & Blocage de compte
+    } else if (clean.includes('frais bancaire') || clean.includes('frais bancaires') || clean.includes('commission d\'intervention') || clean.includes('compte bloqué')) {
+      subjectTitle = "Frais Bancaires Abusifs & Droits du Client";
+      analysisDiagnosis = "La loi française plafonne strictement les frais d'incidents bancaires facturés aux particuliers par les établissements de crédit.";
+      rulesList = [
+        "**Plafonnement légal des commissions d'intervention (Art. R312-4-1 du Code Monétaire et Financier)** : Plafonnées à **8 € par opération** et à un maximum de **80 € par mois** (plafonné à 4 € par opération et 20 €/mois pour les clients en situation de fragilité financière).",
+        "**Plafond pour rejet de chèque ou prélèvement** : Les frais de rejet de chèque sont limités à 30 € (< 50 €) ou 50 € (> 50 €). Pour un prélèvement rejeté, le plafond est de **20 €**.",
+        "**Délai d'information préalable de 14 jours (Art. L312-1-5 CMF)** : La banque a l'obligation légale d'informer le client sur son relevé au moins 14 jours avant le prélèvement effectif des frais d'incidents, sous peine de nullité."
+      ];
+      actionStepsList = [
+        "Pointer vos relevés bancaires des 12 derniers mois et comptabiliser l'ensemble des frais prélevés sans respect des plafonds ou sans préavis légal.",
+        "Adresser une lettre recommandée avec accusé de réception à votre directeur d'agence demandant le remboursement intégral des frais contestés.",
+        "En l'absence de régularisation sous 2 mois, saisir gratuitement le Médiateur de la Fédération Bancaire Française (FBF)."
+      ];
+      followUpQuestion = "Quel est le montant total des frais bancaires facturés sur votre compte ces derniers mois ?";
+
+    // 43. BANCAIRE : Fraude carte bancaire & Piratage de compte
+    } else if (clean.includes('fraude carte') || clean.includes('piratage compte') || clean.includes('débit frauduleux') || clean.includes('virement frauduleux')) {
+      subjectTitle = "Fraude Bancaire, Opérations Non Autorisées & Remboursement";
+      analysisDiagnosis = "En cas de débit frauduleux sur votre compte ou votre carte bancaire, la banque a une obligation légale de remboursement immédiat.";
+      rulesList = [
+        "**Article L133-18 du Code Monétaire et Financier** : En cas d'opération de paiement non autorisée signalée par le client, la banque est tenue de rembourser immédiatement le montant de l'opération et de rétablir le compte dans l'état où il se serait trouvé si l'opération n'avait pas eu lieu.",
+        "**Délai de contestation de 13 mois (Art. L133-24 CMF)** : Vous disposez d'un délai de **13 mois** après la date de débit pour contester l'opération frauduleuse.",
+        "**Charge exclusive de la preuve sur la banque (Art. L133-23 CMF)** : La banque ne peut refuser d'indemniser qu'en prouvant formellement une négligence grave ou une fraude du client. Le simple fait que l'opération ait été validée par un code SMS ou une notification ne suffit pas à caractériser une négligence grave."
+      ];
+      actionStepsList = [
+        "Faire immédiatement opposition sur votre carte bancaire ou bloquer vos identifiants d'accès.",
+        "Déposer un signalement sur la plateforme gouvernementale officielle Perceval (service-public.fr) pour les fraudes à la carte bancaire.",
+        "Mettre en demeure votre banque par LRAR de recréditer les sommes débitées sans frais sous 24h conformément à l'article L133-18 du Code Monétaire et Financier."
+      ];
+      followUpQuestion = "Quel est le montant total des débits frauduleux et votre banque refuse-t-elle le remboursement ?";
+
+    // 44. BANCAIRE : Prêt d'argent entre particuliers & Dette
+    } else if (clean.includes('prêté de l\'argent') || clean.includes('reconnaissance de dette') || clean.includes('remboursement prêt ami') || clean.includes('dette entre particuliers')) {
+      subjectTitle = "Prêt d'Argent entre Particuliers & Reconnaissance de Dette";
+      analysisDiagnosis = "Le prêt d'argent entre particuliers est régi par les règles de preuve écrites strictes du Code civil.";
+      rulesList = [
+        "**Écrit obligatoire au-delà de 1 500 € (Art. 1359 du Code Civil)** : Tout acte juridique portant sur une somme supérieure à 1 500 € doit impérativement être prouvé par un écrit (reconnaissance de dette signée).",
+        "**Mentions obligatoires (Art. 1376 C. civ.)** : La reconnaissance de dette doit comporter la signature de l'emprunteur et la mention de la somme écrite par lui-même en toutes lettres et en chiffres.",
+        "**Déclaration fiscale obligatoire (Art. 242 ter CGI)** : Tout prêt consenti entre particuliers supérieur à **5 000 €** doit obligatoirement être déclaré aux impôts via le formulaire Cerfa n° 2062."
+      ];
+      actionStepsList = [
+        "Rassembler les preuves du virement bancaire et les échanges écrits (SMS, emails, courriers) attestant de l'engagement de remboursement (commencement de preuve par écrit - Art. 1362 C. civ.).",
+        "Adresser à l'emprunteur une mise en demeure formelle par lettre recommandée avec accusé de réception de rembourser la somme sous 15 jours.",
+        "À défaut de restitution, engager une procédure d'injonction de payer ou assigner en justice devant le Tribunal Judiciaire."
+      ];
+      followUpQuestion = "Disposez-vous d'une reconnaissance de dette signée ou de traces écrites du prêt et du virement bancaire ?";
+
+    // 45. PÉNAL : Dépôt de plainte & Procédure
+    } else if (clean.includes('porter plainte') || clean.includes('dépôt de plainte') || clean.includes('main courante') || clean.includes('procureur de la république')) {
+      subjectTitle = "Dépôt de Plainte & Droits des Victimes d'Infractions";
+      analysisDiagnosis = "Toute victime d'une infraction pénale (crime, délit, contravention) a le droit fondamental de déposer plainte pour faire poursuivre l'auteur des faits.";
+      rulesList = [
+        "**Obligation d'enregistrement des plaintes (Art. 15-3 du Code de Procédure Pénale)** : Les policiers et gendarmes ont l'obligation légale impérative de recevoir et enregistrer les plaintes déposées par les victimes d'infractions pénales. Il leur est formellement interdit de refuser une plainte ou de la réorienter vers une simple main courante.",
+        "**Plainte directe auprès du Procureur de la République (Art. 40 CPP)** : Vous pouvez déposer plainte directement par courrier recommandé avec accusé de réception adressé au Procureur de la République près le Tribunal Judiciaire du lieu de l'infraction.",
+        "**Constitution de partie civile (Art. 85 CPP)** : Si le Procureur classe sans suite ou n'a pas répondu dans un délai de 3 mois, vous pouvez saisir le Doyen des Juges d'Instruction avec constitution de partie civile pour forcer l'ouverture d'une information judiciaire."
+      ];
+      actionStepsList = [
+        "Rédiger un courrier circonstancié exposant chronologiquement les faits précis, dates, lieux, témoins et préjudices subis.",
+        "Joindre l'ensemble des pièces justificatives (certificats médicaux ITT, captures d'écran, factures, échanges).",
+        "Envoyer la plainte par LRAR au Procureur ou vous présenter au commissariat de votre choix."
+      ];
+      followUpQuestion = "Quelle est la nature de l'infraction subie et disposez-vous d'éléments pour identifier l'auteur ?";
+
+    // 46. PÉNAL : Diffamation & Injure
+    } else if (clean.includes('diffamation') || clean.includes('injure') || clean.includes('calomnie') || clean.includes('dénigrement internet')) {
+      subjectTitle = "Diffamation, Injure & Atteinte à la Réputation";
+      analysisDiagnosis = "La diffamation (allégation d'un fait précis portant atteinte à l'honneur) et l'injure sont régies par la Loi du 29 juillet 1881 sur la liberté de la presse.";
+      rulesList = [
+        "**Article 29 de la Loi du 29 juillet 1881** : Toute allégation ou imputation d'un fait qui porte atteinte à l'honneur ou à la considération de la personne constitue une diffamation.",
+        "**Prescription ultra-courte de 3 MOIS (Art. 65 de la Loi de 1881)** : L'action en justice se prescrit par **3 mois révolus** à compter du jour de la première publication des propos litigieux. Au-delà de 3 mois, toute action est irrémédiablement forclose.",
+        "**Formalisme très strict** : La citation directe devant le Tribunal Correctionnel doit qualifier précisément les propos incriminés et viser l'article de loi exact sous peine de nullité absolue."
+      ];
+      actionStepsList = [
+        "Faire constater immédiatement les propos en ligne par un commissaire de justice (huissier) avant qu'ils ne soient supprimés.",
+        "Mettre en demeure l'auteur et l'hébergeur du site de retirer les propos litigieux sous 24h.",
+        "Consulter d'urgence un avocat spécialisé pour délivrer une citation directe avant l'expiration du délai fatidique des 3 mois."
+      ];
+      followUpQuestion = "Les propos ont-ils été tenus en public ou sur internet, et à quelle date précise ?";
+
+    // 47. PÉNAL : Usurpation d'identité & Cybercriminalité
+    } else if (clean.includes('usurpation d\'identité') || clean.includes('usurpation identite') || clean.includes('faux profil') || clean.includes('chantage')) {
+      subjectTitle = "Usurpation d'Identité & Infractions Numériques";
+      analysisDiagnosis = "L'usurpation d'identité sur internet ou dans la vie quotidienne est un délit pénal sévèrement réprimé par la législation française.";
+      rulesList = [
+        "**Article 226-4-1 du Code Pénal** : Le fait d'usurper l'identité d'un tiers ou de faire usage d'une ou plusieurs données de toute nature permettant de l'identifier en vue de troubler sa tranquillité ou celle d'autrui, ou de porter atteinte à son honneur ou à sa considération, est puni d'**un an d'emprisonnement et 15 000 € d'amende**.",
+        "**Chantage (Art. 312-10 du Code Pénal)** : Le fait d'extorquer des fonds en menaçant de révéler ou d'imputer des faits de nature à porter atteinte à l'honneur (chantage à la webcam) est puni de **5 ans d'emprisonnement et 75 000 € d'amende**.",
+        "**Prévention des crédits frauduleux** : Si des pièces d'identité ont été dérobées, les escrocs peuvent souscrire des crédits à la consommation à votre nom."
+      ];
+      actionStepsList = [
+        "Déposer plainte immédiatement en gendarmerie ou commissariat pour usurpation d'identité en listant les pièces usurpées.",
+        "Contacter la Banque de France pour vérifier si vous êtes inscrit au Fichier Central des Chèques (FCC) ou FICP à votre insu.",
+        "En cas de chantage en ligne, ne versez JAMAIS d'argent, coupez tout contact et conservez les captures d'écran des menaces."
+      ];
+      followUpQuestion = "Quelles sont les pièces d'identité concernées et l'usurpateur a-t-il commis des actes en votre nom ?";
+
+    // 48. MOTEUR UNIVERSEL SÉMANTIQUE (POUR ABSOLUMENT TOUTE AUTRE QUESTION JURIDIQUE OU PRATIQUE)
     } else {
-      subjectTitle = "Analyse Juridique & Stratégie Contentieuse";
-      analysisDiagnosis = "En droit français, tout litige s'articule autour de la matérialité de la preuve des faits, du respect des délais légaux de prescription et de la qualification exacte de l'obligation inexécutée.";
-      rulesList = [
-        "**Article 1103 du Code Civil** : Les contrats légalement formés tiennent lieu de loi à ceux qui les ont faits.",
-        "**Article 1240 du Code Civil** : Tout fait quelconque de l'homme qui cause à autrui un dommage oblige celui par la faute duquel il est arrivé à le réparer.",
-        "**Article 2224 du Code Civil** : Les actions personnelles ou mobilières se prescrivent par **5 ans** à compter du jour où le titulaire d'un droit a connu ou aurait dû connaître les faits."
-      ];
-      actionStepsList = [
-        "**Constituer le dossier probatoire** : Réunissez les preuves écrites (emails, SMS, attestations, devis, relevés bancaires). Les écrits électroniques ont la même force probante que l'écrit papier (art. 1366 C. civ.).",
-        "**Adresser une mise en demeure formelle** : Indispensable pour faire courir les intérêts de retard moratoires (art. 1231-6 C. civ.) et démontrer votre bonne foi avant toute action en justice.",
-        "**Recours judiciaire adapté** : Selon l'enjeu financier, le Tribunal Judiciaire (chambre civile ou pôle de proximité) sera compétent pour trancher le litige."
-      ];
-      followUpQuestion = "Disposez-vous d'écrits ou de justificatifs formels prouvant vos échanges et le préjudice subi ?";
+      // Analyze interrogative nature of the user's prompt
+      const isAskingCost = /combien|co[uû]t|prix|tarif|payer|somme|argent/i.test(clean);
+      const isAskingProcedure = /comment|quelles\s+d[ée]marches|quelles\s+[ée]tapes|proc[ée]dure|o[uù]\s+s['']adresser|qui\s+contacter/i.test(clean);
+      const isAskingLegality = /est-ce\s+l[ée]gal|ai-je\s+le\s+droit|a-t-il\s+le\s+droit|peut-on|puis-je|interdit|autoris[ée]|l[ée]galit[ée]/i.test(clean);
+      const isAskingDuration = /d[ée]lai|combien\s+de\s+temps|quand|prescription|dur[ée]e/i.test(clean);
+      const isAskingRisk = /que\s+risque|quelles\s+sanctions|amende|peine|prison|danger/i.test(clean);
+
+      subjectTitle = "Conseil & Orientation Juridique Approfondie";
+
+      if (isAskingCost) {
+        analysisDiagnosis = `Pour évaluer l'aspect financier et le coût de votre situation concernant « ${userQuery} », le droit français encadre les frais d'actes, dépens et honoraires professionnels.`;
+        rulesList = [
+          "**Principe des honoraires conventionnés** : Les honoraires de conseil juridique ou d'avocat font l'objet d'une convention écrite préalable obligatoire précisant le forfait ou le taux horaire.",
+          "**Prise en charge par la Protection Juridique** : Si vous avez souscrit un contrat d'assurance protection juridique, vos frais d'expertise et d'avocat peuvent être pris en charge selon le barème de votre contrat.",
+          "**Aide de l'État** : Selon vos ressources, l'Aide Juridictionnelle peut couvrir 25%, 55% ou 100% des frais de procédure et d'auxiliaires de justice."
+        ];
+        actionStepsList = [
+          "Solliciter un devis préalable écrit avant tout engagement d'acte ou de démarche payante.",
+          "Vérifier auprès de votre assureur l'existence d'une garantie de protection juridique mobilisable.",
+          "Calculer votre éligibilité à l'aide juridictionnelle sur le simulateur officiel du Ministère de la Justice."
+        ];
+        followUpQuestion = "Souhaitez-vous une estimation personnalisée du coût ou vérifier votre éligibilité à une aide financière ?";
+
+      } else if (isAskingProcedure) {
+        analysisDiagnosis = `Pour mener à bien votre démarche concernant « ${userQuery} », il convient de suivre la méthode juridique française structurée en 3 étapes.`;
+        rulesList = [
+          "**Étape 1 - Phase amiable préalable (Art. 750-1 du CPC)** : La loi privilégie toujours une tentative de conciliation ou médiation préalable pour formaliser un accord écrit.",
+          "**Étape 2 - Mise en demeure formelle** : En l'absence d'accord spontané, l'envoi d'une mise en demeure par lettre recommandée avec accusé de réception (LRAR) fixe un délai impératif d'exécution.",
+          "**Étape 3 - Saisine de la juridiction compétente** : Si le désaccord persiste, la juridiction du ressort de votre domicile (Tribunal Judiciaire, Prud'hommes ou JCP) peut être saisie par simple requête ou assignation."
+        ];
+        actionStepsList = [
+          "Constituer un dossier probatoire complet avec les pièces justificatives écrites datées.",
+          "Adresser une réclamation officielle motivée en droit fixant un délai d'exécution de 8 à 15 jours.",
+          "Prendre contact avec un juriste ou un conciliateur de justice pour tenter une résolution négociée."
+        ];
+        followUpQuestion = "Disposez-vous des documents justificatifs attestant de ces échanges pour enclencher la démarche ?";
+
+      } else if (isAskingLegality) {
+        analysisDiagnosis = `Concernant la conformité légale de votre situation (« ${userQuery} »), les règles de droit en vigueur en France fixent des limites précises à ce qui est licite ou interdit.`;
+        rulesList = [
+          "**Principe de légalité & Force obligatoire (Art. 1103 du Code Civil)** : Tout engagement ou acte contractuel doit être exécuté de bonne foi dans le strict respect de la réglementation applicable.",
+          "**Règles d'ordre public protectrices** : En droit français, les dispositions d'ordre public (droit du travail, droit du logement, droit de la consommation) prévalent sur toute clause contraire, qui est alors réputée non écrite.",
+          "**Sanctions de l'illégalité** : Un acte conclu en violation de la loi peut être frappé de nullité relative ou absolue, ouvrant droit à réparation du préjudice subi (Art. 1240 du Code Civil)."
+        ];
+        actionStepsList = [
+          "Vérifier si un écrit contractuel ou une disposition d'ordre public régit spécifiquement cette situation.",
+          "Notifier formellement à la partie adverse l'irrégularité constatée par écrit en rappelant le cadre légal.",
+          "Faire valoir la nullité de la mesure ou de la clause devant le tribunal compétent."
+        ];
+        followUpQuestion = "Cette situation découle-t-elle d'un contrat signé, d'un accord verbal ou d'une décision unilatérale imposée ?";
+
+      } else if (isAskingDuration) {
+        analysisDiagnosis = `Pour déterminer les délais applicables à votre situation concernant « ${userQuery} », le droit français impose des règles de prescription et de forclusion strictes.`;
+        rulesList = [
+          "**Prescription de droit commun (Art. 2224 du Code Civil)** : Les actions personnelles ou mobilières se prescrivent par **5 ans** à compter de la connaissance des faits.",
+          "**Délais spéciaux dérogatoires** : Des délais beaucoup plus courts s'appliquent selon la matière (2 ans en consommation, 3 ans pour les salaires, 12 mois pour le licenciement, 3 mois pour la diffamation).",
+          "**Interruption de prescription (Art. 2241 C. civ.)** : Seule une demande en justice (assignation ou requête) interrompt le cours du délai de prescription."
+        ];
+        actionStepsList = [
+          "Identifier précisément la date de départ du délai (date du fait générateur ou de la première contestation).",
+          "Calculer la date limite impérative pour agir avant l'extinction irréversible de vos droits.",
+          "Introduire votre recours sans tarder pour interrompre formellement la prescription."
+        ];
+        followUpQuestion = "À quelle date précise sont survenus les faits générateurs de cette situation ?";
+
+      } else if (isAskingRisk) {
+        analysisDiagnosis = `Concernant les risques juridiques et sanctions éventuelles liées à « ${userQuery} », le droit français distingue les conséquences civiles (dommages-intérêts) des sanctions pénales (amendes, peines).`;
+        rulesList = [
+          "**Responsabilité civile (Art. 1240 du Code Civil)** : Tout fait quelconque qui cause à autrui un préjudice matériel, corporel ou moral oblige son auteur à le réparer intégralement.",
+          "**Sanctions pénales éventuelles** : Les infractions prévues par le Code Pénal ou le Code de la Route sont punies d'amendes forfaitaires ou correctionnelles et de peines complémentaires selon la qualification retenue.",
+          "**Principes de proportionnalité & Droits de la défense** : Toute sanction doit être motivée et respecter le principe du contradictoire et la présomption d'innocence."
+        ];
+        actionStepsList = [
+          "Analyser si l'acte reproché relève d'une simple inexécution civile ou d'une infraction pénale caractérisée.",
+          "Solliciter un conseil juridique préalable avant toute déclaration ou signature engageante.",
+          "Mettre en œuvre les voies de recours légales pour contester la légitimité de la sanction envisagée."
+        ];
+        followUpQuestion = "Une procédure, une mise en demeure ou une poursuite a-t-elle déjà été engagée contre vous ?";
+
+      } else {
+        analysisDiagnosis = `Pour répondre à votre question concernant « ${userQuery} », voici l'analyse des règles fondamentales du droit français applicables à votre situation :`;
+        rulesList = [
+          "**Exécution de bonne foi (Article 1104 du Code Civil)** : Les contrats et relations de droit doivent impérativement être négociés, formés et exécutés de bonne foi.",
+          "**Charge de la preuve écrite (Article 1353 du Code Civil)** : Celui qui réclame l'exécution d'une obligation ou invoque un droit doit en apporter la preuve matérielle. Les écrits électroniques ont la même force probante que l'écrit papier (Art. 1366 C. civ.).",
+          "**Résolution amiable privilégiée (Article 750-1 du CPC)** : La loi encourage la recherche d'une solution négociée avant tout recours contentieux devant le juge."
+        ];
+        actionStepsList = [
+          "Rassembler et numéroter tous vos éléments de preuve (contrats, devis, courriels, SMS, relevés bancaires, attestations).",
+          "Adresser une réclamation formelle écrite (courrier recommandé avec accusé de réception) fixant un délai d'exécution raisonnable.",
+          "À défaut d'accord amiable, solliciter l'intervention gratuite d'un conciliateur de justice ou saisir le tribunal compétent."
+        ];
+        followUpQuestion = "Pouvez-vous me donner plus de détails sur le contexte ou les démarches déjà accomplies afin que je vous guide précisément ?";
+      }
     }
 
-    if (isDocGeneration) {
-      const actTitle = clean.includes('plainte') ? 'Plainte auprès du Procureur' :
-                       clean.includes('mise en demeure') ? 'Mise en Demeure Officielle' :
-                       'Acte Juridique Formel';
+    if (!isVagueHelp) {
+      if (isDocGeneration) {
+        const actTitle = clean.includes('plainte') ? 'Plainte auprès du Procureur' :
+                         clean.includes('mise en demeure') ? 'Mise en Demeure Officielle' :
+                         'Acte Juridique Formel';
 
-      responseText = `Voici le document juridique officiel rédigé spécialement pour votre dossier :\n\n` +
-        `---\n` +
-        `${actTitle.toUpperCase()}\n` +
-        `**RÉFÉRENCE DOSSIER :** FJ-${Math.floor(100000 + Math.random() * 900000)} / FRANCE\n` +
-        `**DATE :** ${new Date().toLocaleDateString('fr-FR')}\n\n` +
-        `**OBJET :** Demande formelle de régularisation et mise en demeure\n\n` +
-        `Madame, Monsieur,\n\n` +
-        `Par la présente, je vous notifie formellement ma contestation et demande de régularisation intégrale.\n\n` +
-        `En application des règles de droit en vigueur :\n` +
-        `${rulesList.map(r => `- ${r}`).join('\n')}\n\n` +
-        `Je vous mets en demeure de remédier à cette situation et de faire droit à mes demandes sous un délai de **8 JOURS** à compter de la réception de cette notification.\n\n` +
-        `À défaut d'accord amiable ou de règlement dans ce délai, je transmettrai immédiatement ce dossier à mon avocat pour engager une action judiciaire devant le Tribunal compétent.\n\n` +
-        `Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées.\n\n` +
-        `*Fait à Paris, le ${new Date().toLocaleDateString('fr-FR')}.*\n` +
-        `---\n\n` +
-        `💬 *Ce document est disponible dans votre espace. Souhaitez-vous y apporter des ajustements particuliers ?*`;
+        responseText = `Voici le document juridique officiel rédigé spécialement pour votre dossier :\n\n` +
+          `---\n` +
+          `${actTitle.toUpperCase()}\n` +
+          `**RÉFÉRENCE DOSSIER :** FJ-${Math.floor(100000 + Math.random() * 900000)} / FRANCE\n` +
+          `**DATE :** ${new Date().toLocaleDateString('fr-FR')}\n\n` +
+          `**OBJET :** Demande formelle de régularisation et mise en demeure\n\n` +
+          `Madame, Monsieur,\n\n` +
+          `Par la présente, je vous notifie formellement ma contestation et demande de régularisation intégrale.\n\n` +
+          `En application des règles de droit en vigueur :\n` +
+          `${rulesList.map(r => `- ${r}`).join('\n')}\n\n` +
+          `Je vous mets en demeure de remédier à cette situation et de faire droit à mes demandes sous un délai de **8 JOURS** à compter de la réception de cette notification.\n\n` +
+          `À défaut d'accord amiable ou de règlement dans ce délai, je transmettrai immédiatement ce dossier à mon avocat pour engager une action judiciaire devant le Tribunal compétent.\n\n` +
+          `Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées.\n\n` +
+          `*Fait à Paris, le ${new Date().toLocaleDateString('fr-FR')}.*\n` +
+          `---\n\n` +
+          `💬 *Ce document est disponible dans votre espace. Souhaitez-vous y apporter des ajustements particuliers ?*`;
 
-      action = {
-        type: 'CREATE_DOCUMENT',
-        payload: {
-          title: actTitle,
-          content: responseText
-        }
-      };
-    } else {
-      const topicIntro = clean.length > 3 && clean.length < 50 && !clean.includes('\n')
-        ? `votre situation concernant « ${userQuery.trim()} »`
-        : `vos droits en matière de ${subjectTitle.toLowerCase()}`;
+        action = {
+          type: 'CREATE_DOCUMENT',
+          payload: {
+            title: actTitle,
+            content: responseText
+          }
+        };
+      } else {
+        const greetingPrefix = (hasHistory || (history && history.length > 0)) ? "" : "Bonjour. ";
 
-      responseText = `Bonjour. Voici mon analyse juridique personnalisée et approfondie concernant ${topicIntro} :\n\n` +
-        `**Synthèse de la situation & Qualification juridique**\n` +
-        `${analysisDiagnosis}\n\n` +
-        `**Fondements légaux précis & Droits applicables**\n` +
-        `${rulesList.map(r => `- ${r}`).join('\n')}\n\n` +
-        `**Vos atouts stratégiques & Points de vigilance**\n` +
-        `- **Vos points forts :** Les règles d'ordre public protectrices et la jurisprudence constante jouent en votre faveur dès lors que vos preuves sont formalisées par écrit.\n` +
-        `- **Points de vigilance :** Respectez scrupuleusement la procédure préalable, évitez toute initiative unilatérale sans titre exécutoire, et veillez aux délais stricts de prescription.\n\n` +
-        `**Plan d'action & Démarches recommandées**\n` +
-        `${actionStepsList.map(s => `- ${s}`).join('\n')}\n\n` +
-        `**Démarches immédiates conseillées**\n` +
-        `- **Étape 1 :** Réunir et numéroter vos pièces justificatives (contrat, devis, courriels, relevés bancaires).\n` +
-        `- **Étape 2 :** Adresser une mise en demeure formelle par LRAR fixant un délai impératif de 8 jours.\n` +
-        `- **Étape 3 :** Si absence de réponse sous 8 jours, engager immédiatement la conciliation ou la saisine de la juridiction compétente.\n\n` +
-        `**Suite de votre dossier**\n` +
-        `👉 ${followUpQuestion}\n\n` +
-        `*Vous pouvez poursuivre la discussion, me poser une question de précision ou importer des documents pour approfondir cette analyse.*`;
+        responseText = `${greetingPrefix}Voici les éléments juridiques applicables concernant **${subjectTitle}** :\n\n` +
+          `${analysisDiagnosis}\n\n` +
+          `**Ce que prévoit la loi :**\n` +
+          `${rulesList.map(r => `- ${r}`).join('\n')}\n\n` +
+          `**Les démarches recommandées :**\n` +
+          `${actionStepsList.map(s => `- ${s}`).join('\n')}\n\n` +
+          `👉 ${followUpQuestion}\n\n` +
+          `*Vous pouvez me donner plus de précisions ou me poser une autre question.*`;
+      }
     }
   }
 
@@ -1168,7 +2369,24 @@ export async function chatWithAI(
   const activeLang = targetLang || (typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : 'fr') || 'fr';
   const langName = LANGUAGE_NAMES[activeLang] || 'French (Français)';
 
-  const fullPromptWithLang = `${prompt}\n\n[MANDAT LINGUISTIQUE: Rédigez STRICTEMENT en ${langName}. Répondez avec précision chirurgicale, profondeur, empathie et pertinence. Aucune généralité creuse. Utilisez l'Euro (€) pour toute référence monétaire.]`;
+  // Fast Conversational Greeting & Politeness Check (ChatGPT / Claude style)
+  const rawQuery = cleanPromptForFallback(prompt);
+  const conv = detectConversationalGreeting(rawQuery, activeLang);
+  if (conv.isConversational && conv.replyText) {
+    return {
+      text: conv.replyText,
+      sources_web: [],
+      suggestions: [
+        "Poser une question en droit du travail",
+        "Litige de caution ou de loyer",
+        "Contestation de facture ou contrat",
+        "Divorce ou droit de la famille"
+      ],
+      automations: []
+    };
+  }
+
+  const fullPromptWithLang = `${prompt}\n\n[MANDAT LINGUISTIQUE IMPÉRATIF: Vous DEVEZ rédiger STRICTEMENT et INTÉGRALEMENT dans la langue suivante: ${langName}. Si la langue cible est l'anglais (English), TOUTE l'explication et la réponse DOIVENT être en anglais. Si la langue cible est l'arabe (العربية), TOUTE la réponse DOIT être en arabe littéraire (الفصحى). Conservez fidèlement les numéros d'articles et codes juridiques applicables. Répondez avec précision chirurgicale, clarté et pertinence. Utilisez l'Euro (€) pour toute référence monétaire.]`;
 
   // 1. DIRECT GEMINI API CALL WITH CONVERSATION HISTORY & SYSTEM INSTRUCTION
   if (geminiApiKey && !geminiApiKey.startsWith('AQ.')) {
@@ -1269,13 +2487,29 @@ export async function chatWithAI(
 }
 
 export async function smartGlobalLegalAssistantQuery(
-  userPrompt: string, 
+  userPrompt: string,
   roleContext: string = 'public',
-  targetLang?: string
+  targetLang?: string,
+  history?: { role: 'user' | 'model'; parts: { text: string }[] }[]
 ) {
   const activeLang = targetLang || (typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : 'fr') || 'fr';
   const langName = LANGUAGE_NAMES[activeLang] || 'French (Français)';
   const cleanQuery = userPrompt.trim().toLowerCase();
+
+  // Instant Conversational Greeting Check
+  const convGreeting = detectConversationalGreeting(userPrompt, activeLang);
+  if (convGreeting.isConversational && convGreeting.replyText) {
+    return {
+      text: convGreeting.replyText,
+      sources_web: [],
+      suggestions: [
+        "Poser une question en droit du travail",
+        "Litige de caution ou de loyer",
+        "Rédiger une mise en demeure"
+      ],
+      automations: []
+    };
+  }
   
   let dbContextInfo = '';
   let relatedLawyers: any[] = [];
@@ -1337,10 +2571,13 @@ Question de l'utilisateur : "${userPrompt}"
             system_instruction: {
               parts: [{ text: MASTER_LEGAL_SYSTEM_PROMPT }]
             },
-            contents: [{ 
-              role: 'user',
-              parts: [{ text: systemPrompt }] 
-            }],
+            contents: [
+              ...(history && history.length > 0 ? history : []),
+              {
+                role: 'user',
+                parts: [{ text: systemPrompt }]
+              }
+            ],
             generationConfig: {
               temperature: 0.35,
               maxOutputTokens: 2500
@@ -1367,7 +2604,7 @@ Question de l'utilisateur : "${userPrompt}"
     }
   }
 
-  const localRes = getAdvancedLocalLegalAI(userPrompt, activeLang);
+  const localRes = getAdvancedLocalLegalAI(userPrompt, activeLang, history);
 
   return {
     text: localRes.text,

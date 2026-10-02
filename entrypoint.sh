@@ -18,6 +18,9 @@ export LISTEN_PORTS
 touch /tmp/nginx_access.log /tmp/nginx_error.log /tmp/gunicorn_access.log /tmp/gunicorn_error.log
 chmod 666 /tmp/nginx_access.log /tmp/nginx_error.log /tmp/gunicorn_access.log /tmp/gunicorn_error.log
 
+# Ensure static directory exists
+mkdir -p /app/backend/staticfiles
+
 cd /app/backend
 
 echo "=== Starting Gunicorn on 127.0.0.1:8001 ==="

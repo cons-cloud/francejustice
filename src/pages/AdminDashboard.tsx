@@ -234,12 +234,26 @@ const AdminDashboard: React.FC = () => {
 
   const fetchUsers = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('profiles_just')
-      .select('*, lawyers:lawyers_just(*)')
-      .limit(50); // Limit initial load for performance
-    if (data) setUsers(data);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from('profiles_just')
+        .select('*, lawyers:lawyers_just(*)')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (!error && data) {
+        setUsers(data);
+      } else {
+        const { data: fallbackData } = await supabase
+          .from('profiles_just')
+          .select('*, lawyers:lawyers_just(*)')
+          .limit(100);
+        if (fallbackData) setUsers(fallbackData);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchAllDocuments = async () => {

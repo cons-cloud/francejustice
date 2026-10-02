@@ -447,7 +447,10 @@ const Database: React.FC = () => {
     setAiSearchResult(null);
 
     try {
-      const prompt = `RECHERCHE JURIDIQUE OFFICIELLE MONDIALE & INTERNET : "${searchTerm}".
+      const isGreeting = /^(bonjour|bonsoir|salut|hello|coucou|hi|hey|yo|qui es-tu|qui êtes-vous|comment ça va|ça va|merci|merci beaucoup|ok|d['']accord|parfait|au revoir|bonne journée|aide|aidez-moi)[\s!?.]*$/i.test(searchTerm.trim());
+      const prompt = isGreeting
+        ? searchTerm
+        : `RECHERCHE JURIDIQUE OFFICIELLE MONDIALE & INTERNET : "${searchTerm}".
       FOURNIS EXCLUSIVEMENT DES RÉSULTATS JURIDIQUES SOURCÉS (Textes de loi officiels, Code Civil, Code Pénal, Légifrance, EUR-Lex, HUDOC/CEDH, US Code, Traités Internationaux).
       Organise la réponse avec :
       1. Synthèse juridique et articles applicables

@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { ShieldCheck, Mail, Lock, User as UserIcon, Briefcase, FileText, MapPin, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import Modal from '../ui/Modal';
 import { useNavigate, Link } from 'react-router-dom';
+import { SecurityCaptcha } from '../ui/SecurityCaptcha';
 
 interface LawyerRegistrationFormProps {
   onClose?: () => void;
@@ -18,6 +19,7 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [captchaVerified, setCaptchaVerified] = useState(false);
 
   const [form, setForm] = useState({
     firstName: '',
@@ -39,6 +41,11 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!captchaVerified) {
+      setError("Veuillez valider la vérification de sécurité humaine (Je ne suis pas un robot).");
+      return;
+    }
 
     if (form.password !== form.confirmPassword) {
       setError("Les mots de passe ne correspondent pas");
@@ -335,6 +342,8 @@ const LawyerRegistrationForm: React.FC<LawyerRegistrationFormProps> = ({ onClose
                 </div>
               </div>
             </div>
+
+            <SecurityCaptcha onVerify={(valid) => setCaptchaVerified(valid)} className="my-2" />
 
             <Button className="w-full h-12 text-base font-bold bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/25 transition-all" disabled={loading}>
               {loading ? 'Traitement en cours...' : 'Soumettre ma candidature'}

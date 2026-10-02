@@ -42,7 +42,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAiDropdownOpen, setIsAiDropdownOpen] = useState(false);
   const [isOutilsDropdownOpen, setIsOutilsDropdownOpen] = useState(false);
-  const { user, signOut, role } = useAuth();
+  const { user, signOut, role, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -350,7 +350,9 @@ const Header: React.FC = () => {
           {/* Actions Desktop */}
           <div className="hidden lg:flex items-center space-x-3">
             <LanguageSwitcher />
-            {user ? (
+            {loading ? (
+              <div className="h-9 w-24 bg-slate-100 rounded-full animate-pulse" />
+            ) : user ? (
               <div className="flex items-center space-x-3">
                 <Button
                   variant="ghost"

@@ -846,5 +846,26 @@
     "disc_eu": "Avrupa ve Uluslararası Hukuk",
     "disc_penal": "Ceza Hukuku ve Kriminoloji",
     "disc_ai": "Dijital Hukuk ve YZ"
+  },
+  "role_selection": {
+    "badge_first_login": "İlk Giriş — Profil Yapılandırması",
+    "welcome": "Hoş Geldiniz:",
+    "hello": "Merhaba",
+    "prompt": "Lütfen hukuki statünüzü seçin:",
+    "lawyer_title": "Avukat",
+    "lawyer_badge": "Baro",
+    "professor_title": "Hukuk Profesörü",
+    "professor_badge": "Öğretim",
+    "doctorate_title": "Hukuk Doktora Öğrencisi",
+    "doctorate_badge": "Araştırma",
+    "student_title": "Hukuk Öğrencisi",
+    "student_badge": "Üniversite",
+    "citizen_title": "Vatandaş / Davacı",
+    "citizen_badge": "Vatandaş",
+    "selected_profile": "Seçilen Profil:",
+    "desc_customized": "Kontrol paneliniz bu profile göre yapılandırılacaktır.",
+    "submitting": "Senkronize ediliyor...",
+    "confirm_btn": "Onayla ve Devam Et",
+    "footer_note": "France Justice Platformu — Anında ve güvenli senkronizasyon."
   }
 }

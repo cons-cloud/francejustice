@@ -21,7 +21,7 @@ import {
   Trash2,
   Send
 } from 'lucide-react';
-import { chatWithAI } from '../../lib/gemini';
+import { chatWithAI, detectConversationalGreeting } from '../../lib/gemini';
 import { Button } from './Button';
 import { CleanLegalText } from './CleanLegalText';
 import { useTranslation } from '../../i18n';
@@ -393,7 +393,17 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
           break;
         }
       }
-      cleanSpeechText = (vocalSummary || cleanSpeechText.slice(0, 350)) + ". J'ai affiché l'analyse complète, les articles de loi et la démarche sur votre écran. Souhaitez-vous que nous approfondissions un point particulier ?";
+      const closingMessages: Record<string, string> = {
+        en: ". I have displayed the full legal analysis and steps on your screen. Would you like to explore a specific point further?",
+        ar: ". لقد قمت بعرض التحليل القانوني والمساطر بالكامل على شاشتكم. هل ترغبون في توضيح أي نقطة أخرى؟",
+        es: ". He mostrado el análisis jurídico completo y los trámites en su pantalla. ¿Desea profundizar en algún punto en particular?",
+        tr: ". Ayrıntılı hukuki analizi ve adımları ekranınızda gösterdim. Belirli bir noktayı detaylandırmak ister misiniz?",
+        ku: ". Min analîza yasayî ya tevahî li ser ekrana we nîşan da. Ma hûn dixwazin xalek kûrtir bikin?",
+        ru: ". Я вывел полный юридический анализ на экран. Хотите разобрать какой-либо пункт подробнее?",
+        fr: ". J'ai affiché l'analyse complète, les articles de loi et la démarche sur votre écran. Souhaitez-vous que nous approfondissions un point particulier ?"
+      };
+      const closing = closingMessages[i18n.language] || closingMessages.fr;
+      cleanSpeechText = (vocalSummary || cleanSpeechText.slice(0, 350)) + closing;
     }
 
     const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
@@ -478,11 +488,74 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
     
     stopSpeaking();
     setIsProcessing(true);
-    setResponse('Analyse et traitement juridique du dossier en cours...');
     setSources([]);
     setGeneratedDoc(null);
 
     playChime(600, 'sine', 0.12);
+
+    // ── CONVERSATIONAL GUARD ─────────────────────────────────────────────────
+    // Detect casual / greeting / short follow-up inputs BEFORE building the
+    // heavy legal prompt. This mirrors RÈGLE N°0 from MASTER_LEGAL_SYSTEM_PROMPT
+    // and prevents robotic legal-template responses to simple messages.
+    const conv = detectConversationalGreeting(commandText, i18n.language);
+    if (conv.isConversational && conv.replyText) {
+      const fullReply = conv.replyText;
+      const spokenSummary = fullReply.split('\n\n')[0]; // spoken version
+
+      setResponse(fullReply);
+      setIsProcessing(false);
+      setHistory(prev => [
+        ...prev,
+        { role: 'user', parts: [{ text: commandText }] },
+        { role: 'model', parts: [{ text: fullReply }] }
+      ]);
+      if (!isMuted) {
+        const utt = new SpeechSynthesisUtterance(spokenSummary);
+        utt.lang = mapLangToSpeech(i18n.language);
+        const activeVoice = getVoiceForLang(i18n.language);
+        if (activeVoice) utt.voice = activeVoice;
+        utt.onstart = () => setIsSpeaking(true);
+        utt.onend = () => setIsSpeaking(false);
+        window.speechSynthesis?.speak(utt);
+      }
+      return;
+    }
+
+    const cleanCmd = commandText.trim().toLowerCase().replace(/[!?.,;]+$/, '');
+    const wordCount = cleanCmd.split(/\s+/).filter(Boolean).length;
+
+    // Short follow-up question with prior context — answer directly from history
+    const hasHistory = history.length >= 2;
+    if (hasHistory && wordCount < 9 && !attachedFiles.length) {
+      const lastAI = [...history].reverse().find(h => h.role === 'model')?.parts?.[0]?.text || response;
+
+      if (/(?:divorce de qui|qui sont|qui est|c'est qui|parties?|époux|épouse|demandeur|défendeur)/i.test(cleanCmd)) {
+        const mNames = lastAI.match(/M\.\s+([A-ZÀ-Ÿ][a-zA-ZÀ-Ÿ\-]{2,})/g) || [];
+        const mmeNames = lastAI.match(/Mme\.?\s+([A-ZÀ-Ÿ][a-zA-ZÀ-Ÿ\-]{2,})/g) || [];
+        const capsNames = lastAI.match(/\b([A-ZÀ-Ÿ]{4,})\b/g)?.filter(n => !['CODE', 'CIVIL', 'DROIT', 'ARTICLE', 'LRAR', 'JAF'].includes(n)) || [];
+        if (mNames.length > 0 || mmeNames.length > 0 || capsNames.length >= 2) {
+          const p1 = mNames[0] || (capsNames[0] ? `M. ${capsNames[0]}` : 'la première partie');
+          const p2 = mmeNames[0] || (capsNames[1] ? `Mme ${capsNames[1]}` : 'la seconde partie');
+          const reply = `Il s'agit du divorce de ${p1} et ${p2}.`;
+          setResponse(reply);
+          setIsProcessing(false);
+          setHistory(prev => [...prev, { role: 'user', parts: [{ text: commandText }] }, { role: 'model', parts: [{ text: reply }] }]);
+          if (!isMuted) {
+            const u = new SpeechSynthesisUtterance(reply);
+            u.lang = mapLangToSpeech(i18n.language);
+            const activeVoice = getVoiceForLang(i18n.language);
+            if (activeVoice) u.voice = activeVoice;
+            u.onstart = () => setIsSpeaking(true);
+            u.onend = () => setIsSpeaking(false);
+            window.speechSynthesis?.speak(u);
+          }
+          return;
+        }
+      }
+    }
+    // ── END CONVERSATIONAL GUARD ─────────────────────────────────────────────
+
+    setResponse('Traitement de votre demande...');
 
     const handledLocally = interpretLocalCommand(commandText);
 
@@ -490,8 +563,25 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
       ? ['overview', 'appointments', 'generator', 'documents', 'quotes', 'chat', 'searches', 'codes', 'procedures', 'analyse', 'formations', 'avocats', 'profile']
       : ['overview', 'appointments', 'cases', 'quotes', 'messages', 'searches', 'avocats', 'codes', 'procedures', 'analyse', 'formations', 'outils', 'assistance', 'profil'];
 
+    const langNames: Record<string, string> = {
+      fr: 'Français (French)',
+      en: 'English',
+      ar: 'Arabic (العربية)',
+      es: 'Spanish (Español)',
+      tr: 'Turkish (Türkçe)',
+      ku: 'Kurdish (Kurdî)',
+      ru: 'Russian (Русский)'
+    };
+    const targetLangName = langNames[i18n.language] || 'Français';
+
     const promptContext = `
 Vous êtes l'assistant IA juridique expert de France Justice.
+[MANDAT LINGUISTIQUE IMPÉRATIF : La langue active choisie par l'utilisateur est : ${targetLangName}.
+Vous DEVEZ formuler et rédiger votre réponse ENTIÈREMENT et STRICTEMENT en ${targetLangName}.
+Si la langue est l'anglais, toute l'explication doit être en anglais.
+Si la langue est l'arabe, toute l'explication doit être en arabe moderne standard (العربية الفصحى).
+Conservez l'exactitude des textes de loi et articles juridiques.]
+
 Vous traitez et analysez TOUTES les demandes de l'utilisateur DIRECTEMENT au sein de cette interface d'assistant IA.
 
 ${attachedFiles.length > 0 ? `

@@ -7,6 +7,9 @@ import { AuthProvider, useAuth } from './hooks/useAuth';
 import CookieConsent from './components/ui/CookieConsent';
 import SEOManager from './components/ui/SEOManager';
 import FloatingChatBot from './components/ui/FloatingChatBot';
+import ProfessionalLoader from './components/ui/ProfessionalLoader';
+import ErrorBoundary from './components/ui/ErrorBoundary';
+import FirstTimeRoleSelector from './components/auth/FirstTimeRoleSelector';
 
 // ─── Lazy-loaded pages (code-split per route) ────────────────────────────────
 const Home                 = lazy(() => import('./pages/Home'));
@@ -32,9 +35,6 @@ const Database             = lazy(() => import('./pages/Database'));
 const GeniaLAvocat         = lazy(() => import('./pages/GeniaLAvocat'));
 const ClassroomsPage       = lazy(() => import('./pages/Classrooms'));
 const ResetPasswordPage    = lazy(() => import('./pages/ResetPassword'));
-import ProfessionalLoader from './components/ui/ProfessionalLoader';
-import ErrorBoundary from './components/ui/ErrorBoundary';
-
 const ForgotPasswordPage   = lazy(() => import('./pages/ForgotPassword'));
 const NotFoundPage         = lazy(() => import('./pages/NotFound'));
 const PaymentStatusPage    = lazy(() => import('./pages/PaymentStatus'));
@@ -52,7 +52,7 @@ function PageLoader() {
 }
 
 function RequireRole({ allowedRoles, children }: { allowedRoles: string[]; children: React.ReactNode }) {
-  const { role: current, loading } = useAuth();
+  const { role: current, loading, user } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -64,9 +64,16 @@ function RequireRole({ allowedRoles, children }: { allowedRoles: string[]; child
       />
     );
   }
-  if (!current) {
+  if (!current || !user) {
     const destination = encodeURIComponent(location.pathname + location.search);
     return <Navigate to={`/login?redirect=${destination}`} replace />;
+  }
+
+  const isGoogleUser = user.app_metadata?.provider === 'google';
+  const roleConfirmed = user.user_metadata?.role_selected || (user.id ? localStorage.getItem(`fj_role_selected_${user.id}`) === 'true' : false);
+
+  if (current === 'pending_selection' || (isGoogleUser && !roleConfirmed)) {
+    return <Navigate to="/dashboard" replace />;
   }
   if (!allowedRoles.includes(current)) {
     if (current === 'admin') return <Navigate to="/dashboard/admin" replace />;
@@ -76,9 +83,45 @@ function RequireRole({ allowedRoles, children }: { allowedRoles: string[]; child
   return <>{children}</>;
 }
 
+function DashboardDispatcher() {
+  const { role, loading, user } = useAuth();
+
+  if (loading) {
+    return (
+      <ProfessionalLoader
+        title="Espace Sécurisé"
+        subtitle="Aiguillage vers votre tableau de bord dédié..."
+        badge="Accès Personnalisé"
+      />
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (role === 'admin') {
+    return <Navigate to="/dashboard/admin" replace />;
+  }
+
+  // ⚡ Check if Google user has not confirmed their role choice yet
+  const isGoogleUser = user.app_metadata?.provider === 'google';
+  const roleConfirmed = user.user_metadata?.role_selected || localStorage.getItem(`fj_role_selected_${user.id}`) === 'true';
+
+  if (role === 'pending_selection' || (isGoogleUser && !roleConfirmed) || !role) {
+    return <FirstTimeRoleSelector />;
+  }
+
+  if (['lawyer', 'professor', 'doctorate'].includes(role || '')) {
+    return <Navigate to="/dashboard/lawyer" replace />;
+  }
+
+  return <Navigate to="/dashboard/user" replace />;
+}
+
 function AppContent() {
   const { pathname } = useLocation();
-  const isAuthPage = ['/login', '/register', '/register/lawyer', '/register/student', '/register/professor', '/register/doctorate', '/register/etudiant', '/register/professeur', '/register/doctorat', '/forgot-password', '/reset-password'].includes(pathname);
+  const isAuthPage = ['/login', '/register', '/register/lawyer', '/register/student', '/register/professor', '/register/doctorate', '/register/etudiant', '/register/professeur', '/register/doctorat', '/forgot-password', '/reset-password', '/onboarding/role'].includes(pathname);
   const isDashboardPage = pathname.startsWith('/dashboard');
   const hideLayout = isAuthPage || isDashboardPage;
 
@@ -142,7 +185,8 @@ function AppContent() {
               }
             />
             <Route path="/reset-password"  element={<ResetPasswordPage />} />
-            <Route path="/dashboard" element={<Navigate to="/dashboard/user" replace />} />
+            <Route path="/dashboard" element={<DashboardDispatcher />} />
+            <Route path="/onboarding/role" element={<FirstTimeRoleSelector />} />
 
             {/* 💳 Payment & Transaction Landing Pages */}
             <Route path="/payment" element={<PaymentStatusPage />} />

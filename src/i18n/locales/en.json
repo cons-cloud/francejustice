@@ -848,5 +848,26 @@
     "disc_eu": "European & International Law",
     "disc_penal": "Criminal Law & Criminology",
     "disc_ai": "Digital Law & AI"
+  },
+  "role_selection": {
+    "badge_first_login": "First Login — Profile Setup",
+    "welcome": "Welcome to",
+    "hello": "Hello",
+    "prompt": "Please select your profile status:",
+    "lawyer_title": "Attorney / Lawyer",
+    "lawyer_badge": "Bar",
+    "professor_title": "Law Professor",
+    "professor_badge": "Higher Ed",
+    "doctorate_title": "Doctoral Researcher",
+    "doctorate_badge": "Doctorate",
+    "student_title": "Law Student",
+    "student_badge": "University",
+    "citizen_title": "Citizen / Litigant",
+    "citizen_badge": "Citizen",
+    "selected_profile": "Selected profile:",
+    "desc_customized": "Your dashboard will be instantly tailored to this profile.",
+    "submitting": "Synchronizing...",
+    "confirm_btn": "Confirm & Continue",
+    "footer_note": "France Justice Platform — Realtime secure synchronization."
   }
 }

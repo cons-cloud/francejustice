@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { UserPlus, Mail, Lock, User as UserIcon, MapPin, Calendar, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import Modal from '../ui/Modal';
 import { useNavigate, Link } from 'react-router-dom';
+import { SecurityCaptcha } from '../ui/SecurityCaptcha';
 
 interface UserRegistrationFormProps {
   onClose?: () => void;
@@ -19,6 +20,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [captchaVerified, setCaptchaVerified] = useState(false);
   
   const [form, setForm] = useState({
     firstName: '',
@@ -40,6 +42,11 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!captchaVerified) {
+      setError("Veuillez valider la vérification de sécurité humaine (Je ne suis pas un robot).");
+      return;
+    }
 
     if (form.email !== form.confirmEmail) {
       setError("Les emails ne correspondent pas");
@@ -324,6 +331,8 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose }) 
                 />
               </div>
             </div>
+
+            <SecurityCaptcha onVerify={(valid) => setCaptchaVerified(valid)} className="my-2" />
 
             <Button className="w-full h-11 text-base font-bold mt-2 bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20 transition-all" disabled={loading}>
               {loading ? 'Création en cours...' : 'Créer mon compte citoyen'}

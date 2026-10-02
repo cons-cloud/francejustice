@@ -846,5 +846,26 @@
     "disc_eu": "Yasaya Ewropî û Nêvdewletî",
     "disc_penal": "Yasaya Ceza",
     "disc_ai": "Yasaya Dîjîtal û AI"
+  },
+  "role_selection": {
+    "badge_first_login": "Têketina Yekem — Mîhengkirina Profilê",
+    "welcome": "Bi xêr hatî ser",
+    "hello": "Silav",
+    "prompt": "Ji kerema xwe statuya xwe ya yasayî hilbijêrin:",
+    "lawyer_title": "Parêzer",
+    "lawyer_badge": "Baro",
+    "professor_title": "Profesorê Yasayê",
+    "professor_badge": "Fêrkirin",
+    "doctorate_title": "Xwendekarê Doktorayê",
+    "doctorate_badge": "Lêkolîn",
+    "student_title": "Xwendekarê Yasayê",
+    "student_badge": "Zanîngeh",
+    "citizen_title": "Welatî / Dozdar",
+    "citizen_badge": "Welatî",
+    "selected_profile": "Profîla Hilbijartî:",
+    "desc_customized": "Panela we li gorî vê profîlê tê mîhengkirin.",
+    "submitting": "Tê hevdengkirin...",
+    "confirm_btn": "Piştrast bike & Berdewam bike",
+    "footer_note": "Platforma France Justice — Hevdengkirina yekser û ewle."
   }
 }
