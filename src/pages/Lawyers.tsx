@@ -8,7 +8,8 @@ import { supabase } from '../lib/supabase';
 import { FranceMap, regions } from '../components/features/FranceMap';
 import { useTranslation } from '../i18n';
 import { COURS_D_APPEL_LIST, getCourDAppelForCity } from '../lib/jurisdictions';
-import { getUnifiedLawyersList } from '../lib/avocatsDataGouvSync';
+import { getUnifiedLawyersList, matchBarreau, loadFullDatasetFromCsv, normalizeDataGouvAvocat } from '../lib/avocatsDataGouvSync';
+import { ALL_BARREAUX_FRANCE } from '../data/allBarreauxFrance';
 
 interface LawyerProfile {
   id: string;
@@ -25,6 +26,7 @@ interface LawyerProfile {
   avatar_url?: string;
   is_available?: boolean;
   university?: string;
+  bar_association?: string;
   lawyers?: {
     bar_association?: string;
   } | {
@@ -80,10 +82,20 @@ const LawyersPage: React.FC = () => {
     fetchLawyers(nextPage);
   };
 
-  // Helper to resolve region from postal code
-  const getRegionFromPostalCode = (postalCode?: string) => {
+  // Helper to resolve region from postal code and barreau
+  const getRegionFromPostalCode = (postalCode?: string, barreauName?: string) => {
+    if (barreauName) {
+      const found = ALL_BARREAUX_FRANCE.find(b => matchBarreau(b.name, barreauName) || matchBarreau(b.rawNom, barreauName));
+      if (found) return found.region;
+    }
     if (!postalCode) return null;
-    const dept = postalCode.trim().substring(0, 2);
+    const code = postalCode.trim();
+    if (code.startsWith('97') || code.startsWith('98')) {
+      const d3 = code.substring(0, 3);
+      const r = regions.find(reg => reg.departments.includes(d3));
+      if (r) return r.name;
+    }
+    const dept = code.substring(0, 2);
     const region = regions.find(r => r.departments.includes(dept));
     return region ? region.name : null;
   };
@@ -94,17 +106,30 @@ const LawyersPage: React.FC = () => {
   }, [lawyers]);
 
   const barreaux = useMemo(() => {
-    const existing = lawyers
-      .map(l => {
-        const bar = Array.isArray(l.lawyers) 
-          ? l.lawyers[0]?.bar_association 
-          : l.lawyers?.bar_association;
-        return bar?.trim();
-      })
-      .filter(Boolean) as string[];
-    const caNames = COURS_D_APPEL_LIST.map(ca => ca.name);
-    return Array.from(new Set([...existing, ...caNames])).sort();
-  }, [lawyers]);
+    let list = ALL_BARREAUX_FRANCE;
+    if (selectedRegion) {
+      list = list.filter(b => b.region === selectedRegion);
+    }
+    return list.map(b => b.name).sort();
+  }, [selectedRegion]);
+
+  // Dynamic on-demand stream of full barreau lawyers when a barreau is selected
+  useEffect(() => {
+    if (selectedBarreau) {
+      loadFullDatasetFromCsv().then(allCsv => {
+        const matching = allCsv.filter(a => matchBarreau(a.NomBarreau, selectedBarreau));
+        if (matching.length > 0) {
+          const normalized = matching.map((a, idx) => normalizeDataGouvAvocat(a, idx));
+          setLawyers(prev => {
+            const existingKeys = new Set(prev.map(p => `${p.first_name}-${p.last_name}-${p.city}`.toLowerCase()));
+            const newOnes = normalized.filter(n => !existingKeys.has(`${n.first_name}-${n.last_name}-${n.city}`.toLowerCase()));
+            if (newOnes.length === 0) return prev;
+            return [...prev, ...newOnes as any];
+          });
+        }
+      });
+    }
+  }, [selectedBarreau]);
 
   // Lawyer counts by region for the map representation
   const lawyerCounts = useMemo(() => {
@@ -113,14 +138,13 @@ const LawyersPage: React.FC = () => {
       counts[r.name] = 0;
     });
     
-    lawyers.forEach(l => {
-      const regionName = getRegionFromPostalCode(l.postal_code);
-      if (regionName) {
-        counts[regionName] = (counts[regionName] || 0) + 1;
-      }
+    ALL_BARREAUX_FRANCE.forEach(b => {
+      counts[b.region] = (counts[b.region] || 0) + b.count;
+      counts[b.name] = b.count;
+      counts[b.shortName] = b.count;
     });
     return counts;
-  }, [lawyers]);
+  }, []);
 
   const [selectedCourDAppel, setSelectedCourDAppel] = useState<string>('');
 
@@ -134,18 +158,19 @@ const LawyersPage: React.FC = () => {
     
     if (!matchesSearch) return false;
 
+    const bar = l.bar_association || (Array.isArray(l.lawyers) 
+      ? l.lawyers[0]?.bar_association 
+      : l.lawyers?.bar_association);
+
     if (selectedRegion) {
-      const lawyerRegion = getRegionFromPostalCode(l.postal_code);
+      const lawyerRegion = getRegionFromPostalCode(l.postal_code, bar);
       if (lawyerRegion !== selectedRegion) return false;
     }
 
-    if (selectedCity && l.city !== selectedCity) return false;
+    if (selectedCity && l.city?.toLowerCase() !== selectedCity.toLowerCase()) return false;
 
     if (selectedBarreau) {
-      const bar = Array.isArray(l.lawyers) 
-        ? l.lawyers[0]?.bar_association 
-        : l.lawyers?.bar_association;
-      if (bar !== selectedBarreau) return false;
+      if (!matchBarreau(bar, selectedBarreau)) return false;
     }
 
     if (selectedCourDAppel) {
@@ -230,6 +255,8 @@ const LawyersPage: React.FC = () => {
             <FranceMap 
               selectedRegion={selectedRegion} 
               onSelectRegion={setSelectedRegion} 
+              selectedBarreau={selectedBarreau}
+              onSelectBarreau={(bar) => setSelectedBarreau(bar || '')}
               lawyerCounts={lawyerCounts} 
             />
           </div>

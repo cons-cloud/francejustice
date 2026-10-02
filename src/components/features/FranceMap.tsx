@@ -1,9 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { MapPin, Building2, Search, Globe, X, Shield, Sparkles, Award } from 'lucide-react';
 import { CourtsAnnuaireModal } from './CourtsAnnuaireModal';
-import { ANNUAIRE_AVOCATS_FRANCE_DATA } from '../../data/annuaireAvocatsFrance';
-import { getCourDAppelForCity } from '../../lib/jurisdictions';
+import { ALL_BARREAUX_FRANCE, type BarreauData } from '../../data/allBarreauxFrance';
+import { matchBarreau } from '../../lib/avocatsDataGouvSync';
 import carteGif from '../../assets/images/carte.gif';
+
+export type { BarreauData };
+export const barreauxList: BarreauData[] = ALL_BARREAUX_FRANCE;
 
 export interface FranceMapProps {
   onSelectRegion?: (regionName: string | null) => void;
@@ -19,17 +22,6 @@ export interface RegionData {
   labelX: number;
   labelY: number;
   departments: string[];
-  isOverseas?: boolean;
-}
-
-export interface BarreauData {
-  id: string;
-  name: string;
-  shortName: string;
-  region: string;
-  cx: number; // percentage X on map image (0-100)
-  cy: number; // percentage Y on map image (0-100)
-  courDAppel: string;
   isOverseas?: boolean;
 }
 
@@ -58,66 +50,6 @@ export const regions: RegionData[] = [
   { id: 'PYF', name: 'Polynésie Française', labelX: 0, labelY: 0, departments: ['987'], isOverseas: true },
 ];
 
-export const barreauxList: BarreauData[] = [
-  // Île-de-France
-  { id: 'b-paris', name: 'Barreau de Paris', shortName: 'Paris', region: 'Île-de-France', cx: 50, cy: 27, courDAppel: "Cour d'Appel de Paris" },
-  { id: 'b-versailles', name: 'Barreau de Versailles', shortName: 'Versailles', region: 'Île-de-France', cx: 46, cy: 29, courDAppel: "Cour d'Appel de Versailles" },
-  { id: 'b-nanterre', name: 'Barreau des Hauts-de-Seine (Nanterre)', shortName: 'Nanterre', region: 'Île-de-France', cx: 48, cy: 26, courDAppel: "Cour d'Appel de Versailles" },
-  { id: 'b-bobigny', name: 'Barreau de Seine-Saint-Denis (Bobigny)', shortName: 'Bobigny', region: 'Île-de-France', cx: 52, cy: 25, courDAppel: "Cour d'Appel de Paris" },
-  { id: 'b-valdemarne', name: 'Barreau du Val-de-Marne (Créteil)', shortName: 'Créteil', region: 'Île-de-France', cx: 51, cy: 30, courDAppel: "Cour d'Appel de Paris" },
-  // Hauts-de-France
-  { id: 'b-lille', name: 'Barreau de Lille', shortName: 'Lille', region: 'Hauts-de-France', cx: 54, cy: 8, courDAppel: "Cour d'Appel de Douai" },
-  { id: 'b-amiens', name: 'Barreau d\'Amiens', shortName: 'Amiens', region: 'Hauts-de-France', cx: 49, cy: 16, courDAppel: "Cour d'Appel d'Amiens" },
-  // Normandie
-  { id: 'b-rouen', name: 'Barreau de Rouen', shortName: 'Rouen', region: 'Normandie', cx: 40, cy: 20, courDAppel: "Cour d'Appel de Rouen" },
-  { id: 'b-caen', name: 'Barreau de Caen', shortName: 'Caen', region: 'Normandie', cx: 30, cy: 22, courDAppel: "Cour d'Appel de Caen" },
-  // Grand Est
-  { id: 'b-strasbourg', name: 'Barreau de Strasbourg', shortName: 'Strasbourg', region: 'Grand Est', cx: 82, cy: 24, courDAppel: "Cour d'Appel de Colmar" },
-  { id: 'b-nancy', name: 'Barreau de Nancy', shortName: 'Nancy', region: 'Grand Est', cx: 72, cy: 27, courDAppel: "Cour d'Appel de Nancy" },
-  { id: 'b-reims', name: 'Barreau de Reims', shortName: 'Reims', region: 'Grand Est', cx: 60, cy: 21, courDAppel: "Cour d'Appel de Reims" },
-  { id: 'b-metz', name: 'Barreau de Metz', shortName: 'Metz', region: 'Grand Est', cx: 74, cy: 20, courDAppel: "Cour d'Appel de Metz" },
-  // Bretagne
-  { id: 'b-rennes', name: 'Barreau de Rennes', shortName: 'Rennes', region: 'Bretagne', cx: 20, cy: 30, courDAppel: "Cour d'Appel de Rennes" },
-  { id: 'b-brest', name: 'Barreau de Brest', shortName: 'Brest', region: 'Bretagne', cx: 8, cy: 28, courDAppel: "Cour d'Appel de Rennes" },
-  // Pays de la Loire
-  { id: 'b-nantes', name: 'Barreau de Nantes', shortName: 'Nantes', region: 'Pays de la Loire', cx: 23, cy: 40, courDAppel: "Cour d'Appel de Rennes" },
-  { id: 'b-angers', name: 'Barreau d\'Angers', shortName: 'Angers', region: 'Pays de la Loire', cx: 30, cy: 36, courDAppel: "Cour d'Appel d'Angers" },
-  // Centre-Val de Loire
-  { id: 'b-orleans', name: 'Barreau d\'Orléans', shortName: 'Orléans', region: 'Centre-Val de Loire', cx: 44, cy: 34, courDAppel: "Cour d'Appel d'Orléans" },
-  { id: 'b-tours', name: 'Barreau de Tours', shortName: 'Tours', region: 'Centre-Val de Loire', cx: 37, cy: 40, courDAppel: "Cour d'Appel d'Orléans" },
-  // Bourgogne-Franche-Comté
-  { id: 'b-dijon', name: 'Barreau de Dijon', shortName: 'Dijon', region: 'Bourgogne-Franche-Comté', cx: 64, cy: 40, courDAppel: "Cour d'Appel de Dijon" },
-  { id: 'b-besancon', name: 'Barreau de Besançon', shortName: 'Besançon', region: 'Bourgogne-Franche-Comté', cx: 73, cy: 40, courDAppel: "Cour d'Appel de Besançon" },
-  // Auvergne-Rhône-Alpes
-  { id: 'b-lyon', name: 'Barreau de Lyon', shortName: 'Lyon', region: 'Auvergne-Rhône-Alpes', cx: 65, cy: 56, courDAppel: "Cour d'Appel de Lyon" },
-  { id: 'b-grenoble', name: 'Barreau de Grenoble', shortName: 'Grenoble', region: 'Auvergne-Rhône-Alpes', cx: 72, cy: 64, courDAppel: "Cour d'Appel de Grenoble" },
-  { id: 'b-clermont', name: 'Barreau de Clermont-Ferrand', shortName: 'Clermont', region: 'Auvergne-Rhône-Alpes', cx: 52, cy: 57, courDAppel: "Cour d'Appel de Riom" },
-  // Nouvelle-Aquitaine
-  { id: 'b-bordeaux', name: 'Barreau de Bordeaux', shortName: 'Bordeaux', region: 'Nouvelle-Aquitaine', cx: 25, cy: 68, courDAppel: "Cour d'Appel de Bordeaux" },
-  { id: 'b-poitiers', name: 'Barreau de Poitiers', shortName: 'Poitiers', region: 'Nouvelle-Aquitaine', cx: 33, cy: 50, courDAppel: "Cour d'Appel de Poitiers" },
-  { id: 'b-pau', name: 'Barreau de Pau', shortName: 'Pau', region: 'Nouvelle-Aquitaine', cx: 24, cy: 85, courDAppel: "Cour d'Appel de Pau" },
-  // Occitanie
-  { id: 'b-toulouse', name: 'Barreau de Toulouse', shortName: 'Toulouse', region: 'Occitanie', cx: 38, cy: 82, courDAppel: "Cour d'Appel de Toulouse" },
-  { id: 'b-montpellier', name: 'Barreau de Montpellier', shortName: 'Montpellier', region: 'Occitanie', cx: 52, cy: 81, courDAppel: "Cour d'Appel de Montpellier" },
-  { id: 'b-nimes', name: 'Barreau de Nîmes', shortName: 'Nîmes', region: 'Occitanie', cx: 58, cy: 77, courDAppel: "Cour d'Appel de Nîmes" },
-  // PACA
-  { id: 'b-marseille', name: 'Barreau de Marseille', shortName: 'Marseille', region: "Provence-Alpes-Côte d'Azur", cx: 68, cy: 83, courDAppel: "Cour d'Appel d'Aix-en-Provence" },
-  { id: 'b-aix', name: 'Barreau d\'Aix-en-Provence', shortName: 'Aix-en-Provence', region: "Provence-Alpes-Côte d'Azur", cx: 67, cy: 80, courDAppel: "Cour d'Appel d'Aix-en-Provence" },
-  { id: 'b-nice', name: 'Barreau de Nice', shortName: 'Nice', region: "Provence-Alpes-Côte d'Azur", cx: 82, cy: 76, courDAppel: "Cour d'Appel d'Aix-en-Provence" },
-  { id: 'b-toulon', name: 'Barreau de Toulon', shortName: 'Toulon', region: "Provence-Alpes-Côte d'Azur", cx: 72, cy: 86, courDAppel: "Cour d'Appel d'Aix-en-Provence" },
-  // Corse
-  { id: 'b-bastia', name: 'Barreau de Bastia', shortName: 'Bastia', region: 'Corse', cx: 93, cy: 82, courDAppel: "Cour d'Appel de Bastia" },
-  { id: 'b-ajaccio', name: 'Barreau d\'Ajaccio', shortName: 'Ajaccio', region: 'Corse', cx: 92, cy: 89, courDAppel: "Cour d'Appel de Bastia" },
-  // Outre-Mer (DROM-COM)
-  { id: 'b-guadeloupe', name: 'Barreau de Guadeloupe', shortName: 'Guadeloupe', region: 'Guadeloupe', cx: 0, cy: 0, courDAppel: "Cour d'Appel de Basse-Terre", isOverseas: true },
-  { id: 'b-martinique', name: 'Barreau de Martinique', shortName: 'Martinique', region: 'Martinique', cx: 0, cy: 0, courDAppel: "Cour d'Appel de Fort-de-France", isOverseas: true },
-  { id: 'b-guyane', name: 'Barreau de Guyane', shortName: 'Guyane', region: 'Guyane', cx: 0, cy: 0, courDAppel: "Cour d'Appel de Cayenne", isOverseas: true },
-  { id: 'b-reunion', name: 'Barreau de La Réunion', shortName: 'La Réunion', region: 'La Réunion', cx: 0, cy: 0, courDAppel: "Cour d'Appel de Saint-Denis", isOverseas: true },
-  { id: 'b-mayotte', name: 'Barreau de Mayotte', shortName: 'Mayotte', region: 'Mayotte', cx: 0, cy: 0, courDAppel: "Chambre Détachée de Mamoudzou", isOverseas: true },
-  { id: 'b-noumea', name: 'Barreau de Nouvelle-Calédonie', shortName: 'Nouvelle-Calédonie', region: 'Nouvelle-Calédonie', cx: 0, cy: 0, courDAppel: "Cour d'Appel de Nouméa", isOverseas: true },
-  { id: 'b-papeete', name: 'Barreau de Polynésie', shortName: 'Polynésie', region: 'Polynésie Française', cx: 0, cy: 0, courDAppel: "Cour d'Appel de Papeete", isOverseas: true },
-];
-
 export const FranceMap: React.FC<FranceMapProps> = ({
   onSelectRegion,
   selectedRegion = null,
@@ -131,33 +63,26 @@ export const FranceMap: React.FC<FranceMapProps> = ({
   const [annuaireOpen, setAnnuaireOpen] = useState(false);
   const [modalSearchFilter, setModalSearchFilter] = useState('');
 
-  // Fallback real counts from scraped dataset if lawyerCounts prop is not provided or empty
+  // Real official census counts for all 164 barreaux
   const defaultLawyerCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    ANNUAIRE_AVOCATS_FRANCE_DATA.forEach(av => {
-      const barName = `Barreau de ${av.NomBarreau}`.replace('Barreau de Barreau', 'Barreau');
-      counts[barName] = (counts[barName] || 0) + 1;
-      counts[av.NomBarreau] = (counts[av.NomBarreau] || 0) + 1;
-      counts[av.shortName || av.NomBarreau] = (counts[av.shortName || av.NomBarreau] || 0) + 1;
-
-      const courInfo = getCourDAppelForCity(av.cbVille, av.cbCp);
-      if (courInfo && courInfo.region) {
-        counts[courInfo.region] = (counts[courInfo.region] || 0) + 1;
-      }
+    ALL_BARREAUX_FRANCE.forEach(b => {
+      counts[b.name] = b.count;
+      counts[b.shortName] = b.count;
+      counts[b.rawNom] = b.count;
+      counts[b.region] = (counts[b.region] || 0) + b.count;
     });
     return counts;
   }, []);
 
   const activeLawyerCounts = useMemo(() => {
+    const merged = { ...defaultLawyerCounts };
     if (lawyerCounts && Object.keys(lawyerCounts).length > 0) {
-      // Merge with default counts to ensure no barreau is 0
-      const merged = { ...defaultLawyerCounts };
       Object.entries(lawyerCounts).forEach(([k, v]) => {
         if (v > 0) merged[k] = v;
       });
-      return merged;
     }
-    return defaultLawyerCounts;
+    return merged;
   }, [lawyerCounts, defaultLawyerCounts]);
 
   const handleRegionClick = (regionName: string, e?: React.MouseEvent) => {
@@ -170,8 +95,6 @@ export const FranceMap: React.FC<FranceMapProps> = ({
     } else {
       if (onSelectRegion) onSelectRegion(regionName);
     }
-    setModalSearchFilter(regionName);
-    setAnnuaireOpen(true);
   };
 
   const handleBarreauClick = (barreau: BarreauData, e?: React.MouseEvent) => {
@@ -179,23 +102,46 @@ export const FranceMap: React.FC<FranceMapProps> = ({
       e.preventDefault();
       e.stopPropagation();
     }
-    if (selectedBarreau === barreau.name) {
+    const isAlreadySelected = selectedBarreau && (
+      selectedBarreau === barreau.name ||
+      selectedBarreau === barreau.shortName ||
+      selectedBarreau === barreau.rawNom ||
+      matchBarreau(selectedBarreau, barreau.name)
+    );
+
+    if (isAlreadySelected) {
       if (onSelectBarreau) onSelectBarreau(null);
     } else {
       if (onSelectBarreau) onSelectBarreau(barreau.name);
       if (onSelectRegion && barreau.region) onSelectRegion(barreau.region);
     }
-    setModalSearchFilter(barreau.shortName || barreau.name);
-    setAnnuaireOpen(true);
   };
 
+  // Filtered barreaux for right list and search
   const filteredBarreaux = useMemo(() => {
-    if (!searchQuery.trim()) return barreauxList;
+    let list = ALL_BARREAUX_FRANCE;
+    if (selectedRegion) {
+      list = list.filter(b => b.region === selectedRegion);
+    }
+    if (!searchQuery.trim()) return list;
     const query = searchQuery.toLowerCase().trim();
-    return barreauxList.filter(
-      b => b.name.toLowerCase().includes(query) || b.region.toLowerCase().includes(query) || b.courDAppel.toLowerCase().includes(query)
+    return list.filter(
+      b => b.name.toLowerCase().includes(query) ||
+           b.shortName.toLowerCase().includes(query) ||
+           b.region.toLowerCase().includes(query) ||
+           b.courDAppel.toLowerCase().includes(query)
     );
-  }, [searchQuery]);
+  }, [searchQuery, selectedRegion]);
+
+  // Barreaux displayed as pins on the map
+  const visibleMapPins = useMemo(() => {
+    const nonOverseas = ALL_BARREAUX_FRANCE.filter(b => !b.isOverseas);
+    if (selectedRegion) {
+      return nonOverseas.filter(b => b.region === selectedRegion);
+    }
+    // Default view: prominent barreaux (all large + key regional prefectures)
+    return nonOverseas.filter(b => b.count >= 200 || ['PARIS', 'LYON', 'MARSEILLE', 'BORDEAUX', 'TOULOUSE', 'LILLE', 'NANTES', 'STRASBOURG', 'RENNES', 'MONTPELLIER', 'NICE', 'ROUEN', 'DIJON', 'GRENOBLE', 'ORLEANS', 'POITIERS', 'CAEN', 'AMIENS', 'REIMS', 'METZ', 'BESANCON', 'LIMOGES', 'AJACCIO', 'BASTIA'].includes(b.rawNom));
+  }, [selectedRegion]);
 
   const filteredRegions = useMemo(() => {
     if (!searchQuery.trim()) return regions;
@@ -203,7 +149,7 @@ export const FranceMap: React.FC<FranceMapProps> = ({
     return regions.filter(r => r.name.toLowerCase().includes(query));
   }, [searchQuery]);
 
-  const overseasBarreaux = useMemo(() => barreauxList.filter(b => b.isOverseas), []);
+  const overseasBarreaux = useMemo(() => ALL_BARREAUX_FRANCE.filter(b => b.isOverseas), []);
 
   return (
     <div className="bg-white text-slate-900 rounded-3xl p-6 border border-slate-200 shadow-xl relative flex flex-col gap-6 overflow-hidden">
@@ -357,16 +303,21 @@ export const FranceMap: React.FC<FranceMapProps> = ({
             })}
 
             {/* Barreaux Pinpoints & Labels (when viewMode === 'barreaux') */}
-            {viewMode === 'barreaux' && barreauxList.filter(b => !b.isOverseas).map((barreau) => {
-              const isSelected = selectedBarreau === barreau.name;
+            {viewMode === 'barreaux' && visibleMapPins.map((barreau) => {
+              const isSelected = selectedBarreau && (
+                selectedBarreau === barreau.name ||
+                selectedBarreau === barreau.shortName ||
+                selectedBarreau === barreau.rawNom ||
+                matchBarreau(selectedBarreau, barreau.name)
+              );
               const isHovered = hoveredItem?.type === 'barreau' && hoveredItem?.name === barreau.name;
-              const count = activeLawyerCounts[barreau.name] || activeLawyerCounts[barreau.shortName] || 5;
+              const count = activeLawyerCounts[barreau.name] || activeLawyerCounts[barreau.shortName] || barreau.count;
 
               return (
                 <button
                   key={barreau.id}
                   onClick={(e) => handleBarreauClick(barreau, e)}
-                  onMouseEnter={() => setHoveredItem({ type: 'barreau', name: barreau.name, extra: barreau.courDAppel })}
+                  onMouseEnter={() => setHoveredItem({ type: 'barreau', name: barreau.name, extra: `${barreau.courDAppel} • ${barreau.region}` })}
                   onMouseLeave={() => setHoveredItem(null)}
                   style={{ left: `${barreau.cx}%`, top: `${barreau.cy}%` }}
                   className={`absolute -translate-x-1/2 -translate-y-1/2 z-20 group transition-transform duration-200 flex flex-col items-center gap-0.5 ${
@@ -376,7 +327,7 @@ export const FranceMap: React.FC<FranceMapProps> = ({
                   <span className="relative flex items-center justify-center">
                     <span
                       className={`w-3.5 h-3.5 rounded-full border-2 border-white shadow-md ${
-                        isSelected ? 'bg-amber-500' : count > 0 ? 'bg-teal-500' : 'bg-cyan-500'
+                        isSelected ? 'bg-amber-500 ring-2 ring-amber-300' : count > 0 ? 'bg-teal-500' : 'bg-cyan-500'
                       }`}
                     />
                     {isSelected && (
@@ -425,14 +376,23 @@ export const FranceMap: React.FC<FranceMapProps> = ({
                 {viewMode === 'barreaux' ? `Barreaux (${filteredBarreaux.length})` : `Régions (${filteredRegions.length})`}
               </span>
             </h4>
-            {searchQuery && <span className="text-[10px] text-cyan-700 font-semibold">Filtre actif</span>}
+            {(searchQuery || selectedRegion) && (
+              <span className="text-[10px] text-cyan-700 font-semibold">
+                {selectedRegion ? `Région : ${selectedRegion}` : 'Filtre actif'}
+              </span>
+            )}
           </div>
 
           <div className="max-h-[380px] overflow-y-auto pr-1 space-y-1.5 scrollbar-thin">
             {viewMode === 'barreaux' ? (
               filteredBarreaux.map((barreau) => {
-                const count = activeLawyerCounts[barreau.name] || activeLawyerCounts[barreau.shortName] || 5;
-                const isSelected = selectedBarreau === barreau.name;
+                const count = activeLawyerCounts[barreau.name] || activeLawyerCounts[barreau.shortName] || barreau.count;
+                const isSelected = selectedBarreau && (
+                  selectedBarreau === barreau.name ||
+                  selectedBarreau === barreau.shortName ||
+                  selectedBarreau === barreau.rawNom ||
+                  matchBarreau(selectedBarreau, barreau.name)
+                );
 
                 return (
                   <button
@@ -507,8 +467,13 @@ export const FranceMap: React.FC<FranceMapProps> = ({
 
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
           {overseasBarreaux.map((barreau) => {
-            const count = activeLawyerCounts[barreau.name] || activeLawyerCounts[barreau.shortName] || 3;
-            const isSelected = selectedBarreau === barreau.name || selectedRegion === barreau.region;
+            const count = activeLawyerCounts[barreau.name] || activeLawyerCounts[barreau.shortName] || barreau.count;
+            const isSelected = (selectedBarreau && (
+              selectedBarreau === barreau.name ||
+              selectedBarreau === barreau.shortName ||
+              selectedBarreau === barreau.rawNom ||
+              matchBarreau(selectedBarreau, barreau.name)
+            )) || selectedRegion === barreau.region;
 
             return (
               <button

@@ -23,6 +23,82 @@ export interface UnifiedLawyer {
   cour_d_appel: string;
   premier_president: string;
   source: 'supabase' | 'data_gouv';
+  lawyers?: {
+    bar_association?: string;
+  };
+}
+
+export function normalizeBarreau(name?: string | null): string {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/^barreau\s+(de\s+|d'|des\s+|du\s+)?/i, '')
+    .replace(/[\(\)-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function matchBarreau(bar1?: string | null, bar2?: string | null): boolean {
+  if (!bar1 || !bar2) return false;
+  const n1 = normalizeBarreau(bar1);
+  const n2 = normalizeBarreau(bar2);
+  return n1 === n2 || n1.includes(n2) || n2.includes(n1);
+}
+
+let cachedAllCsvLawyers: DataGouvAvocat[] | null = null;
+let isCsvLoading = false;
+
+export async function loadFullDatasetFromCsv(): Promise<DataGouvAvocat[]> {
+  if (cachedAllCsvLawyers && cachedAllCsvLawyers.length > 0) {
+    return cachedAllCsvLawyers;
+  }
+  if (isCsvLoading) {
+    await new Promise(res => setTimeout(res, 250));
+    return cachedAllCsvLawyers || ANNUAIRE_AVOCATS_FRANCE_DATA;
+  }
+  isCsvLoading = true;
+  try {
+    const res = await fetch('/data/annuaire-avocats-complet.csv');
+    if (!res.ok) {
+      isCsvLoading = false;
+      return ANNUAIRE_AVOCATS_FRANCE_DATA;
+    }
+    const text = await res.text();
+    const lines = text.split('\n');
+    const results: DataGouvAvocat[] = [];
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const cols = line.split(';');
+      if (cols.length >= 8) {
+        results.push({
+          NomBarreau: cols[0] || '',
+          avNom: cols[1] || '',
+          avPrenom: cols[2] || '',
+          cbRaisonSociale: cols[3] || '',
+          cbSiretSiren: cols[4] || '',
+          cbAdresse1: cols[5] || '',
+          cbAdresse2: cols[6] || '',
+          cbCp: cols[7] || '',
+          cbVille: cols[8] || '',
+          spLibelle1: cols[9] || '',
+          spLibelle2: cols[10] || '',
+          spLibelle3: cols[11] || '',
+          acDateSerment: cols[12] || '',
+          avLang: cols[13] || 'Français'
+        });
+      }
+    }
+    cachedAllCsvLawyers = results;
+    isCsvLoading = false;
+    return results;
+  } catch (err) {
+    console.error('Error fetching full CSV dataset:', err);
+    isCsvLoading = false;
+    return ANNUAIRE_AVOCATS_FRANCE_DATA;
+  }
 }
 
 /**
@@ -31,10 +107,10 @@ export interface UnifiedLawyer {
 export function normalizeDataGouvAvocat(av: DataGouvAvocat, index: number): UnifiedLawyer {
   const courInfo = getCourDAppelForCity(av.cbVille, av.cbCp);
   return {
-    id: `data-gouv-${index}-${av.avNom.toLowerCase()}`,
+    id: `data-gouv-${index}-${(av.avNom || '').toLowerCase()}`,
     first_name: av.avPrenom,
     last_name: av.avNom,
-    email: av.email || `${av.avPrenom.toLowerCase()}.${av.avNom.toLowerCase()}@avocat-conseil.fr`,
+    email: av.email || `${(av.avPrenom || '').toLowerCase()}.${(av.avNom || '').toLowerCase()}@avocat-france.fr`,
     phone: av.phone || '01 40 00 00 00',
     city: av.cbVille,
     postal_code: av.cbCp,
@@ -50,7 +126,10 @@ export function normalizeDataGouvAvocat(av: DataGouvAvocat, index: number): Unif
     avatar_url: `https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80`,
     cour_d_appel: courInfo.name,
     premier_president: courInfo.premierPresident,
-    source: 'data_gouv'
+    source: 'data_gouv',
+    lawyers: {
+      bar_association: av.NomBarreau
+    }
   };
 }
 
