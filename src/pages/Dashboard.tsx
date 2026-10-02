@@ -315,6 +315,17 @@ const DashboardPage: React.FC = () => {
   const [docFilterType, setDocFilterType] = useState<string>('all');
   const [selectedIADoc, setSelectedIADoc] = useState<any>(null);
 
+  // Search and Multi-Delete states for Appointments, Docs, Quotes
+  const [userApptSearch, setUserApptSearch] = useState('');
+  const [userApptStatusFilter, setUserApptStatusFilter] = useState('all');
+  const [selectedUserApptIds, setSelectedUserApptIds] = useState<Set<string>>(new Set());
+
+  const [userDocSearch, setUserDocSearch] = useState('');
+  const [selectedUserDocIds, setSelectedUserDocIds] = useState<Set<string>>(new Set());
+
+  const [userQuoteSearch, setUserQuoteSearch] = useState('');
+  const [selectedUserQuoteIds, setSelectedUserQuoteIds] = useState<Set<string>>(new Set());
+
   const handleVoiceAction = (action: { type: string; payload: any }) => {
     if (action.type === 'SWITCH_TAB') {
       setActiveTab(action.payload.tab);
@@ -735,6 +746,96 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  const handleDeleteAppointment = async (id: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer définitivement ce rendez-vous ?")) return;
+    const { error: err } = await supabase.from('appointments_just').delete().eq('id', id);
+    if (!err) {
+      setAppointments(prev => prev.filter(a => a.id !== id));
+      setSelectedUserApptIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      success('Succès', 'Rendez-vous supprimé.');
+    } else {
+      toastError('Erreur', 'Impossible de supprimer le rendez-vous.');
+    }
+  };
+
+  const handleBulkDeleteAppointments = async () => {
+    if (selectedUserApptIds.size === 0) return;
+    if (!window.confirm(`Supprimer définitivement les ${selectedUserApptIds.size} rendez-vous sélectionnés ?`)) return;
+    const ids = Array.from(selectedUserApptIds);
+    const { error: err } = await supabase.from('appointments_just').delete().in('id', ids);
+    if (!err) {
+      setAppointments(prev => prev.filter(a => !selectedUserApptIds.has(a.id)));
+      setSelectedUserApptIds(new Set());
+      success('Succès', `${ids.length} rendez-vous supprimés.`);
+    } else {
+      toastError('Erreur', 'Erreur lors de la suppression.');
+    }
+  };
+
+  const handleDeleteDocument = async (id: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer définitivement ce document de votre coffre-fort ?")) return;
+    const { error: err } = await supabase.from('documents_just').delete().eq('id', id);
+    if (!err) {
+      setDocuments(prev => prev.filter(d => d.id !== id));
+      setSelectedUserDocIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      success('Succès', 'Document supprimé du coffre-fort.');
+    } else {
+      toastError('Erreur', 'Impossible de supprimer ce document.');
+    }
+  };
+
+  const handleBulkDeleteDocuments = async () => {
+    if (selectedUserDocIds.size === 0) return;
+    if (!window.confirm(`Supprimer définitivement les ${selectedUserDocIds.size} documents sélectionnés ?`)) return;
+    const ids = Array.from(selectedUserDocIds);
+    const { error: err } = await supabase.from('documents_just').delete().in('id', ids);
+    if (!err) {
+      setDocuments(prev => prev.filter(d => !selectedUserDocIds.has(d.id)));
+      setSelectedUserDocIds(new Set());
+      success('Succès', `${ids.length} documents supprimés.`);
+    } else {
+      toastError('Erreur', 'Erreur lors de la suppression.');
+    }
+  };
+
+  const handleDeleteQuote = async (id: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce devis ?")) return;
+    const { error: err } = await supabase.from('quotes_just').delete().eq('id', id);
+    if (!err) {
+      setQuotes(prev => prev.filter(q => q.id !== id));
+      setSelectedUserQuoteIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      success('Succès', 'Devis supprimé.');
+    } else {
+      toastError('Erreur', 'Impossible de supprimer ce devis.');
+    }
+  };
+
+  const handleBulkDeleteQuotes = async () => {
+    if (selectedUserQuoteIds.size === 0) return;
+    if (!window.confirm(`Supprimer les ${selectedUserQuoteIds.size} devis sélectionnés ?`)) return;
+    const ids = Array.from(selectedUserQuoteIds);
+    const { error: err } = await supabase.from('quotes_just').delete().in('id', ids);
+    if (!err) {
+      setQuotes(prev => prev.filter(q => !selectedUserQuoteIds.has(q.id)));
+      setSelectedUserQuoteIds(new Set());
+      success('Succès', `${ids.length} devis supprimés.`);
+    } else {
+      toastError('Erreur', 'Erreur lors de la suppression.');
+    }
+  };
+
   const handleUploadDocument = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !uploadDocName) return;
@@ -1007,13 +1108,45 @@ Ce document est généré par la plateforme France Justice.
   );
 
   const renderDocuments = () => {
-    const filteredDocs = documents.filter(doc => docFilterType === 'all' || doc.type === docFilterType);
-
     const docTypeLabels: Record<string, string> = {
       identity: "🪪 Pièce d'identité",
       license: "📜 Licence / Diplôme",
       legal_template: "📝 Modèle de document",
       client_document: "📁 Pièce de dossier / Justificatif"
+    };
+
+    const filteredDocs = documents.filter(doc => {
+      const typeMatches = docFilterType === 'all' || doc.type === docFilterType;
+      const q = userDocSearch.toLowerCase().trim();
+      const nameMatches = !q || (doc.name || '').toLowerCase().includes(q) || (docTypeLabels[doc.type] || doc.type).toLowerCase().includes(q);
+      return typeMatches && nameMatches;
+    });
+
+    const allDocsSelected = filteredDocs.length > 0 && filteredDocs.every(d => selectedUserDocIds.has(d.id));
+
+    const toggleAllDocs = () => {
+      if (allDocsSelected) {
+        setSelectedUserDocIds(prev => {
+          const next = new Set(prev);
+          filteredDocs.forEach(d => next.delete(d.id));
+          return next;
+        });
+      } else {
+        setSelectedUserDocIds(prev => {
+          const next = new Set(prev);
+          filteredDocs.forEach(d => next.add(d.id));
+          return next;
+        });
+      }
+    };
+
+    const toggleOneDoc = (id: string) => {
+      setSelectedUserDocIds(prev => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
     };
 
     return (
@@ -1067,6 +1200,46 @@ Ce document est généré par la plateforme France Justice.
           </CardContent>
         </Card>
 
+        {/* Search & Actions Bar */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Rechercher un document..."
+              className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              value={userDocSearch}
+              onChange={(e) => setUserDocSearch(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            {filteredDocs.length > 0 && (
+              <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={allDocsSelected}
+                  onChange={toggleAllDocs}
+                  className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                />
+                Tout sélectionner ({filteredDocs.length})
+              </label>
+            )}
+
+            {selectedUserDocIds.size > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBulkDeleteDocuments}
+                className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 font-bold"
+              >
+                <Trash2 className="h-4 w-4 mr-1.5" />
+                Supprimer ({selectedUserDocIds.size})
+              </Button>
+            )}
+          </div>
+        </div>
+
         {/* Classification Filters */}
         <div className="flex flex-wrap gap-2 pb-2">
           {['all', 'identity', 'license', 'legal_template', 'client_document'].map(type => (
@@ -1085,48 +1258,66 @@ Ce document est généré par la plateforme France Justice.
         </div>
 
         <div className="grid gap-4">
-          {filteredDocs.map((doc) => (
-            <Card key={doc.id} className="hover:shadow-sm transition-shadow border-slate-200 bg-white">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 bg-cyan-50 rounded-xl text-cyan-600">
-                      <FileText className="h-6 w-6" />
+          {filteredDocs.map((doc) => {
+            const isSelected = selectedUserDocIds.has(doc.id);
+            return (
+              <Card key={doc.id} className={cn("transition-all border-slate-200 bg-white", isSelected && "ring-2 ring-cyan-500 bg-cyan-50/20")}>
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center space-x-4">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleOneDoc(doc.id)}
+                        className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                      />
+                      <div className="p-3 bg-cyan-50 rounded-xl text-cyan-600">
+                        <FileText className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-slate-900">{doc.name}</h3>
+                        <p className="text-xs text-slate-500 mt-1">
+                          <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
+                            {docTypeLabels[doc.type] || doc.type}
+                          </span>
+                          <span className="mx-2">•</span>
+                          Créé le {new Date(doc.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-base font-bold text-slate-900">{doc.name}</h3>
-                      <p className="text-xs text-slate-500 mt-1">
-                        <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
-                          {docTypeLabels[doc.type] || doc.type}
-                        </span>
-                        <span className="mx-2">•</span>
-                        Créé le {new Date(doc.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {doc.file_url ? (
-                      <a href={doc.file_url} target="_blank" rel="noreferrer">
-                        <Button variant="outline" size="sm" className="hover:border-cyan-500 hover:text-cyan-700">
-                          <Download className="h-4 w-4 mr-2" />
-                          Télécharger / Visualiser
+                    <div className="flex items-center space-x-2">
+                      {doc.file_url ? (
+                        <a href={doc.file_url} target="_blank" rel="noreferrer">
+                          <Button variant="outline" size="sm" className="hover:border-cyan-500 hover:text-cyan-700">
+                            <Download className="h-4 w-4 mr-2" />
+                            Télécharger / Visualiser
+                          </Button>
+                        </a>
+                      ) : doc.metadata?.content ? (
+                        <Button variant="outline" size="sm" onClick={() => setSelectedIADoc(doc)} className="hover:border-cyan-500 hover:text-cyan-700">
+                          <Eye className="h-4.5 w-4.5 mr-2 text-cyan-600" />
+                          Visualiser / Télécharger
                         </Button>
-                      </a>
-                    ) : doc.metadata?.content ? (
-                      <Button variant="outline" size="sm" onClick={() => setSelectedIADoc(doc)} className="hover:border-cyan-500 hover:text-cyan-700">
-                        <Eye className="h-4.5 w-4.5 mr-2 text-cyan-600" />
-                        Visualiser / Télécharger
+                      ) : null}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteDocument(doc.id)}
+                        className="text-slate-400 hover:text-red-600 hover:bg-red-50"
+                        title="Supprimer définitivement ce document"
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
-                    ) : null}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
           {filteredDocs.length === 0 && (
             <div className="text-center py-12 bg-white text-slate-800 rounded-2xl border border-dashed border-slate-200 shadow-sm">
               <FileText className="h-10 w-10 mx-auto mb-2 text-slate-300" />
-              Aucun document dans cette catégorie.
+              {documents.length === 0 ? "Aucun document dans le coffre-fort." : "Aucun document ne correspond à votre recherche."}
             </div>
           )}
         </div>
@@ -1136,10 +1327,47 @@ Ce document est généré par la plateforme France Justice.
 
   const renderAppointments = () => {
     const statusLabels: Record<string, { text: string; color: string }> = {
-      pending: { text: t('dashboard.status_pending', 'En attente'), color: "bg-amber-100 text-amber-800" },
-      confirmed: { text: t('dashboard.status_confirmed', 'Confirmé'), color: "bg-emerald-100 text-emerald-800" },
-      cancelled: { text: t('dashboard.status_cancelled', 'Annulé'), color: "bg-rose-100 text-rose-800" },
-      completed: { text: t('dashboard.status_completed', 'Terminé'), color: "bg-cyan-100 text-cyan-800" }
+      pending: { text: t('dashboard.status_pending', 'En attente'), color: "bg-amber-100 text-amber-800 border border-amber-200" },
+      confirmed: { text: t('dashboard.status_confirmed', 'Confirmé'), color: "bg-emerald-100 text-emerald-800 border border-emerald-200" },
+      cancelled: { text: t('dashboard.status_cancelled', 'Annulé'), color: "bg-rose-100 text-rose-800 border border-rose-200" },
+      completed: { text: t('dashboard.status_completed', 'Terminé'), color: "bg-cyan-100 text-cyan-800 border border-cyan-200" }
+    };
+
+    const filteredAppts = appointments.filter((appt) => {
+      const lawyerName = `${appt.profiles?.first_name || ''} ${appt.profiles?.last_name || ''}`.toLowerCase();
+      const notes = (appt.notes || '').toLowerCase();
+      const specialty = (appt.profiles?.specialty || '').toLowerCase();
+      const q = userApptSearch.toLowerCase().trim();
+      const matchesText = !q || lawyerName.includes(q) || notes.includes(q) || specialty.includes(q);
+      const matchesStatus = userApptStatusFilter === 'all' || appt.status === userApptStatusFilter;
+      return matchesText && matchesStatus;
+    });
+
+    const allApptsSelected = filteredAppts.length > 0 && filteredAppts.every(a => selectedUserApptIds.has(a.id));
+
+    const toggleAllAppts = () => {
+      if (allApptsSelected) {
+        setSelectedUserApptIds(prev => {
+          const next = new Set(prev);
+          filteredAppts.forEach(a => next.delete(a.id));
+          return next;
+        });
+      } else {
+        setSelectedUserApptIds(prev => {
+          const next = new Set(prev);
+          filteredAppts.forEach(a => next.add(a.id));
+          return next;
+        });
+      }
+    };
+
+    const toggleOneAppt = (id: string) => {
+      setSelectedUserApptIds(prev => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
     };
 
     return (
@@ -1218,16 +1446,76 @@ Ce document est généré par la plateforme France Justice.
 
           {/* Appointments List */}
           <div className="lg:col-span-2 space-y-4">
-            <h3 className="font-semibold text-slate-900">{t('dashboard.planned_consultations', 'Mes consultations planifiées')}</h3>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <h3 className="font-semibold text-slate-900">{t('dashboard.planned_consultations', 'Mes consultations planifiées')}</h3>
+              
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                {selectedUserApptIds.size > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleBulkDeleteAppointments}
+                    className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 font-bold"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1.5" />
+                    Supprimer ({selectedUserApptIds.size})
+                  </Button>
+                )}
+                {filteredAppts.length > 0 && (
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={allApptsSelected}
+                      onChange={toggleAllAppts}
+                      className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-3.5 w-3.5"
+                    />
+                    Tout
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Filter and search bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Rechercher avocat, note..."
+                  className="w-full pl-9 pr-3 py-1.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  value={userApptSearch}
+                  onChange={(e) => setUserApptSearch(e.target.value)}
+                />
+              </div>
+              <select
+                className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                value={userApptStatusFilter}
+                onChange={(e) => setUserApptStatusFilter(e.target.value)}
+              >
+                <option value="all">Tous les statuts ({appointments.length})</option>
+                <option value="pending">En attente</option>
+                <option value="confirmed">Confirmés</option>
+                <option value="completed">Terminés</option>
+                <option value="cancelled">Annulés</option>
+              </select>
+            </div>
+
             <div className="space-y-4">
-              {appointments.map((appt) => {
-                const label = statusLabels[appt.status] || { text: appt.status, color: "bg-slate-100 text-slate-700" };
+              {filteredAppts.map((appt) => {
+                const label = statusLabels[appt.status] || { text: appt.status, color: "bg-slate-100 text-slate-700 border border-slate-200" };
+                const isSelected = selectedUserApptIds.has(appt.id);
                 return (
-                  <Card key={appt.id} className="hover:shadow-sm transition-shadow border-slate-200 bg-white">
+                  <Card key={appt.id} className={cn("hover:shadow-sm transition-all border-slate-200 bg-white", isSelected && "ring-2 ring-cyan-500 bg-cyan-50/20")}>
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-4 flex-wrap">
-                        <div className="flex gap-4">
-                          <div className="p-3 bg-cyan-50 border border-cyan-100 rounded-xl text-cyan-600">
+                        <div className="flex items-start gap-4">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleOneAppt(appt.id)}
+                            className="mt-1 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                          />
+                          <div className="p-3 bg-cyan-50 border border-cyan-100 rounded-xl text-cyan-600 shrink-0">
                             <Calendar className="h-6 w-6" />
                           </div>
                           <div>
@@ -1255,16 +1543,27 @@ Ce document est généré par la plateforme France Justice.
                           <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${label.color}`}>
                             {label.text}
                           </span>
-                          {appt.status === 'pending' && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 mt-2"
-                              onClick={() => handleCancelAppointment(appt.id)}
+                          <div className="flex items-center gap-2 mt-2">
+                            {appt.status === 'pending' && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                                onClick={() => handleCancelAppointment(appt.id)}
+                              >
+                                {t('dashboard.cancel_rdv', 'Annuler')}
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-slate-400 hover:text-red-600 hover:bg-red-50"
+                              onClick={() => handleDeleteAppointment(appt.id)}
+                              title="Supprimer ce rendez-vous"
                             >
-                              {t('dashboard.cancel_rdv', 'Annuler RDV')}
+                              <Trash2 className="h-4 w-4" />
                             </Button>
-                          )}
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -1272,10 +1571,10 @@ Ce document est généré par la plateforme France Justice.
                 );
               })}
 
-              {appointments.length === 0 && (
+              {filteredAppts.length === 0 && (
                 <div className="text-center py-20 bg-white text-slate-800 rounded-2xl border border-dashed border-slate-200 shadow-sm">
                   <Calendar className="h-10 w-10 mx-auto mb-2 text-slate-300" />
-                  {t('dashboard.no_appointments', 'Aucune consultation planifiée pour le moment.')}
+                  {appointments.length === 0 ? t('dashboard.no_appointments', 'Aucune consultation planifiée pour le moment.') : 'Aucune consultation ne correspond aux critères.'}
                 </div>
               )}
             </div>
@@ -1590,62 +1889,162 @@ Ce document est généré par la plateforme France Justice.
                     <DocumentGenerator skipAuthCheck />
                   </div>
                 )}
-                {activeTab === 'quotes' && (
-                  <div className="space-y-6 animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.quotes_title', 'Mes Devis & Honoraires')}</h2>
-                    <div className="grid gap-4">
-                      {quotes.map((q) => (
-                        <Card key={q.id}>
-                          <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-4">
-                                <div className="p-3 bg-accent-50 rounded-lg">
-                                  <Receipt className="h-6 w-6 text-accent-600" />
-                                </div>
-                                <div>
-                                  <h3 className="text-lg font-semibold text-secondary-900">Devis de Me {q.profiles?.last_name}</h3>
-                                  <p className="text-secondary-600">{q.amount} € • {q.description}</p>
-                                  <p className="text-xs text-secondary-400">Reçu le {new Date(q.created_at).toLocaleDateString()}</p>
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2 flex-wrap gap-2">
-                                <Button variant="outline" size="sm" onClick={() => downloadQuotePDF(q)}>
-                                  <Download className="h-4 w-4 mr-1" />
-                                  {t('common.download', 'Télécharger')}
-                                </Button>
-                                {q.status === 'pending' ? (
-                                  <Button
-                                    onClick={() => handlePayQuote(q)}
-                                    disabled={payingQuoteId === q.id}
-                                    className="relative"
-                                  >
-                                    {payingQuoteId === q.id ? (
-                                      <span className="flex items-center gap-2">
-                                        <RefreshCw className="h-4 w-4 animate-spin" />
-                                        {t('dashboard.redirecting', 'Redirection...')}
+                {activeTab === 'quotes' && (() => {
+                  const filteredQuotes = quotes.filter(q => {
+                    const lawyerName = `${q.profiles?.first_name || ''} ${q.profiles?.last_name || ''}`.toLowerCase();
+                    const desc = (q.description || '').toLowerCase();
+                    const amount = String(q.amount || '');
+                    const query = userQuoteSearch.toLowerCase().trim();
+                    return !query || lawyerName.includes(query) || desc.includes(query) || amount.includes(query);
+                  });
+
+                  const allQuotesSelected = filteredQuotes.length > 0 && filteredQuotes.every(q => selectedUserQuoteIds.has(q.id));
+
+                  const toggleAllQuotes = () => {
+                    if (allQuotesSelected) {
+                      setSelectedUserQuoteIds(prev => {
+                        const next = new Set(prev);
+                        filteredQuotes.forEach(q => next.delete(q.id));
+                        return next;
+                      });
+                    } else {
+                      setSelectedUserQuoteIds(prev => {
+                        const next = new Set(prev);
+                        filteredQuotes.forEach(q => next.add(q.id));
+                        return next;
+                      });
+                    }
+                  };
+
+                  const toggleOneQuote = (id: string) => {
+                    setSelectedUserQuoteIds(prev => {
+                      const next = new Set(prev);
+                      if (next.has(id)) next.delete(id);
+                      else next.add(id);
+                      return next;
+                    });
+                  };
+
+                  return (
+                    <div className="space-y-6 animate-fade-in">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                          <h2 className="text-2xl font-semibold text-secondary-900">{t('dashboard.quotes_title', 'Mes Devis & Honoraires')}</h2>
+                          <p className="text-xs text-slate-500 mt-1">Consultez, payez et gérez vos devis d'avocats en toute transparence.</p>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                          {selectedUserQuoteIds.size > 0 && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleBulkDeleteQuotes}
+                              className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 font-bold"
+                            >
+                              <Trash2 className="h-4 w-4 mr-1.5" />
+                              Supprimer ({selectedUserQuoteIds.size})
+                            </Button>
+                          )}
+                          <div className="relative w-full sm:w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <input
+                              type="text"
+                              placeholder="Rechercher devis, montant..."
+                              className="w-full pl-9 pr-3 py-1.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                              value={userQuoteSearch}
+                              onChange={(e) => setUserQuoteSearch(e.target.value)}
+                            />
+                          </div>
+                          {filteredQuotes.length > 0 && (
+                            <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer select-none">
+                              <input
+                                type="checkbox"
+                                checked={allQuotesSelected}
+                                onChange={toggleAllQuotes}
+                                className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                              />
+                              Tout
+                            </label>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4">
+                        {filteredQuotes.map((q) => {
+                          const isSelected = selectedUserQuoteIds.has(q.id);
+                          return (
+                            <Card key={q.id} className={cn("transition-all border-slate-200 bg-white", isSelected && "ring-2 ring-cyan-500 bg-cyan-50/20")}>
+                              <CardContent className="p-6">
+                                <div className="flex items-center justify-between flex-wrap gap-4">
+                                  <div className="flex items-center space-x-4">
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      onChange={() => toggleOneQuote(q.id)}
+                                      className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                                    />
+                                    <div className="p-3 bg-accent-50 rounded-lg">
+                                      <Receipt className="h-6 w-6 text-accent-600" />
+                                    </div>
+                                    <div>
+                                      <h3 className="text-lg font-semibold text-secondary-900">Devis de Me {q.profiles?.last_name || 'Avocat'}</h3>
+                                      <p className="text-secondary-600">{q.amount} € • {q.description}</p>
+                                      <p className="text-xs text-secondary-400">Reçu le {new Date(q.created_at).toLocaleDateString()}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center space-x-2 flex-wrap gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => downloadQuotePDF(q)}>
+                                      <Download className="h-4 w-4 mr-1" />
+                                      {t('common.download', 'Télécharger')}
+                                    </Button>
+                                    {q.status === 'pending' ? (
+                                      <Button
+                                        onClick={() => handlePayQuote(q)}
+                                        disabled={payingQuoteId === q.id}
+                                        className="relative"
+                                      >
+                                        {payingQuoteId === q.id ? (
+                                          <span className="flex items-center gap-2">
+                                            <RefreshCw className="h-4 w-4 animate-spin" />
+                                            {t('dashboard.redirecting', 'Redirection...')}
+                                          </span>
+                                        ) : (
+                                          `${t('dashboard.pay', 'Payer')} ${q.amount} €`
+                                        )}
+                                      </Button>
+                                    ) : q.status === 'paid' ? (
+                                      <span className="px-4 py-2 bg-green-50 text-green-700 rounded-lg font-bold flex items-center gap-1">
+                                        ✅ {t('dashboard.status_paid', 'Payé')}
                                       </span>
                                     ) : (
-                                      `${t('dashboard.pay', 'Payer')} ${q.amount} €`
+                                      <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold">
+                                        {t('dashboard.commission_paid', 'Commission payée')}
+                                      </span>
                                     )}
-                                  </Button>
-                                ) : q.status === 'paid' ? (
-                                  <span className="px-4 py-2 bg-green-50 text-green-700 rounded-lg font-bold flex items-center gap-1">
-                                    ✅ {t('dashboard.status_paid', 'Payé')}
-                                  </span>
-                                ) : (
-                                  <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold">
-                                    {t('dashboard.commission_paid', 'Commission payée')}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                      {quotes.length === 0 && <div className="text-center py-12 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-sm">{t('dashboard.no_quotes', 'Aucun devis reçu.')}</div>}
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                      onClick={() => handleDeleteQuote(q.id)}
+                                      title="Supprimer ce devis"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                        {filteredQuotes.length === 0 && (
+                          <div className="text-center py-12 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-sm">
+                            {quotes.length === 0 ? t('dashboard.no_quotes', 'Aucun devis reçu.') : 'Aucun devis ne correspond à votre recherche.'}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
                 {activeTab === 'assistant' && (
                   <div className="space-y-4 animate-fade-in">
                     <AssistantPage embedded={true} />

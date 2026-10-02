@@ -632,7 +632,12 @@ ${curriculumText}`;
 
   const filtered = classrooms.filter((r) => {
     const q = searchQuery.toLowerCase();
-    const match = r.title.toLowerCase().includes(q) || r.description.toLowerCase().includes(q);
+    const match = !searchQuery ||
+      r.title.toLowerCase().includes(q) ||
+      (r.description && r.description.toLowerCase().includes(q)) ||
+      (r.category && r.category.toLowerCase().includes(q)) ||
+      (r.lawyer_first_name && r.lawyer_first_name.toLowerCase().includes(q)) ||
+      (r.lawyer_last_name && r.lawyer_last_name.toLowerCase().includes(q));
     const isTextPdf = (r as any).is_pdf_formation || r.id.startsWith('fede-') || (r as any).format === 'texte_pdf';
     const typeMatch = activeFilter === "all" ? true :
       activeFilter === "texte" ? isTextPdf :
@@ -826,8 +831,16 @@ ${curriculumText}`;
               placeholder={t('classrooms.search_placeholder', 'Rechercher une formation...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-xs"
+              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-8 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-xs"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 

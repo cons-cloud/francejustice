@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
-import { Search, Scale, Users, Shield, MessageSquare, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
+import { Search, Scale, Users, Shield, MessageSquare, ArrowRight, CheckCircle, Sparkles, X } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -13,6 +13,8 @@ const Services: React.FC = () => {
   const { t } = useTranslation();
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
 
   useEffect(() => {
     fetchServices();
@@ -166,7 +168,7 @@ const Services: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tight text-slate-900">
               {t('services.grid_title', 'Ce que nous proposons')}
@@ -175,6 +177,50 @@ const Services: React.FC = () => {
               {t('services.grid_subtitle', 'Une suite complète d’outils intelligents pour gérer vos problématiques juridiques en toute simplicité.')}
             </p>
           </motion.div>
+
+          {/* RECHERCHE AVANCÉE & FILTRES CATÉGORIES */}
+          <div className="max-w-3xl mx-auto mb-12 space-y-4">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Rechercher un service juridique, un outil IA, une formation ou un annuaire..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-2xl pl-12 pr-10 py-3.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+              {[
+                { id: 'all', label: 'Tous les services' },
+                { id: 'ia', label: '🤖 IA & Diagnostic' },
+                { id: 'documents', label: '📄 Actes & Contrats' },
+                { id: 'formations', label: '🎓 Formations & Visios' },
+                { id: 'avocats', label: '⚖️ Avocats & Chercheurs' }
+              ].map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setCategoryFilter(cat.id)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                    categoryFilter === cat.id
+                      ? 'bg-cyan-600 text-white border-cyan-600 shadow-sm'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-cyan-300 hover:text-cyan-700'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <AnimatePresence mode="wait">
             {loading ? (
@@ -187,41 +233,86 @@ const Services: React.FC = () => {
               >
                 <div className="animate-spin rounded-full h-14 w-14 border-b-4 border-cyan-600"></div>
               </motion.div>
-            ) : (
-              <motion.div 
-                key="services"
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="grid md:grid-cols-3 gap-8"
-              >
-                {services.map((service, i) => {
-                  const Icon = getIcon(service.icon_name);
-                  return (
-                    <motion.div key={i} variants={itemVariants}>
-                      <Card 
-                        className="h-full border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-cyan-400 transition-all duration-300 rounded-3xl group bg-white overflow-hidden cursor-pointer"
-                        onClick={() => navigate(service.path)}
-                      >
-                        <CardHeader className="pt-8 px-8">
-                          <div className="w-14 h-14 mb-6 bg-cyan-50 border border-cyan-100 rounded-2xl flex items-center justify-center group-hover:bg-cyan-600 transition-colors duration-300">
-                            <Icon className="h-7 w-7 text-cyan-600 group-hover:text-white transition-colors" />
-                          </div>
-                          <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-cyan-700 transition-colors">{service.title}</CardTitle>
-                        </CardHeader>
+            ) : (() => {
+              const filteredServices = services.filter((s) => {
+                const q = searchQuery.toLowerCase();
+                const matchesSearch = !searchQuery || 
+                  (s.title && s.title.toLowerCase().includes(q)) ||
+                  (s.description && s.description.toLowerCase().includes(q));
 
-                        <CardContent className="px-8 pb-8">
-                          <CardDescription className="text-base text-slate-600 leading-relaxed">
-                            {service.description}
-                          </CardDescription>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-            )}
+                if (!matchesSearch) return false;
+
+                if (categoryFilter === 'all') return true;
+                if (categoryFilter === 'ia') return s.path === '/genia-l' || s.title?.toLowerCase().includes('ia') || s.description?.toLowerCase().includes('ia');
+                if (categoryFilter === 'documents') return s.path === '/generator' || s.title?.toLowerCase().includes('document') || s.title?.toLowerCase().includes('contrat');
+                if (categoryFilter === 'formations') return s.path === '/classrooms' || s.title?.toLowerCase().includes('formation') || s.title?.toLowerCase().includes('classe');
+                if (categoryFilter === 'avocats') return s.path === '/lawyers' || s.title?.toLowerCase().includes('avocat') || s.title?.toLowerCase().includes('annuaire');
+                return true;
+              });
+
+              if (filteredServices.length === 0) {
+                return (
+                  <motion.div
+                    key="empty"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-md mx-auto shadow-sm"
+                  >
+                    <Search className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <h3 className="text-lg font-bold text-slate-900 mb-1">Aucun service trouvé</h3>
+                    <p className="text-slate-500 text-xs mb-4">Essayez d'ajuster votre recherche ou vos filtres de catégorie.</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => { setSearchQuery(''); setCategoryFilter('all'); }}
+                      className="border-slate-200 text-slate-700 hover:bg-slate-100"
+                    >
+                      Réinitialiser la recherche
+                    </Button>
+                  </motion.div>
+                );
+              }
+
+              return (
+                <motion.div 
+                  key="services"
+                  variants={containerVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  className="grid md:grid-cols-3 gap-8"
+                >
+                  {filteredServices.map((service, i) => {
+                    const Icon = getIcon(service.icon_name);
+                    return (
+                      <motion.div key={i} variants={itemVariants}>
+                        <Card 
+                          className="h-full border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-cyan-400 transition-all duration-300 rounded-3xl group bg-white overflow-hidden cursor-pointer flex flex-col justify-between"
+                          onClick={() => navigate(service.path)}
+                        >
+                          <CardHeader className="pt-8 px-8">
+                            <div className="w-14 h-14 mb-6 bg-cyan-50 border border-cyan-100 rounded-2xl flex items-center justify-center group-hover:bg-cyan-600 transition-colors duration-300">
+                              <Icon className="h-7 w-7 text-cyan-600 group-hover:text-white transition-colors" />
+                            </div>
+                            <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-cyan-700 transition-colors">{service.title}</CardTitle>
+                          </CardHeader>
+
+                          <CardContent className="px-8 pb-8 flex-1 flex flex-col justify-between">
+                            <CardDescription className="text-base text-slate-600 leading-relaxed mb-6">
+                              {service.description}
+                            </CardDescription>
+
+                            <div className="inline-flex items-center gap-1 text-sm font-bold text-cyan-700 group-hover:translate-x-1 transition-transform">
+                              Accéder au service <ArrowRight className="w-4 h-4 ml-1" />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+              );
+            })()}
           </AnimatePresence>
         </div>
       </section>

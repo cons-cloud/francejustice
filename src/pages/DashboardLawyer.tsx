@@ -129,6 +129,25 @@ const DashboardLawyer: React.FC = () => {
   const [selectedClientForCases, setSelectedClientForCases] = useState<string | null>(null)
   const [clientSearchText, setClientSearchText] = useState('')
 
+  // Is Coban check
+  const isCoban = Boolean(
+    profile?.last_name?.toLowerCase().includes('coban') ||
+    profile?.first_name?.toLowerCase().includes('coban') ||
+    user?.email?.toLowerCase().includes('coban')
+  );
+
+  // Search & Multiple Deletions state
+  const [apptSearchText, setApptSearchText] = useState('')
+  const [apptStatusFilter, setApptStatusFilter] = useState('all')
+  const [selectedApptIds, setSelectedApptIds] = useState<Set<string>>(new Set())
+
+  const [caseDocSearchText, setCaseDocSearchText] = useState('')
+  const [selectedCaseDocIds, setSelectedCaseDocIds] = useState<Set<string>>(new Set())
+
+  const [quoteSearchText, setQuoteSearchText] = useState('')
+  const [quoteStatusFilter, setQuoteStatusFilter] = useState('all')
+  const [selectedQuoteIds, setSelectedQuoteIds] = useState<Set<string>>(new Set())
+
   // Salles de classe / Visioconférences
   const [classrooms, setClassrooms] = useState<any[]>([])
   const [classroomsSubTab, setClassroomsSubTab] = useState<'static' | 'virtual'>('virtual')
@@ -1225,6 +1244,96 @@ const DashboardLawyer: React.FC = () => {
     }
   };
 
+  const handleDeleteAppointment = async (id: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer définitivement ce rendez-vous ?")) return;
+    const { error } = await supabase.from('appointments_just').delete().eq('id', id);
+    if (!error) {
+      setAppointments(prev => prev.filter(a => a.id !== id));
+      setSelectedApptIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      success("Succès", "Rendez-vous supprimé avec succès.");
+    } else {
+      toastError("Erreur", "Impossible de supprimer ce rendez-vous.");
+    }
+  };
+
+  const handleBulkDeleteAppointments = async () => {
+    if (selectedApptIds.size === 0) return;
+    if (!window.confirm(`Supprimer définitivement les ${selectedApptIds.size} rendez-vous sélectionnés ?`)) return;
+    const ids = Array.from(selectedApptIds);
+    const { error } = await supabase.from('appointments_just').delete().in('id', ids);
+    if (!error) {
+      setAppointments(prev => prev.filter(a => !selectedApptIds.has(a.id)));
+      setSelectedApptIds(new Set());
+      success("Succès", `${ids.length} rendez-vous supprimés.`);
+    } else {
+      toastError("Erreur", "Erreur lors de la suppression groupée.");
+    }
+  };
+
+  const handleDeleteCaseDoc = async (id: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer définitivement ce document client ?")) return;
+    const { error } = await supabase.from('documents_just').delete().eq('id', id);
+    if (!error) {
+      setCases(prev => prev.filter(c => c.id !== id));
+      setSelectedCaseDocIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      success("Succès", "Document supprimé avec succès.");
+    } else {
+      toastError("Erreur", "Impossible de supprimer ce document.");
+    }
+  };
+
+  const handleBulkDeleteCaseDocs = async () => {
+    if (selectedCaseDocIds.size === 0) return;
+    if (!window.confirm(`Supprimer définitivement les ${selectedCaseDocIds.size} documents sélectionnés ?`)) return;
+    const ids = Array.from(selectedCaseDocIds);
+    const { error } = await supabase.from('documents_just').delete().in('id', ids);
+    if (!error) {
+      setCases(prev => prev.filter(c => !selectedCaseDocIds.has(c.id)));
+      setSelectedCaseDocIds(new Set());
+      success("Succès", `${ids.length} documents supprimés.`);
+    } else {
+      toastError("Erreur", "Erreur lors de la suppression groupée.");
+    }
+  };
+
+  const handleDeleteQuote = async (id: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce devis ?")) return;
+    const { error } = await supabase.from('quotes_just').delete().eq('id', id);
+    if (!error) {
+      setQuotes(prev => prev.filter(q => q.id !== id));
+      setSelectedQuoteIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      success("Succès", "Devis supprimé.");
+    } else {
+      toastError("Erreur", "Impossible de supprimer ce devis.");
+    }
+  };
+
+  const handleBulkDeleteQuotes = async () => {
+    if (selectedQuoteIds.size === 0) return;
+    if (!window.confirm(`Supprimer les ${selectedQuoteIds.size} devis sélectionnés ?`)) return;
+    const ids = Array.from(selectedQuoteIds);
+    const { error } = await supabase.from('quotes_just').delete().in('id', ids);
+    if (!error) {
+      setQuotes(prev => prev.filter(q => !selectedQuoteIds.has(q.id)));
+      setSelectedQuoteIds(new Set());
+      success("Succès", `${ids.length} devis supprimés.`);
+    } else {
+      toastError("Erreur", "Erreur lors de la suppression groupée.");
+    }
+  };
+
   const handleUploadLawyerDocument = async (name: string, type: string, ownerId: string) => {
     if (!user || !name || !ownerId) return;
     const mockFileUrl = `https://zchhijltemvrsthdaxex.supabase.co/storage/v1/object/public/documents/${ownerId}/${Date.now()}_${name.replace(/\s+/g, '_')}.pdf`;
@@ -1462,8 +1571,8 @@ const DashboardLawyer: React.FC = () => {
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
                 {profile?.role === 'professor' && `Espace Enseignant — Prof. ${profile?.first_name} ${profile?.last_name}`}
-                {profile?.role === 'doctorate' && `Espace Recherche — ${profile?.first_name?.startsWith('Dr') ? '' : 'DrD. '}${profile?.first_name} ${profile?.last_name}`}
-                {(!profile?.role || profile?.role === 'lawyer' || profile?.role === 'admin') && `Cabinet de Maître ${profile?.first_name} ${profile?.last_name}`}
+                {profile?.role === 'doctorate' && (isCoban ? 'Cabinet du Doctorant Coban' : `Espace Recherche — ${profile?.first_name?.startsWith('Dr') ? '' : 'DrD. '}${profile?.first_name} ${profile?.last_name}`)}
+                {(!profile?.role || profile?.role === 'lawyer' || profile?.role === 'admin') && (isCoban ? 'Cabinet du Doctorant Coban' : `Cabinet de Maître ${profile?.first_name} ${profile?.last_name}`)}
               </h1>
 
               <p className="text-cyan-50 text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
@@ -1721,78 +1830,186 @@ const DashboardLawyer: React.FC = () => {
                   </div>
                 )}
                 {activeTab === "overview" && renderOverview()}
-                {activeTab === "appointments" && (
-                  <Card className="bg-white border border-slate-200 shadow-sm text-slate-900">
-                    <CardHeader><CardTitle className="text-slate-900">Historique & Gestion des Rendez-vous</CardTitle></CardHeader>
-                    <CardContent className="p-0">
-                      <div className="overflow-x-auto">
-                        <table className={cn('w-full', 'text-left', 'text-sm', 'whitespace-nowrap')}>
-                          <thead className="bg-slate-50 border-y border-slate-200 text-slate-600 font-semibold">
-                            <tr>
-                              <th className={cn('px-6', 'py-4')}>Client</th>
-                              <th className={cn('px-6', 'py-4')}>Date & Heure</th>
-                              <th className={cn('px-6', 'py-4')}>Notes / Sujet</th>
-                              <th className={cn('px-6', 'py-4')}>Statut</th>
-                              <th className={cn('px-6', 'py-4', 'text-right')}>Actions de Gestion</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-200 text-slate-700">
-                            {appointments.map((a) => {
-                              const statusLabels: Record<string, { text: string; color: string }> = {
-                                pending: { text: "En attente", color: "bg-amber-50 text-amber-700 border border-amber-200" },
-                                confirmed: { text: "Confirmé", color: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
-                                cancelled: { text: "Annulé", color: "bg-red-50 text-red-700 border border-red-200" },
-                                completed: { text: "Terminé", color: "bg-cyan-50 text-cyan-700 border border-cyan-200" }
-                              };
-                              const label = statusLabels[a.status] || { text: a.status, color: "bg-slate-100 text-slate-700 border border-slate-200" };
-                              
-                              return (
-                                <tr key={a.id} className="hover:bg-cyan-50/40 transition-colors">
-                                  <td className={cn('px-6', 'py-4', 'font-semibold', 'text-slate-900')}>
-                                    {(a.profiles as any)?.first_name} {(a.profiles as any)?.last_name}
-                                    {(a.profiles as any)?.city ? <span className={cn('text-slate-500', 'font-normal', 'text-xs', 'ml-1')}>({(a.profiles as any).city})</span> : ''}
-                                  </td>
-                                  <td className={cn('px-6', 'py-4', 'text-slate-700')}>{new Date(a.scheduled_at).toLocaleString('fr-FR')}</td>
-                                  <td className={cn('px-6', 'py-4', 'max-w-xs', 'truncate', 'text-slate-500')} title={a.notes}>{a.notes || "Aucune note fournie"}</td>
-                                  <td className={cn('px-6', 'py-4')}>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${label.color}`}>
-                                      {label.text}
-                                    </span>
-                                  </td>
-                                  <td className={cn('px-6', 'py-4', 'text-right', 'flex', 'justify-end', 'gap-2')}>
-                                    {a.status === 'pending' && (
-                                      <>
-                                        <Button size="sm" className={cn('bg-emerald-600', 'hover:bg-emerald-700', 'text-white')} onClick={() => handleUpdateAppointmentStatus(a.id, 'confirmed')}>
-                                          Confirmer
-                                        </Button>
-                                        <Button size="sm" variant="outline" className={cn('text-red-600', 'hover:bg-red-50', 'border-red-200')} onClick={() => handleUpdateAppointmentStatus(a.id, 'cancelled')}>
-                                          Réfuser
-                                        </Button>
-                                      </>
-                                    )}
-                                    {a.status === 'confirmed' && (
-                                      <>
-                                        <Button size="sm" className={cn('bg-cyan-600', 'hover:bg-cyan-700', 'text-white')} onClick={() => handleUpdateAppointmentStatus(a.id, 'completed')}>
-                                          Terminer
-                                        </Button>
-                                        <Button size="sm" variant="outline" className={cn('text-red-600', 'hover:bg-red-50', 'border-red-200')} onClick={() => handleUpdateAppointmentStatus(a.id, 'cancelled')}>
-                                          Annuler
-                                        </Button>
-                                      </>
-                                    )}
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                        {appointments.length === 0 && (
-                          <div className={cn('p-12', 'text-center', 'text-slate-500', 'italic')}>Aucun rendez-vous planifié.</div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                {activeTab === "appointments" && (() => {
+                  const filteredAppts = appointments.filter(a => {
+                    const clientName = `${(a.profiles as any)?.first_name || ''} ${(a.profiles as any)?.last_name || ''}`.toLowerCase();
+                    const clientEmail = ((a.profiles as any)?.email || '').toLowerCase();
+                    const clientCity = ((a.profiles as any)?.city || '').toLowerCase();
+                    const notes = (a.notes || '').toLowerCase();
+                    const q = apptSearchText.toLowerCase().trim();
+                    const matchesText = !q || clientName.includes(q) || clientEmail.includes(q) || clientCity.includes(q) || notes.includes(q);
+                    const matchesStatus = apptStatusFilter === 'all' || a.status === apptStatusFilter;
+                    return matchesText && matchesStatus;
+                  });
+
+                  const allSelected = filteredAppts.length > 0 && filteredAppts.every(a => selectedApptIds.has(a.id));
+
+                  const toggleSelectAll = () => {
+                    if (allSelected) {
+                      setSelectedApptIds(prev => {
+                        const next = new Set(prev);
+                        filteredAppts.forEach(a => next.delete(a.id));
+                        return next;
+                      });
+                    } else {
+                      setSelectedApptIds(prev => {
+                        const next = new Set(prev);
+                        filteredAppts.forEach(a => next.add(a.id));
+                        return next;
+                      });
+                    }
+                  };
+
+                  const toggleSelectOne = (id: string) => {
+                    setSelectedApptIds(prev => {
+                      const next = new Set(prev);
+                      if (next.has(id)) next.delete(id);
+                      else next.add(id);
+                      return next;
+                    });
+                  };
+
+                  return (
+                    <Card className="bg-white border border-slate-200 shadow-sm text-slate-900">
+                      <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                          <CardTitle className="text-slate-900">Historique & Gestion des Rendez-vous</CardTitle>
+                          <p className="text-xs text-slate-500 mt-1">Recherche avancée, filtres en temps réel, suppressions unitaires et multiples synchronisées</p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3">
+                          {selectedApptIds.size > 0 && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleBulkDeleteAppointments}
+                              className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 font-bold"
+                            >
+                              <Trash2 className="h-4 w-4 mr-1.5" />
+                              Supprimer ({selectedApptIds.size})
+                            </Button>
+                          )}
+                          <div className="relative w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <input
+                              type="text"
+                              placeholder="Rechercher client, ville, notes..."
+                              className="w-full pl-9 pr-3 py-1.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                              value={apptSearchText}
+                              onChange={(e) => setApptSearchText(e.target.value)}
+                            />
+                          </div>
+                          <select
+                            className="text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            value={apptStatusFilter}
+                            onChange={(e) => setApptStatusFilter(e.target.value)}
+                          >
+                            <option value="all">Tous les statuts ({appointments.length})</option>
+                            <option value="pending">En attente</option>
+                            <option value="confirmed">Confirmés</option>
+                            <option value="completed">Terminés</option>
+                            <option value="cancelled">Annulés</option>
+                          </select>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <div className="overflow-x-auto">
+                          <table className={cn('w-full', 'text-left', 'text-sm', 'whitespace-nowrap')}>
+                            <thead className="bg-slate-50 border-y border-slate-200 text-slate-600 font-semibold">
+                              <tr>
+                                <th className="px-4 py-4 w-10 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={allSelected}
+                                    onChange={toggleSelectAll}
+                                    className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                                    title="Tout sélectionner"
+                                  />
+                                </th>
+                                <th className={cn('px-6', 'py-4')}>Client</th>
+                                <th className={cn('px-6', 'py-4')}>Date & Heure</th>
+                                <th className={cn('px-6', 'py-4')}>Notes / Sujet</th>
+                                <th className={cn('px-6', 'py-4')}>Statut</th>
+                                <th className={cn('px-6', 'py-4', 'text-right')}>Actions de Gestion</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 text-slate-700">
+                              {filteredAppts.map((a) => {
+                                const statusLabels: Record<string, { text: string; color: string }> = {
+                                  pending: { text: "En attente", color: "bg-amber-50 text-amber-700 border border-amber-200" },
+                                  confirmed: { text: "Confirmé", color: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
+                                  cancelled: { text: "Annulé", color: "bg-red-50 text-red-700 border border-red-200" },
+                                  completed: { text: "Terminé", color: "bg-cyan-50 text-cyan-700 border border-cyan-200" }
+                                };
+                                const label = statusLabels[a.status] || { text: a.status, color: "bg-slate-100 text-slate-700 border border-slate-200" };
+                                const isSelected = selectedApptIds.has(a.id);
+                                
+                                return (
+                                  <tr key={a.id} className={cn("transition-colors", isSelected ? "bg-cyan-50/70" : "hover:bg-cyan-50/40")}>
+                                    <td className="px-4 py-4 text-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={() => toggleSelectOne(a.id)}
+                                        className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                                      />
+                                    </td>
+                                    <td className={cn('px-6', 'py-4', 'font-semibold', 'text-slate-900')}>
+                                      {(a.profiles as any)?.first_name} {(a.profiles as any)?.last_name}
+                                      {(a.profiles as any)?.city ? <span className={cn('text-slate-500', 'font-normal', 'text-xs', 'ml-1')}>({(a.profiles as any).city})</span> : ''}
+                                    </td>
+                                    <td className={cn('px-6', 'py-4', 'text-slate-700')}>{new Date(a.scheduled_at).toLocaleString('fr-FR')}</td>
+                                    <td className={cn('px-6', 'py-4', 'max-w-xs', 'truncate', 'text-slate-500')} title={a.notes}>{a.notes || "Aucune note fournie"}</td>
+                                    <td className={cn('px-6', 'py-4')}>
+                                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${label.color}`}>
+                                        {label.text}
+                                      </span>
+                                    </td>
+                                    <td className={cn('px-6', 'py-4', 'text-right', 'flex', 'justify-end', 'items-center', 'gap-2')}>
+                                      {a.status === 'pending' && (
+                                        <>
+                                          <Button size="sm" className={cn('bg-emerald-600', 'hover:bg-emerald-700', 'text-white')} onClick={() => handleUpdateAppointmentStatus(a.id, 'confirmed')}>
+                                            Confirmer
+                                          </Button>
+                                          <Button size="sm" variant="outline" className={cn('text-red-600', 'hover:bg-red-50', 'border-red-200')} onClick={() => handleUpdateAppointmentStatus(a.id, 'cancelled')}>
+                                            Réfuser
+                                          </Button>
+                                        </>
+                                      )}
+                                      {a.status === 'confirmed' && (
+                                        <>
+                                          <Button size="sm" className={cn('bg-cyan-600', 'hover:bg-cyan-700', 'text-white')} onClick={() => handleUpdateAppointmentStatus(a.id, 'completed')}>
+                                            Terminer
+                                          </Button>
+                                          <Button size="sm" variant="outline" className={cn('text-red-600', 'hover:bg-red-50', 'border-red-200')} onClick={() => handleUpdateAppointmentStatus(a.id, 'cancelled')}>
+                                            Annuler
+                                          </Button>
+                                        </>
+                                      )}
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                        onClick={() => handleDeleteAppointment(a.id)}
+                                        title="Supprimer définitivement ce rendez-vous"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                          {filteredAppts.length === 0 && (
+                            <div className={cn('p-12', 'text-center', 'text-slate-500', 'italic')}>
+                              {appointments.length === 0 ? "Aucun rendez-vous planifié." : "Aucun rendez-vous ne correspond à vos critères de recherche."}
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
 
                 {activeTab === "cases" && !selectedClientForCases && (
                   <Card className="bg-white border border-slate-200 shadow-sm text-slate-900">
@@ -1865,59 +2082,136 @@ const DashboardLawyer: React.FC = () => {
                   </Card>
                 )}
 
-                {activeTab === "cases" && selectedClientForCases && (
-                  <Card className="bg-white border border-slate-200 shadow-sm text-slate-900">
-                    <CardHeader className={cn('flex', 'justify-between', 'items-center', 'flex-row', 'flex-wrap', 'gap-4')}>
-                      <div className={cn('flex', 'items-center', 'gap-3')}>
-                        <button
-                          onClick={() => setSelectedClientForCases(null)}
-                          className={cn('p-2', 'rounded-xl', 'hover:bg-cyan-50', 'text-slate-700', 'transition-colors')}
-                          title="Retour à la liste"
-                        >
-                          <ArrowLeft className={cn('h-5', 'w-5')} />
-                        </button>
-                        <div>
-                          <CardTitle className={cn('flex', 'items-center', 'gap-2', 'text-slate-900')}>
-                            <span>Dossier de</span>
-                            <span className="text-cyan-700">{selectedClientInfo?.name}</span>
-                          </CardTitle>
-                          <p className={cn('text-xs', 'text-slate-500')}>
-                            {selectedClientInfo?.email} {selectedClientInfo?.city ? `• ${selectedClientInfo.city}` : ''}
-                          </p>
+                {activeTab === "cases" && selectedClientForCases && (() => {
+                  const clientDocs = cases
+                    .filter(c => c.owner_id === selectedClientForCases)
+                    .filter(c => {
+                      if (!caseDocSearchText.trim()) return true;
+                      const q = caseDocSearchText.toLowerCase();
+                      const name = (c.name || '').toLowerCase();
+                      const type = (c.type || '').toLowerCase();
+                      return name.includes(q) || type.includes(q);
+                    });
+
+                  const allDocsSelected = clientDocs.length > 0 && clientDocs.every(c => selectedCaseDocIds.has(c.id));
+
+                  const toggleAllDocs = () => {
+                    if (allDocsSelected) {
+                      setSelectedCaseDocIds(prev => {
+                        const next = new Set(prev);
+                        clientDocs.forEach(c => next.delete(c.id));
+                        return next;
+                      });
+                    } else {
+                      setSelectedCaseDocIds(prev => {
+                        const next = new Set(prev);
+                        clientDocs.forEach(c => next.add(c.id));
+                        return next;
+                      });
+                    }
+                  };
+
+                  const toggleOneDoc = (id: string) => {
+                    setSelectedCaseDocIds(prev => {
+                      const next = new Set(prev);
+                      if (next.has(id)) next.delete(id);
+                      else next.add(id);
+                      return next;
+                    });
+                  };
+
+                  return (
+                    <Card className="bg-white border border-slate-200 shadow-sm text-slate-900">
+                      <CardHeader className={cn('flex', 'justify-between', 'items-center', 'flex-row', 'flex-wrap', 'gap-4')}>
+                        <div className={cn('flex', 'items-center', 'gap-3')}>
+                          <button
+                            onClick={() => setSelectedClientForCases(null)}
+                            className={cn('p-2', 'rounded-xl', 'hover:bg-cyan-50', 'text-slate-700', 'transition-colors')}
+                            title="Retour à la liste"
+                          >
+                            <ArrowLeft className={cn('h-5', 'w-5')} />
+                          </button>
+                          <div>
+                            <CardTitle className={cn('flex', 'items-center', 'gap-2', 'text-slate-900')}>
+                              <span>Dossier de</span>
+                              <span className="text-cyan-700">{selectedClientInfo?.name}</span>
+                            </CardTitle>
+                            <p className={cn('text-xs', 'text-slate-500')}>
+                              {selectedClientInfo?.email} {selectedClientInfo?.city ? `• ${selectedClientInfo.city}` : ''}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <Button onClick={() => {
-                        setNewDoc({ name: '', type: 'client_document', client_id: selectedClientForCases });
-                        setDocModalOpen(true);
-                      }} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold">
-                        <Plus className={cn('h-4', 'w-4', 'mr-2')} />
-                        Nouveau Document Client
-                      </Button>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <div className="overflow-x-auto">
-                        <table className={cn('w-full', 'text-left', 'text-sm', 'whitespace-nowrap')}>
-                          <thead className="bg-slate-50 border-y border-slate-200 text-slate-600 font-semibold">
-                            <tr>
-                              <th className={cn('px-6', 'py-4')}>Document</th>
-                              <th className={cn('px-6', 'py-4')}>Client</th>
-                              <th className={cn('px-6', 'py-4')}>Type de Document</th>
-                              <th className={cn('px-6', 'py-4')}>Date de Création</th>
-                              <th className={cn('px-6', 'py-4', 'text-right')}>Fichier</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-200 text-slate-700">
-                            {cases
-                              .filter(c => c.owner_id === selectedClientForCases)
-                              .map((c) => {
+                        <div className="flex flex-wrap items-center gap-3">
+                          {selectedCaseDocIds.size > 0 && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleBulkDeleteCaseDocs}
+                              className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 font-bold"
+                            >
+                              <Trash2 className="h-4 w-4 mr-1.5" />
+                              Supprimer ({selectedCaseDocIds.size})
+                            </Button>
+                          )}
+                          <div className="relative w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <input
+                              type="text"
+                              placeholder="Rechercher un document..."
+                              className="w-full pl-9 pr-3 py-1.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                              value={caseDocSearchText}
+                              onChange={(e) => setCaseDocSearchText(e.target.value)}
+                            />
+                          </div>
+                          <Button onClick={() => {
+                            setNewDoc({ name: '', type: 'client_document', client_id: selectedClientForCases });
+                            setDocModalOpen(true);
+                          }} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold">
+                            <Plus className={cn('h-4', 'w-4', 'mr-2')} />
+                            Nouveau Document Client
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <div className="overflow-x-auto">
+                          <table className={cn('w-full', 'text-left', 'text-sm', 'whitespace-nowrap')}>
+                            <thead className="bg-slate-50 border-y border-slate-200 text-slate-600 font-semibold">
+                              <tr>
+                                <th className="px-4 py-4 w-10 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={allDocsSelected}
+                                    onChange={toggleAllDocs}
+                                    className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                                    title="Tout sélectionner"
+                                  />
+                                </th>
+                                <th className={cn('px-6', 'py-4')}>Document</th>
+                                <th className={cn('px-6', 'py-4')}>Client</th>
+                                <th className={cn('px-6', 'py-4')}>Type de Document</th>
+                                <th className={cn('px-6', 'py-4')}>Date de Création</th>
+                                <th className={cn('px-6', 'py-4', 'text-right')}>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 text-slate-700">
+                              {clientDocs.map((c) => {
                                 const docTypeLabels: Record<string, string> = {
                                   identity: "🪪 Pièce d'identité client",
                                   license: "📜 Licence / Diplôme client",
                                   legal_template: "📝 Modèle de document",
                                   client_document: "📁 Pièce de dossier / Justificatif"
                                 };
+                                const isSelected = selectedCaseDocIds.has(c.id);
                                 return (
-                                  <tr key={c.id} className="hover:bg-cyan-50/40 transition-colors">
+                                  <tr key={c.id} className={cn("transition-colors", isSelected ? "bg-cyan-50/70" : "hover:bg-cyan-50/40")}>
+                                    <td className="px-4 py-4 text-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={() => toggleOneDoc(c.id)}
+                                        className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                                      />
+                                    </td>
                                     <td className={cn('px-6', 'py-4', 'font-semibold', 'text-slate-900')}>{c.name}</td>
                                     <td className={cn('px-6', 'py-4', 'text-slate-700')}>
                                       {c.profiles?.first_name} {c.profiles?.last_name}
@@ -1931,20 +2225,35 @@ const DashboardLawyer: React.FC = () => {
                                     <td className={cn('px-6', 'py-4', 'text-slate-500')}>
                                       {new Date(c.created_at).toLocaleDateString('fr-FR')}
                                     </td>
-                                    <td className={cn('px-6', 'py-4', 'text-right')}>
+                                    <td className={cn('px-6', 'py-4', 'text-right', 'flex', 'justify-end', 'items-center', 'gap-2')}>
                                       <Button size="sm" variant="ghost" onClick={() => setSelectedIADoc(c)} className="hover:bg-cyan-50 text-cyan-700">
                                         Voir
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => handleDeleteCaseDoc(c.id)}
+                                        className="text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                        title="Supprimer ce document"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
                                       </Button>
                                     </td>
                                   </tr>
                                 );
                               })}
-                          </tbody>
-                        </table>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                            </tbody>
+                          </table>
+                          {clientDocs.length === 0 && (
+                            <div className={cn('p-12', 'text-center', 'text-slate-500', 'italic')}>
+                              Aucun document trouvé pour ce client.
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
 
                 {activeTab === 'messages' && (
                   <div className={cn('grid', 'grid-cols-1', 'lg:grid-cols-3', 'gap-6')}>
@@ -2030,72 +2339,182 @@ const DashboardLawyer: React.FC = () => {
                     </div>
                   </div>
                 )}
-                {activeTab === 'quotes' && (
-                  <div className="space-y-6">
-                    <div className={cn('flex', 'items-center', 'justify-between')}>
-                      <h2 className={cn('text-2xl', 'font-semibold', 'text-slate-900')}>Gestion des Devis & Honoraires</h2>
-                      <Button onClick={() => setQuoteModalOpen(true)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold"><Plus className={cn('h-4', 'w-4', 'mr-2')} /> Nouveau Devis</Button>
-                    </div>
-                    <Card className="bg-white border border-slate-200 shadow-sm text-slate-900">
-                      <CardContent className="p-0">
-                        <table className={cn('w-full', 'text-left', 'text-sm', 'whitespace-nowrap')}>
-                          <thead className="bg-slate-50 border-y border-slate-200 text-slate-600 font-semibold">
-                            <tr>
-                              <th className={cn('px-6', 'py-4')}>Client</th>
-                              <th className={cn('px-6', 'py-4')}>Montant (€)</th>
-                              <th className={cn('px-6', 'py-4')}>Status Devis</th>
-                              <th className={cn('px-6', 'py-4')}>Status Commission (20%)</th>
-                              <th className={cn('px-6', 'py-4', 'text-right')}>Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-200 text-slate-700">
-                            {quotes.map((q) => (
-                              <tr key={q.id} className="hover:bg-cyan-50/40 transition-colors">
-                                <td className={cn('px-6', 'py-4', 'font-medium', 'text-slate-900')}>{q.profiles?.first_name} {q.profiles?.last_name}</td>
-                                <td className={cn('px-6', 'py-4', 'font-bold', 'text-slate-900')}>{q.amount} €</td>
-                                <td className={cn('px-6', 'py-4')}>
-                                  <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
-                                    {q.status}
-                                  </span>
-                                </td>
-                                <td className={cn('px-6', 'py-4')}>
-                                  {q.status === 'paid' ? (
-                                    <span className="text-slate-500">{q.commission_amount} € dû</span>
-                                  ) : q.status === 'commissioned' ? (
-                                    <span className={cn('text-emerald-700', 'font-bold')}>Payée</span>
-                                  ) : "-"}
-                                </td>
-                                <td className={cn('px-6', 'py-4', 'text-right', 'flex', 'justify-end', 'gap-2')}>
-                                  {q.status === 'pending' && (
-                                    <Button size="sm" variant="outline" className="border-slate-200 text-slate-700 hover:bg-slate-100" onClick={() => handleMarkAsPaid(q.id)}>Confirmer Encaissement</Button>
-                                  )}
-                                  {q.status === 'paid' && (
-                                    <Button
-                                      size="sm"
-                                      onClick={() => handlePayCommission(q)}
-                                      disabled={payingCommissionId === q.id}
-                                      className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold"
-                                    >
-                                      {payingCommissionId === q.id ? (
-                                        <span className="flex items-center gap-1.5">
-                                          <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                                          Redirection...
-                                        </span>
-                                      ) : (
-                                        "Payer Commission (20%)"
-                                      )}
-                                    </Button>
-                                  )}
-                                </td>
+                {activeTab === 'quotes' && (() => {
+                  const filteredQuotes = quotes.filter(q => {
+                    const clientName = `${q.profiles?.first_name || ''} ${q.profiles?.last_name || ''}`.toLowerCase();
+                    const desc = (q.description || '').toLowerCase();
+                    const amount = String(q.amount || '');
+                    const query = quoteSearchText.toLowerCase().trim();
+                    const matchesQuery = !query || clientName.includes(query) || desc.includes(query) || amount.includes(query);
+                    const matchesStatus = quoteStatusFilter === 'all' || q.status === quoteStatusFilter;
+                    return matchesQuery && matchesStatus;
+                  });
+
+                  const allQuotesSelected = filteredQuotes.length > 0 && filteredQuotes.every(q => selectedQuoteIds.has(q.id));
+
+                  const toggleAllQuotes = () => {
+                    if (allQuotesSelected) {
+                      setSelectedQuoteIds(prev => {
+                        const next = new Set(prev);
+                        filteredQuotes.forEach(q => next.delete(q.id));
+                        return next;
+                      });
+                    } else {
+                      setSelectedQuoteIds(prev => {
+                        const next = new Set(prev);
+                        filteredQuotes.forEach(q => next.add(q.id));
+                        return next;
+                      });
+                    }
+                  };
+
+                  const toggleOneQuote = (id: string) => {
+                    setSelectedQuoteIds(prev => {
+                      const next = new Set(prev);
+                      if (next.has(id)) next.delete(id);
+                      else next.add(id);
+                      return next;
+                    });
+                  };
+
+                  return (
+                    <div className="space-y-6">
+                      <div className={cn('flex', 'items-center', 'justify-between', 'flex-wrap', 'gap-4')}>
+                        <div>
+                          <h2 className={cn('text-2xl', 'font-semibold', 'text-slate-900')}>Gestion des Devis & Honoraires</h2>
+                          <p className="text-xs text-slate-500 mt-1">Recherche, filtres, suppressions unitaires et multiples en temps réel</p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3">
+                          {selectedQuoteIds.size > 0 && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleBulkDeleteQuotes}
+                              className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 font-bold"
+                            >
+                              <Trash2 className="h-4 w-4 mr-1.5" />
+                              Supprimer ({selectedQuoteIds.size})
+                            </Button>
+                          )}
+                          <div className="relative w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <input
+                              type="text"
+                              placeholder="Rechercher client, montant..."
+                              className="w-full pl-9 pr-3 py-1.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                              value={quoteSearchText}
+                              onChange={(e) => setQuoteSearchText(e.target.value)}
+                            />
+                          </div>
+                          <select
+                            className="text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            value={quoteStatusFilter}
+                            onChange={(e) => setQuoteStatusFilter(e.target.value)}
+                          >
+                            <option value="all">Tous les devis ({quotes.length})</option>
+                            <option value="pending">En attente</option>
+                            <option value="paid">Payés</option>
+                            <option value="commissioned">Commission payée</option>
+                          </select>
+                          <Button onClick={() => setQuoteModalOpen(true)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold">
+                            <Plus className={cn('h-4', 'w-4', 'mr-2')} /> Nouveau Devis
+                          </Button>
+                        </div>
+                      </div>
+                      <Card className="bg-white border border-slate-200 shadow-sm text-slate-900">
+                        <CardContent className="p-0">
+                          <table className={cn('w-full', 'text-left', 'text-sm', 'whitespace-nowrap')}>
+                            <thead className="bg-slate-50 border-y border-slate-200 text-slate-600 font-semibold">
+                              <tr>
+                                <th className="px-4 py-4 w-10 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={allQuotesSelected}
+                                    onChange={toggleAllQuotes}
+                                    className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                                    title="Tout sélectionner"
+                                  />
+                                </th>
+                                <th className={cn('px-6', 'py-4')}>Client</th>
+                                <th className={cn('px-6', 'py-4')}>Montant (€)</th>
+                                <th className={cn('px-6', 'py-4')}>Status Devis</th>
+                                <th className={cn('px-6', 'py-4')}>Status Commission (20%)</th>
+                                <th className={cn('px-6', 'py-4', 'text-right')}>Actions</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                        {quotes.length === 0 && <div className={cn('p-12', 'text-center', 'text-slate-500')}>Aucun devis créé.</div>}
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 text-slate-700">
+                              {filteredQuotes.map((q) => {
+                                const isSelected = selectedQuoteIds.has(q.id);
+                                return (
+                                  <tr key={q.id} className={cn("transition-colors", isSelected ? "bg-cyan-50/70" : "hover:bg-cyan-50/40")}>
+                                    <td className="px-4 py-4 text-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={() => toggleOneQuote(q.id)}
+                                        className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                                      />
+                                    </td>
+                                    <td className={cn('px-6', 'py-4', 'font-medium', 'text-slate-900')}>{q.profiles?.first_name} {q.profiles?.last_name}</td>
+                                    <td className={cn('px-6', 'py-4', 'font-bold', 'text-slate-900')}>{q.amount} €</td>
+                                    <td className={cn('px-6', 'py-4')}>
+                                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${q.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+                                        {q.status}
+                                      </span>
+                                    </td>
+                                    <td className={cn('px-6', 'py-4')}>
+                                      {q.status === 'paid' ? (
+                                        <span className="text-slate-500">{q.commission_amount} € dû</span>
+                                      ) : q.status === 'commissioned' ? (
+                                        <span className={cn('text-emerald-700', 'font-bold')}>Payée</span>
+                                      ) : "-"}
+                                    </td>
+                                    <td className={cn('px-6', 'py-4', 'text-right', 'flex', 'justify-end', 'items-center', 'gap-2')}>
+                                      {q.status === 'pending' && (
+                                        <Button size="sm" variant="outline" className="border-slate-200 text-slate-700 hover:bg-slate-100" onClick={() => handleMarkAsPaid(q.id)}>Confirmer Encaissement</Button>
+                                      )}
+                                      {q.status === 'paid' && (
+                                        <Button
+                                          size="sm"
+                                          onClick={() => handlePayCommission(q)}
+                                          disabled={payingCommissionId === q.id}
+                                          className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold"
+                                        >
+                                          {payingCommissionId === q.id ? (
+                                            <span className="flex items-center gap-1.5">
+                                              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                                              Redirection...
+                                            </span>
+                                          ) : (
+                                            "Payer Commission (20%)"
+                                          )}
+                                        </Button>
+                                      )}
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => handleDeleteQuote(q.id)}
+                                        className="text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                        title="Supprimer ce devis"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                          {filteredQuotes.length === 0 && (
+                            <div className={cn('p-12', 'text-center', 'text-slate-500')}>
+                              {quotes.length === 0 ? "Aucun devis créé." : "Aucun devis ne correspond aux critères."}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  );
+                })()}
                 {activeTab === 'assistance' && (
                   <div className="space-y-6">
                     <div className={cn('flex', 'items-center', 'justify-between')}>
@@ -3273,13 +3692,19 @@ const DashboardLawyer: React.FC = () => {
       <Modal
         isOpen={showWelcome}
         onClose={() => setShowWelcome(false)}
-        title="Bienvenue Maître"
+        title={isCoban ? "Bienvenue Doctorant Coban" : (profile?.role === 'doctorate' ? "Bienvenue Docteur / Chercheur" : "Bienvenue Maître")}
       >
         <div className="text-center py-6">
           <div className="mx-auto h-16 w-16 bg-cyan-50 border border-cyan-200 rounded-full flex items-center justify-center mb-4 shadow-md shadow-cyan-500/10">
             <Users className="h-8 w-8 text-cyan-600" />
           </div>
-          <h3 className="text-2xl font-extrabold text-slate-900 mb-2">Bienvenue Maître {profile?.last_name || profile?.first_name} !</h3>
+          <h3 className="text-2xl font-extrabold text-slate-900 mb-2">
+            {isCoban 
+              ? "Bienvenue Doctorant Coban !" 
+              : profile?.role === 'doctorate' 
+                ? `Bienvenue DrD. ${profile?.last_name || profile?.first_name} !` 
+                : `Bienvenue Maître ${profile?.last_name || profile?.first_name} !`}
+          </h3>
           <p className="text-slate-600 text-sm mb-6 leading-relaxed max-w-md mx-auto">
             Votre tableau de bord professionnel est prêt. Gérez vos rendez-vous, accédez à vos outils d'IA et suivez vos honoraires en toute simplicité.
           </p>

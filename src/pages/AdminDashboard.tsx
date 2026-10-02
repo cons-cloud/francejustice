@@ -117,6 +117,20 @@ const AdminDashboard: React.FC = () => {
 
   const [passwordResets, setPasswordResets] = useState<any[]>([]);
 
+  // Search & Multi-Delete states in Admin
+  const [adminUserSearch, setAdminUserSearch] = useState('');
+  const [selectedAdminUserIds, setSelectedAdminUserIds] = useState<Set<string>>(new Set());
+
+  const [adminApptSearch, setAdminApptSearch] = useState('');
+  const [adminApptStatusFilter, setAdminApptStatusFilter] = useState('all');
+  const [selectedAdminApptIds, setSelectedAdminApptIds] = useState<Set<string>>(new Set());
+
+  const [adminDocSearch, setAdminDocSearch] = useState('');
+  const [selectedAdminDocIds, setSelectedAdminDocIds] = useState<Set<string>>(new Set());
+
+  const [adminFormationSearch, setAdminFormationSearch] = useState('');
+  const [selectedAdminFormationIds, setSelectedAdminFormationIds] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     fetchUsers();
     fetchMessages();
@@ -732,6 +746,82 @@ const AdminDashboard: React.FC = () => {
         toastError("Erreur", "Erreur lors de la suppression.");
       }
     }, "Supprimer définitivement", true);
+  };
+
+  const handleBulkDeleteUsers = async () => {
+    if (selectedAdminUserIds.size === 0) return;
+    if (!window.confirm(`Supprimer définitivement les ${selectedAdminUserIds.size} comptes utilisateurs sélectionnés ?`)) return;
+    const ids = Array.from(selectedAdminUserIds);
+    for (const id of ids) {
+      const targetUser = users.find(u => u.id === id);
+      if (targetUser?.email) {
+        registerDeletedUser(targetUser.email);
+      }
+    }
+    await supabase.from('lawyers_just').delete().in('id', ids);
+    await supabase.from('academic_profiles_just').delete().in('user_id', ids);
+    await supabase.from('profiles_just').delete().in('id', ids);
+    setSelectedAdminUserIds(new Set());
+    fetchUsers();
+    success("Suppression réussie", `${ids.length} utilisateurs supprimés.`);
+  };
+
+  const handleDeleteDocumentByAdmin = async (id: string) => {
+    if (!window.confirm("Supprimer définitivement ce document ?")) return;
+    const { error } = await supabase.from('documents_just').delete().eq('id', id);
+    if (!error) {
+      setAllDocuments(prev => prev.filter(d => d.id !== id));
+      setSelectedAdminDocIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      success("Succès", "Document supprimé.");
+    } else {
+      toastError("Erreur", "Impossible de supprimer ce document.");
+    }
+  };
+
+  const handleBulkDeleteDocuments = async () => {
+    if (selectedAdminDocIds.size === 0) return;
+    if (!window.confirm(`Supprimer définitivement les ${selectedAdminDocIds.size} documents sélectionnés ?`)) return;
+    const ids = Array.from(selectedAdminDocIds);
+    const { error } = await supabase.from('documents_just').delete().in('id', ids);
+    if (!error) {
+      setAllDocuments(prev => prev.filter(d => !selectedAdminDocIds.has(d.id)));
+      setSelectedAdminDocIds(new Set());
+      success("Succès", `${ids.length} documents supprimés.`);
+    } else {
+      toastError("Erreur", "Erreur lors de la suppression groupée.");
+    }
+  };
+
+  const handleBulkDeleteAppointments = async () => {
+    if (selectedAdminApptIds.size === 0) return;
+    if (!window.confirm(`Supprimer définitivement les ${selectedAdminApptIds.size} rendez-vous sélectionnés ?`)) return;
+    const ids = Array.from(selectedAdminApptIds);
+    const { error } = await supabase.from('appointments_just').delete().in('id', ids);
+    if (!error) {
+      setAllAppointments(prev => prev.filter(a => !selectedAdminApptIds.has(a.id)));
+      setSelectedAdminApptIds(new Set());
+      success("Succès", `${ids.length} rendez-vous supprimés.`);
+    } else {
+      toastError("Erreur", "Erreur lors de la suppression groupée.");
+    }
+  };
+
+  const handleBulkDeleteFormations = async () => {
+    if (selectedAdminFormationIds.size === 0) return;
+    if (!window.confirm(`Supprimer définitivement les ${selectedAdminFormationIds.size} formations sélectionnées ?`)) return;
+    const ids = Array.from(selectedAdminFormationIds);
+    const { error } = await supabase.from('formations_just').delete().in('id', ids);
+    if (!error) {
+      setFormations(prev => prev.filter(f => !selectedAdminFormationIds.has(f.id)));
+      setSelectedAdminFormationIds(new Set());
+      success("Succès", `${ids.length} formations supprimées.`);
+    } else {
+      toastError("Erreur", "Erreur lors de la suppression groupée.");
+    }
   };
 
   const handleToggleSuspend = async (u: any) => {
@@ -1369,12 +1459,33 @@ const AdminDashboard: React.FC = () => {
                 </Card>
 
                 <Card className="bg-white border-slate-200 shadow-sm">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                  <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4 space-y-0">
                     <div>
                       <CardTitle>Répertoire des Utilisateurs</CardTitle>
-                      <CardDescription>Gestion complète des comptes</CardDescription>
+                      <CardDescription>Gestion complète des comptes, recherche et suppression groupée</CardDescription>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {selectedAdminUserIds.size > 0 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleBulkDeleteUsers}
+                          className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 font-bold"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1.5" />
+                          Supprimer ({selectedAdminUserIds.size})
+                        </Button>
+                      )}
+                      <div className="relative w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="Rechercher nom, email, ville..."
+                          className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                          value={adminUserSearch}
+                          onChange={(e) => setAdminUserSearch(e.target.value)}
+                        />
+                      </div>
                       <Button variant="outline" size="sm" onClick={() => handleExportData('users', 'csv')} className="border-slate-200 text-slate-700 hover:bg-slate-100">
                         <FileSpreadsheet className="h-4 w-4 mr-2" />
                         CSV
@@ -1387,68 +1498,136 @@ const AdminDashboard: React.FC = () => {
                   </CardHeader>
                   <CardContent className="p-0">
                     <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
-                          <tr><th className="px-6 py-3 font-semibold">Membre</th><th className="px-6 py-3 font-semibold">Rôle</th><th className="px-6 py-3 font-semibold text-right">Actions</th></tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200 text-slate-700">
-                          {users
-                            .filter(u => {
-                              if (filterRole !== 'all' && u.role !== filterRole) return false;
-                              if (filterCity && u.city !== filterCity) return false;
-                              if (filterRegion) {
-                                const reg = getRegionFromPostalCode(u.postal_code);
-                                if (reg !== filterRegion) return false;
-                              }
-                              if (filterBarreau) {
-                                const lawyerInfo = Array.isArray(u.lawyers) ? u.lawyers[0] : u.lawyers;
-                                if (lawyerInfo?.bar_association !== filterBarreau) return false;
-                              }
-                              return true;
-                            })
-                            .map((u) => {
-                              const regName = getRegionFromPostalCode(u.postal_code);
-                              return (
-                                <tr key={u.id} className="hover:bg-slate-50 transition-colors">
-                                  <td className="px-6 py-4">
-                                    <div className="font-semibold text-slate-900">{u.first_name} {u.last_name}</div>
-                                    <div className="text-xs text-slate-500">{u.email}</div>
-                                    <div className="text-[10px] text-slate-500 font-semibold mt-1">
-                                      📍 {u.city || 'Non renseigné'}{u.postal_code ? ` (${u.postal_code.substring(0, 2)})` : ''} 
-                                      {regName ? ` - Région : ${regName}` : ''}
-                                    </div>
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    <span className="px-2.5 py-1 rounded-full text-xs font-bold capitalize bg-cyan-50 text-cyan-700 border border-cyan-200">
-                                      {u.role}
-                                    </span>
-                                  </td>
-                                  <td className="px-6 py-4 text-right flex justify-end gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)} className="hover:bg-slate-100" title="Modifier le compte">
-                                      <Edit className="w-4 h-4 text-slate-600"/>
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      title={u.role === 'admin' ? "Interdit pour l'Admin" : "Réinitialiser le mot de passe de l'utilisateur"}
-                                      disabled={u.role === 'admin'}
-                                      onClick={() => handleAdminTriggerPasswordReset(u.email, u.role)}
-                                      className={u.role === 'admin' ? "text-slate-400 opacity-50 cursor-not-allowed" : "text-cyan-600 hover:bg-cyan-50"}
-                                    >
-                                      <KeyRound className="w-4 h-4"/>
-                                    </Button>
-                                    <Button variant="ghost" size="sm" onClick={() => handleToggleSuspend(u)} className={u.is_verified ? "text-amber-600 hover:bg-amber-50" : "text-emerald-600 hover:bg-emerald-50"}>
-                                      {u.is_verified ? "Suspendre" : "Activer"}
-                                    </Button>
-                                    <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => handleDeleteUser(u.id)}>
-                                      <Trash2 className="w-4 h-4"/>
-                                    </Button>
+                      {(() => {
+                        const filteredAdminUsers = users.filter(u => {
+                          if (filterRole !== 'all' && u.role !== filterRole) return false;
+                          if (filterCity && u.city !== filterCity) return false;
+                          if (filterRegion) {
+                            const reg = getRegionFromPostalCode(u.postal_code);
+                            if (reg !== filterRegion) return false;
+                          }
+                          if (filterBarreau) {
+                            const lawyerInfo = Array.isArray(u.lawyers) ? u.lawyers[0] : u.lawyers;
+                            if (lawyerInfo?.bar_association !== filterBarreau) return false;
+                          }
+                          if (adminUserSearch.trim()) {
+                            const q = adminUserSearch.toLowerCase();
+                            const fullName = `${u.first_name || ''} ${u.last_name || ''}`.toLowerCase();
+                            const email = (u.email || '').toLowerCase();
+                            const city = (u.city || '').toLowerCase();
+                            const postal = (u.postal_code || '').toLowerCase();
+                            if (!fullName.includes(q) && !email.includes(q) && !city.includes(q) && !postal.includes(q)) return false;
+                          }
+                          return true;
+                        });
+
+                        const allUsersSelected = filteredAdminUsers.length > 0 && filteredAdminUsers.every(u => selectedAdminUserIds.has(u.id));
+
+                        const toggleAllUsers = () => {
+                          if (allUsersSelected) {
+                            setSelectedAdminUserIds(prev => {
+                              const next = new Set(prev);
+                              filteredAdminUsers.forEach(u => next.delete(u.id));
+                              return next;
+                            });
+                          } else {
+                            setSelectedAdminUserIds(prev => {
+                              const next = new Set(prev);
+                              filteredAdminUsers.forEach(u => next.add(u.id));
+                              return next;
+                            });
+                          }
+                        };
+
+                        const toggleOneUser = (id: string) => {
+                          setSelectedAdminUserIds(prev => {
+                            const next = new Set(prev);
+                            if (next.has(id)) next.delete(id);
+                            else next.add(id);
+                            return next;
+                          });
+                        };
+
+                        return (
+                          <table className="w-full text-left text-sm">
+                            <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
+                              <tr>
+                                <th className="px-4 py-3 w-10 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={allUsersSelected}
+                                    onChange={toggleAllUsers}
+                                    className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                                    title="Tout sélectionner"
+                                  />
+                                </th>
+                                <th className="px-6 py-3 font-semibold">Membre</th>
+                                <th className="px-6 py-3 font-semibold">Rôle</th>
+                                <th className="px-6 py-3 font-semibold text-right">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 text-slate-700">
+                              {filteredAdminUsers.map((u) => {
+                                const regName = getRegionFromPostalCode(u.postal_code);
+                                const isSelected = selectedAdminUserIds.has(u.id);
+                                return (
+                                  <tr key={u.id} className={cn("transition-colors", isSelected ? "bg-cyan-50/70" : "hover:bg-slate-50")}>
+                                    <td className="px-4 py-4 text-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={() => toggleOneUser(u.id)}
+                                        className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer h-4 w-4"
+                                      />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <div className="font-semibold text-slate-900">{u.first_name} {u.last_name}</div>
+                                      <div className="text-xs text-slate-500">{u.email}</div>
+                                      <div className="text-[10px] text-slate-500 font-semibold mt-1">
+                                        📍 {u.city || 'Non renseigné'}{u.postal_code ? ` (${u.postal_code.substring(0, 2)})` : ''} 
+                                        {regName ? ` - Région : ${regName}` : ''}
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <span className="px-2.5 py-1 rounded-full text-xs font-bold capitalize bg-cyan-50 text-cyan-700 border border-cyan-200">
+                                        {u.role}
+                                      </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                      <Button variant="ghost" size="sm" onClick={() => handleEditUser(u)} className="hover:bg-slate-100" title="Modifier le compte">
+                                        <Edit className="w-4 h-4 text-slate-600"/>
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        title={u.role === 'admin' ? "Interdit pour l'Admin" : "Réinitialiser le mot de passe de l'utilisateur"}
+                                        disabled={u.role === 'admin'}
+                                        onClick={() => handleAdminTriggerPasswordReset(u.email, u.role)}
+                                        className={u.role === 'admin' ? "text-slate-400 opacity-50 cursor-not-allowed" : "text-cyan-600 hover:bg-cyan-50"}
+                                      >
+                                        <KeyRound className="w-4 h-4"/>
+                                      </Button>
+                                      <Button variant="ghost" size="sm" onClick={() => handleToggleSuspend(u)} className={u.is_verified ? "text-amber-600 hover:bg-amber-50" : "text-emerald-600 hover:bg-emerald-50"}>
+                                        {u.is_verified ? "Suspendre" : "Activer"}
+                                      </Button>
+                                      <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => handleDeleteUser(u.id)} title="Supprimer cet utilisateur">
+                                        <Trash2 className="w-4 h-4"/>
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                              {filteredAdminUsers.length === 0 && (
+                                <tr>
+                                  <td colSpan={4} className="px-6 py-12 text-center text-slate-500 italic">
+                                    Aucun utilisateur ne correspond à vos filtres ou à votre recherche.
                                   </td>
                                 </tr>
-                              );
-                            })}
-                        </tbody>
-                      </table>
+                              )}
+                            </tbody>
+                          </table>
+                        );
+                      })()}
                     </div>
                   </CardContent>
                 </Card>
@@ -1591,108 +1770,306 @@ const AdminDashboard: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'appointments' && (
-              <Card className="bg-white border-slate-200 shadow-sm">
-                <CardHeader>
-                  <CardTitle>Suivi Global des Rendez-vous</CardTitle>
-                  <CardDescription>Tous les rendez-vous de consultation planifiés sur la plateforme</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm whitespace-nowrap">
-                      <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
-                        <tr>
-                          <th className="px-6 py-3 font-semibold">Client</th>
-                          <th className="px-6 py-3 font-semibold">Avocat</th>
-                          <th className="px-6 py-3 font-semibold">Date planifiée</th>
-                          <th className="px-6 py-3 font-semibold">Statut</th>
-                          <th className="px-6 py-3 font-semibold text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-200 text-slate-700">
-                        {allAppointments.map((appt) => {
-                          const statusLabels: Record<string, { text: string; color: string }> = {
-                            pending: { text: "En attente", color: "bg-amber-50 text-amber-700 border border-amber-200" },
-                            confirmed: { text: "Confirmé", color: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
-                            cancelled: { text: "Annulé", color: "bg-red-50 text-red-700 border border-red-200" },
-                            completed: { text: "Terminé", color: "bg-cyan-50 text-cyan-700 border border-cyan-200" }
-                          };
-                          const label = statusLabels[appt.status] || { text: appt.status, color: "bg-slate-100 text-slate-700 border border-slate-200" };
-                          
-                          return (
-                            <tr key={appt.id} className="hover:bg-slate-50 transition-colors">
-                              <td className="px-6 py-4 font-semibold text-slate-900">
-                                {appt.client ? `${appt.client.first_name} ${appt.client.last_name}` : "Client inconnu"}
-                              </td>
-                              <td className="px-6 py-4 text-slate-700">
-                                {appt.lawyer ? `Me. ${appt.lawyer.first_name} ${appt.lawyer.last_name}` : "Avocat inconnu"}
-                              </td>
-                              <td className="px-6 py-4 text-slate-500">
-                                {new Date(appt.scheduled_at).toLocaleString('fr-FR')}
-                              </td>
-                              <td className="px-6 py-4">
-                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${label.color}`}>
-                                  {label.text}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 text-right flex justify-end gap-2">
-                                {appt.status !== 'cancelled' && appt.status !== 'completed' && (
-                                  <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => handleCancelAppointmentByAdmin(appt.id)}>
-                                    Annuler
-                                  </Button>
-                                )}
-                                <Button size="sm" variant="ghost" className="text-slate-500 hover:text-red-600 hover:bg-red-50" onClick={() => handleDeleteAppointmentByAdmin(appt.id)}>
-                                  Supprimer
-                                </Button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                    {allAppointments.length === 0 && <div className="p-8 text-center text-slate-500">Aucun rendez-vous sur la plateforme.</div>}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            {activeTab === 'appointments' && (() => {
+              const filteredAppointments = allAppointments.filter(appt => {
+                const matchesSearch = !adminApptSearch ||
+                  (appt.client && `${appt.client.first_name} ${appt.client.last_name}`.toLowerCase().includes(adminApptSearch.toLowerCase())) ||
+                  (appt.lawyer && `${appt.lawyer.first_name} ${appt.lawyer.last_name}`.toLowerCase().includes(adminApptSearch.toLowerCase())) ||
+                  (appt.notes && appt.notes.toLowerCase().includes(adminApptSearch.toLowerCase()));
+                const matchesStatus = adminApptStatusFilter === 'all' || appt.status === adminApptStatusFilter;
+                return matchesSearch && matchesStatus;
+              });
 
-            {activeTab === 'documents' && (
-              <Card className="bg-white border-slate-200 shadow-sm">
-                <CardHeader>
-                  <CardTitle>Documents Générés</CardTitle>
-                  <CardDescription>Tous les documents créés sur la plateforme</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
-                        <tr>
-                          <th className="px-6 py-3 font-semibold">Document</th>
-                          <th className="px-6 py-3 font-semibold">Propriétaire</th>
-                          <th className="px-6 py-3 font-semibold">Type</th>
-                          <th className="px-6 py-3 font-semibold">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-200 text-slate-700">
-                        {allDocuments.map((doc) => (
-                          <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
-                            <td className="px-6 py-4 font-semibold text-slate-900">{doc.name}</td>
-                            <td className="px-6 py-4 text-slate-700">
-                              {doc.profiles?.first_name} {doc.profiles?.last_name}
-                            </td>
-                            <td className="px-6 py-4 text-slate-500">{doc.type}</td>
-                            <td className="px-6 py-4 text-slate-500">
-                              {new Date(doc.created_at).toLocaleDateString()}
-                            </td>
+              const allFilteredIds = filteredAppointments.map(a => a.id);
+              const isAllSelected = allFilteredIds.length > 0 && allFilteredIds.every(id => selectedAdminApptIds.has(id));
+
+              const toggleSelectAllAppts = () => {
+                if (isAllSelected) {
+                  setSelectedAdminApptIds(new Set());
+                } else {
+                  setSelectedAdminApptIds(new Set(allFilteredIds));
+                }
+              };
+
+              const toggleApptSelection = (id: string) => {
+                setSelectedAdminApptIds(prev => {
+                  const next = new Set(prev);
+                  if (next.has(id)) next.delete(id);
+                  else next.add(id);
+                  return next;
+                });
+              };
+
+              return (
+                <Card className="bg-white border-slate-200 shadow-sm">
+                  <CardHeader className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div>
+                        <CardTitle>Suivi Global des Rendez-vous</CardTitle>
+                        <CardDescription>Tous les rendez-vous de consultation planifiés sur la plateforme</CardDescription>
+                      </div>
+                      {selectedAdminApptIds.size > 0 && (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={handleBulkDeleteAppointments}
+                          className="bg-red-600 hover:bg-red-700 text-white font-bold"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Supprimer la sélection ({selectedAdminApptIds.size})
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input
+                          placeholder="Rechercher par client, avocat, notes..."
+                          value={adminApptSearch}
+                          onChange={(e) => setAdminApptSearch(e.target.value)}
+                          className="pl-10 text-xs bg-slate-50 border-slate-200"
+                        />
+                        {adminApptSearch && (
+                          <button
+                            onClick={() => setAdminApptSearch('')}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                      <select
+                        value={adminApptStatusFilter}
+                        onChange={(e) => setAdminApptStatusFilter(e.target.value)}
+                        className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      >
+                        <option value="all">Tous les statuts</option>
+                        <option value="pending">En attente</option>
+                        <option value="confirmed">Confirmé</option>
+                        <option value="completed">Terminé</option>
+                        <option value="cancelled">Annulé</option>
+                      </select>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm whitespace-nowrap">
+                        <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
+                          <tr>
+                            <th className="px-4 py-3 w-10">
+                              <input
+                                type="checkbox"
+                                checked={isAllSelected}
+                                onChange={toggleSelectAllAppts}
+                                className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer"
+                              />
+                            </th>
+                            <th className="px-6 py-3 font-semibold">Client</th>
+                            <th className="px-6 py-3 font-semibold">Avocat</th>
+                            <th className="px-6 py-3 font-semibold">Date planifiée</th>
+                            <th className="px-6 py-3 font-semibold">Statut</th>
+                            <th className="px-6 py-3 font-semibold text-right">Actions</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    {allDocuments.length === 0 && <div className="p-8 text-center text-slate-500">Aucun document généré.</div>}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                        </thead>
+                        <tbody className="divide-y divide-slate-200 text-slate-700">
+                          {filteredAppointments.map((appt) => {
+                            const statusLabels: Record<string, { text: string; color: string }> = {
+                              pending: { text: "En attente", color: "bg-amber-50 text-amber-700 border border-amber-200" },
+                              confirmed: { text: "Confirmé", color: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
+                              cancelled: { text: "Annulé", color: "bg-red-50 text-red-700 border border-red-200" },
+                              completed: { text: "Terminé", color: "bg-cyan-50 text-cyan-700 border border-cyan-200" }
+                            };
+                            const label = statusLabels[appt.status] || { text: appt.status, color: "bg-slate-100 text-slate-700 border border-slate-200" };
+                            const isSelected = selectedAdminApptIds.has(appt.id);
+                            
+                            return (
+                              <tr key={appt.id} className={`hover:bg-slate-50 transition-colors ${isSelected ? 'bg-cyan-50/50' : ''}`}>
+                                <td className="px-4 py-4">
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={() => toggleApptSelection(appt.id)}
+                                    className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer"
+                                  />
+                                </td>
+                                <td className="px-6 py-4 font-semibold text-slate-900">
+                                  {appt.client ? `${appt.client.first_name} ${appt.client.last_name}` : "Client inconnu"}
+                                </td>
+                                <td className="px-6 py-4 text-slate-700">
+                                  {appt.lawyer ? `Me. ${appt.lawyer.first_name} ${appt.lawyer.last_name}` : "Avocat inconnu"}
+                                </td>
+                                <td className="px-6 py-4 text-slate-500">
+                                  {new Date(appt.scheduled_at).toLocaleString('fr-FR')}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${label.color}`}>
+                                    {label.text}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                  {appt.status !== 'cancelled' && appt.status !== 'completed' && (
+                                    <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => handleCancelAppointmentByAdmin(appt.id)}>
+                                      Annuler
+                                    </Button>
+                                  )}
+                                  <Button size="sm" variant="ghost" className="text-slate-500 hover:text-red-600 hover:bg-red-50" onClick={() => handleDeleteAppointmentByAdmin(appt.id)}>
+                                    Supprimer
+                                  </Button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                      {filteredAppointments.length === 0 && (
+                        <div className="p-8 text-center text-slate-500">
+                          {adminApptSearch || adminApptStatusFilter !== 'all' ? 'Aucun rendez-vous correspondant aux filtres.' : 'Aucun rendez-vous sur la plateforme.'}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
+            {activeTab === 'documents' && (() => {
+              const filteredDocuments = allDocuments.filter(doc => {
+                if (!adminDocSearch) return true;
+                const q = adminDocSearch.toLowerCase();
+                return (
+                  (doc.name && doc.name.toLowerCase().includes(q)) ||
+                  (doc.type && doc.type.toLowerCase().includes(q)) ||
+                  (doc.profiles?.first_name && doc.profiles.first_name.toLowerCase().includes(q)) ||
+                  (doc.profiles?.last_name && doc.profiles.last_name.toLowerCase().includes(q))
+                );
+              });
+
+              const allFilteredDocIds = filteredDocuments.map(d => d.id);
+              const isAllDocsSelected = allFilteredDocIds.length > 0 && allFilteredDocIds.every(id => selectedAdminDocIds.has(id));
+
+              const toggleSelectAllDocs = () => {
+                if (isAllDocsSelected) {
+                  setSelectedAdminDocIds(new Set());
+                } else {
+                  setSelectedAdminDocIds(new Set(allFilteredDocIds));
+                }
+              };
+
+              const toggleDocSelection = (id: string) => {
+                setSelectedAdminDocIds(prev => {
+                  const next = new Set(prev);
+                  if (next.has(id)) next.delete(id);
+                  else next.add(id);
+                  return next;
+                });
+              };
+
+              return (
+                <Card className="bg-white border-slate-200 shadow-sm">
+                  <CardHeader className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div>
+                        <CardTitle>Documents Générés</CardTitle>
+                        <CardDescription>Tous les documents créés sur la plateforme</CardDescription>
+                      </div>
+                      {selectedAdminDocIds.size > 0 && (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={handleBulkDeleteDocuments}
+                          className="bg-red-600 hover:bg-red-700 text-white font-bold"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Supprimer la sélection ({selectedAdminDocIds.size})
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        placeholder="Rechercher par titre de document, type, propriétaire..."
+                        value={adminDocSearch}
+                        onChange={(e) => setAdminDocSearch(e.target.value)}
+                        className="pl-10 text-xs bg-slate-50 border-slate-200"
+                      />
+                      {adminDocSearch && (
+                        <button
+                          onClick={() => setAdminDocSearch('')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm">
+                        <thead className="bg-slate-50 border-y border-slate-200 text-slate-600">
+                          <tr>
+                            <th className="px-4 py-3 w-10">
+                              <input
+                                type="checkbox"
+                                checked={isAllDocsSelected}
+                                onChange={toggleSelectAllDocs}
+                                className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer"
+                              />
+                            </th>
+                            <th className="px-6 py-3 font-semibold">Document</th>
+                            <th className="px-6 py-3 font-semibold">Propriétaire</th>
+                            <th className="px-6 py-3 font-semibold">Type</th>
+                            <th className="px-6 py-3 font-semibold">Date</th>
+                            <th className="px-6 py-3 font-semibold text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200 text-slate-700">
+                          {filteredDocuments.map((doc) => {
+                            const isSelected = selectedAdminDocIds.has(doc.id);
+                            return (
+                              <tr key={doc.id} className={`hover:bg-slate-50 transition-colors ${isSelected ? 'bg-cyan-50/50' : ''}`}>
+                                <td className="px-4 py-4">
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={() => toggleDocSelection(doc.id)}
+                                    className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer"
+                                  />
+                                </td>
+                                <td className="px-6 py-4 font-semibold text-slate-900">{doc.name}</td>
+                                <td className="px-6 py-4 text-slate-700">
+                                  {doc.profiles?.first_name} {doc.profiles?.last_name}
+                                </td>
+                                <td className="px-6 py-4 text-slate-500">{doc.type}</td>
+                                <td className="px-6 py-4 text-slate-500">
+                                  {new Date(doc.created_at).toLocaleDateString()}
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-slate-500 hover:text-red-600 hover:bg-red-50"
+                                    onClick={() => handleDeleteDocumentByAdmin(doc.id)}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                      {filteredDocuments.length === 0 && (
+                        <div className="p-8 text-center text-slate-500">
+                          {adminDocSearch ? 'Aucun document correspondant à la recherche.' : 'Aucun document généré.'}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
 
             {activeTab === 'messages' && (
               <Card className="bg-white border-slate-200 shadow-sm">
@@ -1878,62 +2255,156 @@ const AdminDashboard: React.FC = () => {
               </div>
             )}
             
-            {activeTab === 'formations' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-semibold text-slate-900">Catalogue des Formations</h2>
-                    <p className="text-xs text-slate-500">Supervisez et créez des formations enrichies avec documents PDF et visuels d'illustration pour l'ensemble des utilisateurs.</p>
-                  </div>
-                  <Button onClick={handleAddFormation} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-md shadow-cyan-600/20"><Plus className="h-4 w-4 mr-2" /> Créer une formation</Button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {formations.map((f) => {
-                    const atts = getFormationAttachments(f);
-                    return (
-                      <Card key={f.id} className="flex flex-col justify-between bg-white border-slate-200 shadow-sm">
-                        <CardContent className="p-6 flex flex-col justify-between h-full space-y-4">
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-start">
-                              <span className="text-xs font-bold text-cyan-700 uppercase">{f.category || 'Général'}</span>
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${f.status === 'Publié' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>{f.status}</span>
-                            </div>
-                            <h3 className="font-bold text-base text-slate-900 line-clamp-2">{f.title}</h3>
-                            <p className="text-xs text-slate-500">{f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
+            {activeTab === 'formations' && (() => {
+              const filteredFormations = formations.filter(f => {
+                if (!adminFormationSearch) return true;
+                const q = adminFormationSearch.toLowerCase();
+                return (
+                  (f.title && f.title.toLowerCase().includes(q)) ||
+                  (f.category && f.category.toLowerCase().includes(q)) ||
+                  (f.description && f.description.toLowerCase().includes(q)) ||
+                  (f.level && f.level.toLowerCase().includes(q)) ||
+                  (f.author_name && f.author_name.toLowerCase().includes(q))
+                );
+              });
 
-                            {f.description && (
-                              <p className="text-xs text-slate-600 line-clamp-2 italic bg-slate-50 p-2 rounded-xl border border-slate-200">
-                                "{f.description}"
-                              </p>
-                            )}
+              const allFilteredFormationIds = filteredFormations.map(f => f.id);
+              const isAllFormationsSelected = allFilteredFormationIds.length > 0 && allFilteredFormationIds.every(id => selectedAdminFormationIds.has(id));
 
-                            {atts.length > 0 && (
-                              <div className="flex items-center justify-between text-xs text-cyan-800 bg-cyan-50/70 border border-cyan-200 p-2 rounded-xl">
-                                <span className="font-bold flex items-center gap-1">
-                                  <span>📑</span> {atts.length} fichier(s) joint(s)
-                                </span>
-                                <Button variant="ghost" size="sm" className="h-auto p-1 text-cyan-700 hover:text-cyan-900 hover:bg-cyan-100" onClick={() => exportAllAttachments(atts)}>
-                                  <Download className="w-3.5 h-3.5" />
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex gap-2 border-t border-slate-200 pt-3">
-                            <Button variant="outline" className="flex-1 text-xs border-slate-200 text-slate-700 hover:bg-slate-100" size="sm" onClick={() => handleToggleFormationStatus(f.id, f.status)}>Publier / Masquer</Button>
-                            <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:bg-slate-100" onClick={() => handleEditFormation(f)}><Edit className="h-4 w-4" /></Button>
-                            <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => handleDeleteFormation(f.id)}><Trash2 className="h-4 w-4" /></Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                  {formations.length === 0 && (
-                    <div className="col-span-full text-center py-12 text-slate-500 border border-dashed border-slate-300 rounded-2xl bg-white space-y-3">
-                      <p className="text-base font-semibold">Aucun module de formation enregistré.</p>
-                      <Button onClick={handleAddFormation} size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold"><Plus className="w-4 h-4 mr-1.5" /> Créer la première formation</Button>
+              const toggleSelectAllFormations = () => {
+                if (isAllFormationsSelected) {
+                  setSelectedAdminFormationIds(new Set());
+                } else {
+                  setSelectedAdminFormationIds(new Set(allFilteredFormationIds));
+                }
+              };
+
+              const toggleFormationSelection = (id: string) => {
+                setSelectedAdminFormationIds(prev => {
+                  const next = new Set(prev);
+                  if (next.has(id)) next.delete(id);
+                  else next.add(id);
+                  return next;
+                });
+              };
+
+              return (
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                      <h2 className="text-2xl font-semibold text-slate-900">Catalogue des Formations</h2>
+                      <p className="text-xs text-slate-500">Supervisez et créez des formations enrichies avec documents PDF et visuels d'illustration pour l'ensemble des utilisateurs.</p>
                     </div>
-                  )}
+                    <div className="flex items-center gap-2">
+                      {selectedAdminFormationIds.size > 0 && (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={handleBulkDeleteFormations}
+                          className="bg-red-600 hover:bg-red-700 text-white font-bold"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Supprimer ({selectedAdminFormationIds.size})
+                        </Button>
+                      )}
+                      <Button onClick={handleAddFormation} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-md shadow-cyan-600/20">
+                        <Plus className="h-4 w-4 mr-2" /> Créer une formation
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="relative flex-1 w-full">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        placeholder="Rechercher par titre, niveau, auteur, mot-clé..."
+                        value={adminFormationSearch}
+                        onChange={(e) => setAdminFormationSearch(e.target.value)}
+                        className="pl-10 text-xs bg-slate-50 border-slate-200"
+                      />
+                      {adminFormationSearch && (
+                        <button
+                          onClick={() => setAdminFormationSearch('')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    {filteredFormations.length > 0 && (
+                      <div className="flex items-center gap-2 self-start sm:self-center">
+                        <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none font-medium">
+                          <input
+                            type="checkbox"
+                            checked={isAllFormationsSelected}
+                            onChange={toggleSelectAllFormations}
+                            className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer"
+                          />
+                          Tout sélectionner ({filteredFormations.length})
+                        </label>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredFormations.map((f) => {
+                      const atts = getFormationAttachments(f);
+                      const isSelected = selectedAdminFormationIds.has(f.id);
+                      return (
+                        <Card key={f.id} className={`flex flex-col justify-between bg-white border-slate-200 shadow-sm transition-all ${isSelected ? 'ring-2 ring-cyan-500 bg-cyan-50/20' : ''}`}>
+                          <CardContent className="p-6 flex flex-col justify-between h-full space-y-4">
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={() => toggleFormationSelection(f.id)}
+                                    className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer"
+                                  />
+                                  <span className="text-xs font-bold text-cyan-700 uppercase">{f.category || 'Général'}</span>
+                                </div>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${f.status === 'Publié' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>{f.status}</span>
+                              </div>
+                              <h3 className="font-bold text-base text-slate-900 line-clamp-2">{f.title}</h3>
+                              <p className="text-xs text-slate-500">{f.duration} • Niveau: {f.level} {f.author_name ? `• Par ${f.author_name}` : ''}</p>
+
+                              {f.description && (
+                                <p className="text-xs text-slate-600 line-clamp-2 italic bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                  "{f.description}"
+                                </p>
+                              )}
+
+                              {atts.length > 0 && (
+                                <div className="flex items-center justify-between text-xs text-cyan-800 bg-cyan-50/70 border border-cyan-200 p-2 rounded-xl">
+                                  <span className="font-bold flex items-center gap-1">
+                                    <span>📑</span> {atts.length} fichier(s) joint(s)
+                                  </span>
+                                  <Button variant="ghost" size="sm" className="h-auto p-1 text-cyan-700 hover:text-cyan-900 hover:bg-cyan-100" onClick={() => exportAllAttachments(atts)}>
+                                    <Download className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2 border-t border-slate-200 pt-3">
+                              <Button variant="outline" className="flex-1 text-xs border-slate-200 text-slate-700 hover:bg-slate-100" size="sm" onClick={() => handleToggleFormationStatus(f.id, f.status)}>Publier / Masquer</Button>
+                              <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:bg-slate-100" onClick={() => handleEditFormation(f)}><Edit className="h-4 w-4" /></Button>
+                              <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => handleDeleteFormation(f.id)}><Trash2 className="h-4 w-4" /></Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                    {filteredFormations.length === 0 && (
+                      <div className="col-span-full text-center py-12 text-slate-500 border border-dashed border-slate-300 rounded-2xl bg-white space-y-3">
+                        <p className="text-base font-semibold">{adminFormationSearch ? 'Aucune formation correspondant à votre recherche.' : 'Aucun module de formation enregistré.'}</p>
+                        <Button onClick={handleAddFormation} size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold"><Plus className="w-4 h-4 mr-1.5" /> Créer une formation</Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
+              );
+            })()}
 
                 {/* Modal de création de formation Admin */}
                 <Modal
