@@ -107,10 +107,10 @@ http {
             log_not_found off;
         }
 
-        # Dev HMR / WebSocket fallback (prevents 502 Bad Gateway from Gunicorn WSGI)
+        # Dev HMR / WebSocket fallback (prevents 502/204 errors from external extensions/HMR)
         location /ws/ {
             access_log off;
-            return 204;
+            return 200 "ok\n";
         }
 
         # Health check for Railway edge / deploy verification
@@ -127,9 +127,19 @@ http {
             add_header Content-Type text/plain;
         }
 
+        # Prevent caching of index.html so browsers immediately fetch fresh deploy hashes
+        location = /index.html {
+            add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+            add_header Pragma "no-cache" always;
+            add_header Expires 0 always;
+        }
+
         # Handle client-side routing
         location / {
             try_files $uri $uri/ /index.html;
+            add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+            add_header Pragma "no-cache" always;
+            add_header Expires 0 always;
         }
     }
 }

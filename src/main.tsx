@@ -4,8 +4,18 @@ import './index.css'
 import { I18nProvider } from './i18n'
 import App from './App.tsx'
 
-// Suppress unhandled third-party browser extension errors (e.g. Chrome Web Vitals / performance observer extensions)
+// Suppress unhandled third-party browser extension errors and auto-recover from deployment chunk 404s
 if (typeof window !== 'undefined') {
+  window.addEventListener('vite:preloadError', (event) => {
+    event.preventDefault();
+    const lastReload = sessionStorage.getItem('last_chunk_reload');
+    const now = Date.now();
+    if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+      sessionStorage.setItem('last_chunk_reload', now.toString());
+      window.location.reload();
+    }
+  });
+
   window.addEventListener('error', (event) => {
     if (
       event.message?.includes("reading 'startTime'") ||
@@ -14,6 +24,20 @@ if (typeof window !== 'undefined') {
     ) {
       event.preventDefault();
       event.stopImmediatePropagation();
+      return;
+    }
+
+    if (
+      event.message?.includes('Failed to fetch dynamically imported module') ||
+      event.message?.includes('Importing a module script failed') ||
+      event.message?.includes('error loading dynamically imported module')
+    ) {
+      const lastReload = sessionStorage.getItem('last_chunk_reload');
+      const now = Date.now();
+      if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+        sessionStorage.setItem('last_chunk_reload', now.toString());
+        window.location.reload();
+      }
     }
   });
 }
