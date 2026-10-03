@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 
 import { SecurityCaptcha } from '../components/ui/SecurityCaptcha';
+import SEO from '../components/common/SEO';
+import { SEO_CONFIGS } from '../lib/seoConfigs';
 
 type View = 'login' | 'forgot' | 'forgot_sent';
 
@@ -225,6 +227,11 @@ const LoginPage: React.FC = () => {
   if (view === 'forgot_sent') {
     return (
       <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-900">
+        <SEO
+          title="Réinitialisation du mot de passe | France Justice"
+          description="Lien de réinitialisation de mot de passe envoyé."
+          canonical="https://francejustice.com/login"
+        />
         <div className="max-w-md w-full">
           <Card className="bg-white border-slate-200 shadow-xl shadow-slate-200/50">
             <CardContent className="pt-8 pb-8 text-center">
@@ -262,6 +269,11 @@ const LoginPage: React.FC = () => {
   if (view === 'forgot') {
     return (
       <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-900">
+        <SEO
+          title="Mot de passe oublié | France Justice"
+          description="Réinitialisez le mot de passe de votre compte France Justice."
+          canonical="https://francejustice.com/login"
+        />
         <button
           type="button"
           onClick={() => { setView('login'); setResetError(null); }}
@@ -325,6 +337,12 @@ const LoginPage: React.FC = () => {
   // ── Login form (default) ───────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative text-slate-900">
+      <SEO
+        title={SEO_CONFIGS.login.title}
+        description={SEO_CONFIGS.login.description}
+        keywords={SEO_CONFIGS.login.keywords}
+        canonical={SEO_CONFIGS.login.canonical}
+      />
       <Link
         to="/"
         className="absolute top-8 left-8 flex items-center text-slate-500 hover:text-cyan-600 font-medium transition-colors group"

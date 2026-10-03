@@ -7,6 +7,7 @@ import {
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../i18n';
+import SEO from '../components/common/SEO';
 
 const GeniaLAvocat: React.FC = () => {
   const navigate = useNavigate();
@@ -118,6 +119,12 @@ const GeniaLAvocat: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden font-sans">
+      <SEO
+        title="GéniaL'Avocat | IA Juridique Officielle France Justice — Réponses Instantanées"
+        description="GéniaL'Avocat est l'IA juridique officielle de France Justice. Posez vos questions en droit du travail, licenciement, divorce, bail, OQTF et obtenez des réponses claires, précises et gratuites."
+        keywords="GéniaL'Avocat, IA juridique, questions droit travail, licenciement abusif IA, divorce conseil IA, OQTF aide, assistant avocat IA France"
+        canonical="https://francejustice.com/genia-l"
+      />
       
       {/* HERO SECTION - LIGHT & LUMINOUS */}
       <section className="relative bg-gradient-to-b from-cyan-50/80 via-white to-slate-50 text-slate-900 py-20 md:py-28 border-b border-slate-200/80 overflow-hidden">

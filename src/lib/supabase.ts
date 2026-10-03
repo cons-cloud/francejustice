@@ -15,5 +15,18 @@ export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
     lock: async (_name, _acquireTimeout, fn) => {
       return await fn();
     }
-  }
+  },
+  realtime: {
+    // Increase timeout to avoid premature WebSocket close on slow connections
+    timeout: 30000,
+    params: {
+      // Reduce heartbeat frequency to lower concurrent connection pressure
+      heartbeatIntervalMs: 30000,
+    },
+  },
+  global: {
+    headers: {
+      'x-client-info': 'francejustice-web',
+    },
+  },
 });

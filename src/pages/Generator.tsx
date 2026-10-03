@@ -15,6 +15,7 @@ import {
   FileSpreadsheet,
   Presentation
 } from 'lucide-react';
+import SEO from '../components/common/SEO';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Textarea } from '../components/ui/Textarea';
@@ -611,6 +612,12 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 text-slate-900">
+      <SEO
+        title="Générateur de Documents Juridiques PDF | Lettres, Contrats & Statuts"
+        description="Générez en quelques minutes vos documents juridiques professionnels : lettres de licenciement, contrats de travail, statuts de SAS/SARL, mises en demeure, requêtes aux prud'hommes. Téléchargement PDF immédiat."
+        keywords="générateur documents juridiques, lettre licenciement, contrat travail modèle, statuts SAS SARL, mise en demeure, requête prud'hommes, PDF juridique gratuit"
+        canonical="https://francejustice.com/generator"
+      />
       <div className="container py-8 max-w-5xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="mb-8">

@@ -21,7 +21,9 @@ export const SEO: React.FC<SEOProps> = ({
   const defaultDesc = "Plateforme juridique officielle propulsée par l'IA. Recherche dans 75+ Codes de loi, consultation d'avocats vérifiés, droit du travail, licenciement, création d'entreprise, divorce, OQTF et formations diplômantes.";
   const defaultKeywords = "France Justice, droit du travail, licenciement, prud'hommes, rupture conventionnelle, droit des entreprises, création SAS SARL, droit de la famille, divorce, garde d'enfants, pension alimentaire, droit immobilier, loyer impayé, expulsion, droit pénal, garde à vue, amende, droit des étrangers, titre de séjour, OQTF, avocat en ligne, base de données juridique, IA juridique, formations diplômantes, masterclass droit";
 
-  const siteTitle = title ? `${title} | France Justice` : defaultTitle;
+  const siteTitle = title
+    ? (title.includes('France Justice') ? title : `${title} | France Justice`)
+    : defaultTitle;
   const metaDesc = description || defaultDesc;
   const metaKeywords = keywords ? `${keywords}, ${defaultKeywords}` : defaultKeywords;
   const canonicalUrl = canonical || 'https://francejustice.com' + (typeof window !== 'undefined' ? window.location.pathname : '');

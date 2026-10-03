@@ -10,6 +10,7 @@ import { useTranslation } from '../i18n';
 import { COURS_D_APPEL_LIST, getCourDAppelForCity } from '../lib/jurisdictions';
 import { getUnifiedLawyersList, matchBarreau, loadFullDatasetFromCsv, normalizeDataGouvAvocat } from '../lib/avocatsDataGouvSync';
 import { ALL_BARREAUX_FRANCE } from '../data/allBarreauxFrance';
+import SEO from '../components/common/SEO';
 
 interface LawyerProfile {
   id: string;
@@ -183,6 +184,12 @@ const LawyersPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+      <SEO
+        title="Avocats Vérifiés en France | Annuaire Officiel par Spécialité & Barreau"
+        description="Trouvez votre avocat certifié parmi les barreaux de Paris, Lyon, Marseille et toute la France. Consultation en visioconférence chiffrée. Filtrez par spécialité : droit du travail, famille, immobilier, pénal."
+        keywords="avocat en ligne, annuaire avocats France, barreau de Paris, avocat droit du travail, avocat famille, avocat pénal, consultation avocat, avocat Lyon, avocat Marseille"
+        canonical="https://francejustice.com/lawyers"
+      />
       <div className="bg-gradient-to-b from-cyan-50/80 via-white to-slate-50 text-slate-900 py-16 mb-12 border-b border-slate-200/80">
         <div className="container mx-auto px-4 text-center flex flex-col items-center justify-center">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-100 text-cyan-800 font-bold text-xs tracking-wide uppercase mb-4 border border-cyan-200">

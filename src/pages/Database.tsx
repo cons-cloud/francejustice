@@ -12,6 +12,7 @@ import LiveSyncBadge from '../components/ui/LiveSyncBadge';
 import { Button } from '../components/ui/Button';
 import { CleanLegalText } from '../components/ui/CleanLegalText';
 import { generatePDF } from '../lib/pdfUtils';
+import SEO from '../components/common/SEO';
 
 interface LegalDoc {
   id: string;
@@ -516,6 +517,12 @@ const Database: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pt-24 pb-16">
+      <SEO
+        title="Base de Données Juridique IA | 75+ Codes de Loi Français — France Justice"
+        description="Recherchez dans plus de 75 codes de loi français grâce à l'IA. Code du Travail, Code Civil, Code Pénal, Code de Commerce, droit des étrangers. Accès gratuit et instantané."
+        keywords="base de données juridique, codes de loi français, code du travail, code civil, code pénal, code de commerce, recherche juridique IA, loi française"
+        canonical="https://francejustice.com/database"
+      />
       <div className="container px-4 mx-auto max-w-7xl">
         
         {/* Header Hero Section */}

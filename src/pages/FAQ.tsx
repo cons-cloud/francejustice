@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '../components/ui/Card';
 import { ChevronDown } from 'lucide-react';
 import { useTranslation } from '../i18n';
+import SEO from '../components/common/SEO';
 
 const FAQ: React.FC = () => {
   const { t } = useTranslation();
@@ -32,6 +33,23 @@ const FAQ: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 py-16">
+      <SEO
+        title="FAQ — Questions Fréquentes sur France Justice & Nos Services Juridiques"
+        description="Trouvez les réponses à toutes vos questions sur France Justice : comment consulter un avocat, utiliser notre base de données juridique, générer des documents ou accéder aux formations diplômantes."
+        keywords="FAQ France Justice, questions fréquentes, consulter avocat en ligne, aide juridique, documents juridiques"
+        canonical="https://francejustice.com/faq"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "Comment fonctionne la plateforme ?", "acceptedAnswer": { "@type": "Answer", "text": "Notre plateforme utilise l'intelligence artificielle pour analyser vos situations juridiques et vous orienter vers les meilleures solutions." } },
+            { "@type": "Question", "name": "Est-ce que mes données sont sécurisées ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, toutes vos données sont chiffrées et protégées conformément aux normes RGPD." } },
+            { "@type": "Question", "name": "Puis-je parler à un avocat ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, vous pouvez être mis en relation avec des avocats qualifiés selon votre besoin." } },
+            { "@type": "Question", "name": "Les services sont-ils gratuits ?", "acceptedAnswer": { "@type": "Answer", "text": "Une partie des services est gratuite, mais certaines fonctionnalités avancées peuvent être payantes." } },
+            { "@type": "Question", "name": "Comment créer un document juridique ?", "acceptedAnswer": { "@type": "Answer", "text": "Il suffit de remplir un formulaire et notre système génère automatiquement un document prêt à être utilisé." } }
+          ]
+        }}
+      />
       <div className="container max-w-4xl mx-auto px-4">
 
         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 text-center mb-10 tracking-tight">

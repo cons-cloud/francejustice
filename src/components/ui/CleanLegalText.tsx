@@ -271,9 +271,10 @@ export const CleanLegalText: React.FC<CleanLegalTextProps> = ({
     // 1. Liens Markdown : [Texte](https://url)
     // 2. URLs brutes : https://... ou http://...
     // 3. Code inline : `...`
-    // 4. Gras : **...** ou __...__
-    // 5. Italique : *...* ou _..._
-    const tokenRegex = /(\[(?:[^\]]+)\]\((?:https?:\/\/[^\s)]+)\)|https?:\/\/[^\s<)]+|`[^`]+`|\*\*[^*]+?\*\*|__[^_]+?__|\*[^*]+?\*|_[^_]+?_)/g;
+    // 4. Gras et Italique : ***...***
+    // 5. Gras : **...** ou __...__
+    // 6. Italique : *...* ou _..._
+    const tokenRegex = /(\[(?:[^\]]+)\]\((?:https?:\/\/[^\s)]+)\)|https?:\/\/[^\s<)]+|`[^`]+`|\*\*\*.+?\*\*\*|___.+?___|\*\*.+?\*\*|__.+?__|\*(?!\*).+?\*|_(?!_).+?_)/g;
     const parts = withoutHashes.split(tokenRegex);
 
     return parts.map((part, i) => {
@@ -335,24 +336,38 @@ export const CleanLegalText: React.FC<CleanLegalTextProps> = ({
         );
       }
 
-      // 4. Gras : **texte** ou __texte__
+      // 4. Gras et Italique : ***texte***
+      if ((part.startsWith('***') && part.endsWith('***') && part.length > 6) ||
+          (part.startsWith('___') && part.endsWith('___') && part.length > 6)) {
+        const cleanText = part.slice(3, -3).trim();
+        return (
+          <strong
+            key={`${keyPrefix}-bi-${i}`}
+            className={`font-bold italic ${isUser ? 'text-white' : 'text-slate-900'}`}
+          >
+            {cleanText}
+          </strong>
+        );
+      }
+
+      // 5. Gras : **texte** ou __texte__
       if ((part.startsWith('**') && part.endsWith('**') && part.length > 4) ||
           (part.startsWith('__') && part.endsWith('__') && part.length > 4)) {
-        const cleanBold = part.slice(2, -2).replace(/\*/g, '').trim();
+        const cleanBold = part.slice(2, -2).trim();
         return (
           <strong
             key={`${keyPrefix}-b-${i}`}
-            className={`font-semibold ${isUser ? 'text-white font-bold' : 'text-slate-900'}`}
+            className={`font-bold ${isUser ? 'text-white' : 'text-slate-900'}`}
           >
             {cleanBold}
           </strong>
         );
       }
 
-      // 5. Italique : *texte* ou _texte_
-      if ((part.startsWith('*') && part.endsWith('*') && part.length > 2) ||
-          (part.startsWith('_') && part.endsWith('_') && part.length > 2)) {
-        const cleanItalic = part.slice(1, -1).replace(/\*/g, '').trim();
+      // 6. Italique : *texte* ou _texte_
+      if ((part.startsWith('*') && part.endsWith('*') && part.length > 2 && !part.startsWith('**')) ||
+          (part.startsWith('_') && part.endsWith('_') && part.length > 2 && !part.startsWith('__'))) {
+        const cleanItalic = part.slice(1, -1).trim();
         return (
           <em
             key={`${keyPrefix}-em-${i}`}
@@ -364,7 +379,7 @@ export const CleanLegalText: React.FC<CleanLegalTextProps> = ({
       }
 
       // Texte standard sans astérisques résiduels
-      const cleanNormal = part.replace(/\*/g, '');
+      const cleanNormal = part.replace(/\*\*/g, '').replace(/^\*|\*$/g, '');
       return <React.Fragment key={`${keyPrefix}-t-${i}`}>{cleanNormal}</React.Fragment>;
     });
   };
@@ -488,17 +503,16 @@ export const CleanLegalText: React.FC<CleanLegalTextProps> = ({
     }
 
     // 6. Sous-titres isolés
-    const isStandaloneBoldHeader = /^\*\*[A-Za-z0-9À-ÖØ-öø-ÿ\s:—–\-()'/.,!?]+\*\*$/.test(trimmed) && trimmed.length > 5;
+    const isStandaloneBoldHeader = /^\*\*(?!\*)(.+?)\*\*$/.test(trimmed) && trimmed.length > 5;
     if (isStandaloneBoldHeader) {
       const cleanSubTitle = trimmed
         .replace(/^\*\*/, '')
         .replace(/\*\*$/, '')
-        .replace(/\*/g, '')
         .trim();
 
       renderedElements.push(
         <div key={`subh-${lineIdx}`} className="pt-2 pb-0.5">
-          <h5 className={`text-sm sm:text-base font-semibold tracking-tight ${isUser ? 'text-white' : 'text-slate-900'}`}>
+          <h5 className={`text-sm sm:text-base font-bold tracking-tight ${isUser ? 'text-white' : 'text-slate-900'}`}>
             {cleanSubTitle}
           </h5>
         </div>
@@ -533,8 +547,8 @@ export const CleanLegalText: React.FC<CleanLegalTextProps> = ({
       continue;
     }
 
-    // 8. Puces / Tirets (• item, - item)
-    const bulletMatch = trimmed.match(/^(?:[-*•—–]+|\+\s+)\s*(.+)/);
+    // 8. Puces / Tirets (• item, - item, * item, + item)
+    const bulletMatch = trimmed.match(/^(?:[-•—–]|\*(?!\*)|\+)\s+(.+)/);
     if (bulletMatch) {
       const bulletBody = bulletMatch[1];
 

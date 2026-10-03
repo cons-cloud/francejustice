@@ -10,6 +10,7 @@ import { useTranslation } from '../i18n';
 import { chatWithAI } from '../lib/gemini';
 import { generatePDF } from '../lib/pdfUtils';
 import { ScientificReviews } from '../components/features/ScientificReviews';
+import SEO from '../components/common/SEO';
 
 export interface LegalNews {
   id: string;
@@ -450,6 +451,12 @@ INSTRUCTIONS :
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-slate-50 text-slate-900 pt-16 pb-20 selection:bg-cyan-500 selection:text-white">
+      <SEO
+        title="Actualité Juridique & Droit Français | Lois, Jurisprudence & Réformes — France Justice"
+        description="Suivez toute l'actualité juridique française : nouvelles lois, arrêts de la Cour de Cassation, réformes du Code du Travail, décisions du Conseil d'État. Veille juridique quotidienne."
+        keywords="actualité juridique France, nouvelles lois, jurisprudence, réforme code du travail, Cour de Cassation, Conseil d'État, arrêts importants, JORF"
+        canonical="https://francejustice.com/news"
+      />
       {/* Real-time Ticker Marquee Bar */}
       <div className="bg-white/95 backdrop-blur-md border-b border-slate-200 text-xs py-2.5 px-4 sticky top-16 z-30 flex items-center justify-between gap-4 overflow-hidden shadow-xs">
         <div className="flex items-center gap-3 shrink-0">

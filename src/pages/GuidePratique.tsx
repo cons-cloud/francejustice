@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { generatePDF } from '../lib/pdfUtils';
 import { useTranslation } from '../i18n';
+import SEO from '../components/common/SEO';
+import { SEO_CONFIGS } from '../lib/seoConfigs';
 
 interface LegalGuideItem {
   id: string;
@@ -392,6 +394,12 @@ const GuidePratique: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pt-20 pb-20">
+      <SEO
+        title={SEO_CONFIGS.guide.title}
+        description={SEO_CONFIGS.guide.description}
+        keywords={SEO_CONFIGS.guide.keywords}
+        canonical={SEO_CONFIGS.guide.canonical}
+      />
       <div className="container px-4 mx-auto max-w-7xl space-y-10">
 
         {/* Hero Banner Header */}

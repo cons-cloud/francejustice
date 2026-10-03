@@ -162,6 +162,25 @@ npm test
 
 ---
 
+## 🔍 SEO & Référencement Moteurs de Recherche (Google Search Console)
+
+- **Architecture SEO Centralisée** : Métadonnées dynamiques, titres optimisés, méta descriptions, mots-clés et balises canoniques via `SEO.tsx` et `seoConfigs.ts` sur les 14 pages principales.
+- **Validation Google Search Console** : Balise méta d'authentification propriétaire dans `index.html` et fichier de validation `/googlevxURoI1St2N_raU4YmA9vBLX1iUY2dBv7TRBUXakm3o.html`.
+- **Sitemap XML & Robots.txt** : Plan du site unifié sur `https://francejustice.com` (`/sitemap.xml`) et directives crawlers permissives dans `/robots.txt`.
+- **Bannière Sociale Open Graph** : Image officielle HD 16:9 `/og-image.jpg` configurée pour Twitter Cards, LinkedIn, Facebook et aperçus de partage.
+- **Données Structurées Schema.org (JSON-LD)** : Rich snippets pour `WebSite` avec SearchAction, `ItemList` (Avocats), `Dataset` (75+ Codes de loi), `FAQPage`, et `EducationalOrganization` (Formations).
+
+---
+
+## 🖋️ Moteur de Typographie & Rendu Markdown IA (`CleanLegalText`)
+
+- **Rendu Markdown Haute Fidélité** : Formatage automatique et propre du texte généré par l'IA (ChatGPT, Claude, Gemini).
+- **Gras & Mise en Valeur** : Parsing précis de `**texte en gras**`, `***gras et italique***` et `*italique*` sans aucun résidu d'astérisques `**`.
+- **Listes à Puces & Numérotées** : Distinction stricte entre puces (`- `, `• `, `* `) et titres commençant par du gras (`**Titre :**`).
+- **Composants Riches** : Tableaux comparatifs interactifs, citations de doctrine, liens cliquables vers les sources officielles et aperçu plein écran des images IA.
+
+---
+
 ## 🔒 Sécurité & Conformité
 
 - **Row Level Security** : Activé sur toutes les tables Supabase avec politiques par rôle (`owner_id`, `is_admin()`)

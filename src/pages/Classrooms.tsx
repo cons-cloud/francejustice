@@ -24,6 +24,8 @@ import {
   getOfficialFormationsAsClassrooms
 } from "../data/officialFormationsData";
 import LegalAIDiagnostic from "../components/features/LegalAIDiagnostic";
+import SEO from "../components/common/SEO";
+import { SEO_CONFIGS } from "../lib/seoConfigs";
 
 interface CurriculumSection {
   title: string;
@@ -691,6 +693,13 @@ ${curriculumText}`;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 py-12">
+      <SEO
+        title={SEO_CONFIGS.classrooms.title}
+        description={SEO_CONFIGS.classrooms.description}
+        keywords={SEO_CONFIGS.classrooms.keywords}
+        canonical={SEO_CONFIGS.classrooms.canonical}
+        jsonLd={SEO_CONFIGS.classrooms.schema}
+      />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl overflow-hidden mb-12 shadow-xl bg-gradient-to-b from-cyan-50/90 via-white to-slate-50 text-slate-900 p-8 md:p-14 border border-slate-200">
           <div className="relative z-10 max-w-3xl space-y-5">

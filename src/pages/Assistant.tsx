@@ -43,6 +43,8 @@ import { chatWithAI, type LegalAISource, type LegalAutomation } from '../lib/gem
 import { CleanLegalText } from '../components/ui/CleanLegalText';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import SEO from '../components/common/SEO';
+import { SEO_CONFIGS } from '../lib/seoConfigs';
 import { useTranslation } from '../i18n';
 import { generatePDF } from '../lib/pdfUtils';
 import { 
@@ -418,6 +420,13 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
 
   return (
     <div className="min-h-screen bg-secondary-50">
+      <SEO
+        title={SEO_CONFIGS.assistant.title}
+        description={SEO_CONFIGS.assistant.description}
+        keywords={SEO_CONFIGS.assistant.keywords}
+        canonical={SEO_CONFIGS.assistant.canonical}
+        jsonLd={SEO_CONFIGS.assistant.schema}
+      />
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       <div className="container py-6 grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         

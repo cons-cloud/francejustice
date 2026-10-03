@@ -5,6 +5,8 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import Modal from "../components/ui/Modal";
 import { useTranslation } from "../i18n";
+import SEO from "../components/common/SEO";
+import { SEO_CONFIGS } from "../lib/seoConfigs";
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -55,6 +57,12 @@ const Contact = () => {
 
   return (
     <div className="bg-gradient-to-b from-cyan-50/60 via-white to-slate-50 text-slate-900 min-h-screen py-16">
+      <SEO
+        title={SEO_CONFIGS.contact.title}
+        description={SEO_CONFIGS.contact.description}
+        keywords={SEO_CONFIGS.contact.keywords}
+        canonical={SEO_CONFIGS.contact.canonical}
+      />
       <Modal
         isOpen={submitted}
         onClose={() => setSubmitted(false)}
