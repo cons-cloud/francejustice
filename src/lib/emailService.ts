@@ -107,3 +107,20 @@ export async function notifyLawyerNewCase(lawyerEmail: string, caseTitle: string
     `
   });
 }
+
+/**
+ * Opens email client with pre-formatted legal document or analysis, with automatic fallback
+ */
+export function sendDocumentByEmail(title: string, content: string, defaultTo?: string): boolean {
+  const subject = encodeURIComponent(`France Justice — Document Officiel : ${title}`);
+  const plainText = content.replace(/[*#_`>]/g, '').substring(0, 1800);
+  const body = encodeURIComponent(
+    `Bonjour,\n\nVeuillez trouver ci-dessous le document juridique certifié généré sur France Justice (${title}) :\n\n----------------------------------------\n${plainText}\n----------------------------------------\n\nGénéré via France Justice • Plateforme Juridique Certifiée\nhttps://francejustice.com`
+  );
+  const mailtoUrl = `mailto:${defaultTo || ''}?subject=${subject}&body=${body}`;
+  if (typeof window !== 'undefined') {
+    window.location.href = mailtoUrl;
+    return true;
+  }
+  return false;
+}

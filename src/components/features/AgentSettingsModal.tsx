@@ -9,7 +9,8 @@ import {
   Layers, 
   Wrench, 
   PlayCircle, 
-  Info 
+  Info,
+  UserCheck
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import type { UserApiKeys } from '../../lib/agent/types';
@@ -32,13 +33,25 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
 }) => {
   const { success } = useToast();
   const [keys, setKeys] = useState<UserApiKeys>(apiKeys);
-  const [activeTab, setActiveTab] = useState<'architecture' | 'keys' | 'tools'>('architecture');
+  const [activeTab, setActiveTab] = useState<'architecture' | 'keys' | 'tools' | 'memory'>('memory');
+  const [userMemory, setUserMemory] = useState<{ profile: string; preferences: string }>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('francejustice_user_memory');
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return { profile: '', preferences: '' };
+  });
 
   if (!isOpen) return null;
 
   const handleSave = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('francejustice_user_memory', JSON.stringify(userMemory));
+    }
     onSaveApiKeys(keys);
-    success("Paramètres et clés API enregistrés avec succès.");
+    success("Paramètres, clés API et mémoire personnalisée enregistrés avec succès.");
     onClose();
   };
 
@@ -53,8 +66,8 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base text-slate-900">Architecture de l'Agent IA France Justice</h3>
-              <p className="text-xs text-slate-500 font-medium">Modèle LLM, Threads, Instructions, Outils &amp; Exécution</p>
+              <h3 className="font-extrabold text-base text-slate-900">Paramètres &amp; Personnalisation IA</h3>
+              <p className="text-xs text-slate-500 font-medium">Mémoire, Instructions personnalisées, Clés API &amp; Outils</p>
             </div>
           </div>
           <button
@@ -67,50 +80,53 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-200 bg-white px-5 pt-2 gap-2 text-xs font-bold">
+        <div className="flex border-b border-slate-200 bg-white px-5 pt-2 gap-2 text-xs font-bold overflow-x-auto">
+          {/* Note: L'architecture et les 5 piliers restent dans le code mais sont masqués de l'interface conformément à la demande utilisateur */}
+
           <button
             type="button"
-            onClick={() => setActiveTab('architecture')}
-            className={`pb-3 px-3 border-b-2 flex items-center gap-2 transition-all cursor-pointer ${
-              activeTab === 'architecture'
+            onClick={() => setActiveTab('memory')}
+            className={`pb-3 px-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
+              activeTab === 'memory'
                 ? 'border-cyan-600 text-cyan-800'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
-            <Layers className="w-4 h-4" />
-            <span>Les 5 Piliers de l'Agent</span>
+            <UserCheck className="w-4 h-4" />
+            <span>Mémoire &amp; Instructions</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('keys')}
-            className={`pb-3 px-3 border-b-2 flex items-center gap-2 transition-all cursor-pointer ${
+            className={`pb-3 px-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'keys'
                 ? 'border-cyan-600 text-cyan-800'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
             <Key className="w-4 h-4" />
-            <span>Clés API LLM (Optionnelles)</span>
+            <span>Clés API LLM</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('tools')}
-            className={`pb-3 px-3 border-b-2 flex items-center gap-2 transition-all cursor-pointer ${
+            className={`pb-3 px-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'tools'
                 ? 'border-cyan-600 text-cyan-800'
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
             <Wrench className="w-4 h-4" />
-            <span>Catalogue d'Outils ({AGENT_TOOL_DEFINITIONS.length})</span>
+            <span>Outils &amp; Fonctions ({AGENT_TOOL_DEFINITIONS.length})</span>
           </button>
         </div>
 
         {/* Body Content */}
         <div className="p-6 overflow-y-auto flex-1 space-y-5 text-xs text-slate-700">
-          {activeTab === 'architecture' && (
+          {/* Architecture (Les 5 Piliers) - Préservé dans le code mais invisible sur l'interface */}
+          {false && (activeTab as string) === 'architecture' && (
             <div className="space-y-4">
               <div className="p-4 rounded-2xl bg-cyan-50/70 border border-cyan-200 flex items-start gap-3">
                 <Info className="w-5 h-5 text-cyan-700 shrink-0 mt-0.5" />
@@ -169,6 +185,50 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
                 <p className="text-[11px] text-emerald-900 leading-relaxed">
                   L'agent analyse votre demande, planifie son raisonnement, décide d'appeler les outils adéquats avec les bons arguments, puis génère une analyse contradictoire complète et irréprochable.
                 </p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'memory' && (
+            <div className="space-y-4">
+              <div className="p-3.5 rounded-2xl bg-cyan-50 border border-cyan-200 text-cyan-900 text-xs leading-relaxed flex items-start gap-2.5">
+                <UserCheck className="w-5 h-5 text-cyan-700 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="font-bold">Instructions Personnalisées &amp; Mémoire Utilisateur :</strong>
+                  <p className="mt-1 text-[11px] text-cyan-800">
+                    Comme dans ChatGPT et Claude, ces directives sont mémorisées et automatiquement injectées dans chaque réflexion de l'Agent IA pour personnaliser son style et adapter ses réponses à votre profil.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    Que doit savoir l'Agent IA sur vous et votre situation ?
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={userMemory.profile}
+                    onChange={e => setUserMemory(prev => ({ ...prev, profile: e.target.value }))}
+                    placeholder="Ex: Je suis dirigeant de PME / bailleur d'un appartement meublé / locataire en litige d'insalubrité / salarié en rupture conventionnelle..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 leading-relaxed resize-none"
+                  />
+                  <span className="text-[10px] text-slate-400">Votre profil sera pris en compte pour adapter le contexte juridique.</span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    Comment souhaitez-vous que l'Agent IA réponde ?
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={userMemory.preferences}
+                    onChange={e => setUserMemory(prev => ({ ...prev, preferences: e.target.value }))}
+                    placeholder="Ex: Sois direct et synthétique, cite toujours les articles de lois applicables, donne des démarches concrètes par étapes numérotées, et ne génère de documents que si je le demande expressément..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 leading-relaxed resize-none"
+                  />
+                  <span className="text-[10px] text-slate-400">Définit le ton, la concision, la structure et le comportement de l'IA.</span>
+                </div>
               </div>
             </div>
           )}

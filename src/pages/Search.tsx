@@ -1,6 +1,31 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Scale, ExternalLink, RefreshCw, AlertCircle, ArrowRight, Paperclip, FileText, X, Trash2, Sparkles, ChevronRight, BookOpen } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { 
+  Search, 
+  Scale, 
+  ExternalLink, 
+  RefreshCw, 
+  AlertCircle, 
+  ArrowRight, 
+  Paperclip, 
+  FileText, 
+  X, 
+  Trash2, 
+  Sparkles, 
+  ChevronRight, 
+  BookOpen,
+  Download,
+  Copy,
+  Check,
+  Volume2,
+  VolumeX,
+  FileSpreadsheet,
+  Presentation,
+  LayoutTemplate,
+  Mic,
+  MicOff
+} from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { chatWithAI, type LegalAISource, type LegalAutomation } from '../lib/gemini';
@@ -12,6 +37,15 @@ import { useTranslation } from '../i18n';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import { parseMultipleFiles } from '../lib/documentParser';
+import { 
+  downloadWordDocument, 
+  downloadExcelSpreadsheet, 
+  downloadPowerPointPresentation 
+} from '../lib/universalFileGenerator';
+
+const SpeechRecognition = typeof window !== 'undefined' 
+  ? ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition) 
+  : null;
 
 interface SearchPageProps {
   skipAuthCheck?: boolean;
@@ -26,14 +60,114 @@ const LegalAIResultsView: React.FC<{
   onTriggerAction: (prompt: string) => void;
   t: (key: string, fallback: string) => string;
 }> = ({ explanation, sources, suggestions, automations, loading, onTriggerAction, t }) => {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [canvasOpen, setCanvasOpen] = useState(false);
+  const [canvasContent, setCanvasContent] = useState(explanation);
+
+  const toggleSpeaking = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const cleanText = explanation
+      .replace(/[*#_`>]/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    const utterance = new SpeechSynthesisUtterance(cleanText.substring(0, 3000));
+    utterance.lang = 'fr-FR';
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(explanation);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
   return (
     <div className="space-y-6">
       <Card className="border border-cyan-200 bg-white text-slate-900 shadow-xl rounded-2xl sm:rounded-3xl overflow-hidden">
         <CardHeader className="bg-cyan-50/80 border-b border-cyan-100 py-4 px-6">
-          <CardTitle className="flex items-center gap-2 text-cyan-950 text-lg sm:text-xl font-black">
-            <Scale className="h-6 w-6 text-cyan-600 shrink-0" />
-            {t('search.analysis_title', "Analyse & Résolution Juridique par l'IA")}
-          </CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <CardTitle className="flex items-center gap-2 text-cyan-950 text-lg sm:text-xl font-black">
+              <Scale className="h-6 w-6 text-cyan-600 shrink-0" />
+              {t('search.analysis_title', "Analyse & Résolution Juridique par l'IA")}
+            </CardTitle>
+
+            {/* Quick Actions Toolbar */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => downloadWordDocument(explanation, 'Resolution_Juridique_FranceJustice')}
+                className="text-2xs font-extrabold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 hover:border-blue-300 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                title="Télécharger l'analyse au format Word (.doc)"
+              >
+                <FileText className="h-3 w-3 text-blue-600" />
+                <span>Word</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => downloadExcelSpreadsheet(explanation, 'Donnees_Resolution_FranceJustice')}
+                className="text-2xs font-extrabold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 hover:border-emerald-300 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                title="Exporter au format Excel (.csv)"
+              >
+                <FileSpreadsheet className="h-3 w-3 text-emerald-600" />
+                <span>Excel</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => downloadPowerPointPresentation(explanation, 'Presentation_Resolution_FranceJustice')}
+                className="text-2xs font-extrabold bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 hover:border-amber-300 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                title="Exporter diaporama PowerPoint"
+              >
+                <Presentation className="h-3 w-3 text-amber-600" />
+                <span>PowerPoint</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setCanvasContent(explanation);
+                  setCanvasOpen(true);
+                }}
+                className="text-2xs font-extrabold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 hover:border-purple-300 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                title="Ouvrir dans le Studio Canvas pour éditer"
+              >
+                <LayoutTemplate className="h-3 w-3 text-purple-600" />
+                <span>Studio</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleSpeaking}
+                className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                  isSpeaking
+                    ? 'bg-rose-100 border-rose-300 text-rose-700 animate-pulse'
+                    : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-600'
+                }`}
+                title={isSpeaking ? "Arrêter la lecture audio" : "Écouter l'analyse"}
+              >
+                {isSpeaking ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="p-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-lg transition-colors cursor-pointer"
+                title="Copier l'analyse"
+              >
+                {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+              </button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-6 sm:p-8 space-y-6">
           {/* Main Legal Diagnostic & Analysis */}
@@ -151,6 +285,81 @@ const LegalAIResultsView: React.FC<{
         </CardContent>
       </Card>
 
+      {/* Interactive Canvas / Studio Modal */}
+      {canvasOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white border-2 border-purple-300 rounded-3xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-scale-up">
+            <div className="p-4 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white flex items-center justify-between border-b border-purple-500">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-white/20 rounded-xl">
+                  <LayoutTemplate className="w-5 h-5 text-purple-200" />
+                </div>
+                <div>
+                  <h3 className="font-black text-sm sm:text-base">Studio Canvas &amp; Édition en direct</h3>
+                  <p className="text-2xs text-purple-200 font-medium">Modifiez et personnalisez la résolution juridique</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => downloadWordDocument(canvasContent, 'Resolution_Studio_FranceJustice')}
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30 text-xs font-bold"
+                  title="Télécharger en Word (.doc)"
+                >
+                  <Download className="w-3.5 h-3.5 mr-1 text-purple-200" />
+                  <span>Word</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(canvasContent);
+                  }}
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30 text-xs font-bold"
+                  title="Copier le texte"
+                >
+                  <Copy className="w-3.5 h-3.5 mr-1" />
+                  <span>Copier</span>
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setCanvasOpen(false)}
+                  className="p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-colors cursor-pointer"
+                  title="Fermer le studio"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 flex-1 flex flex-col bg-slate-50">
+              <textarea
+                value={canvasContent}
+                onChange={(e) => setCanvasContent(e.target.value)}
+                className="w-full flex-1 p-4 font-mono text-xs sm:text-sm text-slate-900 bg-white border-2 border-purple-200 rounded-2xl resize-none focus:outline-hidden leading-relaxed shadow-inner"
+                placeholder="Éditez votre texte ou document ici en direct..."
+              />
+            </div>
+            <div className="p-3.5 bg-white border-t border-slate-200 flex items-center justify-between text-2xs text-slate-500 font-semibold px-5">
+              <span>Caractères : {canvasContent.length} | Mots : {canvasContent.trim().split(/\s+/).filter(Boolean).length}</span>
+              <Button
+                size="sm"
+                onClick={() => {
+                  downloadWordDocument(canvasContent, 'Resolution_Finale_FranceJustice');
+                  setCanvasOpen(false);
+                }}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs"
+              >
+                <Download className="w-3.5 h-3.5 mr-1.5" />
+                Exporter Word &amp; Fermer
+              </Button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
         <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
         <p className="text-amber-900 text-xs sm:text-sm leading-relaxed">
@@ -175,6 +384,42 @@ const SearchPage: React.FC<SearchPageProps> = ({ skipAuthCheck = false }) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<{ name: string; content: string; type: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const toggleListening = () => {
+    if (!SpeechRecognition) {
+      alert("La reconnaissance vocale n'est pas supportée par votre navigateur.");
+      return;
+    }
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'fr-FR';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setQuery(prev => prev ? `${prev} ${transcript}` : transcript);
+        }
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (e) {
+      console.error(e);
+      setIsListening(false);
+    }
+  };
 
   const features = [
     { 
@@ -355,6 +600,19 @@ Réponds de manière structurée, personnalisée et directement opérationnelle.
                 >
                   <Paperclip className="h-5 w-5 text-cyan-600" />
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={toggleListening}
+                  className={`p-2.5 rounded-xl cursor-pointer shadow-xs flex items-center justify-center shrink-0 transition-all ${
+                    isListening 
+                      ? 'bg-rose-50 border-rose-400 text-rose-600 animate-pulse ring-2 ring-rose-400/30' 
+                      : 'bg-slate-50 hover:bg-slate-100 text-cyan-700 hover:text-cyan-800 border-slate-200 hover:border-cyan-400'
+                  }`}
+                  title={isListening ? "Arrêter la dictée vocale" : "Dicter vocalement votre question juridique"}
+                >
+                  {isListening ? <MicOff className="h-5 w-5 text-rose-600" /> : <Mic className="h-5 w-5 text-cyan-600" />}
+                </Button>
 
                 {(query || attachedFiles.length > 0) && (
                   <Button
@@ -487,6 +745,19 @@ Réponds de manière structurée, personnalisée et directement opérationnelle.
                     title="Joindre un document ou dossier (Word, Excel, PDF, Image, Texte)"
                   >
                     <Paperclip className="h-5 w-5 text-cyan-600" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={toggleListening}
+                    className={`p-2.5 rounded-xl cursor-pointer shadow-xs flex items-center justify-center shrink-0 transition-all ${
+                      isListening 
+                        ? 'bg-rose-50 border-rose-400 text-rose-600 animate-pulse ring-2 ring-rose-400/30' 
+                        : 'bg-slate-50 hover:bg-slate-100 text-cyan-700 hover:text-cyan-800 border-slate-200 hover:border-cyan-400'
+                    }`}
+                    title={isListening ? "Arrêter la dictée vocale" : "Dicter vocalement votre question juridique"}
+                  >
+                    {isListening ? <MicOff className="h-5 w-5 text-rose-600" /> : <Mic className="h-5 w-5 text-cyan-600" />}
                   </Button>
 
                   {(query || attachedFiles.length > 0) && (

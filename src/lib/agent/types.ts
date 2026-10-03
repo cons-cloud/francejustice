@@ -78,6 +78,22 @@ export interface AgentRun {
   error?: string;
 }
 
+export interface LegalPrognosis {
+  score: number; // 0 à 100%
+  label: string; // ex: "Chances favorables (85%)"
+  riskLevel: 'faible' | 'modéré' | 'élevé';
+  strengthText: string; // Évaluation de la force probante
+  prescriptionStatus: 'respecté' | 'urgent' | 'vigilance';
+}
+
+export interface ProceduralStep {
+  stepNumber: number;
+  timeframe: string; // ex: "J+0 à J+15"
+  title: string;
+  description: string;
+  badge?: string;
+}
+
 export interface AgentMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
@@ -101,6 +117,11 @@ export interface AgentMessage {
     actionPrompt: string;
   }[];
   diagnosticData?: any;
+  thinking?: string; // Raisonnement profond dépliable (comme Claude 3.7 Sonnet / OpenAI o1/o3)
+  thinkingDurationMs?: number; // Durée de réflexion en millisecondes
+  prognosis?: LegalPrognosis; // Score d'évaluation du litige et chances de succès
+  timelineRoadmap?: ProceduralStep[]; // Frise chronologique d'action étape par étape
+  isEdited?: boolean;
 }
 
 export interface AgentThread {
@@ -109,6 +130,7 @@ export interface AgentThread {
   userId?: string;
   modelId: string;
   personaId: string;
+  jurisdictionId?: string;
   customSystemPrompt?: string;
   createdAt: string;
   updatedAt: string;

@@ -19,13 +19,25 @@ import {
   Download,
   Paperclip,
   Trash2,
-  Send
+  Send,
+  RotateCw,
+  ThumbsUp,
+  ThumbsDown,
+  Copy,
+  LayoutTemplate,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 import { chatWithAI, detectConversationalGreeting } from '../../lib/gemini';
 import { Button } from './Button';
 import { CleanLegalText } from './CleanLegalText';
 import { useTranslation } from '../../i18n';
 import { parseMultipleFiles } from '../../lib/documentParser';
+import { 
+  downloadWordDocument, 
+  downloadExcelSpreadsheet, 
+  downloadPowerPointPresentation 
+} from '../../lib/universalFileGenerator';
 
 // Web Speech APIs wrappers
 const SpeechRecognition = typeof window !== 'undefined' 
@@ -63,6 +75,11 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
   const [previewDoc, setPreviewDoc] = useState<{ title: string; content: string } | null>(null);
   const [webSources, setWebSources] = useState<any[]>([]);
   const [attachedFiles, setAttachedFiles] = useState<{ name: string; content: string; type: string }[]>([]);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [copiedResponse, setCopiedResponse] = useState(false);
+  const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
+  const [canvasOpen, setCanvasOpen] = useState(false);
+  const [canvasDoc, setCanvasDoc] = useState<{ title: string; content: string } | null>(null);
 
   const recognitionRef = useRef<any>(null);
   const speechUttRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -797,8 +814,12 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
 
       {/* Voice Assistant Glassmorphism Panel */}
       {isOpen && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl h-[92vh] sm:h-[86vh] max-h-[96vh] sm:max-h-[88vh] bg-white border border-slate-200 rounded-2xl sm:rounded-3xl shadow-2xl shadow-cyan-950/10 overflow-hidden flex flex-col animate-slide-up">
+        <div className={`fixed inset-0 z-[99999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fade-in ${isFullscreen ? 'p-0' : 'p-2 sm:p-4 md:p-6'}`}>
+          <div className={`w-full bg-white border border-slate-200 shadow-2xl shadow-cyan-950/10 overflow-hidden flex flex-col transition-all ${
+            isFullscreen 
+              ? 'h-full w-full max-w-none max-h-none rounded-none border-none' 
+              : 'max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl h-[92vh] sm:h-[86vh] max-h-[96vh] sm:max-h-[88vh] rounded-2xl sm:rounded-3xl'
+          }`}>
             
             {/* Header */}
             <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-white border-b border-slate-100 flex items-center justify-between shadow-xs shrink-0">
@@ -829,6 +850,14 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                   title={isMuted ? "Activer le son" : "Désactiver le son"}
                 >
                   {isMuted ? <VolumeX className="h-4 w-4 sm:h-4.5 sm:w-4.5" /> : <Volume2 className="h-4 w-4 sm:h-4.5 sm:w-4.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  className="p-2 sm:p-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 rounded-xl transition-all duration-200 cursor-pointer"
+                  title={isFullscreen ? "Réduire l'affichage" : "Plein écran (Maximiser)"}
+                >
+                  {isFullscreen ? <Minimize2 className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-cyan-600" /> : <Maximize2 className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-slate-700" />}
                 </button>
                 <button
                   onClick={() => {
@@ -985,6 +1014,123 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                         </div>
                       </div>
                     )}
+
+                    {/* Action Toolbar: Universal Office Pack, Canvas & Controls */}
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-1 flex-wrap">
+                        {/* Copy */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(response);
+                            setCopiedResponse(true);
+                            setTimeout(() => setCopiedResponse(false), 2000);
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                          title="Copier la réponse"
+                        >
+                          {copiedResponse ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                          <span>{copiedResponse ? 'Copié' : 'Copier'}</span>
+                        </button>
+
+                        {/* Regenerate / Rejouer */}
+                        <button
+                          type="button"
+                          onClick={() => transcript && handleVoiceCommand(transcript)}
+                          disabled={isProcessing}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                          title="Régénérer cette réponse"
+                        >
+                          <RotateCw className="w-3.5 h-3.5" />
+                          <span>Régénérer</span>
+                        </button>
+
+                        {/* Feedback */}
+                        <div className="flex items-center gap-0.5 ml-1 pl-1 border-l border-slate-200">
+                          <button
+                            type="button"
+                            onClick={() => setFeedback(feedback === 'up' ? null : 'up')}
+                            className={`p-1 rounded-lg text-xs transition-colors cursor-pointer ${
+                              feedback === 'up' ? 'text-cyan-700 bg-cyan-100' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                            }`}
+                            title="Réponse utile"
+                          >
+                            <ThumbsUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFeedback(feedback === 'down' ? null : 'down')}
+                            className={`p-1 rounded-lg text-xs transition-colors cursor-pointer ${
+                              feedback === 'down' ? 'text-red-700 bg-red-100' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                            }`}
+                            title="Réponse à améliorer"
+                          >
+                            <ThumbsDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Office Pack & Canvas exports */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {/* Word (.doc) */}
+                        {response.length > 80 && (
+                          <button
+                            type="button"
+                            onClick={() => downloadWordDocument(response, generatedDoc?.title || "Consultation_Vocale_FranceJustice")}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-cyan-800 hover:text-cyan-900 bg-cyan-50 hover:bg-cyan-100 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-cyan-200"
+                            title="Télécharger en Word (.doc)"
+                          >
+                            <Download className="w-3.5 h-3.5 text-cyan-600" />
+                            <span>Word (.doc)</span>
+                          </button>
+                        )}
+
+                        {/* Excel (.csv) */}
+                        {/\|.+\|.+\|/.test(response) && (
+                          <button
+                            type="button"
+                            onClick={() => downloadExcelSpreadsheet(response, "Tableau_Vocale_FranceJustice")}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-emerald-800 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-emerald-200"
+                            title="Télécharger en Excel (.csv)"
+                          >
+                            <Download className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Excel (.csv)</span>
+                          </button>
+                        )}
+
+                        {/* Diapos (PPT) */}
+                        {/#\s+.+\n[•\-*]/.test(response) && (
+                          <button
+                            type="button"
+                            onClick={() => downloadPowerPointPresentation(response, "Presentation_Vocale_FranceJustice")}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-amber-200"
+                            title="Télécharger en Diapos PowerPoint"
+                          >
+                            <Download className="w-3.5 h-3.5 text-amber-600" />
+                            <span>Diapos (PPT)</span>
+                          </button>
+                        )}
+
+                        {/* Canvas */}
+                        {response.length > 150 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCanvasDoc({
+                                title: generatedDoc?.title || "Document & Consultation Juridique",
+                                content: response
+                              });
+                              setCanvasOpen(true);
+                            }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-slate-800 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-slate-200"
+                            title="Ouvrir dans le studio Canvas"
+                          >
+                            <LayoutTemplate className="w-3.5 h-3.5 text-cyan-600" />
+                            <span>Canvas</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1134,6 +1280,60 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                 </button>
               </form>
             </div>
+            {/* Canvas Live Studio Modal Overlay */}
+            {canvasOpen && canvasDoc && (
+              <div className="fixed inset-0 z-[100001] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-6 animate-fade-in">
+                <div className="w-full max-w-4xl h-[90vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+                  <div className="p-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="p-1.5 rounded-xl bg-cyan-100 text-cyan-800 shrink-0">
+                        <LayoutTemplate className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-xs sm:text-sm text-slate-900 truncate">
+                          {canvasDoc.title}
+                        </h3>
+                        <span className="text-[10px] text-slate-500 font-medium">Canvas Studio • Édition en direct</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => downloadWordDocument(canvasDoc.content, canvasDoc.title)}
+                        className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                        title="Télécharger en Word (.doc)"
+                      >
+                        <Download className="w-3.5 h-3.5 text-cyan-600" />
+                        <span className="hidden sm:inline">Word</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(canvasDoc.content);
+                        }}
+                        className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 cursor-pointer transition-colors shadow-2xs"
+                        title="Copier tout"
+                      >
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCanvasOpen(false)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 cursor-pointer transition-colors"
+                        title="Fermer le Canvas"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <textarea
+                    value={canvasDoc.content}
+                    onChange={e => setCanvasDoc({ ...canvasDoc, content: e.target.value })}
+                    className="w-full flex-1 p-4 font-mono text-xs sm:text-sm text-slate-800 bg-slate-50/50 resize-none focus:outline-hidden leading-relaxed"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>,
         document.body

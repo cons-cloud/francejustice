@@ -21,7 +21,20 @@ import {
   Loader2,
   FolderOpen,
   PlusCircle,
-  FileCheck
+  FileCheck,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  RotateCw,
+  ThumbsUp,
+  ThumbsDown,
+  Pencil,
+  Maximize2,
+  Minimize2,
+  LayoutTemplate,
+  FileSpreadsheet,
+  Presentation
 } from 'lucide-react';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
@@ -37,6 +50,15 @@ import {
   formatDocumentsForPrompt, 
   type ParsedDocument 
 } from '../lib/documentParser';
+import { 
+  downloadWordDocument, 
+  downloadExcelSpreadsheet, 
+  downloadPowerPointPresentation 
+} from '../lib/universalFileGenerator';
+
+const SpeechRecognition = typeof window !== 'undefined' 
+  ? ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition) 
+  : null;
 
 type ChatMessage = { 
   id: string; 
@@ -67,7 +89,88 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<{ title: string; content: string } | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
+  const [feedbackMap, setFeedbackMap] = useState<Record<string, 'up' | 'down'>>({});
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [canvasOpen, setCanvasOpen] = useState(false);
+  const [canvasDoc, setCanvasDoc] = useState<{ title: string; content: string } | null>(null);
+  const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
+  const [editingContent, setEditingContent] = useState('');
+  const [streamingText, setStreamingText] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const recognitionRef = useRef<any>(null);
+  const speechUttRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const toggleListening = () => {
+    if (!SpeechRecognition) {
+      error("La dictée vocale n'est pas supportée sur ce navigateur.");
+      return;
+    }
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = i18n.language === 'en' ? 'en-US' : 'fr-FR';
+        recognition.interimResults = false;
+        recognition.onresult = (event: any) => {
+          const transcriptText = event.results[0][0].transcript;
+          setInput(prev => (prev ? `${prev} ${transcriptText}` : transcriptText));
+        };
+        recognition.onerror = () => setIsListening(false);
+        recognition.onend = () => setIsListening(false);
+        recognition.start();
+        recognitionRef.current = recognition;
+        setIsListening(true);
+      } catch (e) {
+        setIsListening(false);
+      }
+    }
+  };
+
+  const toggleSpeaking = (msgId: string, text: string) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    if (speakingMsgId === msgId) {
+      window.speechSynthesis.cancel();
+      setSpeakingMsgId(null);
+    } else {
+      window.speechSynthesis.cancel();
+      const clean = text.replace(/[*#_`>-]/g, '').replace(/https?:\/\/\S+/g, '');
+      const utt = new SpeechSynthesisUtterance(clean);
+      utt.lang = i18n.language === 'en' ? 'en-US' : 'fr-FR';
+      utt.onend = () => setSpeakingMsgId(null);
+      utt.onerror = () => setSpeakingMsgId(null);
+      speechUttRef.current = utt;
+      window.speechSynthesis.speak(utt);
+      setSpeakingMsgId(msgId);
+    }
+  };
+
+  const handleRegenerate = (msgIdOrIdx: string | number) => {
+    const msgIdx = typeof msgIdOrIdx === 'string'
+      ? messages.findIndex(m => m.id === msgIdOrIdx)
+      : msgIdOrIdx;
+    let promptToReRun = '';
+    for (let i = msgIdx - 1; i >= 0; i--) {
+      if (messages[i].role === 'user') {
+        promptToReRun = messages[i].content;
+        break;
+      }
+    }
+    if (promptToReRun) {
+      executePrompt(promptToReRun);
+    }
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleSaveEdit = (_msgId?: string) => {
+    const newText = editingContent.trim();
+    if (!newText) return;
+    setEditingMsgId(null);
+    executePrompt(newText);
+  };
 
   // Quick suggestions (litiges types)
   const suggestions = useMemo(
@@ -240,6 +343,18 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
         }
       }
 
+      // Progressive streaming mot-à-mot (Style ChatGPT / Claude)
+      const tokens = cleanTextResponse.split(/(\s+)/);
+      let accumulated = '';
+      const step = Math.max(1, Math.floor(tokens.length / 45));
+      for (let i = 0; i < tokens.length; i += step) {
+        const slice = tokens.slice(i, i + step).join('');
+        accumulated += slice;
+        setStreamingText(accumulated);
+        await new Promise(r => setTimeout(r, 14));
+      }
+      setStreamingText(null);
+
       const assistantMsg: ChatMessage = { 
         id: Math.random().toString(36).slice(2), 
         role: 'assistant', 
@@ -307,8 +422,8 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
       <div className="container py-6 grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         
         {/* Main Legal AI Workspace */}
-        <div className="lg:col-span-2 xl:col-span-3 space-y-6">
-          <Card className="border-2 border-cyan-200/80 shadow-xl overflow-hidden bg-white">
+        <div className={`space-y-6 ${isFullscreen ? 'fixed inset-0 z-[99990] bg-slate-900/90 backdrop-blur-md p-2 sm:p-6 overflow-y-auto' : 'lg:col-span-2 xl:col-span-3'}`}>
+          <Card className={`border-2 border-cyan-200/80 shadow-xl overflow-hidden bg-white ${isFullscreen ? 'max-w-6xl mx-auto h-[95vh] flex flex-col' : ''}`}>
             <CardHeader className="bg-gradient-to-r from-cyan-600 to-teal-600 text-white p-5 border-b border-cyan-500/20">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -327,17 +442,29 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
                     </p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={exportConversationPDF} className="bg-white/15 text-white border-white/30 hover:bg-white/25 font-bold text-xs">
-                  <Download className="h-4 w-4 mr-1.5" />
-                  {t('assistant.export_pdf', 'Exporter PDF')}
-                </Button>
+                <div className="flex items-center gap-2 self-end sm:self-center">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setIsFullscreen(!isFullscreen)} 
+                    className="bg-white/15 text-white border-white/30 hover:bg-white/25 font-bold text-xs"
+                    title={isFullscreen ? "Quitter le plein écran" : "Plein écran immersif"}
+                  >
+                    {isFullscreen ? <Minimize2 className="h-4 w-4 mr-1.5" /> : <Maximize2 className="h-4 w-4 mr-1.5" />}
+                    <span>{isFullscreen ? "Réduire" : "Plein Écran"}</span>
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={exportConversationPDF} className="bg-white/15 text-white border-white/30 hover:bg-white/25 font-bold text-xs">
+                    <Download className="h-4 w-4 mr-1.5" />
+                    {t('assistant.export_pdf', 'Exporter PDF')}
+                  </Button>
+                </div>
               </div>
             </CardHeader>
 
-            <CardContent className="p-5 space-y-5 bg-white">
+            <CardContent className={`p-5 space-y-5 bg-white ${isFullscreen ? 'flex-1 overflow-y-auto' : ''}`}>
               
               {/* Conversation Display Area */}
-              <div className={`${messages.length === 0 ? 'h-36 sm:h-44' : 'h-[50vh] sm:h-[55vh]'} overflow-y-auto space-y-5 p-4 bg-slate-50/80 rounded-2xl border border-slate-200 scrollbar-thin`}>
+              <div className={`${isFullscreen ? 'flex-1 min-h-[420px]' : messages.length === 0 ? 'h-36 sm:h-44' : 'h-[50vh] sm:h-[55vh]'} overflow-y-auto space-y-5 p-4 bg-slate-50/80 rounded-2xl border border-slate-200 scrollbar-thin`}>
                 {messages.length === 0 && (
                   <div className="bg-white border-2 border-cyan-200 rounded-2xl p-5 space-y-3 text-slate-900 shadow-sm">
                     <p className="text-slate-900 text-base leading-relaxed">
@@ -367,10 +494,56 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
                             </>
                           )}
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => copyMessage(m)} className={`p-1 h-auto ${m.role === 'user' ? 'text-white/80 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}>
-                          {copiedId === m.id ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          {m.role === 'user' && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => { setEditingMsgId(m.id); setEditingContent(m.content); }} 
+                              className="p-1 h-auto text-white/80 hover:text-white"
+                              title="Modifier cette consigne ou question"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="sm" onClick={() => copyMessage(m)} className={`p-1 h-auto ${m.role === 'user' ? 'text-white/80 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}>
+                            {copiedId === m.id ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
+                          </Button>
+                        </div>
                       </div>
+
+                      {/* User Inline Editing Form */}
+                      {m.role === 'user' && editingMsgId === m.id ? (
+                        <div className="space-y-2.5 py-2">
+                          <label className="text-2xs font-extrabold text-cyan-100 uppercase tracking-wide">Modifier votre question :</label>
+                          <Textarea
+                            value={editingContent}
+                            onChange={(e) => setEditingContent(e.target.value)}
+                            rows={3}
+                            className="bg-white text-slate-900 border-2 border-cyan-300 text-sm font-medium rounded-xl p-2.5"
+                          />
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setEditingMsgId(null)}
+                              className="text-white hover:bg-white/20 text-xs font-bold"
+                            >
+                              Annuler
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => handleSaveEdit(m.id)}
+                              className="bg-white text-cyan-800 hover:bg-cyan-50 font-black text-xs shadow-sm flex items-center gap-1.5"
+                            >
+                              <RotateCw className="h-3.5 w-3.5 text-cyan-700" />
+                              <span>Enregistrer & Relancer</span>
+                            </Button>
+                          </div>
+                        </div>
+                      ) : null}
 
                       {/* Display attached dossier documents badges if present in this user message */}
                       {m.documents && m.documents.length > 0 && (
@@ -550,14 +723,145 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
                           </div>
                         </div>
                       )}
+                      {/* ASSISTANT ACTION TOOLBAR: Office Pack exports, Live Canvas Studio, TTS, Copy, Feedback, Regenerate */}
+                      {m.role === 'assistant' && (
+                        <div className="pt-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                          {/* Export actions */}
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => downloadWordDocument(m.content, `Analyse_Juridique_${m.id.substring(0, 6)}`)}
+                              className="text-2xs font-extrabold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 hover:border-blue-300 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              title="Télécharger l'analyse au format Word (.doc)"
+                            >
+                              <FileText className="h-3 w-3 text-blue-600" />
+                              <span>Word (.doc)</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => downloadExcelSpreadsheet(m.content, `Tableau_Juridique_${m.id.substring(0, 6)}`)}
+                              className="text-2xs font-extrabold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 hover:border-emerald-300 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              title="Exporter les données clés au format Excel (.csv)"
+                            >
+                              <FileSpreadsheet className="h-3 w-3 text-emerald-600" />
+                              <span>Excel (.csv)</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => downloadPowerPointPresentation(m.content, `Presentation_${m.id.substring(0, 6)}`)}
+                              className="text-2xs font-extrabold bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 hover:border-amber-300 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              title="Exporter au format Diaporama PowerPoint / HTML"
+                            >
+                              <Presentation className="h-3 w-3 text-amber-600" />
+                              <span>PowerPoint</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCanvasDoc({
+                                  title: "Studio Interactif & Édition Juridique",
+                                  content: m.content
+                                });
+                                setCanvasOpen(true);
+                              }}
+                              className="text-2xs font-extrabold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 hover:border-purple-300 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              title="Ouvrir dans le Canvas / Studio d'édition en direct"
+                            >
+                              <LayoutTemplate className="h-3 w-3 text-purple-600" />
+                              <span>Studio Canvas</span>
+                            </button>
+                          </div>
+
+                          {/* Voice TTS, Copy, Feedback & Regenerate */}
+                          <div className="flex items-center gap-1 ml-auto">
+                            <button
+                              type="button"
+                              onClick={() => toggleSpeaking(m.id, m.content)}
+                              className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                                speakingMsgId === m.id
+                                  ? 'bg-rose-100 border-rose-300 text-rose-700 animate-pulse'
+                                  : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600'
+                              }`}
+                              title={speakingMsgId === m.id ? "Arrêter la lecture audio" : "Écouter l'analyse à voix haute"}
+                            >
+                              {speakingMsgId === m.id ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => copyMessage(m)}
+                              className="p-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-lg transition-colors cursor-pointer"
+                              title="Copier la réponse"
+                            >
+                              {copiedId === m.id ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setFeedbackMap(prev => ({ ...prev, [m.id]: 'up' }))}
+                              className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                                feedbackMap[m.id] === 'up'
+                                  ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
+                                  : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600'
+                              }`}
+                              title="Réponse utile"
+                            >
+                              <ThumbsUp className="h-3.5 w-3.5" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setFeedbackMap(prev => ({ ...prev, [m.id]: 'down' }))}
+                              className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                                feedbackMap[m.id] === 'down'
+                                  ? 'bg-rose-100 border-rose-300 text-rose-700'
+                                  : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600'
+                              }`}
+                              title="Réponse incomplète"
+                            >
+                              <ThumbsDown className="h-3.5 w-3.5" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRegenerate(m.id)}
+                              disabled={isSending}
+                              className="p-1.5 bg-slate-50 hover:bg-cyan-50 border border-slate-200 hover:border-cyan-300 text-slate-600 hover:text-cyan-700 rounded-lg transition-colors cursor-pointer"
+                              title="Regénérer cette réponse"
+                            >
+                              <RotateCw className={`h-3.5 w-3.5 ${isSending ? 'animate-spin text-cyan-600' : ''}`} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
 
                 {isSending && (
-                  <div className="flex items-center gap-3 py-3.5 px-4 bg-cyan-50 rounded-xl border border-cyan-200 text-cyan-900 text-sm font-bold shadow-2xs">
-                    <Loader2 className="h-5 w-5 text-cyan-600 animate-spin" />
-                    <span>Analyse juridique approfondie du dossier (chronologie, parties, forces &amp; procédure)...</span>
+                  <div className="p-5 rounded-2xl border-2 border-cyan-300 bg-white text-slate-900 mr-auto max-w-[95%] shadow-sm space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-black uppercase text-cyan-800 border-b border-slate-100 pb-2">
+                      <Sparkles className="h-4 w-4 text-cyan-600 animate-pulse" />
+                      <span>IA Juridique Expert</span>
+                      <span className="w-2 h-2 rounded-full bg-cyan-500 animate-ping ml-1" />
+                      <span className="text-2xs font-semibold text-slate-400 lowercase ml-auto">
+                        {streamingText ? "en train d'écrire..." : "analyse en cours..."}
+                      </span>
+                    </div>
+                    {streamingText ? (
+                      <div className="text-sm sm:text-base leading-relaxed text-slate-800">
+                        <CleanLegalText content={streamingText} />
+                        <span className="inline-block w-2 h-4 bg-cyan-600 ml-1 animate-pulse align-middle rounded-xs" />
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 py-2 text-cyan-900 text-sm font-bold">
+                        <Loader2 className="h-5 w-5 text-cyan-600 animate-spin shrink-0" />
+                        <span>Analyse juridique approfondie du dossier (chronologie, parties, forces &amp; procédure)...</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -661,6 +965,19 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
                     >
                       <Paperclip className="h-5 w-5 text-cyan-600" />
                     </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={toggleListening} 
+                      className={`p-3 rounded-xl cursor-pointer shadow-xs flex items-center justify-center shrink-0 transition-all ${
+                        isListening 
+                          ? 'bg-rose-50 border-rose-400 text-rose-600 animate-pulse ring-2 ring-rose-400/30' 
+                          : 'bg-white hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 border-slate-300 hover:border-cyan-400'
+                      }`}
+                      title={isListening ? "Arrêter la dictée vocale" : "Dicter vocalement votre question juridique"}
+                    >
+                      {isListening ? <MicOff className="h-5 w-5 text-rose-600" /> : <Mic className="h-5 w-5 text-cyan-600" />}
+                    </Button>
 
                     {(input || dossierFiles.length > 0) && (
                       <Button
@@ -762,6 +1079,87 @@ const AssistantPage: React.FC<{ embedded?: boolean }> = ({ embedded: _embedded =
                 <Download className="h-4 w-4 mr-2" />
                 Télécharger PDF
               </Button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Interactive Canvas / Live Document Studio Modal */}
+      {canvasOpen && canvasDoc && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white border-2 border-purple-300 rounded-3xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-scale-up">
+            <div className="p-4 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white flex items-center justify-between border-b border-purple-500">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-white/20 rounded-xl">
+                  <LayoutTemplate className="w-5 h-5 text-purple-200" />
+                </div>
+                <div>
+                  <h3 className="font-black text-sm sm:text-base flex items-center gap-2">
+                    {canvasDoc.title}
+                  </h3>
+                  <p className="text-2xs text-purple-200 font-medium">
+                    Studio d'édition en direct & synchronisation de document
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => downloadWordDocument(canvasDoc.content, 'Document_Studio_FranceJustice')}
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30 text-xs font-bold"
+                  title="Télécharger en Word (.doc)"
+                >
+                  <Download className="w-3.5 h-3.5 mr-1 text-purple-200" />
+                  <span>Word (.doc)</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(canvasDoc.content);
+                  }}
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30 text-xs font-bold"
+                  title="Copier le contenu édité"
+                >
+                  <Copy className="w-3.5 h-3.5 mr-1" />
+                  <span>Copier</span>
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setCanvasOpen(false)}
+                  className="p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-colors cursor-pointer"
+                  title="Fermer le studio"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 flex-1 flex flex-col bg-slate-50">
+              <Textarea
+                value={canvasDoc.content}
+                onChange={(e) => setCanvasDoc(prev => prev ? { ...prev, content: e.target.value } : null)}
+                className="w-full flex-1 p-4 font-mono text-xs sm:text-sm text-slate-900 bg-white border-2 border-purple-200 rounded-2xl resize-none focus:outline-hidden leading-relaxed shadow-inner"
+                placeholder="Éditez votre texte ou document ici en direct..."
+              />
+            </div>
+            <div className="p-3.5 bg-white border-t border-slate-200 flex items-center justify-between text-2xs text-slate-500 font-semibold px-5">
+              <span>Caractères : {canvasDoc.content.length} | Mots : {canvasDoc.content.trim().split(/\s+/).filter(Boolean).length}</span>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    downloadWordDocument(canvasDoc.content, 'Document_Final_FranceJustice');
+                    setCanvasOpen(false);
+                  }}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs"
+                >
+                  <Download className="w-3.5 h-3.5 mr-1.5" />
+                  Exporter Word & Fermer
+                </Button>
+              </div>
             </div>
           </div>
         </div>,

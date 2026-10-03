@@ -51,6 +51,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
 import { supabase } from '../lib/supabase';
+import { cn } from '../lib/utils';
 import { useAuth } from '../hooks/useAuth';
 import { DocumentGenerator } from './Generator';
 import { Chat } from '../components/features/Chat';
@@ -1016,20 +1017,20 @@ Ce document est généré par la plateforme France Justice.
   ];
 
   const renderOverview = () => (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="space-y-6 sm:space-y-8 min-w-0 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-secondary-600 mb-1">{stat.label}</p>
-                    <p className="text-2xl font-bold text-secondary-900">{stat.value}</p>
+            <Card key={index} className="min-w-0 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-secondary-600 mb-1 truncate">{stat.label}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-secondary-900 truncate">{stat.value}</p>
                   </div>
-                  <div className={`p-3 rounded-lg bg-secondary-50`}>
-                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-secondary-50 shrink-0">
+                    <Icon className={`h-5 w-5 sm:h-6 sm:w-6 ${stat.color}`} />
                   </div>
                 </div>
               </CardContent>
@@ -1038,68 +1039,70 @@ Ce document est généré par la plateforme France Justice.
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <Card className="lg:col-span-2 min-w-0 overflow-hidden shadow-sm">
+          <CardHeader className="p-4 sm:p-6 pb-2">
+            <CardTitle className="flex items-center justify-between text-base sm:text-lg">
               <span>{t('dashboard.weekly_activity', 'Activité Hebdomadaire')}</span>
-              <TrendingUp className="h-4 w-4 text-primary-600" />
+              <TrendingUp className="h-4 w-4 text-primary-600 shrink-0" />
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <AdvancedAreaChart data={caseActivityData} height={250} />
+          <CardContent className="p-2 sm:p-6 pt-0">
+            <div className="w-full min-w-0 overflow-hidden">
+              <AdvancedAreaChart data={caseActivityData} height={250} />
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('dashboard.quick_actions', 'Actions Rapides')}</CardTitle>
-            <CardDescription>
+        <Card className="min-w-0 overflow-hidden shadow-sm">
+          <CardHeader className="p-4 sm:p-6 pb-3">
+            <CardTitle className="text-base sm:text-lg">{t('dashboard.quick_actions', 'Actions Rapides')}</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
               {t('dashboard.manage_data', 'Gérer vos données personnelles')}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full h-16 justify-start px-6 gap-3" onClick={handleDownloadPersonalData}>
-              <Download className="h-5 w-5 text-primary-600" />
-              <div className="text-left">
-                <p className="font-bold">{t('dashboard.my_data', 'Mes Données')}</p>
-                <p className="text-xs text-secondary-500">{t('dashboard.download_json', 'Télécharger tout (JSON)')}</p>
+          <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
+            <Button variant="outline" className="w-full min-w-0 h-auto py-3 px-3 sm:px-4 justify-start gap-3" onClick={handleDownloadPersonalData}>
+              <Download className="h-5 w-5 text-primary-600 shrink-0" />
+              <div className="text-left min-w-0 flex-1">
+                <p className="font-bold text-xs sm:text-sm truncate">{t('dashboard.my_data', 'Mes Données')}</p>
+                <p className="text-[11px] sm:text-xs text-secondary-500 truncate">{t('dashboard.download_json', 'Télécharger tout (JSON)')}</p>
               </div>
             </Button>
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="ghost" className="h-20 flex-col space-y-1 text-xs" onClick={() => setActiveTab('generator')}>
-                <Plus className="h-5 w-5 mb-1" />
-                <span>{t('dashboard.generate', 'Générer')}</span>
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <Button variant="ghost" className="h-16 sm:h-20 flex-col justify-center space-y-1 text-xs border border-slate-100 hover:border-slate-200 p-2" onClick={() => setActiveTab('generator')}>
+                <Plus className="h-5 w-5 mb-0.5 text-primary-600 shrink-0" />
+                <span className="font-semibold text-center truncate w-full">{t('dashboard.generate', 'Générer')}</span>
               </Button>
-              <Button variant="ghost" className="h-20 flex-col space-y-1 text-xs" onClick={() => setActiveTab('searches')}>
-                <Search className="h-5 w-5 mb-1" />
-                <span>{t('common.search', 'Recherche')}</span>
+              <Button variant="ghost" className="h-16 sm:h-20 flex-col justify-center space-y-1 text-xs border border-slate-100 hover:border-slate-200 p-2" onClick={() => setActiveTab('searches')}>
+                <Search className="h-5 w-5 mb-0.5 text-cyan-600 shrink-0" />
+                <span className="font-semibold text-center truncate w-full">{t('common.search', 'Recherche')}</span>
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('dashboard.quick_actions', 'Actions rapides')}</CardTitle>
-          <CardDescription>
+      <Card className="min-w-0 overflow-hidden shadow-sm">
+        <CardHeader className="p-4 sm:p-6 pb-3">
+          <CardTitle className="text-base sm:text-lg">{t('dashboard.quick_actions', 'Outils Juridiques')}</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
             {t('dashboard.access_tools', 'Accédez à vos outils juridiques favoris')}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex-col space-y-2" onClick={() => setActiveTab('generator')}>
-              <Plus className="h-6 w-6" />
-              <span>{t('dashboard.generate_doc', 'Générer un Document')}</span>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <Button variant="outline" className="h-auto py-3.5 sm:h-20 flex-row sm:flex-col items-center justify-center gap-2 text-xs sm:text-sm" onClick={() => setActiveTab('generator')}>
+              <Plus className="h-5 w-5 sm:h-6 sm:w-6 text-primary-600 shrink-0" />
+              <span className="font-semibold">{t('dashboard.generate_doc', 'Générer un Document')}</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2" onClick={() => setActiveTab('searches')}>
-              <Search className="h-6 w-6" />
-              <span>{t('dashboard.ia_search', 'Recherche IA')}</span>
+            <Button variant="outline" className="h-auto py-3.5 sm:h-20 flex-row sm:flex-col items-center justify-center gap-2 text-xs sm:text-sm" onClick={() => setActiveTab('searches')}>
+              <Search className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-600 shrink-0" />
+              <span className="font-semibold">{t('dashboard.ia_search', 'Recherche IA')}</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2" onClick={() => setActiveTab('chat')}>
-              <MessageSquare className="h-6 w-6" />
-              <span>{t('dashboard.chat_tab', 'Discussion Avocat')}</span>
+            <Button variant="outline" className="h-auto py-3.5 sm:h-20 flex-row sm:flex-col items-center justify-center gap-2 text-xs sm:text-sm" onClick={() => setActiveTab('chat')}>
+              <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600 shrink-0" />
+              <span className="font-semibold">{t('dashboard.chat_tab', 'Discussion Avocat')}</span>
             </Button>
           </div>
         </CardContent>
@@ -1666,12 +1669,16 @@ Ce document est généré par la plateforme France Justice.
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cyan-50/40 via-white to-slate-50 text-slate-900 pt-20 pb-16">
+    <div className={`min-h-screen bg-gradient-to-b from-cyan-50/40 via-white to-slate-50 text-slate-900 ${activeTab === 'diagnostic' || activeTab === 'analyse' ? 'pt-16 sm:pt-20 pb-4' : 'pt-20 pb-16'}`}>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Modern Hero Glassmorphism Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 p-6 sm:p-8 text-white shadow-lg mb-8 border border-cyan-400/30">
+        <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 text-white shadow-lg border border-cyan-400/30 transition-all ${
+          activeTab === 'diagnostic' || activeTab === 'analyse' 
+            ? 'p-4 sm:p-6 mb-4 sm:mb-6' 
+            : 'p-6 sm:p-8 mb-8'
+        }`}>
           <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-teal-400/20 blur-3xl pointer-events-none" />
           
@@ -1822,7 +1829,7 @@ Ce document est généré par la plateforme France Justice.
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 min-w-0 w-full">
           <aside className="hidden lg:block lg:col-span-1">
             <Card className="sticky top-6 bg-white border-slate-200 shadow-sm">
               <CardContent className="p-4 sm:p-6">
@@ -1868,7 +1875,7 @@ Ce document est généré par la plateforme France Justice.
             </Card>
           </aside>
 
-          <main className="lg:col-span-3 order-1 lg:order-2">
+          <main className="lg:col-span-3 order-1 lg:order-2 min-w-0 w-full overflow-hidden">
             {loading ? (
               <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
                 <ProfessionalLoader
@@ -2483,7 +2490,7 @@ Ce document est généré par la plateforme France Justice.
                         selectedRegion={selectedRegion} 
                         onSelectRegion={setSelectedRegion} 
                         selectedBarreau={selectedBarreau}
-                        onSelectBarreau={setSelectedBarreau}
+                        onSelectBarreau={(b) => setSelectedBarreau(b ?? '')}
                         lawyerCounts={lawyerCounts} 
                       />
                     </div>

@@ -12,6 +12,7 @@ export interface ParsedDocument {
   type: string;
   size: number;
   content: string;
+  dataUrl?: string; // Image base64 pour Vision Multimodale (OCR Photos & Scans)
   uploadedAt: number;
 }
 
@@ -230,16 +231,128 @@ export function sanitizeExtractedText(text: string): string {
 }
 
 /**
+ * Transcribe physical scanned documents or photos using AI Vision OCR
+ */
+export async function performVisionOCR(dataUrl: string, fileName?: string): Promise<string> {
+  const openAiKey = (import.meta as any).env?.VITE_OPENAI_API_KEY || (typeof window !== 'undefined' ? localStorage.getItem('openai_api_key') : '');
+  const geminiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof window !== 'undefined' ? localStorage.getItem('gemini_api_key') : '');
+
+  // 1. Try OpenAI GPT-4o Vision if key available
+  if (openAiKey) {
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openAiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: 'Vous êtes un module OCR juridique d\'élite. Transcrivez INTÉGRALEMENT tout le texte visible dans ce document numérisé (lettres, chiffres, dates, montants en euros, mentions manuscrites, clauses). Ne faites aucun résumé : restituez fidèlement le texte intégral avec les sauts de ligne appropriés.'
+                },
+                {
+                  type: 'image_url',
+                  image_url: { url: dataUrl, detail: 'high' }
+                }
+              ]
+            }
+          ],
+          max_tokens: 3000
+        })
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        const transcribed = json?.choices?.[0]?.message?.content?.trim();
+        if (transcribed && transcribed.length > 20) {
+          return transcribed;
+        }
+      }
+    } catch (e) {
+      console.warn("Vision OCR OpenAI error:", e);
+    }
+  }
+
+  // 2. Try Google Gemini Vision if valid key
+  if (geminiKey && !geminiKey.startsWith('AQ.')) {
+    try {
+      const base64Data = dataUrl.split(',')[1] || '';
+      const mimeType = (dataUrl.split(';')[0] || '').replace('data:', '') || 'image/jpeg';
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: "Transcrivez fidèlement et intégralement tout le texte visible de ce document scanné ou photographié avec toutes ses mentions juridiques." },
+              { inline_data: { mime_type: mimeType, data: base64Data } }
+            ]
+          }]
+        })
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const transcribed = json?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        if (transcribed && transcribed.length > 20) {
+          return transcribed;
+        }
+      }
+    } catch (e) {
+      console.warn("Vision OCR Gemini error:", e);
+    }
+  }
+
+  return `[Pièce visuelle / Image numérisée : "${fileName || 'Document'}" importée pour analyse OCR et Vision Multimodale]`;
+}
+
+/**
  * Parse a single uploaded file (PDF, DOC, DOCX, TXT, CSV, JSON, MD)
  */
 export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
   const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
   const isDocx = file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc') || file.type.includes('word');
+  const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|bmp|gif|tiff)$/i.test(file.name);
 
   return new Promise((resolve) => {
     const reader = new FileReader();
 
-    if (isPdf) {
+    if (isImage) {
+      reader.onload = async (event) => {
+        const dataUrl = (event.target?.result as string) || '';
+        let extractedText = '';
+        try {
+          extractedText = await performVisionOCR(dataUrl, file.name);
+        } catch {
+          extractedText = `[Pièce visuelle / Image numérisée : "${file.name}" importée pour analyse OCR]`;
+        }
+        resolve({
+          id: Math.random().toString(36).substring(2, 9),
+          name: file.name,
+          type: file.type || 'image/jpeg',
+          size: file.size,
+          dataUrl,
+          content: extractedText,
+          uploadedAt: Date.now()
+        });
+      };
+      reader.onerror = () => {
+        resolve({
+          id: Math.random().toString(36).substring(2, 9),
+          name: file.name,
+          type: file.type || 'image/jpeg',
+          size: file.size,
+          content: `Image "${file.name}" importée.`,
+          uploadedAt: Date.now()
+        });
+      };
+      reader.readAsDataURL(file);
+    } else if (isPdf) {
       reader.onload = (event) => {
         const buffer = event.target?.result as ArrayBuffer;
         const text = buffer ? extractTextFromPDFBuffer(buffer) : '';

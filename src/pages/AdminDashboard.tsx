@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar, AlertCircle, Lock, KeyRound } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar, AlertCircle, Lock, KeyRound, Search } from 'lucide-react';
 import { DATA_RETENTION_SCHEDULE, DATABASE_SECURITY_INFO, getSecurityStatusBadge } from '../lib/dataSecurityUtils';
 import { cn } from '../lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
@@ -1132,7 +1132,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 min-w-0 w-full">
           <aside className="hidden lg:block lg:col-span-1">
             <Card className="sticky top-6 overflow-hidden bg-white border-slate-200 shadow-sm">
               <CardContent className="p-4 flex flex-col space-y-1.5">
@@ -1194,20 +1194,20 @@ const AdminDashboard: React.FC = () => {
             </Card>
           </aside>
 
-          <main className="lg:col-span-3 space-y-8 order-1 lg:order-2">
+          <main className="lg:col-span-3 space-y-6 sm:space-y-8 order-1 lg:order-2 min-w-0 w-full overflow-hidden">
             {activeTab === 'overview' && (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                   {systemStats.map((s, i) => (
-                    <Card key={i} className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white">
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{s.label}</p>
-                            <p className="text-2xl font-bold text-slate-900">{s.value}</p>
+                    <Card key={i} className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white min-w-0 overflow-hidden">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 truncate">{s.label}</p>
+                            <p className="text-xl sm:text-2xl font-bold text-slate-900 truncate">{s.value}</p>
                           </div>
-                          <div className="p-3 rounded-2xl bg-cyan-50 text-cyan-600 border border-cyan-200">
-                            <s.icon className="h-6 w-6" />
+                          <div className="p-2.5 sm:p-3 rounded-2xl bg-cyan-50 text-cyan-600 border border-cyan-200 shrink-0">
+                            <s.icon className="h-5 w-5 sm:h-6 sm:w-6" />
                           </div>
                         </div>
                       </CardContent>
@@ -1216,33 +1216,39 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <Card className="lg:col-span-2">
-                    <CardHeader>
-                      <CardTitle>{t('admin_dashboard.platform_activity', 'Activité de la plateforme')}</CardTitle>
-                      <CardDescription>{t('admin_dashboard.activity_desc', 'Évolution des inscriptions et activités')}</CardDescription>
+                  <Card className="lg:col-span-2 min-w-0 overflow-hidden">
+                    <CardHeader className="p-4 sm:p-6 pb-2">
+                      <CardTitle className="text-base sm:text-lg">{t('admin_dashboard.platform_activity', 'Activité de la plateforme')}</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">{t('admin_dashboard.activity_desc', 'Évolution des inscriptions et activités')}</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <AdvancedAreaChart data={chartData} />
+                    <CardContent className="p-2 sm:p-6 pt-0">
+                      <div className="w-full min-w-0 overflow-hidden">
+                        <AdvancedAreaChart data={chartData} />
+                      </div>
                     </CardContent>
                   </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>{t('admin_dashboard.role_distribution', 'Distribution des Rôles')}</CardTitle>
+                  <Card className="min-w-0 overflow-hidden">
+                    <CardHeader className="p-4 sm:p-6 pb-2">
+                      <CardTitle className="text-base sm:text-lg">{t('admin_dashboard.role_distribution', 'Distribution des Rôles')}</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <SimplePieChart data={roleDistribution} height={250} />
+                    <CardContent className="p-2 sm:p-6 pt-0">
+                      <div className="w-full min-w-0 overflow-hidden">
+                        <SimplePieChart data={roleDistribution} height={250} />
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Flux de Paiements</CardTitle>
-                      <CardDescription>Analyse hebdomadaire</CardDescription>
+                  <Card className="min-w-0 overflow-hidden">
+                    <CardHeader className="p-4 sm:p-6 pb-2">
+                      <CardTitle className="text-base sm:text-lg">Flux de Paiements</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">Analyse hebdomadaire</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <AdvancedBarChart data={chartData} height={200} />
+                    <CardContent className="p-2 sm:p-6 pt-0">
+                      <div className="w-full min-w-0 overflow-hidden">
+                        <AdvancedBarChart data={chartData} height={200} />
+                      </div>
                     </CardContent>
                   </Card>
                   <Card>

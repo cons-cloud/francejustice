@@ -54,47 +54,31 @@ DIRECTIVES FONDAMENTALES D'ANALYSE & DE RÉPONSE :
    - Ne soyez jamais passif. Prenez des initiatives stratégiques audacieuses et concrètes : recommandez les actions à mener dans les 24h à 48h (ex: mise en demeure par LRAR, saisine de la commission départementale de conciliation, constat d'huissier, déclaration de sinistre protection juridique).
    - Proposez systématiquement 3 démarches ou questions de suivi pertinentes.
 
-3. PROPOSEZ DE VRAIS SITES OFFICIELS ET DE VRAIS SITES EXTERNES SPÉCIALISÉS :
-   - Citez expressément et orientez l'utilisateur vers de véritables portails publics officiels français (ex: legifrance.gouv.fr, service-public.fr, code.travail.gouv.fr, justice.fr, anil.org, signal.conso.gouv.fr, pre-plainte-en-ligne.gouv.fr).
-   - Proposez également de véritables sites externes professionnels de référence (ex: cnb.avocat.fr pour l'Ordre des avocats, commissaire-justice.fr pour les huissiers de justice, infogreffe.fr pour la solvabilité des entreprises, notaires.fr, france-victimes.fr).
+3. LIENS EXTERNES UNIQUEMENT SUR DEMANDE OU SI PERTINENT :
+   - Les liens externes NE SONT PAS OBLIGATOIRES sur toutes les réponses. Vous ne devez proposer des liens ou citer des sites officiels (legifrance.gouv.fr, service-public.fr, justice.fr, etc.) QUE si l'utilisateur en fait la demande explicite (ex: « donne-moi le lien », « où puis-je vérifier ? ») ou si sa question porte directement sur un portail ou une démarche en ligne. N'en insérez pas sur des réponses simples, des salutations ou des conseils généraux.
 
-4. ANALYSE CROISÉE DE TOUS LES DOCUMENTS & DOSSIERS IMPORTÉS :
-   - Lorsque des documents (un ou plusieurs : baux, contrats, devis, factures, PV, lettres, assignations, etc.) sont joints, analysez L'ENSEMBLE de leur contenu sans rien omettre.
-   - Si de nouveaux documents sont ajoutés au fur et à mesure de la conversation, intégrez-les immédiatement en mémoire continue en les confrontant aux pièces précédemment analysées.
+4. RÉPONSES SUR-MESURE & STRICTEMENT PERSONNALISÉES (STANDARD CLAUDE, GEMINI & CHATGPT) :
+   - Répondez DIRECTEMENT, PRÉCISEMENT et NATURELLEMENT à la question posée, sans jamais imposer de modèle rigide ou de formulaire préformaté.
+   - Adaptez la longueur et le style à la demande : si la question est simple ou concise, donnez une réponse immédiate et claire. Si la question est complexe, développez une analyse structurée sur-mesure.
+   - Citez les faits, dates, montants en € et personnes mentionnés par l'utilisateur pour une réponse 100% individualisée.
+   - Ne rédigez un acte ou document in extenso (mise en demeure, contrat, lettre, assignation) QUE si l'utilisateur en fait la demande expresse.
 
-5. STRUCTURE ÉLÉGANTE ET NATURELLE DE VOTRE ANALYSE (STANDARD CHATGPT / CLAUDE / GEMINI) :
-   Votre analyse doit être limpide, dynamique et parfaitement ordonnée, sans ton robotique ni accumulation d'émojis superflus :
+5. ANALYSE CROISÉE DES DOCUMENTS FOURNIS (SI APPLICABLE) :
+   - Lorsque des pièces sont jointes, analysez leur contenu en lien direct avec la question de l'utilisateur.
 
-   1. Synthèse du dossier & Qualification juridique :
-   - Présentation claire des faits, qualification du litige et identification des parties (qui réclame quoi, rapports d'obligations).
-   - Position juridique globale et rapport de force.
-
-   2. Analyse juridique approfondie & Textes applicables :
-   - Visas des textes de lois précis (Code Civil, Code du Travail, Code de la Consommation, etc.).
-   - Application concrète de la règle de droit et jurisprudence constante aux faits précis du dossier.
-
-   3. Évaluation stratégique : Atouts & Points de vigilance :
-   - Atouts et preuves solides en votre faveur.
-   - Points de vigilance, risques procéduraux ou faiblesses à anticiper et pallier.
-   - Estimation objective des chances d'issue favorable.
-
-   4. Plan d'action recommandé & Démarches étape par étape :
-   - Étape 1 : Phase amiable impérative (mise en demeure formelle par LRAR, sommation avec délai).
-   - Étape 2 : Préalable de conciliation ou médiation obligatoire (ex: art. 750-1 CPC, CDC, médiateur).
-   - Étape 3 : Voie contentieuse & Juridiction compétente (Tribunal Judiciaire, CPH, JAF, Tribunal de Commerce ; délais de prescription).
-
-   5. Recommandations immédiates & Suite à donner :
-   - Actions concrètes à mener sous 24h à 48h.
-   - Proposition proactive de 2 à 3 démarches utiles ou rédaction d'actes juridiques.
-
-6. CADRE ET MONNAIE :
-   - Droit applicable : Droit français (Codes officiels, jurisprudence de la Cour de cassation et du Conseil d'État) et Droit de l'Union européenne.
-   - Monnaie : Strictement l'Euro (€).
+6. COMPÉTENCE MULTI-JURIDICTIONNELLE MONDIALE & MONNAIE ADAPTATIVE :
+   - Vous maîtrisez l'ensemble des systèmes juridiques du monde avec une égale rigueur :
+     • Droit européen & Union Européenne : Règlements UE, Directives, RGPD, AI Act, CJUE, CEDH, Bruxelles I bis, Rome I/II.
+     • Droit de chaque pays d'Europe : France, Belgique (Code civil belge, Code de droit économique), Suisse (Code civil CC, Code des obligations CO, Tribunal fédéral), Allemagne (BGB), Espagne (Código Civil, Estatuto de los Trabajadores), Italie (Codice Civile), Royaume-Uni (Common Law), Luxembourg, Portugal, etc.
+     • Droit des pays d'Afrique : Droit unifié OHADA (Actes uniformes pour le droit commercial, sociétés, sûretés, recouvrement et voies d'exécution dans les 17 États membres d'Afrique de l'Ouest et Centrale), Maroc (DOC, Code du travail, Moudawana), Algérie, Tunisie, Sénégal, Côte d'Ivoire, Cameroun, RDC, etc.
+     • Droit des pays d'Amérique : États-Unis (Droit fédéral US Code, Constitution, Droit des 50 États : Delaware, Californie, New York, etc.), Canada (Common Law fédérale/provinciale et Code civil du Québec CCQ), Amérique latine.
+     • Droit international privé & public : Conflits de lois, conventions de La Haye, arbitrage international (CCI, CIRDI), vente internationale (CVIM).
+   - ADAPTATION AUTOMATIQUE : Détectez systématiquement la juridiction applicable à la situation de l'utilisateur. Si l'utilisateur mentionne ou sous-entend un pays, un État ou une région particulière, appliquez EXCLUSIVEMENT les textes de loi, les codes, les tribunaux compétents et la devise monétaire officielle de cette juridiction (CHF en Suisse, CAD au Canada, USD aux États-Unis, MAD au Maroc, FCFA en zone OHADA, etc.). Par défaut sans pays mentionné, appliquez le droit français et européen en Euro (€).
 
 7. PROPRETÉ TYPOGRAPHIQUE ET RENDU SOIGNÉ :
    - INTERDICTION STRICTE DES BALISES '###' ET ASTÉRISQUES PARASITES : N'insérez JAMAIS de préfixe markdown '###', '##' ou '#' devant vos titres.
    - Mettez directement en gras les termes clés (**terme**) sans astérisques orphelins.
-   - Structurez le texte de façon propre, fluide et aérée : titres clairs, étapes numérotées distinctes (1., 2., 3.) et paragraphes ordonnés.
+   - Structurez le texte de façon propre, fluide et aérée : titres clairs, étapes distinctes et paragraphes ordonnés.
    - Vos réponses doivent être immédiatement lisibles, nettes et visuellement élégantes.
 `.trim();
 
@@ -367,6 +351,249 @@ export function getTargetedLegalSources(contextText: string, domain?: string, lo
 }
 
 export function generateSmartLegalSuggestions(contextText: string, domain?: string): string[] {
+  const textLower = (contextText || '').toLowerCase();
+
+  // 1. Détection de suggestions explicites déjà générées par le modèle IA
+  const explicitMatches: string[] = [];
+  const lines = (contextText || '').split('\n');
+  let inSuggestionSection = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (/(?:questions?\s+sugg[ée]r[ée]es?|pour\s+aller\s+plus\s+loin|prochaines?\s+[ée]tapes?|suggestions?\s+de\s+suite)/i.test(trimmed)) {
+      inSuggestionSection = true;
+      continue;
+    }
+    if (inSuggestionSection) {
+      if (/^[#*_\-\s]{3,}$/.test(trimmed) || (trimmed.startsWith('#') && !trimmed.toLowerCase().includes('question'))) {
+        inSuggestionSection = false;
+        continue;
+      }
+      const cleaned = trimmed.replace(/^[•\-*0-9.)\s❓👉]+/, '').trim();
+      if (cleaned.length > 12 && cleaned.length < 130 && (cleaned.endsWith('?') || /^(rédiger|calculer|vérifier|comment|saisir|préparer|faire|contester)/i.test(cleaned))) {
+        explicitMatches.push(cleaned);
+        if (explicitMatches.length >= 4) break;
+      }
+    }
+  }
+  if (explicitMatches.length >= 2) {
+    return explicitMatches.slice(0, 4);
+  }
+
+  // 2. Détection de juridictions internationales & régionales
+
+  // A0. Suisse (Code civil, Code des Obligations CO, Loi sur les poursuites LP)
+  if (/suisse|gen[èe]ve|vaud|lausanne|z[uü]rich|code des obligations|\bco\b.*droit|poursuite.*lp/i.test(textLower)) {
+    return [
+      "Comment introduire une réquisition de poursuite auprès de l'Office des poursuites ?",
+      "Quels sont les délais de résiliation et de congé selon le Code des Obligations (art. 335 CO) ?",
+      "Comment contester une hausse de loyer devant la Commission de conciliation en matière de baux ?",
+      "Calculer le salaire, heures supplémentaires et indemnités de vacances dues en CHF"
+    ];
+  }
+
+  // A1. Belgique (Code civil belge, SPF Emploi, Juge de paix)
+  if (/belgique|belge|bruxelles|wallonie|flandre|spf|juge de paix/i.test(textLower)) {
+    return [
+      "Comment calculer le préavis légal de licenciement selon la loi sur le statut unique ?",
+      "Rédiger la mise en demeure formelle avant citation devant le Tribunal de Première Instance",
+      "Quelles démarches pour la libération de la garantie locative bloquée sur compte individualisé ?",
+      "Comment introduire une requête conjointe devant le Juge de Paix compétent ?"
+    ];
+  }
+
+  // A2. Espace OHADA & Pays d'Afrique subsaharienne (17 pays membres)
+  if (/ohada|s[ée]n[ée]gal|c[ôo]te d['’]ivoire|cameroun|gabon|mali|congo|rdc|b[ée]nin|togo|burkina|guin[ée]e|acte uniforme/i.test(textLower)) {
+    return [
+      "Comment déposer une requête en injonction de payer selon l'Acte uniforme OHADA ?",
+      "Quelles sont les formalités de saisie conservatoire et voies d'exécution OHADA ?",
+      "Rédiger la sommation de payer préalable signifiée par huissier de justice",
+      "Quelles sanctions en cas de faute de gestion du gérant de SARL selon l'AUSCGIE ?"
+    ];
+  }
+
+  // A3. Pays du Maghreb (Maroc, Algérie, Tunisie)
+  if (/maroc|alg[ée]rie|tunisie|casablanca|rabat|alger|tunis|moudawana|dahir|\bdoc\b.*contrat/i.test(textLower)) {
+    return [
+      "Quels sont les recours et délais selon le Dahir des Obligations et Contrats (DOC) ?",
+      "Comment contester un licenciement abusif selon le Code du travail en vigueur ?",
+      "Quelles sont les démarches d'exécution forcée auprès du Tribunal de Première Instance ?",
+      "Quelles règles de pension et garde d'enfants selon le statut personnel / Moudawana ?"
+    ];
+  }
+
+  // A4. États-Unis (Droit fédéral US Code & Lois d'États) et Canada (Québec CCQ / TAL)
+  if (/usa|[ée]tats[- ]unis|am[ée]ricain|californi|delaware|new york|texas|canada|qu[ée]bec|montr[ée]al|common law/i.test(textLower)) {
+    return [
+      "What are the enforcement conditions under US Federal / State contract law?",
+      "How to negotiate a severance package or dispute an at-will termination?",
+      "Comment contester une éviction de logement devant le Tribunal administratif du logement (TAL Québec) ?",
+      "Quelles clauses obligatoires pour un NDA ou pacte d'associés (Operating Agreement) ?"
+    ];
+  }
+
+  // 3. Détection de scénarios thématiques généraux et comparés
+
+  // A. Caution locative & Dépôt de garantie
+  if (/caution|d[ée]p[ôo]t de garantie|restitution.*garantie|retenue.*caution/i.test(textLower)) {
+    return [
+      "Rédiger la mise en demeure de restitution avec majoration de 10% par mois (art. 22)",
+      "Comment saisir la Commission Départementale de Conciliation (CDC) ?",
+      "Le bailleur peut-il retenir sur un simple devis sans facture acquittée ?",
+      "Calculer le montant total exigible incluant les pénalités de retard"
+    ];
+  }
+
+  // B. Expulsion & Loyers impayés
+  if (/loyer.*impay[ée]|commandement de payer|clause r[ée]solutoire|proc[ée]dure d['’]expulsion|tr[êe]ve hivernale/i.test(textLower)) {
+    return [
+      "Quels sont les délais légaux de suspension et la trêve hivernale ?",
+      "Comment solliciter les aides du FSL (Fonds de Solidarité Logement) ?",
+      "Rédiger une proposition de plan d'apurement amiable des loyers",
+      "Comment contester l'assignation devant le Juge des Contentieux (JCP) ?"
+    ];
+  }
+
+  // C. Troubles de voisinage & Copropriété & Nuisances
+  if (/nuisance|voisin|trouble.*voisinage|bruit|aboiement|copropri[ée]t[ée]|syndic/i.test(textLower)) {
+    return [
+      "Comment faire constater les nuisances par commissaire de justice ?",
+      "Rédiger la lettre recommandée au syndic et au propriétaire bailleur",
+      "Comment saisir gratuitement le conciliateur de justice (art. 750-1 CPC) ?",
+      "Quelles sanctions et dommages-intérêts pour trouble anormal de voisinage ?"
+    ];
+  }
+
+  // D. Licenciement & Prud'hommes
+  if (/licenciement|faute grave|faute lourde|cause r[ée]elle|prud['’]hommes?|bar[èe]me macron/i.test(textLower)) {
+    return [
+      "Calculer mes indemnités légales et supra-légales selon le barème Macron",
+      "Comment contester la qualification de faute grave devant les Prud'hommes ?",
+      "Quels sont les délais de prescription de 12 mois pour contester ?",
+      "Rédiger la lettre de contestation des motifs de mon licenciement"
+    ];
+  }
+
+  // E. Rupture conventionnelle & Négociation départ
+  if (/rupture conventionnelle|indemnit[ée] rupture|n[ée]gocier.*d[ée]part|homologation.*dreets/i.test(textLower)) {
+    return [
+      "Calculer l'indemnité minimale légale de rupture conventionnelle",
+      "Comment s'applique le délai de rétractation de 15 jours calendaires ?",
+      "Quels recours en cas de refus d'homologation par la DREETS ?",
+      "Comment négocier une indemnité supra-légale avec mon employeur ?"
+    ];
+  }
+
+  // F. Harcèlement au travail & Inaptitude & Burnout
+  if (/harc[èe]lement|burnout|inaptitude|m[ée]decine du travail|prise d['’]acte/i.test(textLower)) {
+    return [
+      "Quelles preuves concrètes réunir pour prouver le harcèlement moral (L1152-1) ?",
+      "Comment alerter l'inspection du travail, le CSE et le médecin du travail ?",
+      "Quelle est la procédure d'inaptitude médicale et de reclassement ?",
+      "Calculer les indemnités pour nullité du licenciement et préjudice moral"
+    ];
+  }
+
+  // G. Vice caché automobile & Achat véhicule occasion
+  if (/vice cach[ée]|v[ée]hicule|voiture|garage|moteur.*cass[ée]|compteur.*trafiqu[ée]|contr[ôo]le technique/i.test(textLower)) {
+    return [
+      "Comment mandater une expertise automobile contradictoire (art. 1641 C. civ.) ?",
+      "Rédiger la mise en demeure demandant l'annulation de la vente ou remboursement",
+      "Quel est le délai de 2 ans à compter de la découverte du vice pour agir ?",
+      "Puis-je exiger la prise en charge des frais de remorquage et de gardiennage ?"
+    ];
+  }
+
+  // H. Rétractation, Commande non livrée & Litige consommateur
+  if (/r[ée]tractation|livraison|non re[çc]u|colis|remboursement.*achat|d[ée]faut de conformit[ée]/i.test(textLower)) {
+    return [
+      "Comment faire valoir mon droit de rétractation légal de 14 jours (art. L221-18) ?",
+      "Rédiger la mise en demeure de remboursement sous 14 jours avec pénalités",
+      "Signaler l'infraction du commerçant sur la plateforme SignalConso (DGCCRF)",
+      "Comment activer la procédure de chargeback (rétrofacturation) bancaire ?"
+    ];
+  }
+
+  // I. Fraude bancaire & Escroquerie en ligne & Phishing
+  if (/fraude.*bancaire|piratage|carte bancaire|virement frauduleux|escroquerie|arnaque|phishing|th[ée]s[ée]e/i.test(textLower)) {
+    return [
+      "Rédiger la contestation d'opération frauduleuse non autorisée (art. L133-18 CMF)",
+      "Comment obtenir le remboursement immédiat sans franchise par ma banque ?",
+      "Déposer une plainte officielle en ligne via le dispositif THESEE",
+      "Saisir le Médiateur de la Fédération Bancaire Française (FBF)"
+    ];
+  }
+
+  // J. Divorce & Séparation
+  if (/divorce|s[ée]paration|prestation compensatoire|liquidation.*r[ée]gime|jaf/i.test(textLower)) {
+    return [
+      "Quelle différence entre divorce par consentement mutuel et judiciaire ?",
+      "Comment est chiffrée la prestation compensatoire selon les revenus ?",
+      "Quelles mesures provisoires d'urgence solliciter devant le JAF ?",
+      "Quelles pièces fournir pour la liquidation du régime matrimonial ?"
+    ];
+  }
+
+  // K. Pension alimentaire & Garde d'enfants
+  if (/pension alimentaire|garde.*enfant|r[ée]sidence altern[ée]|droit de visite|aripa/i.test(textLower)) {
+    return [
+      "Simuler le montant de la pension alimentaire selon la grille ministérielle",
+      "Comment activer le recouvrement forcé par l'ARIPA / CAF en cas d'impayé ?",
+      "Rédiger une requête en révision de pension alimentaire auprès du JAF",
+      "Comment faire sanctionner pénalement le délit d'abandon de famille ?"
+    ];
+  }
+
+  // L. Succession, Héritage & Indivision
+  if (/succession|h[ée]ritage|notaire|indivision|testament|r[ée]serve h[ée]r[ée]ditaire|donation/i.test(textLower)) {
+    return [
+      "Comment contester une atteinte à la réserve héréditaire (action en réduction) ?",
+      "Que faire en cas de blocage d'indivision (règle de la majorité des 2/3) ?",
+      "Quels recours face à un soupçon de recel successoral ou donation déguisée ?",
+      "Comment demander l'inventaire des biens par commissaire de justice ?"
+    ];
+  }
+
+  // M. Infraction routière, Permis de conduire & PV
+  if (/permis.*conduire|points?|amende|contravention|radar|tribunal de police|48si|invalidation/i.test(textLower)) {
+    return [
+      "Comment contester l'avis de contravention sur le site ANTAI sans payer l'amende ?",
+      "Quel recours formel devant l'Officier du Ministère Public (OMP) ?",
+      "Comment contester la lettre 48SI d'invalidation de permis devant le TA ?",
+      "Puis-je effectuer un stage de récupération de 4 points avant l'invalidation ?"
+    ];
+  }
+
+  // N. Titre de séjour, Étrangers & OQTF
+  if (/titre de s[ée]jour|oqtf|pr[ée]fecture|naturalisation|sans[- ]papiers|r[ée]gularisation/i.test(textLower)) {
+    return [
+      "Quel recours en urgence (48h ou 30j) contre une OQTF devant le Tribunal Administratif ?",
+      "Comment déposer un recours gracieux ou hiérarchique au Ministère de l'Intérieur ?",
+      "Quelles pièces justificatives réunir pour une admission exceptionnelle au séjour (AES) ?",
+      "Comment saisir le Défenseur des Droits pour blocage de rendez-vous en préfecture ?"
+    ];
+  }
+
+  // O. Plainte pénale & Victime d'infraction
+  if (/plainte|procureur|commissariat|gendarmerie|partie civile|civi|victime|agression/i.test(textLower)) {
+    return [
+      "Rédiger la plainte officielle adressée au Procureur de la République par LRAR",
+      "Comment se constituer partie civile pour obtenir réparation financière ?",
+      "Quelles preuves numériques ou médicales (ITT) rassembler impérativement ?",
+      "Comment solliciter une indemnisation auprès de la CIVI ou du SARVI ?"
+    ];
+  }
+
+  // P. Facture impayée & Recouvrement B2B / Commercial
+  if (/impay[ée]|facture|injonction de payer|d[ée]biteur|recouvrement|cr[ée]ance|tribunal de commerce/i.test(textLower)) {
+    return [
+      "Rédiger la mise en demeure de payer avec pénalités de retard BCE + 10 points",
+      "Préparer la requête en Injonction de Payer devant le Tribunal compétent",
+      "Vérifier la solvabilité et les bilans du débiteur sur Infogreffe / Pappers",
+      "Comment faire signifier et exécuter le titre par un commissaire de justice ?"
+    ];
+  }
+
+  // Q. Domaines de repli structurés
   const dom = domain || detectLegalDomain(contextText);
 
   if (dom === 'travail') {
@@ -417,6 +644,7 @@ export function generateSmartLegalSuggestions(contextText: string, domain?: stri
       "Contacter l'association conventionnée France Victimes (116 006)"
     ];
   }
+
   return [
     "Rédiger la mise en demeure préalable obligatoire (délai 8 jours)",
     "Calculer les dommages et intérêts moratoires en Euro (€)",
@@ -1318,13 +1546,10 @@ function getAdvancedLocalLegalAI(
           `- **Durée globale :** Entre **1 et 3 mois** si les époux sont d'accord sur tous les points (contre 12 à 24 mois pour un divorce judiciaire contentieux devant le JAF).\n` +
           `- **Coût moyen :** En moyenne entre 1 200 € et 2 500 € par époux selon la complexité patrimoniale (frais d'avocat) + frais fixes d'enregistrement notarié de 41,20 € TTC.`;
       } else {
-        responseText = `Voici la chronologie des démarches, délais légaux et procédures applicables à votre situation :\n\n` +
-          `**1. Phase amiable impérative (Délai : 8 à 15 jours)**\n` +
-          `- Envoi d'une mise en demeure officielle par LRAR avec accusé de réception fixant un délai strict de régularisation.\n` +
-          `- Proposition de médiation conventionnelle ou conciliation de justice (Art. 750-1 du CPC).\n\n` +
-          `**2. Phase judiciaire & Saisine de la juridiction compétente**\n` +
-          `- À défaut d'exécution dans le délai imparti, assignation ou requête devant le tribunal compétent territorialement (${detectedLocation}).\n` +
-          `- Délais de prescription à surveiller scrupuleusement pour ne pas perdre vos droits à indemnisation.`;
+        responseText = `Pour faire valoir vos droits efficacement dans cette situation, la démarche se déroule généralement en deux étapes complémentaires :\n\n` +
+          `D'abord, la phase amiable préalable : il est préconisé d'adresser une mise en demeure officielle par lettre recommandée avec accusé de réception (LRAR). Ce courrier fixe un délai clair de régularisation (généralement 8 à 15 jours) et formalise les manquements. Conformément à l'article 750-1 du Code de procédure civile, une tentative préalable de conciliation ou médiation est d'ailleurs obligatoire pour la plupart des litiges civils avant de saisir le juge.\n\n` +
+          `Ensuite, si aucune issue amiable n'aboutit au terme du délai, la phase judiciaire permet de saisir la juridiction compétente dans votre secteur (${detectedLocation}). Il convient de surveiller attentivement les délais de prescription pour préserver l'intégralité de vos droits.\n\n` +
+          `Souhaitez-vous que nous examinions ensemble les détails de vos pièces ou que nous préparions un courrier adapté ?`;
       }
 
     // INTENT 7: SYNTHÈSE / RÉSUMÉ EN 3 OU 4 POINTS
@@ -2294,15 +2519,15 @@ function getAdvancedLocalLegalAI(
   }
 
   const detectedDomain = detectLegalDomain(clean + ' ' + attachedDocText);
-  const sources_web = getTargetedLegalSources(userQuery + ' ' + attachedDocText, detectedDomain, detectedLocation);
-  const suggestions = generateSmartLegalSuggestions(userQuery + ' ' + attachedDocText, detectedDomain);
-  const automations = generateSmartLegalAutomations(userQuery + ' ' + attachedDocText, hasFiles ? 1 : 0);
-
+  const userRequestedLinks = /(?:lien|source|site|url|o[ùu] (?:trouver|consulter|v[ée]rifier)|legifrance|service-public|justice\.fr)/i.test(userQuery);
+  const sources_web = userRequestedLinks 
+    ? getTargetedLegalSources(userQuery + ' ' + attachedDocText, detectedDomain, detectedLocation)
+    : [];
   return {
     text: responseText,
     sources_web,
-    suggestions,
-    automations
+    suggestions: [],
+    automations: []
   };
 }
 
@@ -2389,8 +2614,13 @@ export async function chatWithAI(
   const fullPromptWithLang = `${prompt}\n\n[MANDAT LINGUISTIQUE IMPÉRATIF: Vous DEVEZ rédiger STRICTEMENT et INTÉGRALEMENT dans la langue suivante: ${langName}. Si la langue cible est l'anglais (English), TOUTE l'explication et la réponse DOIVENT être en anglais. Si la langue cible est l'arabe (العربية), TOUTE la réponse DOIT être en arabe littéraire (الفصحى). Conservez fidèlement les numéros d'articles et codes juridiques applicables. Répondez avec précision chirurgicale, clarté et pertinence. Utilisez l'Euro (€) pour toute référence monétaire.]`;
 
   // 1. DIRECT GEMINI API CALL WITH CONVERSATION HISTORY & SYSTEM INSTRUCTION
-  if (geminiApiKey && !geminiApiKey.startsWith('AQ.')) {
+  // AQ. keys work as ?key= query param with gemini-3.8-flash (confirmed working)
+  if (geminiApiKey && geminiApiKey.trim().length >= 20) {
     try {
+      const cleanKey = geminiApiKey.trim();
+      // gemini-3.8-flash is the current model (gemini-2.0-flash deprecated per Google)
+      const geminiModel = 'gemini-3.8-flash';
+
       // Build conversation contents including past user and assistant turns
       const conversationContents: { role: string; parts: { text: string }[] }[] = [];
 
@@ -2417,7 +2647,7 @@ export async function chatWithAI(
       });
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${cleanKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -2450,6 +2680,9 @@ export async function chatWithAI(
             automations
           };
         }
+      } else {
+        const errBody = await response.text().catch(() => '');
+        console.warn(`Direct Gemini API call notice (${response.status}):`, errBody.substring(0, 200));
       }
     } catch (e) {
       console.warn("Direct Gemini API call notice:", e);
@@ -2613,4 +2846,182 @@ Question de l'utilisateur : "${userPrompt}"
     news: relatedNews,
     reviews: relatedReviews
   };
+}
+
+export function generateSmartLegalPrognosis(
+  contextText: string,
+  _domain: string = 'general',
+  docCount: number = 0
+): { score: number; label: string; riskLevel: 'faible' | 'modéré' | 'élevé'; strengthText: string; prescriptionStatus: 'respecté' | 'urgent' | 'vigilance' } | undefined {
+  const textLower = (contextText || '').toLowerCase();
+  
+  if (/^(bonjour|salut|hello|merci|parfait|au revoir)[\s!?.]*$/i.test(contextText.trim())) {
+    return undefined;
+  }
+
+  let score = 75;
+  let riskLevel: 'faible' | 'modéré' | 'élevé' = 'faible';
+  let strengthText = docCount > 0 ? "Éléments probants étayés par pièces au dossier" : "Faits précis justifiant une action";
+  let prescriptionStatus: 'respecté' | 'urgent' | 'vigilance' = 'respecté';
+
+  if (/caution|d[ée]p[ôo]t de garantie/i.test(textLower)) {
+    score = 90;
+    riskLevel = 'faible';
+    strengthText = "Droit à restitution de plein droit avec pénalité légale de 10%/mois";
+  } else if (/vice cach[ée]/i.test(textLower)) {
+    score = 70;
+    riskLevel = 'modéré';
+    strengthText = "Exige une expertise contradictoire probante";
+    prescriptionStatus = 'vigilance';
+  } else if (/faute grave|licenciement/i.test(textLower)) {
+    score = 80;
+    riskLevel = 'faible';
+    strengthText = "Charge de la preuve légalement imputable à l'employeur";
+    prescriptionStatus = /an|mois/i.test(textLower) ? 'vigilance' : 'respecté';
+  } else if (/harc[èe]lement/i.test(textLower)) {
+    score = 65;
+    riskLevel = 'modéré';
+    strengthText = "Nécessite la réunion d'un faisceau d'indices précis";
+  } else if (/facture.*impay[ée]|injonction de payer/i.test(textLower)) {
+    score = 85;
+    riskLevel = 'faible';
+    strengthText = "Créance certaine, liquide et immédiatement exigible";
+  } else if (/arnaque|fraude.*bancaire/i.test(textLower)) {
+    score = 88;
+    riskLevel = 'faible';
+    strengthText = "Obligation légale de remboursement immédiat sans franchise";
+  }
+
+  if (/forclusion|d[ée]lai d[ée]pass[ée]|tardif|prescription/i.test(textLower)) {
+    prescriptionStatus = 'urgent';
+    riskLevel = 'modéré';
+  }
+
+  let label = "Chances favorables";
+  if (score >= 85) label = "Chances très favorables";
+  else if (score >= 70) label = "Dossier solide";
+  else if (score >= 50) label = "Chances modérées";
+  else label = "Litige complexe / Aléatoire";
+
+  return {
+    score,
+    label: `${label} (${score}%)`,
+    riskLevel,
+    strengthText,
+    prescriptionStatus
+  };
+}
+
+export function generateSmartProceduralRoadmap(
+  contextText: string,
+  _domain: string = 'general',
+  jurisdictionId: string = 'fr_eu'
+): { stepNumber: number; timeframe: string; title: string; description: string; badge?: string }[] | undefined {
+  const textLower = (contextText || '').toLowerCase();
+
+  if (/^(bonjour|salut|hello|merci|parfait)[\s!?.]*$/i.test(contextText.trim())) {
+    return undefined;
+  }
+
+  if (jurisdictionId === 'ch' || /suisse|gen[èe]ve|vaud/i.test(textLower)) {
+    return [
+      {
+        stepNumber: 1,
+        timeframe: "J+0 à J+10",
+        title: "Mise en demeure formelle",
+        description: "Notification écrite par courrier recommandé fixant un délai péremptoire d'exécution.",
+        badge: "Phase amiable"
+      },
+      {
+        stepNumber: 2,
+        timeframe: "Mois 1",
+        title: "Conciliation ou Réquisition de poursuite (LP)",
+        description: "Dépôt de la réquisition auprès de l'Office des poursuites ou saisine de la commission de conciliation.",
+        badge: "Procédure suisse"
+      },
+      {
+        stepNumber: 3,
+        timeframe: "Mois 2 à M+3",
+        title: "Action judiciaire au fond",
+        description: "Introduction de l'action devant le Tribunal de première instance ou Tribunal des prud'hommes.",
+        badge: "Jugement"
+      }
+    ];
+  }
+
+  if (jurisdictionId === 'be' || /belgique|bruxelles/i.test(textLower)) {
+    return [
+      {
+        stepNumber: 1,
+        timeframe: "J+0 à J+15",
+        title: "Mise en demeure préalable obligatoire",
+        description: "Courrier recommandé avec accusé de réception sommant la partie adverse d'exécuter.",
+        badge: "Phase amiable"
+      },
+      {
+        stepNumber: 2,
+        timeframe: "Mois 1",
+        title: "Tentative de conciliation (Juge de Paix)",
+        description: "Comparution volontaire ou requête conjointe devant le Juge de Paix ou Tribunal du travail.",
+        badge: "Gratuit"
+      },
+      {
+        stepNumber: 3,
+        timeframe: "Mois 2",
+        title: "Citation en justice par Huissier",
+        description: "Délivrance de la citation pour jugement exécutoire par le Tribunal compétent.",
+        badge: "Contentieux"
+      }
+    ];
+  }
+
+  if (jurisdictionId === 'ohada' || /ohada|s[ée]n[ée]gal|c[ôo]te d['’]ivoire|cameroun/i.test(textLower)) {
+    return [
+      {
+        stepNumber: 1,
+        timeframe: "J+0 à J+15",
+        title: "Sommation de payer avec délai impératif",
+        description: "Exploit d'huissier ou lettre recommandée sommant le débiteur sous délai légal.",
+        badge: "Acte d'huissier"
+      },
+      {
+        stepNumber: 2,
+        timeframe: "Mois 1",
+        title: "Requête en Injonction de Payer OHADA",
+        description: "Dépôt de la requête devant la juridiction compétente avec titre exécutoire (Acte uniforme).",
+        badge: "Titre exécutoire"
+      },
+      {
+        stepNumber: 3,
+        timeframe: "Mois 2",
+        title: "Signification & Saisie conservatoire",
+        description: "Exécution forcée des créances et blocage des comptes bancaires par commissaire de justice.",
+        badge: "Voies d'exécution"
+      }
+    ];
+  }
+
+  return [
+    {
+      stepNumber: 1,
+      timeframe: "J+0 à J+15",
+      title: "Mise en demeure formelle par LRAR",
+      description: "Sommation d'exécuter sous 8 à 15 jours avec visa des articles de loi et décompte des pénalités.",
+      badge: "Phase amiable"
+    },
+    {
+      stepNumber: 2,
+      timeframe: "J+15 à M+1",
+      title: "Médiation ou Conciliation de Justice",
+      description: "Saisine gratuite du conciliateur de justice ou de la commission de conciliation pour accord amiable.",
+      badge: "Pré-contentieux"
+    },
+    {
+      stepNumber: 3,
+      timeframe: "M+2",
+      title: "Saisine du Tribunal compétent",
+      description: "Assignation ou requête devant le Juge des Contentieux, Tribunal Judiciaire ou Prud'hommes.",
+      badge: "Décision de Justice"
+    }
+  ];
 }

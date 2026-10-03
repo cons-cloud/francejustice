@@ -10,17 +10,25 @@ export default defineConfig({
     globals: true,
     maxWorkers: 1,
     fileParallelism: false,
-    isolate: true,
-    // @ts-expect-error - 'forks' is a valid Vitest top-level test option but may not match InlineConfig typings
-    forks: {
-      execArgv: ['--max-old-space-size=4096'],
+    isolate: false,
+    testTimeout: 20000,
+    hookTimeout: 10000,
+    teardownTimeout: 5000,
+    server: {
+      deps: {
+        // Inline-transform these so vi.mock() in setup.ts intercepts before runtime evaluation
+        inline: ['@supabase/supabase-js', '@supabase/realtime-js', '@supabase/auth-js', 'framer-motion'],
+      },
     },
-
-
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // ── CRITICAL: Redirect the 100k-line annuaire dataset to an empty stub ──
+      // Without this alias, Vitest tries to transform 100k lines of TS before
+      // vi.mock() can intercept it, causing the worker to hang indefinitely.
+      [path.resolve(__dirname, './src/data/annuaireAvocatsFrance')]:
+        path.resolve(__dirname, './src/data/annuaireAvocatsFrance.stub'),
     },
   },
 })

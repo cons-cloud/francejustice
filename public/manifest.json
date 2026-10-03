@@ -1,0 +1,18 @@
+{
+  "name": "France Justice — IA Juridique & Avocats",
+  "short_name": "France Justice",
+  "description": "Plateforme juridique française n°1 propulsée par l'IA : consultations d'avocats, analyse de dossiers et génération d'actes certifiés.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#0891b2",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

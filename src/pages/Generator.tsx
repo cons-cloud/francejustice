@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
-import { FileText, Download, Save, ArrowRight, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import { 
+  FileText, 
+  Download, 
+  Save, 
+  ArrowRight, 
+  ArrowLeft, 
+  CheckCircle, 
+  AlertCircle,
+  Copy,
+  Check,
+  Volume2,
+  VolumeX,
+  LayoutTemplate,
+  FileSpreadsheet,
+  Presentation
+} from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Textarea } from '../components/ui/Textarea';
@@ -12,6 +27,11 @@ import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import { useTranslation } from '../i18n';
 import { CleanLegalText } from '../components/ui/CleanLegalText';
+import { 
+  downloadWordDocument, 
+  downloadExcelSpreadsheet, 
+  downloadPowerPointPresentation 
+} from '../lib/universalFileGenerator';
 
 interface GeneratorProps {
   skipAuthCheck?: boolean;
@@ -25,6 +45,36 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isEditingLive, setIsEditingLive] = useState(false);
+
+  const toggleSpeaking = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const cleanText = generatedContent
+      .replace(/[*#_`>]/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    const utterance = new SpeechSynthesisUtterance(cleanText.substring(0, 3000));
+    utterance.lang = 'fr-FR';
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const copyDocument = () => {
+    if (!generatedContent) return;
+    navigator.clipboard.writeText(generatedContent);
+    setIsCopied(true);
+    success(t('common.copied', 'Copié dans le presse-papiers !'));
+    setTimeout(() => setIsCopied(false), 2500);
+  };
   
   const [formData, setFormData] = useState({
     documentType: '',
@@ -369,16 +419,122 @@ export const DocumentGenerator: React.FC<GeneratorProps> = ({ skipAuthCheck = fa
       case 6:
         return (
           <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-slate-900 mb-6">{t('generator.ready', 'Votre document est prêt !')}</h3>
-            <div className="p-8 bg-white border border-slate-200 rounded-2xl shadow-xl min-h-[400px] text-slate-900 ring-1 ring-slate-900/5">
-              <CleanLegalText content={generatedContent} />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-2xl font-black text-slate-900">{t('generator.ready', 'Votre document juridique certifié est prêt !')}</h3>
+                <p className="text-xs text-slate-500 font-medium mt-1">Conforme au droit français, prêt à être téléchargé ou édité en direct.</p>
+              </div>
+
+              {/* Action Toolbar */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={toggleSpeaking}
+                  className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    isSpeaking 
+                      ? 'bg-rose-100 border-rose-300 text-rose-700 animate-pulse' 
+                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'
+                  }`}
+                  title={isSpeaking ? "Arrêter la lecture vocale" : "Écouter le document à voix haute"}
+                >
+                  {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                  <span className="hidden sm:inline">{isSpeaking ? 'Arrêter' : 'Écouter'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={copyDocument}
+                  className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Copier le document complet"
+                >
+                  {isCopied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
+                  <span className="hidden sm:inline">{isCopied ? 'Copié' : 'Copier'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsEditingLive(!isEditingLive)}
+                  className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    isEditingLive 
+                      ? 'bg-purple-100 border-purple-300 text-purple-800' 
+                      : 'bg-white hover:bg-purple-50 border-slate-200 text-purple-700'
+                  }`}
+                  title="Activer ou désactiver le mode édition directe"
+                >
+                  <LayoutTemplate className="h-4 w-4 text-purple-600" />
+                  <span>{isEditingLive ? 'Mode Lecture' : 'Studio Canvas'}</span>
+                </button>
+              </div>
             </div>
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setCurrentStep(5)}>{t('common.edit')}</Button>
-              <Button onClick={() => window.print()} className="bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20">
-                <Download className="h-4 w-4 mr-2" />
-                {t('common.download')} (PDF)
+
+            {/* Document Workspace Area */}
+            {isEditingLive ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-purple-800 bg-purple-50 px-4 py-2 rounded-xl border border-purple-200">
+                  <span>Mode Studio Canvas : Vous modifiez directement le document final</span>
+                  <span>{generatedContent.length} caractères</span>
+                </div>
+                <Textarea
+                  value={generatedContent}
+                  onChange={(e) => setGeneratedContent(e.target.value)}
+                  rows={18}
+                  className="w-full font-serif text-slate-900 text-sm sm:text-base p-6 bg-white border-2 border-purple-300 rounded-2xl leading-relaxed focus:ring-2 focus:ring-purple-400"
+                />
+              </div>
+            ) : (
+              <div className="p-8 bg-white border-2 border-cyan-200/80 rounded-2xl shadow-xl min-h-[400px] text-slate-900 ring-1 ring-slate-900/5">
+                <CleanLegalText content={generatedContent} />
+              </div>
+            )}
+
+            {/* Export Actions Panel */}
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <Button variant="outline" onClick={() => setCurrentStep(5)} className="text-slate-700 border-slate-300">
+                {t('common.edit', 'Modifier les données')}
               </Button>
+
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <Button 
+                  type="button"
+                  variant="outline"
+                  onClick={() => downloadWordDocument(generatedContent, `${formData.documentType || 'Document'}_FranceJustice`)}
+                  className="bg-white hover:bg-blue-50 text-blue-700 border-blue-200 hover:border-blue-300 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center gap-1.5 shadow-2xs"
+                  title="Télécharger en Word (.doc)"
+                >
+                  <FileText className="h-4 w-4 text-blue-600" />
+                  <span>Word (.doc)</span>
+                </Button>
+
+                <Button 
+                  type="button"
+                  variant="outline"
+                  onClick={() => downloadExcelSpreadsheet(generatedContent, `${formData.documentType || 'Donnees'}_FranceJustice`)}
+                  className="bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 hover:border-emerald-300 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center gap-1.5 shadow-2xs"
+                  title="Exporter tableau en Excel (.csv)"
+                >
+                  <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+                  <span>Excel (.csv)</span>
+                </Button>
+
+                <Button 
+                  type="button"
+                  variant="outline"
+                  onClick={() => downloadPowerPointPresentation(generatedContent, `${formData.documentType || 'Synthese'}_FranceJustice`)}
+                  className="bg-white hover:bg-amber-50 text-amber-700 border-amber-200 hover:border-amber-300 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center gap-1.5 shadow-2xs"
+                  title="Exporter diaporama PowerPoint"
+                >
+                  <Presentation className="h-4 w-4 text-amber-600" />
+                  <span>PowerPoint</span>
+                </Button>
+
+                <Button 
+                  onClick={() => window.print()} 
+                  className="bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md flex items-center gap-1.5"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Imprimer / PDF</span>
+                </Button>
+              </div>
             </div>
           </div>
         );

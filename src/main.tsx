@@ -8,11 +8,13 @@ import App from './App.tsx'
 if (typeof window !== 'undefined') {
   window.addEventListener('vite:preloadError', (event) => {
     event.preventDefault();
-    const lastReload = sessionStorage.getItem('last_chunk_reload');
-    const now = Date.now();
-    if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
-      sessionStorage.setItem('last_chunk_reload', now.toString());
-      window.location.reload();
+    if (import.meta.env.PROD) {
+      const lastReload = sessionStorage.getItem('last_chunk_reload');
+      const now = Date.now();
+      if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+        sessionStorage.setItem('last_chunk_reload', now.toString());
+        window.location.reload();
+      }
     }
   });
 
@@ -32,11 +34,13 @@ if (typeof window !== 'undefined') {
       event.message?.includes('Importing a module script failed') ||
       event.message?.includes('error loading dynamically imported module')
     ) {
-      const lastReload = sessionStorage.getItem('last_chunk_reload');
-      const now = Date.now();
-      if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
-        sessionStorage.setItem('last_chunk_reload', now.toString());
-        window.location.reload();
+      if (import.meta.env.PROD) {
+        const lastReload = sessionStorage.getItem('last_chunk_reload');
+        const now = Date.now();
+        if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+          sessionStorage.setItem('last_chunk_reload', now.toString());
+          window.location.reload();
+        }
       }
     }
   });

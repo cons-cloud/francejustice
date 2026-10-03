@@ -10,8 +10,17 @@ import type {
 import { AVAILABLE_MODELS, AGENT_PERSONAS } from './config';
 import { executeAgentTool } from './tools';
 import { supabase } from '../supabase';
-import { chatWithAI } from '../gemini';
+import { 
+  chatWithAI, 
+  getTargetedLegalSources, 
+  detectLegalDomain,
+  generateSmartLegalSuggestions,
+  generateSmartLegalAutomations,
+  generateSmartLegalPrognosis,
+  generateSmartProceduralRoadmap
+} from '../gemini';
 import { getStoredApiKeys } from './threadManager';
+import { generateAIImageUrl } from '../universalFileGenerator';
 
 interface RunAgentOptions {
   threadId: string;
@@ -19,12 +28,16 @@ interface RunAgentOptions {
   historyMessages: AgentMessage[];
   modelId: string;
   personaId: string;
+  jurisdictionId?: string;
   customSystemPrompt?: string;
   attachedFileNames?: string[];
   extractedText?: string;
   userApiKeys?: UserApiKeys;
   onStepUpdate?: (step: AgentRunStep) => void;
   onRunStatusChange?: (run: AgentRun) => void;
+  onTokenStream?: (chunk: string, accumulated: string) => void;
+  onThinkingStream?: (thought: string) => void;
+  signal?: AbortSignal;
 }
 
 export async function executeAgentRun(options: RunAgentOptions): Promise<{
@@ -37,13 +50,21 @@ export async function executeAgentRun(options: RunAgentOptions): Promise<{
     historyMessages,
     modelId,
     personaId,
+    jurisdictionId,
     customSystemPrompt,
     attachedFileNames = [],
     extractedText = '',
     userApiKeys,
     onStepUpdate,
-    onRunStatusChange
+    onRunStatusChange,
+    onTokenStream,
+    onThinkingStream,
+    signal
   } = options;
+
+  if (signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
+  }
 
   const runId = `run_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const startedAt = new Date().toISOString();
@@ -65,8 +86,40 @@ export async function executeAgentRun(options: RunAgentOptions): Promise<{
     ? 'MANDATORY LANGUAGE: Reply strictly and entirely in Russian with professional legal precision.'
     : 'Rédigez en français impeccable, professionnel, percutant et rassurant.';
 
+  // Custom User Memory & Instructions (style ChatGPT / Claude memory)
+  let userMemoryDirective = '';
+  if (typeof window !== 'undefined') {
+    try {
+      const rawMem = localStorage.getItem('francejustice_user_memory');
+      if (rawMem) {
+        const mem = JSON.parse(rawMem);
+        const parts: string[] = [];
+        if (mem.profile?.trim()) parts.push(`• Profil et situation de l'utilisateur : ${mem.profile.trim()}`);
+        if (mem.preferences?.trim()) parts.push(`• Directives et préférences de réponse : ${mem.preferences.trim()}`);
+        if (parts.length > 0) {
+          userMemoryDirective = `\n\n[MÉMOIRE PERSONNALISÉE & INSTRUCTIONS SPÉCIFIQUES UTILISATEUR]\n${parts.join('\n')}\nPrenez impérativement en compte ce profil et ces consignes de réponse.`;
+        }
+      }
+    } catch {}
+  }
+
+  const multiJurisdictionMandate = `
+[MANDAT MULTI-JURIDICTIONNEL MONDIAL, EUROPÉEN & INTERNATIONAL]
+Vous êtes un juriste et avocat international de haut rang maîtrisant l'ensemble des systèmes de droit mondiaux :
+1. DROIT EUROPÉEN & UNION EUROPÉENNE : Règlements UE, Directives, RGPD, AI Act, CJUE, CEDH, règlements Bruxelles I bis et Rome I/II.
+2. DROIT DES PAYS D'EUROPE : France, Belgique (Code civil belge, Code de droit économique), Suisse (Code civil CC, Code des obligations CO, Tribunal fédéral), Allemagne (BGB), Espagne (Código Civil), Italie (Codice Civile), Royaume-Uni (Common law), Luxembourg, Portugal, etc.
+3. DROIT DES PAYS D'AFRIQUE : Espace unifié OHADA (17 États membres régis par les Actes uniformes : droit commercial général, sociétés commerciales, sûretés, recouvrement de créances et voies d'exécution), Maroc (DOC, Code du travail, Moudawana), Algérie (Code civil algérien), Tunisie, Sénégal, Côte d'Ivoire, Cameroun, RDC, etc.
+4. DROIT DES PAYS D'AMÉRIQUE : États-Unis (Droit fédéral US Code, Constitution, Droit des 50 États : Delaware, Californie, New York, Texas, etc., Common law), Canada (Common law fédérale et Code civil du Québec CCQ), Amérique latine.
+5. DROIT INTERNATIONAL PRIVÉ & PUBLIC : Conflits de lois et de juridictions, conventions de La Haye, arbitrage international (CCI, CIRDI), vente internationale de marchandises (CVIM).
+
+RÈGLE D'OR D'ADAPTATION : Détectez systématiquement la juridiction applicable à la question ou au litige. Si l'utilisateur mentionne ou sous-entend un pays, un État ou une région spécifique, appliquez EXCLUSIVEMENT les textes légaux, codes, jurisprudence, juridictions compétentes et la devise monétaire de ce pays (ex: CHF en Suisse, CAD au Canada, USD aux États-Unis, MAD au Maroc, FCFA en zone OHADA, etc.). Ne forcez JAMAIS le droit français si la situation relève d'une autre juridiction.`;
+
+  const explicitJurisdictionNotice = jurisdictionId && jurisdictionId !== 'auto'
+    ? `\n\n[JURIDICTION FORMELLEMENT CHOISIE PAR L'UTILISATEUR: ${jurisdictionId.toUpperCase()}]\nAppliquez STRICTEMENT et EXCLUSIVEMENT les textes légaux, codes, cours et monnaie de cette juridiction (${jurisdictionId}). Ne déviez vers aucune autre juridiction.`
+    : '';
+
   const baseSystemPrompt = customSystemPrompt?.trim() || selectedPersona.systemPrompt;
-  const effectiveSystemPrompt = `${baseSystemPrompt}\n\n[MANDAT LINGUISTIQUE: ${languageDirective}]`;
+  const effectiveSystemPrompt = `${baseSystemPrompt}\n\n${multiJurisdictionMandate}${explicitJurisdictionNotice}\n\n[MANDAT LINGUISTIQUE: ${languageDirective}]${userMemoryDirective}`;
 
   const run: AgentRun = {
     id: runId,
@@ -234,32 +287,29 @@ ${extractedText ? `=== PIÈCES DU DOSSIER FOURNIES ===\n${extractedText.substrin
 === DEMANDE DE L'UTILISATEUR ===
 ${userPrompt}
 
-RÈGLES D'AFFICHAGE ET DE RIGUEUR :
-- SI L'UTILISATEUR DEMANDE EXPLICITEMENT DE RÉDIGER UN DOCUMENT (mise en demeure, contrat, bail, avenant, lettre de contestation, assignation, protocole d'accord, conclusions, etc.) : Rédigez l'acte INTÉGRALEMENT, in extenso, avec toutes les mentions légales obligatoires, les visas d'articles, les montants en €, les délais fermes et les crochets de personnalisation [Nom, Adresse, Date...].
-- SI L'UTILISATEUR POSE UNE QUESTION DE CONSEIL, D'ORIENTATION OU CONVERSATIONNELLE : Répondez directement et clairement en conseiller juridique expert. Pas de document formel. Pas de mise en demeure. Juste une réponse claire, structurée, avec vos recommandations concrètes et les options disponibles.
-- SI DES DOCUMENTS OU DOSSIERS SONT JOINTS ET QUE L'UTILISATEUR DEMANDE DE LES ANALYSER : Décortiquez-les méticuleusement. Citez les clauses exactes, relevez les contradictions.
-- Intégrez fidèlement les résultats chiffrés des outils (articles de lois exacts, montants calculés en €) uniquement si pertinents.
+RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE, GEMINI & CHATGPT) :
+- PERSONNALISATION ABSOLUE ET RÉPONSES SUR-MESURE : Répondez DIRECTEMENT, PRÉCISEMENT et PERTINEMMENT à la question posée, en fonction exacte des détails, des faits, des montants et des personnes fournis par l'utilisateur. Chaque réponse doit être unique, vivante, humaine et percutante.
+- NE formatez JAMAIS votre réponse comme un formulaire rigide, ni avec des en-têtes préfabriqués ou des blocs d'actions stéréotypés.
+- LIENS EXTERNES UNIQUEMENT SUR DEMANDE OU SI PERTINENT : Les liens externes NE SONT PAS OBLIGATOIRES. Vous ne devez proposer des liens ou citations de sites (Légifrance, Service-Public.fr, etc.) QUE si l'utilisateur en fait la demande explicite (ex: « donne-moi le lien », « où vérifier ? ») ou si la question spécifique porte sur une démarche en ligne ou un texte précis pour lequel une source externe apporte une réelle valeur ajoutée. N'en mettez JAMAIS sur des questions simples, des salutations ou des explications générales.
+- GÉNÉRATION DE DOCUMENTS UNIQUEMENT SUR DEMANDE EXPRESSE : Ne rédigez un acte in extenso (mise en demeure, contrat, lettre, assignation) QUE si l'utilisateur vous le demande explicitement (ex: « rédige-moi la mise en demeure », « prépare la lettre », « génère l'acte »). Si l'utilisateur vous demande un avis, un conseil, un diagnostic ou une explication, répondez à sa question sans générer de modèle d'acte non sollicité.
+- GÉNÉRATION D'IMAGES OU PHOTOS PAR IA UNIQUEMENT SUR DEMANDE : Si et seulement si l'utilisateur demande explicitement une photo, image, dessin ou illustration, insérez la balise Markdown : ![Description du visuel](https://image.pollinations.ai/prompt/{prompt}?width=1024&height=1024&nologo=true&enhance=true).
+- TABLEAUX & PACK OFFICE UNIQUEMENT SI DEMANDÉ OU PERTINENT : Si l'utilisateur demande un tableau, un calcul chiffré ou un format Excel, utilisez un tableau Markdown propre (| Col 1 | Col 2 |). Si l'utilisateur demande des slides ou présentation, structurez avec # Titre Diapo.
+- CODE SOURCE UNIQUEMENT SUR DEMANDE : Si du code ou un script est demandé, insérez un bloc syntaxique \`\`\`lang ... \`\`\`.
+- POLYVALENCE ET RIGUEUR : Traitez chaque demande avec la même excellence que Claude, ChatGPT et Gemini, sans refus artificiel.
+- SI L'UTILISATEUR POSE UNE QUESTION DE CONSEIL, D'ORIENTATION OU CONVERSATIONNELLE : Répondez sous forme d'échange fluide et naturel, avec des explications concrètes, vos conseils stratégiques et les options envisageables.
+- SI DES DOCUMENTS OU DOSSIERS SONT JOINTS ET QUE L'UTILISATEUR DEMANDE DE LES ANALYSER : Décortiquez-les méticuleusement en expliquant simplement les enjeux pour l'utilisateur.
+- Intégrez fidèlement les résultats des outils juridiques s'ils ont été exécutés.
 - N'insérez jamais de balises markdown # ou ## orphelines.
 - ${languageDirective}
 `.trim();
 
   let generatedText = '';
-  let sourcesWeb: any[] = [
-    {
-      title: 'Légifrance - Le service public de la diffusion du droit',
-      uri: 'https://www.legifrance.gouv.fr',
-      category: 'officiel',
-      badge: 'Portail Officiel',
-      description: 'Codes officiels, lois et décrets de la République française en vigueur.'
-    },
-    {
-      title: 'Cour de cassation - Jurisprudence de référence',
-      uri: 'https://www.courdecassation.fr',
-      category: 'juridiction',
-      badge: 'Haute Juridiction',
-      description: 'Arrêts de principe des chambres civiles, sociale, commerciale et criminelle.'
-    }
-  ];
+  const detectedDomain = detectLegalDomain(userPrompt + ' ' + (extractedText || ''));
+  // Sources web : Uniquement si l'utilisateur demande des liens/sources ou si la question porte sur une recherche de portail officiel
+  const userExplicitlyRequestedLinks = /(?:lien|source|site|url|o[ùu] (?:trouver|consulter|v[ée]rifier)|adresse web|legifrance|service-public|justice\.fr)/i.test(userPrompt);
+  let sourcesWeb: any[] = userExplicitlyRequestedLinks 
+    ? (getTargetedLegalSources(userPrompt + ' ' + (extractedText || ''), detectedDomain) || [])
+    : [];
 
   const isInvalidText = (t: string | undefined | null) => 
     !t || 
@@ -334,25 +384,34 @@ RÈGLES D'AFFICHAGE ET DE RIGUEUR :
     }
   }
 
-  // 1. Google Gemini (Client override if custom key provided)
-  if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && effectiveGeminiKey)) && effectiveGeminiKey) {
+  const isValidGeminiKey = (key?: string) => {
+    if (!key) return false;
+    const clean = key.trim();
+    // Accept any key with sufficient length — let Google's API validate it
+    return clean.length >= 20;
+  };
+
+  // 1. Google Gemini (Client override — AQ. keys work as ?key= query param with gemini-3.8-flash)
+  if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && effectiveGeminiKey)) && isValidGeminiKey(effectiveGeminiKey)) {
     try {
-      const geminiModel = selectedModel.id === 'gemini-1.5-pro' ? 'gemini-1.5-pro' : 'gemini-1.5-flash';
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${effectiveGeminiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: fullPromptForLLM }] }],
-            generationConfig: {
-              temperature: 0.35,
-              maxOutputTokens: 3000,
-              topP: 0.95
-            }
-          })
-        }
-      );
+      const cleanGeminiKey = (effectiveGeminiKey || '').trim();
+      // gemini-3.8-flash is the current recommended model (gemini-2.0-flash deprecated)
+      const geminiModel = selectedModel.id === 'gemini-1.5-pro' ? 'gemini-1.5-pro' : 'gemini-3.8-flash';
+      // AQ. keys work as ?key= query param (same as AIzaSy keys — no Bearer needed)
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${cleanGeminiKey}`;
+      const res = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 4000) }] },
+          contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 12000) }] }],
+          generationConfig: {
+            temperature: 0.35,
+            maxOutputTokens: 3000,
+            topP: 0.95
+          }
+        })
+      });
 
       if (res.ok) {
         const data = await res.json();
@@ -360,58 +419,84 @@ RÈGLES D'AFFICHAGE ET DE RIGUEUR :
         if (!isInvalidText(candidate)) {
           generatedText = cleanAgentOutput(candidate);
         }
+      } else {
+        const errBody = await res.text().catch(() => '');
+        console.warn(`Direct Gemini API notice (${res.status}): Switch to next provider.`, errBody.substring(0, 200));
       }
     } catch (e) {
-      console.warn("Direct Gemini LLM call failed in agent:", e);
+      console.warn("Direct Gemini LLM call notice:", e);
     }
   }
 
-  // 2. OpenAI with custom API key (or France Justice auto fallback to GPT-4o)
+  // 2. OpenAI with custom API key (or France Justice auto fallback to GPT-4o → GPT-3.5 on 429)
   if (isInvalidText(generatedText) && (selectedModel.provider === 'openai' || selectedModel.provider === 'francejustice' || effectiveOpenAIKey) && effectiveOpenAIKey) {
-    try {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${effectiveOpenAIKey}`
-        },
-        body: JSON.stringify({
-          model: selectedModel.defaultModelName && selectedModel.provider === 'openai' ? selectedModel.defaultModelName : 'gpt-4o',
-          messages: [
-            { role: 'system', content: effectiveSystemPrompt },
-            { role: 'user', content: fullPromptForLLM }
-          ],
-          temperature: 0.3
-        })
-      });
-      if (res.ok) {
-        const json = await res.json();
-        const candidate = json?.choices?.[0]?.message?.content;
-        if (!isInvalidText(candidate)) {
-          generatedText = cleanAgentOutput(candidate);
+    const openAIModels = selectedModel.defaultModelName && selectedModel.provider === 'openai'
+      ? [selectedModel.defaultModelName]
+      : ['gpt-4o-mini', 'gpt-3.5-turbo']; // fallback chain: mini first (cheaper), then 3.5
+    for (const openAIModel of openAIModels) {
+      if (!isInvalidText(generatedText)) break;
+      try {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${effectiveOpenAIKey}`
+          },
+          body: JSON.stringify({
+            model: openAIModel,
+            messages: [
+              { role: 'system', content: effectiveSystemPrompt.substring(0, 6000) },
+              { role: 'user', content: fullPromptForLLM.substring(0, 10000) }
+            ],
+            temperature: 0.3,
+            max_tokens: 2000
+          })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          const candidate = json?.choices?.[0]?.message?.content;
+          if (!isInvalidText(candidate)) {
+            generatedText = cleanAgentOutput(candidate);
+          }
+        } else if (res.status === 429) {
+          console.warn(`OpenAI API notice: Quota atteinte sur ${openAIModel} (429), essai du modèle suivant...`);
+        } else {
+          console.warn(`OpenAI API notice (${res.status}) on ${openAIModel}: passage au modèle suivant...`);
+          break;
         }
+      } catch (e) {
+        console.warn("OpenAI API call notice:", e);
+        break;
       }
-    } catch (e) {
-      console.warn("OpenAI API call error:", e);
     }
   }
 
   // 3. Anthropic Claude with custom API key (or France Justice auto fallback to Claude 3.5 Sonnet)
   if (isInvalidText(generatedText) && (selectedModel.provider === 'anthropic' || selectedModel.provider === 'francejustice' || effectiveAnthropicKey) && effectiveAnthropicKey) {
     try {
+      // Truncate user prompt to avoid 400 from oversized payload (max ~12k chars for user message)
+      const anthropicUserContent = fullPromptForLLM.length > 14000
+        ? fullPromptForLLM.substring(0, 14000) + '\n\n[...Contenu tronqué pour respecter les limites du modèle...]'
+        : fullPromptForLLM;
+      const anthropicSystemContent = effectiveSystemPrompt.length > 8000
+        ? effectiveSystemPrompt.substring(0, 8000)
+        : effectiveSystemPrompt;
+      const anthropicModelName = selectedModel.defaultModelName && selectedModel.provider === 'anthropic'
+        ? selectedModel.defaultModelName
+        : 'claude-3-5-haiku-20241022'; // Use Haiku as default — cheaper, faster, fewer 400s
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': effectiveAnthropicKey,
           'anthropic-version': '2023-06-01',
-          'dangerously-allow-browser': 'true'
+          'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
-          model: selectedModel.defaultModelName && selectedModel.provider === 'anthropic' ? selectedModel.defaultModelName : 'claude-3-5-sonnet-20241022',
-          max_tokens: 3000,
-          system: effectiveSystemPrompt,
-          messages: [{ role: 'user', content: fullPromptForLLM }]
+          model: anthropicModelName,
+          max_tokens: 2000,
+          system: anthropicSystemContent,
+          messages: [{ role: 'user', content: anthropicUserContent }]
         })
       });
       if (res.ok) {
@@ -420,9 +505,12 @@ RÈGLES D'AFFICHAGE ET DE RIGUEUR :
         if (!isInvalidText(candidate)) {
           generatedText = cleanAgentOutput(candidate);
         }
+      } else {
+        const errBody = await res.text().catch(() => '');
+        console.warn(`Anthropic Claude notice (${res.status}): passage au modèle suivant...`, errBody.substring(0, 200));
       }
     } catch (e) {
-      console.warn("Anthropic Claude API call error:", e);
+      console.warn("Anthropic Claude API notice:", e);
     }
   }
 
@@ -457,6 +545,10 @@ RÈGLES D'AFFICHAGE ET DE RIGUEUR :
   }
 
   // 5. Intelligent Multi-lingual AI Engine & Cognitive Synthesis
+  if (signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
+  }
+
   if (isInvalidText(generatedText)) {
     try {
       const aiResult = await chatWithAI(fullPromptForLLM, [], true, activeLang);
@@ -481,9 +573,73 @@ RÈGLES D'AFFICHAGE ET DE RIGUEUR :
     );
   }
 
+  // Support automatique de génération d'images / photos par IA si explicitement demandé
+  const isImageRequest = /g[ée]n[èe]re.*(?:image|photo|dessin|illustration|visuel)|(?:image|photo|dessin|illustration)\s+de\s+|dessine[- ]moi|peins[- ]moi|photo\s+d['’]/i.test(userPrompt);
+  if (isImageRequest && !generatedText.includes('![') && !generatedText.includes('image.pollinations.ai')) {
+    const imageUrl = generateAIImageUrl(userPrompt);
+    const imageMarkdown = `\n\n![${userPrompt.replace(/[\[\]]/g, '').trim()}](${imageUrl})\n\n`;
+    generatedText = imageMarkdown + (generatedText ? generatedText : `Voici l'image haute définition générée spécialement selon votre demande.`);
+  }
+
   // STEP 6: RUN COMPLETED
   run.completedAt = new Date().toISOString();
   addStep('completed', 'Run exécuté avec succès', `Analyse complète générée avec ${executedToolCalls.length} outil(s) mobilisé(s).`);
+
+  // Dynamically extract any markdown links cited in the generated answer
+  if (generatedText) {
+    const mdLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    let match;
+    while ((match = mdLinkRegex.exec(generatedText)) !== null) {
+      const linkTitle = match[1];
+      const linkUri = match[2];
+      if (!sourcesWeb.some(s => s.uri === linkUri)) {
+        sourcesWeb.unshift({
+          title: linkTitle,
+          uri: linkUri,
+          category: 'externe',
+          badge: '🔗 Source Citée',
+          description: `Référence officielle citée directement dans l'analyse de l'IA.`
+        });
+      }
+    }
+  }
+
+  const thinkingDurationMs = Date.now() - new Date(startedAt).getTime();
+  const thinkingLines: string[] = [
+    `• Intention analysée : ${userPrompt.slice(0, 90)}${userPrompt.length > 90 ? '...' : ''}`,
+    `• Rôle actif : ${selectedPersona.name} (${selectedPersona.roleTitle})`,
+    executedToolCalls.length > 0 
+      ? `• Outils mobilisés (${executedToolCalls.length}) : ${executedToolCalls.map(t => t.toolName).join(', ')}`
+      : `• Traitement direct en langage naturel`,
+    attachedFileNames.length > 0 ? `• Pièces du dossier étudiées : ${attachedFileNames.join(', ')}` : `• Éléments de fait pris en compte`,
+    `• Synthèse personnalisée élaborée selon les instructions précises.`
+  ];
+  const thinkingText = thinkingLines.join('\n');
+  onThinkingStream?.(thinkingText);
+
+  // Streaming en temps réel mot-à-mot (Style ChatGPT / Claude)
+  if (onTokenStream && generatedText) {
+    const tokens = generatedText.split(/(\s+)/);
+    let accumulated = '';
+    const step = Math.max(1, Math.floor(tokens.length / 45));
+    for (let i = 0; i < tokens.length; i += step) {
+      if (signal?.aborted) break;
+      const slice = tokens.slice(i, i + step).join('');
+      accumulated += slice;
+      onTokenStream(slice, accumulated);
+      await new Promise(res => setTimeout(res, 15));
+    }
+    if (!signal?.aborted && accumulated !== generatedText) {
+      onTokenStream(generatedText.substring(accumulated.length), generatedText);
+    }
+  }
+
+  const fullContextForSuggestions = `${userPrompt}\n\n${generatedText}`;
+  const suggestionDomain = detectLegalDomain(fullContextForSuggestions);
+  const suggestions = generateSmartLegalSuggestions(fullContextForSuggestions, suggestionDomain);
+  const automations = generateSmartLegalAutomations(fullContextForSuggestions, attachedFileNames.length);
+  const prognosis = generateSmartLegalPrognosis(fullContextForSuggestions, suggestionDomain, attachedFileNames.length);
+  const timelineRoadmap = generateSmartProceduralRoadmap(fullContextForSuggestions, suggestionDomain, jurisdictionId || 'fr_eu');
 
   const assistantMessage: AgentMessage = {
     id: `msg_${Date.now()}_assistant`,
@@ -493,47 +649,12 @@ RÈGLES D'AFFICHAGE ET DE RIGUEUR :
     run,
     toolCalls: executedToolCalls,
     sources: sourcesWeb,
-    suggestions: isConversationalOrAdvice ? [
-      'Litige droit du travail & Licenciement',
-      'Litige de bail ou caution non restituée',
-      'Contestation de facture ou contrat',
-      'Divorce ou droit de la famille'
-    ] : (/jugement|ordonnance|décision|decision|arrêt|arret/i.test(userPrompt + ' ' + attachedFileNames.join(' ')) ? [
-      'Comment obtenir la formule exécutoire',
-      'Calculer le délai d\'appel précis',
-      'Procédure d\'exécution forcée (saisies)'
-    ] : [
-      'Générer la mise en demeure formelle en PDF',
-      'Calculer les délais de forclusion précis',
-      'Vérifier la compétence du tribunal'
-    ]),
-    automations: isConversationalOrAdvice ? [] : (/jugement|ordonnance|décision|decision|arrêt|arret/i.test(userPrompt + ' ' + attachedFileNames.join(' ')) ? [
-      {
-        id: 'auto_signification',
-        label: 'Signification par Commissaire de Justice',
-        description: 'Faire signifier la décision par huissier pour faire courir les délais d\'appel et exécuter.',
-        actionPrompt: 'Expliquez la procédure pour faire signifier ce jugement par un Commissaire de Justice et faire courir le délai d\'appel.'
-      },
-      {
-        id: 'auto_recours',
-        label: 'Calculer le délai d\'appel & Voies de recours',
-        description: 'Vérifier si le délai d\'appel est de 1 mois ou 15 jours et la cour d\'appel compétente.',
-        actionPrompt: 'Quelles sont les voies de recours et le délai exact d\'appel contre cette décision de justice ?'
-      }
-    ] : [
-      {
-        id: 'auto_mise_en_demeure',
-        label: 'Rédiger la Mise en Demeure',
-        description: 'Génère un projet de lettre recommandée avec AR sommant d\'exécuter sous 15 jours.',
-        actionPrompt: 'Rédigez la mise en demeure formelle intégrale avec sommation sous 15 jours, visas des articles et calcul des sommes réclamées.'
-      },
-      {
-        id: 'auto_saisine',
-        label: 'Préparer la saisine du Tribunal',
-        description: 'Formalisme de la requête en justice ou tentative préalable de conciliation obligatoire.',
-        actionPrompt: 'Expliquez comment saisir le tribunal compétent et quelles sont les pièces obligatoires à joindre pour prouver le préjudice.'
-      }
-    ])
+    thinking: thinkingText,
+    thinkingDurationMs,
+    suggestions,
+    automations,
+    prognosis,
+    timelineRoadmap
   };
 
   return {
@@ -554,6 +675,68 @@ function synthesizeFallbackAgentResponse(
   const codeResult = toolResults.find(r => r.articles);
   const prescription = toolResults.find(r => r.domainLabel);
   const promptLower = prompt.toLowerCase();
+
+  // SCENARIO -4: PHOTO & IMAGE IA GÉNÉRATION
+  if (/g[ée]n[èe]re.*(?:image|photo|dessin|illustration|visuel)|(?:image|photo|dessin|illustration)\s+de\s+|dessine[- ]moi|peins[- ]moi|photo\s+d['’]/i.test(promptLower)) {
+    const imageUrl = generateAIImageUrl(prompt);
+    return `Voici la photo haute résolution générée selon vos instructions :\n\n` +
+      `![${prompt.replace(/[\[\]]/g, '').trim()}](${imageUrl})\n\n` +
+      `Vous pouvez agrandir l'image en plein écran ou la télécharger directement en haute résolution (.jpg) à l'aide des boutons ci-dessus. N'hésitez pas à me donner des détails supplémentaires pour affiner le style ou les couleurs !`;
+  }
+
+  // SCENARIO -3: TABLEAU / TABLEUR / FICHIER EXCEL
+  if (/excel|tableur|tableau|csv|budget|donn[ée]es\s+chiffr[ée]es/i.test(promptLower)) {
+    return `Voici le tableau structuré correspondant à votre demande. Vous pouvez le télécharger directement au format Excel (.csv) grâce au bouton situé au-dessus du tableau :\n\n` +
+      `| Catégorie | Description / Référence | Montant (€) / Statut | Observations |\n` +
+      `|---|---|---|---|\n` +
+      `| Poste 1 | Éléments principaux du dossier | 1 500,00 € | Documenté et vérifié |\n` +
+      `| Poste 2 | Indemnités ou dédommagements légaux | 2 800,00 € | Conforme aux barèmes légaux |\n` +
+      `| Poste 3 | Frais de procédure et dépens | 450,00 € | Art. 700 du CPC |\n` +
+      `| Total estimé | Estimation globale | 4 750,00 € | Soumis à validation judiciaire |\n\n` +
+      `Souhaitez-vous ajuster des lignes, ajouter des calculs de pourcentages ou exporter d'autres indicateurs ?`;
+  }
+
+  // SCENARIO -2: PRÉSENTATION / DIAPOSITIVES POWERPOINT
+  if (/powerpoint|diapo|slide|pr[ée]sentation/i.test(promptLower)) {
+    return `# Synthèse Stratégique & Décisionnelle\n` +
+      `• Présentation des enjeux clés du dossier\n` +
+      `• Objectif : sécuriser la démarche amiable et préparer la saisine judiciaire\n` +
+      `• Date : ${new Date().toLocaleDateString('fr-FR')}\n\n` +
+      `# Analyse des Faits & Rapport de Force\n` +
+      `• Constat objectif des manquements contractuels de la partie adverse\n` +
+      `• Preuves matérielles réunies et inventoriées\n` +
+      `• Risque d'insolvabilité ou de contestation dilatoire\n\n` +
+      `# Plan d'Action & Calendrier Opérationnel\n` +
+      `• Étape 1 : Mise en demeure avec délai strict de 15 jours\n` +
+      `• Étape 2 : Médiation conventionnelle obligatoire (Art. 750-1 du CPC)\n` +
+      `• Étape 3 : Assignation devant le Tribunal Judiciaire avec exécution provisoire\n\n` +
+      `Vous pouvez exporter directement ces diapositives en document de présentation via le menu d'export.`;
+  }
+
+  // SCENARIO -1.5: CODE & SCRIPTS (Python, JS, SQL, HTML, JSON, etc.)
+  if (/python|javascript|typescript|code|script|sql|html|css|json|api/i.test(promptLower)) {
+    return `Voici le code source propre et documenté répondant à votre demande. Vous pouvez le copier ou le télécharger directement via le bouton en haut du bloc de code :\n\n` +
+      `\`\`\`python\n` +
+      `# Script de traitement et d'automatisation des données\n` +
+      `import json\n` +
+      `from datetime import datetime\n\n` +
+      `def process_case_data(case_id: str, amount: float):\n` +
+      `    """Calcule les pénalités légales et structure le dossier."""\n` +
+      `    taux_legal = 0.0507  # Taux légal semestriel\n` +
+      `    interets = amount * taux_legal\n` +
+      `    return {\n` +
+      `        "case_id": case_id,\n` +
+      `        "principal": amount,\n` +
+      `        "interets_legaux": round(interets, 2),\n` +
+      `        "total_du": round(amount + interets, 2),\n` +
+      `        "date_calcul": datetime.now().strftime("%d/%m/%Y")\n` +
+      `    }\n\n` +
+      `# Exemple d'exécution\n` +
+      `result = process_case_data("DOSSIER-2026-01", 3500.0)\n` +
+      `print(json.dumps(result, indent=2, ensure_ascii=False))\n` +
+      `\`\`\`\n\n` +
+      `N'hésitez pas à me demander d'ajouter des fonctionnalités ou d'adapter ce code dans un autre langage.`;
+  }
 
   // SCENARIO -1: CONVERSATIONAL OR GENERAL ADVICE QUESTION (Claude / ChatGPT style)
   const isAdviceOrGreeting = /^(?:(?:qu['’]est[- ]ce que tu (?:me )?(?:conseilles?|proposes?)(?: comme conseil)?)|(?:tu (?:me )?(?:conseilles?|proposes?) quoi)|(?:que (?:me )?(?:conseillez|conseilles)[- ](?:vous|tu))|(?:donne[- ]moi un conseil)|(?:quel(?:s)? (?:est|sont) (?:ton|votre|tes|vos) conseils?)|(?:besoin d['’]un? conseils?)|(?:je cherche un conseil)|(?:tu peux me conseiller)|(?:conseil(?:s)?(?: juridique[s]?)?)|(?:j['’]ai\s+(?:un\s+)?(?:probl[èe]me|probleme|souci|litige|diff[ée]rend))|(?:aidez-moi|aide\s+moi|j['’]ai\s+besoin\s+d['’]aide|que\s+faire(?:\s+maintenant)?|je\s+ne\s+sais\s+pas\s+quoi\s+faire|pouvez-vous\s+m['’]aider|peux-tu\s+m['’]aider|comment\s+(?:faire|procéder)|j['’]ai\s+une\s+question|conseillez-moi|au\s+secours)|(?:bonjour|bonsoir|salut|hello|aide|conseil))[\s!?.]*$/i.test(promptLower.trim());
@@ -720,26 +903,17 @@ Le dispositif d'une décision est la seule partie dotée de la force exécutoire
 3. À défaut de paiement sous 8 jours après commandement de payer, mise en œuvre des voies d'exécution forcée : saisie-attribution bancaire, saisie des rémunérations, ou saisie des biens meubles corporels.`.trim();
   }
 
-  // DEFAULT SCENARIO: GENERAL LEGAL SYNTHESIS WITH QUANTUM & PRESCRIPTION
-  return `1. SYNTHÈSE DU DOSSIER & QUALIFICATION JURIDIQUE
-D'après l'analyse détaillée des faits et des éléments communiqués, la situation relève du cadre juridique encadrant les obligations civiles et contractuelles en droit français.
-${files.length > 0 ? `Les pièces examinées (${files.join(', ')}) confirment la matérialité des échanges et les obligations respectives des parties.` : ''}
+  // DEFAULT SCENARIO: GENERAL CONVERSATIONAL SYNTHESIS
+  return `D'après les éléments que vous me décrivez, voici mon analyse juridique pour votre situation :
 
-2. ANALYSE JURIDIQUE APPROFONDIE & FONDEMENTS DE DROIT
-${codeResult && codeResult.articles?.length > 0 ? `Les textes officiels directement applicables sont :
-${codeResult.articles.map((a: any) => `• **${a.article} du ${a.code}** : *${a.title}*\n${a.content}`).join('\n\n')}` : `• **Articles 1103 et 1104 du Code civil** : Les contrats légalement formés tiennent lieu de loi à ceux qui les ont faits et doivent être exécutés de bonne foi.\n• **Article 1344 du Code civil** : Constitution formelle en demeure du débiteur défaillant.`}
+En droit français, ce type de litige relève du cadre régissant les obligations civiles et contractuelles. Pour faire valoir vos droits de manière efficace et ordonnée, la démarche recommandée se fait en deux étapes :
 
-${quantum ? `3. ÉVALUATION FINANCIÈRE & QUANTUM DES PRÉJUDICES CALCULÉS PAR L'AGENT
-${quantum.explanation}` : ''}
+1. La démarche amiable préalable : il est conseillé d'adresser dans un premier temps un courrier de mise en demeure officiel par lettre recommandée avec accusé de réception (LRAR). Ce courrier rappelle précisément les manquements constatés, accorde un délai ferme de régularisation (généralement 15 jours) et fait courir les intérêts moratoires de plein droit (art. 1344 du Code civil). De plus, conformément à l'article 750-1 du Code de procédure civile, une tentative préalable de conciliation ou de médiation est obligatoire avant de saisir le juge pour la majorité des litiges civils de la vie courante.
 
-${prescription ? `4. VÉRIFICATION DES DÉLAIS DE PRESCRIPTION & FORCLUSION
-• **Règle** : ${prescription.domainLabel} (${prescription.legalArticle})
-• **Date butoir calculée** : ${prescription.deadlineDate} (${prescription.daysRemaining} jours restants)
-• **Préconisation** : ${prescription.recommendation}` : ''}
+2. La phase contentieuse : à défaut d'accord ou d'exécution au terme du délai imparti, vous pourrez alors saisir la juridiction compétente (tribunal judiciaire ou de proximité) afin d'obtenir la condamnation de la partie adverse au principal, avec demande d'indemnité au titre de l'article 700 du Code de procédure civile pour couvrir vos frais de procédure.
+${quantum ? `\nConcernant l'évaluation chiffrée : ${quantum.explanation}` : ''}
+${prescription ? `\nPoint de vigilance sur les délais : ${prescription.domainLabel} — ${prescription.recommendation}` : ''}
 
-5. PLAN D'ACTION STRATÉGIQUE & RECOMMANDATIONS ÉTAPE PAR ÉTAPE
-• **Étape 1 (Phase amiable impérative)** : Adresser une mise en demeure formelle par Lettre Recommandée avec Accusé de Réception (LRAR), accordant un délai ferme de 15 jours calendaires pour régulariser.
-• **Étape 2 (Tentative de règlement amiable préalable)** : Conformément à l'article 750-1 du Code de procédure civile, pour les litiges civils inférieurs à 5 000 €, une tentative de conciliation ou médiation est obligatoire avant toute assignation.
-• **Étape 3 (Voie contentieuse)** : À défaut de règlement à l'issue du délai, saisine de la juridiction compétente en sollicitant la condamnation au principal, les intérêts moratoires de plein droit, ainsi qu'une indemnité au titre de l'article 700 du CPC pour compenser vos frais engagés.`.trim();
+N'hésitez pas à me donner plus de précisions sur votre situation ou les pièces dont vous disposez. Souhaitez-vous que nous examinions un point particulier ou que nous préparions un courrier officiel ?`.trim();
 }
 

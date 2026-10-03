@@ -1426,19 +1426,19 @@ const DashboardLawyer: React.FC = () => {
   ]
 
   const renderOverview = () => (
-    <div className="space-y-8">
-      <div className={cn('grid', 'grid-cols-1', 'md:grid-cols-4', 'gap-6')}>
+    <div className="space-y-6 sm:space-y-8 min-w-0 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((s, idx) => {
           const Icon = s.icon
           return (
-            <Card key={idx} className={cn('border-none', 'shadow-sm', 'hover:shadow-md', 'transition-shadow')}>
-              <CardContent className={cn('p-6', 'flex', 'justify-between', 'items-center')}>
-                <div>
-                  <p className={cn('text-xs', 'font-bold', 'text-secondary-500', 'uppercase', 'tracking-wider', 'mb-1')}>{s.label}</p>
-                  <p className={cn('text-2xl', 'font-bold', 'text-secondary-900')}>{s.value}</p>
+            <Card key={idx} className="border-none shadow-sm hover:shadow-md transition-shadow min-w-0 overflow-hidden">
+              <CardContent className="p-4 sm:p-6 flex justify-between items-center gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] sm:text-xs font-bold text-secondary-500 uppercase tracking-wider mb-1 truncate">{s.label}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-secondary-900 truncate">{s.value}</p>
                 </div>
-                <div className={cn('p-3', 'bg-primary-50', 'rounded-xl', 'text-primary-600')}>
-                  <Icon className={cn('h-6', 'w-6')} />
+                <div className="p-2.5 sm:p-3 bg-primary-50 rounded-xl text-primary-600 shrink-0">
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
               </CardContent>
             </Card>
@@ -1446,63 +1446,67 @@ const DashboardLawyer: React.FC = () => {
         })}
       </div>
 
-      <div className={cn('grid', 'grid-cols-1', 'lg:grid-cols-2', 'gap-8')}>
-        <Card>
-          <CardHeader>
-            <CardTitle className={cn('flex', 'justify-between', 'items-center')}>
-              <span>{t('dashboard.planned_consultations', 'Prochains Rendez-vous')}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        <Card className="min-w-0 overflow-hidden">
+          <CardHeader className="p-4 sm:p-6 pb-3">
+            <CardTitle className="flex justify-between items-center text-base sm:text-lg">
+              <span className="truncate">{t('dashboard.planned_consultations', 'Prochains Rendez-vous')}</span>
               <Button variant="ghost" size="sm" onClick={() => setActiveTab('appointments')}>{t('common.view', 'Voir tout')}</Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="divide-y">
+            <div className="divide-y divide-slate-100">
               {appointments.slice(0, 3).map((a) => (
-                <div key={a.id} className={cn('p-4', 'flex', 'items-center', 'justify-between')}>
-                  <div className={cn('flex', 'items-center', 'gap-3')}>
-                    <div className={cn('h-10', 'w-10', 'bg-secondary-100', 'rounded-full', 'flex', 'items-center', 'justify-center', 'font-bold')}>
+                <div key={a.id} className="p-3 sm:p-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 bg-secondary-100 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm shrink-0">
                       {(a.profiles as any)?.first_name?.[0]}{(a.profiles as any)?.last_name?.[0]}
                     </div>
-                    <div>
-                      <p className={cn('font-bold', 'text-sm')}>{(a.profiles as any)?.first_name} {(a.profiles as any)?.last_name}</p>
-                      <p className={cn('text-xs', 'text-secondary-500')}>{new Date(a.scheduled_at).toLocaleString()}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-xs sm:text-sm truncate">{(a.profiles as any)?.first_name} {(a.profiles as any)?.last_name}</p>
+                      <p className="text-[11px] sm:text-xs text-secondary-500 truncate">{new Date(a.scheduled_at).toLocaleString()}</p>
                     </div>
                   </div>
-                  <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${a.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase shrink-0 ${a.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                     {a.status}
                   </span>
                 </div>
               ))}
-              {appointments.length === 0 && <p className={cn('p-8', 'text-center', 'text-secondary-500')}>Aucun rendez-vous prévu.</p>}
+              {appointments.length === 0 && <p className="p-6 sm:p-8 text-center text-secondary-500 text-xs sm:text-sm">Aucun rendez-vous prévu.</p>}
             </div>
           </CardContent>
         </Card>
 
-          <Card>
-            <CardHeader className={cn('flex', 'flex-row', 'items-center', 'justify-between', 'space-y-0')}>
-              <CardTitle>Analyse de Revenus</CardTitle>
-              <DollarSign className={cn('h-4', 'w-4', 'text-secondary-400')} />
-            </CardHeader>
-            <CardContent>
+        <Card className="min-w-0 overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 sm:p-6 pb-2">
+            <CardTitle className="text-base sm:text-lg">Analyse de Revenus</CardTitle>
+            <DollarSign className="h-4 w-4 text-secondary-400 shrink-0" />
+          </CardHeader>
+          <CardContent className="p-2 sm:p-6 pt-0">
+            <div className="w-full min-w-0 overflow-hidden">
               <AdvancedAreaChart data={revenueData} height={200} color="#10B981" />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Actions Rapides</CardTitle>
-            </CardHeader>
-            <CardContent className={cn('grid', 'grid-cols-2', 'gap-4')}>
-              <Button variant="outline" className={cn('h-20', 'flex-col', 'gap-2')}>
-                <Plus className={cn('h-5', 'w-5')} />
-                <span>Nouveau Dossier</span>
-              </Button>
-              <Button variant="outline" className={cn('h-20', 'flex-col', 'gap-2')} onClick={handleExportClients}>
-                <FileSpreadsheet className={cn('h-5', 'w-5')} />
-                <span>Exporter Clients</span>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <Card className="min-w-0 overflow-hidden">
+        <CardHeader className="p-4 sm:p-6 pb-3">
+          <CardTitle className="text-base sm:text-lg">Actions Rapides Cabinet</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <Button variant="outline" className="h-auto py-3.5 sm:h-20 flex-row sm:flex-col items-center justify-center gap-2" onClick={() => setActiveTab('dossiers')}>
+              <Plus className="h-5 w-5 text-cyan-600 shrink-0" />
+              <span className="font-semibold text-xs sm:text-sm">Nouveau Dossier</span>
+            </Button>
+            <Button variant="outline" className="h-auto py-3.5 sm:h-20 flex-row sm:flex-col items-center justify-center gap-2" onClick={handleExportClients}>
+              <FileSpreadsheet className="h-5 w-5 text-emerald-600 shrink-0" />
+              <span className="font-semibold text-xs sm:text-sm">Exporter Clients (Excel)</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 
@@ -1552,7 +1556,11 @@ const DashboardLawyer: React.FC = () => {
         )}
 
         {/* Modern Hero Glassmorphism Header - Cyan Gradient */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 p-6 sm:p-8 text-white shadow-xl mb-8 border border-cyan-400/30">
+        <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 text-white shadow-xl border border-cyan-400/30 transition-all ${
+          activeTab === 'analyse' || activeTab === 'diagnostic' 
+            ? 'p-4 sm:p-6 mb-4 sm:mb-6' 
+            : 'p-6 sm:p-8 mb-8'
+        }`}>
           <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-teal-400/20 blur-3xl pointer-events-none" />
 
@@ -1697,7 +1705,7 @@ const DashboardLawyer: React.FC = () => {
           </div>
         )}
 
-        <div className={cn('grid', 'grid-cols-1', 'lg:grid-cols-4', 'gap-8')}>
+        <div className={cn('grid', 'grid-cols-1', 'lg:grid-cols-4', 'gap-6', 'lg:gap-8', 'min-w-0', 'w-full')}>
           <aside className="hidden lg:block lg:col-span-1">
             <Card className="sticky top-6 overflow-hidden bg-white border border-slate-200 shadow-sm">
               <CardContent className={cn('p-4', 'flex', 'flex-col', 'space-y-2')}>
@@ -1738,7 +1746,7 @@ const DashboardLawyer: React.FC = () => {
             </Card>
           </aside>
 
-          <main className={cn('lg:col-span-3', 'order-1', 'lg:order-2')}>
+          <main className={cn('lg:col-span-3', 'order-1', 'lg:order-2', 'min-w-0', 'w-full', 'overflow-hidden')}>
             {loading ? (
               <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
                 <ProfessionalLoader
