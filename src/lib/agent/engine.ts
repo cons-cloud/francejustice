@@ -276,7 +276,14 @@ RÔLE ACTIF : ${selectedPersona.name} (${selectedPersona.roleTitle}).
 ${effectiveSystemPrompt}
 
 ${toolResultsContext ? `=== RÉSULTATS DES OUTILS EXÉCUTÉS PAR L'AGENT DANS CE RUN ===\n${toolResultsContext}\n` : ''}
-${extractedText ? `=== PIÈCES DU DOSSIER FOURNIES (TEXTE INTÉGRAL DU DOCUMENT) ===\n${extractedText.substring(0, 120000)}` : ''}
+${(() => {
+  if (!extractedText) return '';
+  const isFailedOcr = extractedText.includes('aucun texte OCR extrait') || extractedText.includes('OCR échoué') || (extractedText.trim().startsWith('[') && extractedText.length < 250);
+  if (isFailedOcr) {
+    return `=== NOTE SUR LES PIÈCES JOINTES REÇUES ===\nUn document a été transmis par l'utilisateur, mais son texte n'a pas pu être extrait automatiquement (document scanné/image nécessitant un OCR actif ou PDF protégé).\nIndication technique : ${extractedText}\nInformez courtoisement l'utilisateur que le fichier a bien été reçu mais qu'il s'agit d'un scan ou document image dont le texte n'a pu être lu automatiquement, et invitez-le à coller directement les passages clés ou à fournir une version avec texte sélectionnable.\n`;
+  }
+  return `=== PIÈCES DU DOSSIER FOURNIES (TEXTE INTÉGRAL DU DOCUMENT) ===\n${extractedText.substring(0, 120000)}`;
+})()}
 
 === DEMANDE DE L'UTILISATEUR ===
 ${userPrompt}
@@ -514,9 +521,10 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   // 3. Anthropic Claude with custom API key (or France Justice auto fallback to Claude 3.5 Sonnet)
   if (isInvalidText(generatedText) && (selectedModel.provider === 'anthropic' || selectedModel.provider === 'francejustice' || effectiveAnthropicKey) && effectiveAnthropicKey) {
     try {
-      // Truncate user prompt to avoid 400 from oversized payload (max ~12k chars for user message)
-      const anthropicUserContent = fullPromptForLLM.length > 14000
-        ? fullPromptForLLM.substring(0, 14000) + '\n\n[...Contenu tronqué pour respecter les limites du modèle...]'
+      // Truncate user prompt to avoid 400 from oversized payload.
+      // Keep up to 50k chars (expanded from 14k) to handle large legal documents
+      const anthropicUserContent = fullPromptForLLM.length > 50000
+        ? fullPromptForLLM.substring(0, 50000) + '\n\n[...Contenu tronqué pour respecter les limites du modèle...]'
         : fullPromptForLLM;
       const anthropicSystemContent = effectiveSystemPrompt.length > 8000
         ? effectiveSystemPrompt.substring(0, 8000)

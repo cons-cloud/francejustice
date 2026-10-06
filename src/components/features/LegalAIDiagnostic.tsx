@@ -603,6 +603,12 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
     const fileNames = files.map(f => f.name);
     const updatedFiles = Array.from(new Set([...activeThread.uploadedFiles, ...fileNames]));
 
+    // ── CRITICAL FIX: capture extractedText BEFORE any state mutations ──────
+    // React state updates are batched; reading `extractedText` after setFiles([])
+    // or setIsRunning(true) can yield a stale (empty) closure value in the
+    // async executeAgentRun call. We snapshot it synchronously here.
+    const capturedExtractedText = extractedText || activeThread.extractedText || '';
+
     // Construct User Message
     const userMessage: AgentMessage = {
       id: `msg_${Date.now()}_user`,
@@ -625,7 +631,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
       title: threadTitle,
       messages: updatedMessages,
       uploadedFiles: updatedFiles,
-      extractedText: activeThread.extractedText ? (extractedText ? activeThread.extractedText + '\n' + extractedText : activeThread.extractedText) : extractedText,
+      extractedText: capturedExtractedText,
       modelId: selectedModelId,
       personaId: selectedPersonaId
     };
@@ -633,6 +639,8 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
     handleUpdateActiveThread(interimThread);
     setUserInput('');
     setFiles([]);
+    // Do NOT clear extractedText here — it will be cleared after a new thread
+    // or when the user explicitly removes files
     setIsRunning(true);
     setStreamingContent('');
     setCurrentRunSteps([]);
@@ -654,7 +662,8 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
         personaId: selectedPersonaId,
         jurisdictionId,
         attachedFileNames: updatedFiles,
-        extractedText: extractedText || activeThread.extractedText || '',
+        // Use the pre-mutation snapshot — never the post-setState closure
+        extractedText: capturedExtractedText,
         userApiKeys: apiKeys,
         signal: controller.signal,
         onStepUpdate: (step) => {
