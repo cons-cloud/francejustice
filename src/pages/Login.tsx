@@ -152,7 +152,11 @@ const LoginPage: React.FC = () => {
       const { error: googleErr } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}${redirectParam}`
+          redirectTo: `${window.location.origin}${redirectParam}`,
+          queryParams: {
+            prompt: 'select_account',
+            access_type: 'offline'
+          }
         }
       });
       if (googleErr) {
