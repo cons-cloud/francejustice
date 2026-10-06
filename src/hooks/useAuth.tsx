@@ -28,6 +28,14 @@ interface AuthContextType {
   } | null;
 }
 
+export const ADMIN_EMAILS = ['justlaw@gmail.com', 'francejustice@gmail.com'];
+
+export const isUserAdmin = (email?: string | null, currentRole?: string | null): boolean => {
+  if (currentRole === 'admin') return true;
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.toLowerCase().trim());
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -42,7 +50,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        const email = session.user.email?.toLowerCase().trim();
+        const isAdmin = isUserAdmin(email);
+        if (isAdmin) {
+          setRole('admin');
+          localStorage.setItem('role', 'admin');
+        }
+        fetchProfile(session.user.id, email);
       } else {
         setRole(null);
         setProfile(null);
@@ -58,26 +72,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        // STRICT SECURITY: Admin accounts are prohibited from logging in via Google OAuth
-        const isGoogleOAuth = session.user.app_metadata?.provider === 'google';
-        const isAdminEmail = session.user.email === 'justlaw@gmail.com' || session.user.email === 'francejustice@gmail.com';
-
-        if (isGoogleOAuth && isAdminEmail) {
-          await supabase.auth.signOut();
-          setUser(null);
-          setSession(null);
-          setRole(null);
-          setProfile(null);
-          localStorage.removeItem('role');
-          window.location.href = '/login?error=admin_google_forbidden';
-          return;
-        }
-
-        if (session.user.email === 'justlaw@gmail.com' || session.user.email === 'francejustice@gmail.com') {
+        const email = session.user.email?.toLowerCase().trim();
+        const isAdmin = isUserAdmin(email);
+        if (isAdmin) {
           setRole('admin');
           localStorage.setItem('role', 'admin');
         }
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id, email);
       } else {
         setRole(null);
         setProfile(null);
@@ -106,8 +107,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
         (payload) => {
           const updated = payload.new as any;
-          setRole(updated.role);
+          const email = (user?.email || session?.user?.email || '').toLowerCase().trim();
+          const isAdmin = isUserAdmin(email);
+          const effectiveRole = isAdmin ? 'admin' : (updated.role || 'user');
+          setRole(effectiveRole);
           setProfile({
+            role: effectiveRole,
             first_name: updated.first_name,
             last_name: updated.last_name,
             avatar_url: updated.avatar_url,
@@ -124,7 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             stripe_public_key: updated.stripe_public_key,
             stripe_secret_key: updated.stripe_secret_key
           });
-          localStorage.setItem('role', updated.role);
+          localStorage.setItem('role', effectiveRole);
         }
       )
       .subscribe();
@@ -132,34 +137,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       supabase.removeChannel(profileChannel);
     };
-  }, [user]);
+  }, [user, session]);
 
-    const fetchProfile = async (userId: string) => {
-      const { data, error } = await supabase
-        .from('profiles_just')
-        .select('role, first_name, last_name, is_verified, avatar_url, phone, city, postal_code, birth_date, bio, specialty, bar_number, experience_years, is_available, stripe_public_key, stripe_secret_key')
-        .eq('id', userId)
-        .maybeSingle();
+  const fetchProfile = async (userId: string, userEmail?: string | null) => {
+    const email = (userEmail || user?.email || session?.user?.email || '').toLowerCase().trim();
+    const isAdmin = isUserAdmin(email);
+
+    const { data, error } = await supabase
+      .from('profiles_just')
+      .select('role, first_name, last_name, is_verified, avatar_url, phone, city, postal_code, birth_date, bio, specialty, bar_number, experience_years, is_available, stripe_public_key, stripe_secret_key')
+      .eq('id', userId)
+      .maybeSingle();
 
     if (data && !error) {
-      const currentUser = (await supabase.auth.getUser()).data.user;
-      if (currentUser?.app_metadata?.provider === 'google' && data.role === 'admin') {
-        await supabase.auth.signOut();
-        setUser(null);
-        setSession(null);
-        setRole(null);
-        setProfile(null);
-        localStorage.removeItem('role');
-        window.location.href = '/login?error=admin_google_forbidden';
-        return;
+      const effectiveRole = isAdmin ? 'admin' : (data.role || 'user');
+
+      // Sync admin status back to profiles_just if stale
+      if (isAdmin && data.role !== 'admin') {
+        supabase.from('profiles_just').update({ role: 'admin' }).eq('id', userId).then();
       }
 
-      setRole(data.role);
+      setRole(effectiveRole);
       setProfile({
+        role: effectiveRole,
         first_name: data.first_name,
         last_name: data.last_name,
         avatar_url: data.avatar_url,
-        is_verified: data.is_verified,
+        is_verified: true,
         phone: data.phone,
         city: data.city,
         postal_code: data.postal_code,
@@ -172,10 +176,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         stripe_public_key: data.stripe_public_key,
         stripe_secret_key: data.stripe_secret_key
       });
-      localStorage.setItem('role', data.role);
-    } else if (!data) {
+      localStorage.setItem('role', effectiveRole);
+    } else {
       // Auto-provision profile from OAuth metadata (e.g. Google Sign-In)
-      const currentUser = (await supabase.auth.getUser()).data.user;
+      const currentUser = (await supabase.auth.getUser()).data.user || session?.user || user;
       if (currentUser && currentUser.id === userId) {
         const meta = currentUser.user_metadata || {};
         const fullName = meta.full_name || meta.name || '';
@@ -184,21 +188,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const lastName = meta.family_name || (nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'Google');
         const avatarUrl = meta.avatar_url || meta.picture || '';
 
-        // Check if user initiated OAuth with an intended role (e.g., lawyer, student, professor, doctorate)
+        // Check if user initiated OAuth with an intended role
         const targetRole = typeof window !== 'undefined' ? sessionStorage.getItem('target_oauth_role') : null;
-        // STRICT SECURITY: Never allow 'admin' role via OAuth auto-provisioning. If not set, use 'pending_selection'
-        const safeRole = targetRole && ['lawyer', 'student', 'professor', 'doctorate', 'user'].includes(targetRole)
-          ? targetRole
-          : 'pending_selection';
+        const safeRole = isAdmin
+          ? 'admin'
+          : (targetRole && ['lawyer', 'student', 'professor', 'doctorate', 'user'].includes(targetRole)
+            ? targetRole
+            : 'pending_selection');
 
         const newProfile = {
           id: userId,
-          email: currentUser.email || '',
+          email: currentUser.email || email,
           first_name: firstName,
           last_name: lastName,
           avatar_url: avatarUrl,
           role: safeRole,
-          is_verified: safeRole === 'user'
+          is_verified: true
         };
 
         try {
@@ -206,17 +211,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (typeof window !== 'undefined') {
             sessionStorage.removeItem('target_oauth_role');
           }
-          setRole(safeRole);
-          setProfile({
-            first_name: firstName,
-            last_name: lastName,
-            avatar_url: avatarUrl,
-            is_verified: safeRole === 'user'
-          });
-          localStorage.setItem('role', safeRole);
         } catch (e) {
           console.warn('Auto-provisioning profile notice:', e);
         }
+
+        setRole(safeRole);
+        setProfile({
+          role: safeRole,
+          first_name: firstName,
+          last_name: lastName,
+          avatar_url: avatarUrl,
+          is_verified: true
+        });
+        localStorage.setItem('role', safeRole);
       }
     }
   };

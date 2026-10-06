@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth, isUserAdmin } from '../../hooks/useAuth';
 import { useTranslation } from '../../i18n';
 import { 
   Scale, 
@@ -101,11 +101,18 @@ const ROLE_OPTIONS: RoleOption[] = [
 
 export const FirstTimeRoleSelector: React.FC = () => {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, role } = useAuth();
   const { t, language } = useTranslation();
   const [selectedRole, setSelectedRole] = useState<UserRoleType>('user');
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Auto-redirect if user is admin
+  useEffect(() => {
+    if (isUserAdmin(user?.email, role)) {
+      navigate('/dashboard/admin', { replace: true });
+    }
+  }, [user, role, navigate]);
 
   const displayName = profile?.first_name 
     ? `${profile.first_name} ${profile.last_name || ''}`.trim()

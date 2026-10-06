@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Menu, Scale, User as UserIcon, ChevronDown, Sparkles, FileText, Cpu, Wrench, BookOpen } from 'lucide-react';
 import { Button } from '../ui/Button';
 import MobileMenu from '../ui/MobileMenu';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth, isUserAdmin } from '../../hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
@@ -358,7 +358,7 @@ const Header: React.FC = () => {
                   variant="ghost"
                   size="sm"
                   className="rounded-full hover:bg-cyan-50 hover:text-cyan-700 font-bold"
-                  onClick={() => navigate(role === 'admin' ? '/dashboard/admin' : role === 'lawyer' ? '/dashboard/lawyer' : '/dashboard/user')}
+                  onClick={() => navigate(isUserAdmin(user?.email, role) ? '/dashboard/admin' : role === 'lawyer' ? '/dashboard/lawyer' : '/dashboard/user')}
                 >
                   <UserIcon className="h-4 w-4 mr-1.5 text-cyan-600" />
                   {t('nav.dashboard')}

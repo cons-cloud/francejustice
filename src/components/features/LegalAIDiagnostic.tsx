@@ -457,7 +457,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
       setSelectedModelId(target.modelId || AVAILABLE_MODELS[0].id);
       setSelectedPersonaId(target.personaId || AGENT_PERSONAS[0].id);
       setFiles([]);
-      setExtractedText('');
+      setExtractedText(target.extractedText || '');
       setUserInput('');
       if (typeof window !== 'undefined' && window.innerWidth < 1280) {
         setSidebarOpen(false);
@@ -625,6 +625,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
       title: threadTitle,
       messages: updatedMessages,
       uploadedFiles: updatedFiles,
+      extractedText: activeThread.extractedText ? (extractedText ? activeThread.extractedText + '\n' + extractedText : activeThread.extractedText) : extractedText,
       modelId: selectedModelId,
       personaId: selectedPersonaId
     };
@@ -653,7 +654,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
         personaId: selectedPersonaId,
         jurisdictionId,
         attachedFileNames: updatedFiles,
-        extractedText,
+        extractedText: extractedText || activeThread.extractedText || '',
         userApiKeys: apiKeys,
         signal: controller.signal,
         onStepUpdate: (step) => {

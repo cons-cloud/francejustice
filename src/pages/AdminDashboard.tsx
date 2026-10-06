@@ -1,3 +1,5 @@
+import { getAIConfig, updateAIConfig, subscribeToAIConfig, markKeyActive } from "../lib/aiKeyManager";
+import type { PlatformAIConfig } from "../lib/aiKeyManager";
 import React, { useState, useEffect } from 'react';
 import { Users, Shield, BarChart3, Settings, Database, RefreshCw, Mail, FileText, UserPlus, Edit, HelpCircle, PenTool, BookOpen, Plus, CreditCard, Trash2, Eye, EyeOff, Video, Menu, X, LogOut, Download, FileJson, FileSpreadsheet, Calendar, AlertCircle, Lock, KeyRound, Search } from 'lucide-react';
 import { DATA_RETENTION_SCHEDULE, DATABASE_SECURITY_INFO, getSecurityStatusBadge } from '../lib/dataSecurityUtils';
@@ -86,6 +88,13 @@ const AdminDashboard: React.FC = () => {
   const [activities, setActivities] = useState<any[]>([]);
   const [chatRooms, setChatRooms] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>({ commission_rate: 15, maintenance_mode: false, welcome_message: '' });
+  const [aiConfig, setAiConfig] = useState<PlatformAIConfig>(getAIConfig());
+  const [editingKeys, setEditingKeys] = useState<{ openai: string; gemini: string; anthropic: string }>({
+    openai: getAIConfig().openai_key,
+    gemini: getAIConfig().gemini_key,
+    anthropic: getAIConfig().anthropic_key
+  });
+  const [showKeys, setShowKeys] = useState<{ [key: string]: boolean }>({});
   const [loading, setLoading] = useState(true);
   const [allAppointments, setAllAppointments] = useState<any[]>([]);
 
@@ -147,8 +156,18 @@ const AdminDashboard: React.FC = () => {
     fetchPasswordResets();
     
     // Subscribe to multiple channels for real-time synchronization
+    // Realtime AI Key sync
+    const unsubscribeAI = subscribeToAIConfig((cfg) => {
+      setAiConfig(cfg);
+      setEditingKeys(prev => ({
+        openai: prev.openai || cfg.openai_key,
+        gemini: prev.gemini || cfg.gemini_key,
+        anthropic: prev.anthropic || cfg.anthropic_key
+      }));
+    });
+
     const techSub = supabase
-      .channel('admin-tech-sync')
+      .channel("admin-tech-sync")
       .on('postgres_changes', { event: '*', schema: 'public', table: 'formations_just' }, fetchFormations)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'outils_just' }, fetchOutils)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'assistance_tickets_just' }, fetchTickets)
@@ -249,20 +268,44 @@ const AdminDashboard: React.FC = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // 1. Fetch profiles cleanly without column sorting that triggers PostgREST 400 if created_at is absent
+      const { data: profilesData } = await supabase
         .from('profiles_just')
-        .select('*, lawyers:lawyers_just(*)')
-        .order('created_at', { ascending: false })
-        .limit(100);
-      if (!error && data) {
-        setUsers(data);
-      } else {
-        const { data: fallbackData } = await supabase
-          .from('profiles_just')
-          .select('*, lawyers:lawyers_just(*)')
-          .limit(100);
-        if (fallbackData) setUsers(fallbackData);
+        .select('*')
+        .limit(200);
+
+      let finalProfiles: any[] = profilesData || [];
+
+      // Sort in memory safely
+      finalProfiles.sort((a: any, b: any) => {
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return timeB - timeA;
+      });
+
+      // 2. Fetch lawyers_just to merge metadata in memory
+      try {
+        const { data: lawyersData } = await supabase
+          .from('lawyers_just')
+          .select('*')
+          .limit(200);
+
+        if (lawyersData && lawyersData.length > 0) {
+          const lawyerMap = new Map<string, any>();
+          lawyersData.forEach((l: any) => {
+            if (l.id) lawyerMap.set(l.id, l);
+          });
+
+          finalProfiles = finalProfiles.map((p: any) => ({
+            ...p,
+            lawyers: lawyerMap.get(p.id) || null
+          }));
+        }
+      } catch {
+        // ignore optional lawyers metadata failure
       }
+
+      setUsers(finalProfiles);
     } catch {
       // ignore
     } finally {
@@ -1079,7 +1122,7 @@ const AdminDashboard: React.FC = () => {
                     { id: 'documents', name: t('admin_dashboard.all_documents', "Documents"), icon: FileText },
                     { id: 'messages', name: t('dashboard.messages', "Messages"), icon: Mail },
                     { id: 'system', name: t('admin_dashboard.system', "Système"), icon: Database },
-                    { id: 'settings', name: t('admin_dashboard.settings', "Paramètres Globaux"), icon: Settings },
+                    { id: 'settings', name: "Paramètres & Clés API IA", icon: KeyRound },
                     { id: 'assistance', name: t('admin_dashboard.assistance', "Assistance"), icon: HelpCircle },
                     { id: 'outils', name: t('admin_dashboard.lawyer_tools', "Outils Avocats"), icon: PenTool },
                     { id: 'formations', name: t('dashboard.formations', "Formations"), icon: BookOpen },
@@ -1144,7 +1187,7 @@ const AdminDashboard: React.FC = () => {
                   { id: 'documents', name: t('admin_dashboard.all_documents', "Documents"), icon: FileText },
                   { id: 'messages', name: t('dashboard.messages', "Messages"), icon: Mail },
                   { id: 'system', name: t('admin_dashboard.system', "Système"), icon: Database },
-                  { id: 'settings', name: t('admin_dashboard.settings', "Paramètres Globaux"), icon: Settings },
+                  { id: 'settings', name: "Paramètres & Clés API IA", icon: KeyRound },
                   { id: 'assistance', name: t('admin_dashboard.assistance', "Assistance"), icon: HelpCircle },
                   { id: 'outils', name: t('admin_dashboard.lawyer_tools', "Outils Avocats"), icon: PenTool },
                   { id: 'formations', name: t('dashboard.formations', "Formations"), icon: BookOpen },
@@ -1197,6 +1240,32 @@ const AdminDashboard: React.FC = () => {
           <main className="lg:col-span-3 space-y-6 sm:space-y-8 order-1 lg:order-2 min-w-0 w-full overflow-hidden">
             {activeTab === 'overview' && (
               <>
+                {/* BANNIÈRE DIRECTE : GESTIONNAIRE DES CLÉS D'API IA */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-cyan-950 border border-cyan-800 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                  <div className="flex items-center gap-3.5">
+                    <div className="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shrink-0">
+                      <KeyRound className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm sm:text-base text-white flex items-center gap-2">
+                        Clés d'API IA &amp; Bascule Automatique 
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Actif
+                        </span>
+                      </h3>
+                      <p className="text-xs text-slate-300 mt-0.5">
+                        Insérez ou modifiez vos clés Google Gemini, OpenAI et Anthropic Claude avec bascule automatique temps réel.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => setActiveTab('settings')}
+                    className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shrink-0 cursor-pointer shadow-md w-full sm:w-auto"
+                  >
+                    <KeyRound className="h-3.5 w-3.5 mr-1.5" /> Configurer les Clés API IA
+                  </Button>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                   {systemStats.map((s, i) => (
                     <Card key={i} className="border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white min-w-0 overflow-hidden">
@@ -2157,40 +2226,256 @@ const AdminDashboard: React.FC = () => {
               </Card>
             )}
 
-            {activeTab === 'settings' && (
-              <Card className="bg-white border-slate-200 shadow-sm">
-                <CardHeader><CardTitle>Paramètres Globaux du Système</CardTitle></CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+            {activeTab === "settings" && (
+              <div className="space-y-6">
+                {/* AI CLUSTER & FAILOVER MANAGER */}
+                <Card className="bg-white border-slate-200 shadow-sm border-t-4 border-t-cyan-500">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <div>
-                      <h4 className="font-semibold text-slate-900">Mode Maintenance</h4>
-                      <p className="text-sm text-slate-500">Désactiver l'accès public au site</p>
+                      <div className="flex items-center gap-2">
+                        <KeyRound className="h-5 w-5 text-cyan-600" />
+                        <CardTitle className="text-xl">Gestionnaire de Clés IA & Bascule Automatique (Failover)</CardTitle>
+                      </div>
+                      <CardDescription className="mt-1">
+                        Synchronisation en temps réel : si une clé est épuisée (429) ou invalide (401), le système bascule automatiquement sur les autres fournisseurs sans interruption de service.
+                      </CardDescription>
                     </div>
-                    <Button variant={settings?.maintenance_mode ? 'danger' : 'outline'} onClick={() => handleUpdateSettings('maintenance_mode', !settings?.maintenance_mode)} className={!settings?.maintenance_mode ? "border-slate-200 text-slate-700 hover:bg-slate-100" : ""}>
-                      {settings?.maintenance_mode ? 'Désactiver le site' : 'Activer'}
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                    <div>
-                      <h4 className="font-semibold text-slate-900">Commission Avocat (%)</h4>
-                      <p className="text-sm text-slate-500">Taux prélevé sur les consultations</p>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Temps réel Actif
+                    </span>
+                  </CardHeader>
+                  <CardContent className="space-y-6 pt-4">
+                    {/* Realtime Alert Banner */}
+                    {aiConfig.last_alert && (
+                      <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start justify-between">
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                          <div>
+                            <p className="font-semibold text-amber-900">Dernière alerte reçue ({new Date(aiConfig.last_alert.timestamp).toLocaleTimeString()})</p>
+                            <p className="text-sm text-amber-700">{aiConfig.last_alert.message}</p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-amber-300 text-amber-800 hover:bg-amber-100"
+                          onClick={() => updateAIConfig({ last_alert: undefined })}
+                        >
+                          Effacer l'alerte
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* OPENAI KEY */}
+                    <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900">1. OpenAI (GPT-4o / Vision)</span>
+                          <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                            aiConfig.openai_status === "active"
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                              : aiConfig.openai_status === "quota_exceeded"
+                              ? "bg-amber-100 text-amber-800 border border-amber-200"
+                              : "bg-rose-100 text-rose-800 border border-rose-200"
+                          }`}>
+                            {aiConfig.openai_status === "active" ? "🟢 Opérationnelle" : aiConfig.openai_status === "quota_exceeded" ? "🟠 Quota Dépassé (429)" : "🔴 Clé Invalide (401)"}
+                          </span>
+                        </div>
+                        {aiConfig.openai_status !== "active" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs h-7 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                            onClick={() => {
+                              markKeyActive("openai");
+                              success("Statut Réinitialisé", "La clé OpenAI a été réactivée.");
+                            }}
+                          >
+                            Réactiver la clé
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Input
+                            type={showKeys.openai ? "text" : "password"}
+                            value={editingKeys.openai}
+                            onChange={(e) => setEditingKeys(prev => ({ ...prev, openai: e.target.value }))}
+                            placeholder="sk-proj-..."
+                            className="bg-white border-slate-200 font-mono text-xs pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowKeys(prev => ({ ...prev, openai: !prev.openai }))}
+                            className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                          >
+                            {showKeys.openai ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        <Button
+                          onClick={async () => {
+                            await updateAIConfig({ openai_key: editingKeys.openai, openai_status: "active" });
+                            success("Clé OpenAI Enregistrée", "Synchronisée instantanément sur tous les navigateurs et agents.");
+                          }}
+                          className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold text-xs px-4"
+                        >
+                          Enregistrer & Sync
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                       <Input type="number" defaultValue={settings?.commission_rate} id="comm_rate" className="w-20 bg-white border-slate-200 text-slate-900 focus:border-cyan-500" />
-                       <Button onClick={() => handleUpdateSettings('commission_rate', (document.getElementById('comm_rate') as HTMLInputElement).value)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold">Enregistrer</Button>
+
+                    {/* GOOGLE GEMINI KEY */}
+                    <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900">2. Google Gemini (Gemini 1.5 & 3.8 Flash)</span>
+                          <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                            aiConfig.gemini_status === "active"
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                              : aiConfig.gemini_status === "quota_exceeded"
+                              ? "bg-amber-100 text-amber-800 border border-amber-200"
+                              : "bg-rose-100 text-rose-800 border border-rose-200"
+                          }`}>
+                            {aiConfig.gemini_status === "active" ? "🟢 Opérationnelle" : aiConfig.gemini_status === "quota_exceeded" ? "🟠 Quota Dépassé" : "🔴 Clé Invalide"}
+                          </span>
+                        </div>
+                        {aiConfig.gemini_status !== "active" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs h-7 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                            onClick={() => {
+                              markKeyActive("gemini");
+                              success("Statut Réinitialisé", "La clé Gemini a été réactivée.");
+                            }}
+                          >
+                            Réactiver la clé
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Input
+                            type={showKeys.gemini ? "text" : "password"}
+                            value={editingKeys.gemini}
+                            onChange={(e) => setEditingKeys(prev => ({ ...prev, gemini: e.target.value }))}
+                            placeholder="AQ.Ab8RN6... ou AIzaSy..."
+                            className="bg-white border-slate-200 font-mono text-xs pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowKeys(prev => ({ ...prev, gemini: !prev.gemini }))}
+                            className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                          >
+                            {showKeys.gemini ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        <Button
+                          onClick={async () => {
+                            await updateAIConfig({ gemini_key: editingKeys.gemini, gemini_status: "active" });
+                            success("Clé Gemini Enregistrée", "Synchronisée instantanément sur tous les navigateurs et agents.");
+                          }}
+                          className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold text-xs px-4"
+                        >
+                          Enregistrer & Sync
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between pb-2">
-                    <div>
-                      <h4 className="font-semibold text-slate-900">Message de Bienvenue</h4>
+
+                    {/* ANTHROPIC CLAUDE KEY */}
+                    <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900">3. Anthropic Claude (Claude 3.5 Haiku & Sonnet)</span>
+                          <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                            aiConfig.anthropic_status === "active"
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                              : "bg-amber-100 text-amber-800 border border-amber-200"
+                          }`}>
+                            {aiConfig.anthropic_status === "active" ? "🟢 Opérationnelle" : "🟠 Quota / Restriction"}
+                          </span>
+                        </div>
+                        {aiConfig.anthropic_status !== "active" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs h-7 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                            onClick={() => {
+                              markKeyActive("anthropic");
+                              success("Statut Réinitialisé", "La clé Anthropic a été réactivée.");
+                            }}
+                          >
+                            Réactiver la clé
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Input
+                            type={showKeys.anthropic ? "text" : "password"}
+                            value={editingKeys.anthropic}
+                            onChange={(e) => setEditingKeys(prev => ({ ...prev, anthropic: e.target.value }))}
+                            placeholder="sk-ant-..."
+                            className="bg-white border-slate-200 font-mono text-xs pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowKeys(prev => ({ ...prev, anthropic: !prev.anthropic }))}
+                            className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                          >
+                            {showKeys.anthropic ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        <Button
+                          onClick={async () => {
+                            await updateAIConfig({ anthropic_key: editingKeys.anthropic, anthropic_status: "active" });
+                            success("Clé Anthropic Enregistrée", "Synchronisée instantanément sur tous les navigateurs et agents.");
+                          }}
+                          className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold text-xs px-4"
+                        >
+                          Enregistrer & Sync
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-2 w-1/2">
-                       <Input type="text" defaultValue={settings?.welcome_message} id="welcome_msg" className="w-full bg-white border-slate-200 text-slate-900 focus:border-cyan-500" />
-                       <Button onClick={() => handleUpdateSettings('welcome_message', (document.getElementById('welcome_msg') as HTMLInputElement).value)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold">Sauver</Button>
+                  </CardContent>
+                </Card>
+
+                {/* PARAMETRES GENERAUX */}
+                <Card className="bg-white border-slate-200 shadow-sm">
+                  <CardHeader><CardTitle>Paramètres Globaux du Système</CardTitle></CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                      <div>
+                        <h4 className="font-semibold text-slate-900">Mode Maintenance</h4>
+                        <p className="text-sm text-slate-500">Désactiver l'accès public au site</p>
+                      </div>
+                      <Button variant={settings?.maintenance_mode ? "danger" : "outline"} onClick={() => handleUpdateSettings("maintenance_mode", !settings?.maintenance_mode)} className={!settings?.maintenance_mode ? "border-slate-200 text-slate-700 hover:bg-slate-100" : ""}>
+                        {settings?.maintenance_mode ? "Désactiver le site" : "Activer"}
+                      </Button>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                      <div>
+                        <h4 className="font-semibold text-slate-900">Commission Avocat (%)</h4>
+                        <p className="text-sm text-slate-500">Taux prélevé sur les consultations</p>
+                      </div>
+                      <div className="flex gap-2">
+                         <Input type="number" defaultValue={settings?.commission_rate} id="comm_rate" className="w-20 bg-white border-slate-200 text-slate-900 focus:border-cyan-500" />
+                         <Button onClick={() => handleUpdateSettings("commission_rate", (document.getElementById("comm_rate") as HTMLInputElement).value)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold">Enregistrer</Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between pb-2">
+                      <div>
+                        <h4 className="font-semibold text-slate-900">Message de Bienvenue</h4>
+                      </div>
+                      <div className="flex gap-2 w-1/2">
+                         <Input type="text" defaultValue={settings?.welcome_message} id="welcome_msg" className="w-full bg-white border-slate-200 text-slate-900 focus:border-cyan-500" />
+                         <Button onClick={() => handleUpdateSettings("welcome_message", (document.getElementById("welcome_msg") as HTMLInputElement).value)} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold">Sauver</Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             )}
             
             {activeTab === 'assistance' && (

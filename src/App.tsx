@@ -3,7 +3,7 @@ import { lazy, Suspense } from 'react';
 import './styles/design.css';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
-import { AuthProvider, useAuth } from './hooks/useAuth';
+import { AuthProvider, useAuth, isUserAdmin } from './hooks/useAuth';
 import CookieConsent from './components/ui/CookieConsent';
 import SEOManager from './components/ui/SEOManager';
 import FloatingChatBot from './components/ui/FloatingChatBot';
@@ -69,6 +69,15 @@ function RequireRole({ allowedRoles, children }: { allowedRoles: string[]; child
     return <Navigate to={`/login?redirect=${destination}`} replace />;
   }
 
+  // Admin accounts immediately bypass and navigate to Admin Dashboard
+  const isAdmin = isUserAdmin(user?.email, current);
+  if (isAdmin) {
+    if (allowedRoles.includes('admin')) {
+      return <>{children}</>;
+    }
+    return <Navigate to="/dashboard/admin" replace />;
+  }
+
   const isGoogleUser = user.app_metadata?.provider === 'google';
   const roleConfirmed = user.user_metadata?.role_selected || (user.id ? localStorage.getItem(`fj_role_selected_${user.id}`) === 'true' : false);
 
@@ -100,7 +109,8 @@ function DashboardDispatcher() {
     return <Navigate to="/login" replace />;
   }
 
-  if (role === 'admin') {
+  const isAdmin = isUserAdmin(user?.email, role);
+  if (isAdmin) {
     return <Navigate to="/dashboard/admin" replace />;
   }
 
@@ -184,6 +194,8 @@ function AppContent() {
                 </RequireRole>
               }
             />
+            <Route path="/admin" element={<Navigate to="/dashboard/admin" replace />} />
+            <Route path="/admin-dashboard" element={<Navigate to="/dashboard/admin" replace />} />
             <Route path="/reset-password"  element={<ResetPasswordPage />} />
             <Route path="/dashboard" element={<DashboardDispatcher />} />
             <Route path="/onboarding/role" element={<FirstTimeRoleSelector />} />

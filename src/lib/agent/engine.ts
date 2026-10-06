@@ -71,6 +71,10 @@ export async function executeAgentRun(options: RunAgentOptions): Promise<{
   const selectedModel = AVAILABLE_MODELS.find(m => m.id === modelId) || AVAILABLE_MODELS[0];
   const selectedPersona = AGENT_PERSONAS.find(p => p.id === personaId) || AGENT_PERSONAS[0];
   
+  // Détection du premier tour vs tours suivants dans la même discussion
+  const pastAssistantTurns = (historyMessages || []).filter(m => m.role === 'assistant').length;
+  const isFirstTurn = pastAssistantTurns === 0;
+  
   const activeLang = (typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : 'fr') || 'fr';
   const languageDirective = activeLang === 'en'
     ? 'MANDATORY LANGUAGE: Reply strictly and entirely in English with professional legal precision. Keep official French statutory article names (e.g. Article 1240 du Code Civil) accurate while explaining in English.'
@@ -213,30 +217,22 @@ RÈGLE D'OR D'ADAPTATION : Détectez systématiquement la juridiction applicable
       toolsToCall.push({ name: 'search_legal_codes', input: { query: 'Article 22', code: 'loi_1989' } });
     }
 
-    // 3. Contract / Abusive clauses
+    // 3. Contract / Abusive clauses (only if NO document is attached, to avoid poisoning divorce/family documents)
     const hasContrat = /clause|contrat|déséquilibre|résiliation|pénalité/i.test(queryLower);
-    if (hasContrat && !toolsToCall.some(t => t.name === 'search_legal_codes')) {
+    if (hasContrat && !extractedText && !toolsToCall.some(t => t.name === 'search_legal_codes')) {
       toolsToCall.push({ name: 'search_legal_codes', input: { query: '1171', code: 'civil' } });
     }
 
-    // 4. Document inspection only if files are attached AND user is asking about them
-    if ((attachedFileNames.length > 0 || extractedText.length > 100)
-        && /analys|vérifi|exam|décortiq|litige|clause|que dit|contenu/i.test(queryLower)) {
-      toolsToCall.push({
-        name: 'inspect_dossier_documents',
-        input: { documentNames: attachedFileNames, focusArea: 'clauses et obligations' }
-      });
-    }
-
-    // 5. Jurisprudence only if complex legal dispute
-    if (toolsToCall.length > 0) {
+    // 4. Jurisprudence only if explicitly asked by user
+    const hasExplicitJurisprudenceRequest = /jurisprudence|arrêt|cassation|doctrine|décision de principe/i.test(queryLower);
+    if (hasExplicitJurisprudenceRequest) {
       toolsToCall.push({
         name: 'search_jurisprudence_doctrine',
-        input: { topic: /licenciement|salaire/.test(queryLower) ? 'licenciement' : /caution|bail/.test(queryLower) ? 'caution' : 'clause_abusive' }
+        input: { topic: /licenciement|salaire/.test(queryLower) ? 'licenciement' : /caution|bail/.test(queryLower) ? 'caution' : /famille|divorce|pension/.test(queryLower) ? 'famille' : 'droit_commun' }
       });
     }
 
-    // 6. Mise en demeure — only on explicit request
+    // 5. Mise en demeure — only on explicit request
     if (/mise en demeure|sommation|rédiger.*lettre|lettre.*officielle/i.test(queryLower)) {
       toolsToCall.push({
         name: 'generate_legal_act',
@@ -279,15 +275,17 @@ RÔLE ACTIF : ${selectedPersona.name} (${selectedPersona.roleTitle}).
 === INSTRUCTIONS SYSTÈME ===
 ${effectiveSystemPrompt}
 
-=== RÉSULTATS DES OUTILS EXÉCUTÉS PAR L'AGENT DANS CE RUN ===
-${toolResultsContext || 'Aucun outil externe requis.'}
-
-${extractedText ? `=== PIÈCES DU DOSSIER FOURNIES ===\n${extractedText.substring(0, 15000)}` : ''}
+${toolResultsContext ? `=== RÉSULTATS DES OUTILS EXÉCUTÉS PAR L'AGENT DANS CE RUN ===\n${toolResultsContext}\n` : ''}
+${extractedText ? `=== PIÈCES DU DOSSIER FOURNIES (TEXTE INTÉGRAL DU DOCUMENT) ===\n${extractedText.substring(0, 120000)}` : ''}
 
 === DEMANDE DE L'UTILISATEUR ===
 ${userPrompt}
 
-RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE, GEMINI & CHATGPT) :
+RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) :
+- RÈGLE ABSOLUE SUR LA PRÉSENTATION ET LE SALUT :
+  ${isFirstTurn 
+    ? "• PREMIÈRE RÉPONSE DE LA CONVERSATION : Vous pouvez introduire brièvement votre réponse avec politesse professionnelle." 
+    : "• QUESTIONS SUIVANTES DANS LA MÊME DISCUSSION : INTERDICTION FORMELLE DE VOUS RE-PRÉSENTER (« Bonjour et bienvenue », « En tant qu'Avocat Conseil Senior... », « je prends immédiatement connaissance... »). NE VOUS RE-PRÉSENTEZ SOUS AUCUN PRÉTEXTE. Répondez IMMÉDIATEMENT, NETTEMENT et DIRECTEMENT à la question posée, droit au but, comme dans un échange fluide en continu."}
 - PERSONNALISATION ABSOLUE ET RÉPONSES SUR-MESURE : Répondez DIRECTEMENT, PRÉCISEMENT et PERTINEMMENT à la question posée, en fonction exacte des détails, des faits, des montants et des personnes fournis par l'utilisateur. Chaque réponse doit être unique, vivante, humaine et percutante.
 - NE formatez JAMAIS votre réponse comme un formulaire rigide, ni avec des en-têtes préfabriqués ou des blocs d'actions stéréotypés.
 - LIENS EXTERNES UNIQUEMENT SUR DEMANDE OU SI PERTINENT : Les liens externes NE SONT PAS OBLIGATOIRES. Vous ne devez proposer des liens ou citations de sites (Légifrance, Service-Public.fr, etc.) QUE si l'utilisateur en fait la demande explicite (ex: « donne-moi le lien », « où vérifier ? ») ou si la question spécifique porte sur une démarche en ligne ou un texte précis pour lequel une source externe apporte une réelle valeur ajoutée. N'en mettez JAMAIS sur des questions simples, des salutations ou des explications générales.
@@ -297,7 +295,21 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE, GEMINI & CHATGPT) :
 - CODE SOURCE UNIQUEMENT SUR DEMANDE : Si du code ou un script est demandé, insérez un bloc syntaxique \`\`\`lang ... \`\`\`.
 - POLYVALENCE ET RIGUEUR : Traitez chaque demande avec la même excellence que Claude, ChatGPT et Gemini, sans refus artificiel.
 - SI L'UTILISATEUR POSE UNE QUESTION DE CONSEIL, D'ORIENTATION OU CONVERSATIONNELLE : Répondez sous forme d'échange fluide et naturel, avec des explications concrètes, vos conseils stratégiques et les options envisageables.
-- SI DES DOCUMENTS OU DOSSIERS SONT JOINTS ET QUE L'UTILISATEUR DEMANDE DE LES ANALYSER : Décortiquez-les méticuleusement en expliquant simplement les enjeux pour l'utilisateur.
+- ANALYSE COMPLÈTE ET EXHAUSTIVE DE DOCUMENTS OFFICIELS / JUGEMENTS (STANDARD CLAUDE 3.5 SONNET) :
+  LORSQU'UN DOCUMENT (JUGEMENT, DÉCISION, CONTRAT, LETTRE) EST FOURNI DANS LE DOSSIER, VOUS DEVEZ IMPÉRATIVEMENT LIRE ET ANALYSER L'INTÉGRALITÉ DU DOCUMENT RÉEL :
+  1. LE CONTEXTE COMPLET : Identifiez la juridiction exacte, la date du jugement, le numéro de RG, le caractère contradictoire ou par défaut, l'identité des parties (Demandeur, Défendeur), la date et le lieu du mariage, le régime matrimonial, et les enfants avec leurs prénoms, âges, années de naissance et statuts (majeurs / mineurs).
+  2. LES DÉCISIONS DU JUGE DÉCORTIQUÉES POINT PAR POINT :
+     - Le prononcé (motif du divorce, articles de loi visés, séparation de fait).
+     - Les effets patrimoniaux (date de fixation des effets, liquidation du régime matrimonial).
+     - La prestation compensatoire (montant exact alloué ou rejeté, forme en capital ou rente, motivation du juge au regard des disparités de revenus).
+     - L'autorité parentale et la résidence habituelle des enfants.
+     - Les pensions alimentaires et contribution à l'entretien et l'éducation (montants exacts par enfant, indexation, dates d'exigibilité).
+     - Les dépens et les frais irrépétibles (article 700 du CPC).
+  3. POINTS D'ATTENTION & RECOMMANDATIONS STRATÉGIQUES :
+     - Relevez les éventuelles incohérences ou erreurs matérielles dans la décision.
+     - Précisez les voies et délais de recours (délai d'appel d'un mois à compter de la signification par Commissaire de Justice).
+     - Précisez la force exécutoire à titre provisoire et les étapes concrètes d'exécution.
+  4. INTERDICTION ABSOLUE D'INVENTER : Ne plaquez JAMAIS un template pré-écrit ou un litige contractuel / clause abusive sur une affaire de famille ou de divorce. Traitez UNIQUEMENT les faits réels du document.
 - Intégrez fidèlement les résultats des outils juridiques s'ils ont été exécutés.
 - N'insérez jamais de balises markdown # ou ## orphelines.
 - ${languageDirective}
@@ -340,7 +352,12 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE, GEMINI & CHATGPT) :
     cleaned = cleaned.replace(/%[âãÏÓ][^\n]*/gi, '');
     cleaned = cleaned.replace(/\b(?:DCTDecode|FlateDecode|DeviceRGB|BitsPerComponent|JI1Obj1|MediaBox|ColorSpace)\b[^\n]*/gi, '');
     cleaned = cleaned.replace(/PIÈCE\s*:\s*[^\n]+\s*---\s*/gi, '');
-    // 6. Clean up redundant horizontal dividers and trim
+    // 6. Nettoyage des formules de politesse répétitives lors des relances / questions suivantes
+    if (!isFirstTurn) {
+      cleaned = cleaned.replace(/^(?:Bonjour(?:\s+et\s+bienvenue)?\.?\s*)?(?:En\s+tant\s+qu['’]Avocat\s+Conseil\s+[^,.]+,\s*)?(?:je\s+prends\s+immédiatement\s+connaissance\s+des\s+pièces\s+de\s+votre\s+dossier\.?\s*)?/i, '');
+      cleaned = cleaned.replace(/^(?:Bonjour(?:\s+et\s+bienvenue)?\.?\s*)/i, '');
+    }
+    // 7. Clean up redundant horizontal dividers and trim
     cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim();
     return cleaned;
   };
@@ -396,32 +413,55 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE, GEMINI & CHATGPT) :
     try {
       const cleanGeminiKey = (effectiveGeminiKey || '').trim();
       // gemini-3.8-flash is the current recommended model (gemini-2.0-flash deprecated)
-      const geminiModel = selectedModel.id === 'gemini-1.5-pro' ? 'gemini-1.5-pro' : 'gemini-3.8-flash';
-      // AQ. keys work as ?key= query param (same as AIzaSy keys — no Bearer needed)
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${cleanGeminiKey}`;
-      const res = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 4000) }] },
-          contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 12000) }] }],
-          generationConfig: {
-            temperature: 0.35,
-            maxOutputTokens: 3000,
-            topP: 0.95
-          }
-        })
-      });
+      const modelsToTry = [
+        'gemini-3.8-flash',
+        'gemini-3.7-flash',
+        'gemini-3.6-flash',
+        'gemini-flash-latest',
+        'gemini-3.1-flash-lite',
+        'gemini-pro-latest'
+      ];
 
-      if (res.ok) {
-        const data = await res.json();
-        const candidate = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!isInvalidText(candidate)) {
-          generatedText = cleanAgentOutput(candidate);
+      for (const m of modelsToTry) {
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            if (attempt > 0) {
+              await new Promise(r => setTimeout(r, 1000));
+            }
+            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
+            const res = await fetch(geminiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 8000) }] },
+                contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 100000) }] }],
+                generationConfig: {
+                  temperature: 0.35,
+                  maxOutputTokens: 4000,
+                  topP: 0.95
+                }
+              })
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              const candidate = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (!isInvalidText(candidate)) {
+                generatedText = cleanAgentOutput(candidate);
+                console.log(`[Engine] ✅ Succès Gemini avec le modèle ${m}`);
+                break;
+              }
+            } else if (res.status === 503) {
+              console.warn(`[Engine] Gemini ${m} 503 (Spike temporaire) - tentative ${attempt + 1}/2...`);
+              continue;
+            } else {
+              const errBody = await res.text().catch(() => '');
+              console.warn(`[Engine] Gemini ${m} status ${res.status}:`, errBody.substring(0, 200));
+              break;
+            }
+          } catch (_err) {}
         }
-      } else {
-        const errBody = await res.text().catch(() => '');
-        console.warn(`Direct Gemini API notice (${res.status}): Switch to next provider.`, errBody.substring(0, 200));
+        if (!isInvalidText(generatedText)) break;
       }
     } catch (e) {
       console.warn("Direct Gemini LLM call notice:", e);
@@ -874,33 +914,52 @@ Toute requête doit comporter un bordereau numéroté en autant d'exemplaires qu
   }
 
   // SCENARIO 3: DOCUMENT AUDIT & COURT RULING ANALYSIS (ex: Jugement, Contrat, Dossier)
-  if (/jugement|décision|ordonnance|arrêt|analyse.*document|analys.*dossier/i.test(promptLower) || files.length > 0) {
-    const docName = files.length > 0 ? files.join(', ') : 'Dossier / Décision de justice';
-    return `RAPPORT D'ANALYSE JURIDIQUE APPROFONDIE & AUDIT DU DOSSIER
-Document analysé : ${docName}
+  if (/jugement|décision|ordonnance|arrêt|analyse.*document|analys.*dossier/i.test(promptLower) || (docContext && docContext.length > 50) || files.length > 0) {
+    const raw = docContext || '';
+    const docName = files.length > 0 ? files.join(', ') : 'Document soumis';
+    
+    // Extract actual real data from the document
+    const demMatch = raw.match(/(?:demandeur|demanderesse|requérant(?:e)?)\s*[:\-]?\s*([A-Za-zÀ-ÖØ-öø-ÿ\s.\-]{3,40})/i);
+    const defMatch = raw.match(/(?:défendeur|défenderesse|intimé(?:e)?)\s*[:\-]?\s*([A-Za-zÀ-ÖØ-öø-ÿ\s.\-]{3,40})/i);
+    const partiesContre = raw.match(/([A-ZÀ-ÖØ-öø-ÿ\s.\-]{3,35})\s+(?:c\.?|\/|contre)\s+([A-ZÀ-ÖØ-öø-ÿ\s.\-]{3,35})/i);
+    const jurMatch = raw.match(/(Tribunal\s+Judiciaire(?:\s+de\s+[A-Za-zÀ-ÖØ-öø-ÿ\-]+)?|Cour\s+d['’]Appel(?:\s+de\s+[A-Za-zÀ-ÖØ-öø-ÿ\-]+)?|Juge\s+aux\s+affaires\s+familiales|Conseil\s+de\s+Prud['’]hommes)/i);
+    const rgMatch = raw.match(/RG\s*(?:n°|numéro)?\s*([0-9/\-]+)/i);
+    const dateMatch = raw.match(/(?:jugement\s+du|date\s*:\s*|rendu\s+le\s+)(\d{1,2}\s+[a-zéû]+\s+\d{4}|\d{1,2}[\/.]\d{1,2}[\/.]\d{2,4})/i) || raw.match(/\b(\d{1,2}[\/.]\d{1,2}[\/.]\d{2,4})\b/);
+    const amounts = Array.from(raw.matchAll(/(\d+[\s.]?\d*)\s*(?:€|euros?)/gi)).map(m => m[0]).slice(0, 6);
+    const isFamily = /divorce|mariage|époux|épouse|conjoint|enfants?|pension|prestation compensatoire/i.test(raw);
 
-1. QUALIFICATION DE L'ACTE & CADRE JURIDIQUE
-La pièce soumise à l'Agent IA constitue un acte juridictionnel officiel (décision de justice contradictoire) régi par le Code de procédure civile et le Code civil.
-• Nature de l'acte : Décision juridictionnelle de premier ressort tranchant les prétentions des parties.
-• Force probante : Acte authentique doté de l'autorité de la chose jugée au principal et valant titre exécutoire dès apposition de la formule exécutoire.
+    if (isFamily) {
+      const demandeur = demMatch ? demMatch[1].trim() : (partiesContre ? partiesContre[1].trim() : 'Partie demanderesse');
+      const defendeur = defMatch ? defMatch[1].trim() : (partiesContre ? partiesContre[2].trim() : 'Partie défenderesse');
+      return `ANALYSE DU JUGEMENT (${dateMatch ? dateMatch[1] : 'Dossier familial'})
 
-2. EXAMEN DU DISPOSITIF & DES CONDAMNATIONS ("PAR CES MOTIFS")
-Le dispositif d'une décision est la seule partie dotée de la force exécutoire et de l'autorité de la chose jugée (art. 1355 Code civil) :
-• Condamnation principale : Fixation des sommes ou obligations mises à la charge de la partie défaillante.
-• Intérêts moratoires : Courants au taux légal en vigueur à compter de la mise en demeure ou de l'assignation.
-• Article 700 du Code de procédure civile : Indemnité forfaitaire allouée pour couvrir les frais de justice non compris dans les dépens.
-• Dépens d'instance : Frais de procédure et d'actes d'huissier mis à la charge de la partie succombante (art. 696 CPC).
-• Exécution provisoire : En application de l'article 514 du CPC, les décisions de première instance sont de droit exécutoires à titre provisoire, sauf si le juge l'a expressément écartée.
+Ce jugement émane de la juridiction compétente (${jurMatch ? jurMatch[1].trim() : 'Juge aux affaires familiales / Tribunal Judiciaire'}) concernant l'instance opposant ${demandeur} et ${defendeur}${rgMatch ? ` (RG ${rgMatch[1].trim()})` : ''}.
 
-3. DÉLAIS ET VOIES DE RECOURS
-• Délai d'appel de droit commun : UN (1) MOIS à compter de la signification par Commissaire de Justice (art. 538 CPC).
-• Délai d'appel en matière de référé : QUINZE (15) JOURS à compter de la signification (art. 490 CPC).
-• Point de départ du délai : La simple lecture ou réception postale ne fait pas courir le délai d'appel ; seule la signification par acte de Commissaire de Justice fait courir le délai légal (art. 503 CPC).
+1. LE CONTEXTE DE LA DÉCISION
+• Juridiction : ${jurMatch ? jurMatch[1].trim() : 'Tribunal judiciaire (JAF)'}
+• Numéro de dossier : ${rgMatch ? `RG ${rgMatch[1].trim()}` : 'Répertoire général'}
+• Parties en cause : ${demandeur} c/ ${defendeur}
+• Document analysé : ${docName}
 
-4. PROCÉDURE D'EXÉCUTION FORCÉE ET RECOUVREMENT
-1. Obtenir la copie exécutoire auprès du greffe (revêtue de la formule exécutoire officielle).
-2. Mandater un Commissaire de Justice (Huissier) compétent dans le ressort de la cour d'appel pour signifier la décision.
-3. À défaut de paiement sous 8 jours après commandement de payer, mise en œuvre des voies d'exécution forcée : saisie-attribution bancaire, saisie des rémunérations, ou saisie des biens meubles corporels.`.trim();
+2. DÉCISIONS DU JUGE DANS CE DOSSIER
+• Prononcé du divorce : Prononcé selon les dispositions du Code civil relatives à la séparation et à la rupture de la vie commune (articles 237 et 238 du Code civil).
+• Effets patrimoniaux : Liquidation du régime matrimonial et fixation de la date des effets entre les époux.
+${amounts.length > 0 ? `• Éléments pécuniaires constatés dans le dossier : ${amounts.join(', ')} (englobant les éventuelles prestations compensatoires et pensions alimentaires fixées).` : ''}
+
+3. VOIES DE RECOURS ET EXÉCUTION
+• Délai d'appel : UN (1) MOIS à compter de la signification par Commissaire de Justice (art. 538 du Code de procédure civile).
+• Force exécutoire : Les mesures relatives aux enfants et aux obligations alimentaires sont de droit exécutoires à titre provisoire.
+
+*Posez-moi toute question complémentaire sur un point précis (pension, garde, prestation compensatoire ou voies de recours).*`.trim();
+    }
+
+    return `ANALYSE JURIDIQUE DE LA PIÈCE : ${docName}
+• Juridiction / Origine : ${jurMatch ? jurMatch[1].trim() : 'Juridiction compétente'}
+${rgMatch ? `• Référence : RG ${rgMatch[1].trim()}` : ''}
+${dateMatch ? `• Date : ${dateMatch[1]}` : ''}
+${amounts.length > 0 ? `• Montants financiers identifiés : ${amounts.join(', ')}` : ''}
+
+La pièce soumise a bien été analysée. N'hésitez pas à me poser une question précise sur ce document pour obtenir une analyse détaillée sur un chef de contestation particulier.`.trim();
   }
 
   // DEFAULT SCENARIO: GENERAL CONVERSATIONAL SYNTHESIS

@@ -136,6 +136,7 @@ export interface AgentThread {
   updatedAt: string;
   messages: AgentMessage[];
   uploadedFiles: string[];
+  extractedText?: string;
   lastRunStatus?: RunStatus;
 }
 

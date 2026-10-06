@@ -166,7 +166,7 @@ export async function getUnifiedLawyersList(): Promise<UnifiedLawyer[]> {
   try {
     const { data: dbProfiles, error } = await supabase
       .from('profiles_just')
-      .select('*, lawyers:lawyers_just(*)')
+      .select('*')
       .in('role', ['lawyer', 'professor', 'doctorate'])
       .eq('is_verified', true)
       .order('last_name');
@@ -175,10 +175,20 @@ export async function getUnifiedLawyersList(): Promise<UnifiedLawyer[]> {
       return datasetLawyers;
     }
 
+    const lawyersMap = new Map<string, any>();
+    try {
+      const { data: lawyersData } = await supabase.from('lawyers_just').select('*').limit(500);
+      if (lawyersData) {
+        lawyersData.forEach((l: any) => { if (l.id) lawyersMap.set(l.id, l); });
+      }
+    } catch {
+      // ignore
+    }
+
     const supabaseLawyers: UnifiedLawyer[] = dbProfiles
       .filter(p => p.email && !deletedEmails.has(p.email.toLowerCase()))
       .map((p) => {
-        const lawyerInfo = Array.isArray(p.lawyers) ? p.lawyers[0] : p.lawyers;
+        const lawyerInfo = lawyersMap.get(p.id) || (Array.isArray(p.lawyers) ? p.lawyers[0] : p.lawyers);
         const barAssoc = lawyerInfo?.bar_association || 'Paris';
         const courInfo = getCourDAppelForCity(p.city, p.postal_code);
 

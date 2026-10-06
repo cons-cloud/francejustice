@@ -614,14 +614,25 @@ const DashboardLawyer: React.FC = () => {
     if (!user) return null
     const { data } = await supabase
       .from('profiles_just')
-      .select('stripe_public_key, stripe_secret_key, phone, city, postal_code, bio, specialty, bar_number, experience_years, is_available, first_name, last_name, lawyers:lawyers_just(bar_association)')
+      .select('stripe_public_key, stripe_secret_key, phone, city, postal_code, bio, specialty, bar_number, experience_years, is_available, first_name, last_name')
       .eq('id', user.id)
       .maybeSingle()
 
+    let barAssoc: string | undefined;
+    try {
+      const { data: lData } = await supabase
+        .from('lawyers_just')
+        .select('bar_association')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (lData?.bar_association) {
+        barAssoc = lData.bar_association;
+      }
+    } catch {
+      // ignore
+    }
+
     if (data) {
-      const barAssoc = Array.isArray((data as any).lawyers) 
-        ? (data as any).lawyers[0]?.bar_association 
-        : (data as any).lawyers?.bar_association;
       
       const formValues = {
         first_name: data.first_name || '',
@@ -1579,8 +1590,8 @@ const DashboardLawyer: React.FC = () => {
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
                 {profile?.role === 'professor' && `Espace Enseignant — Prof. ${profile?.first_name} ${profile?.last_name}`}
-                {profile?.role === 'doctorate' && (isCoban ? 'Cabinet du Doctorant Coban' : `Espace Recherche — ${profile?.first_name?.startsWith('Dr') ? '' : 'DrD. '}${profile?.first_name} ${profile?.last_name}`)}
-                {(!profile?.role || profile?.role === 'lawyer' || profile?.role === 'admin') && (isCoban ? 'Cabinet du Doctorant Coban' : `Cabinet de Maître ${profile?.first_name} ${profile?.last_name}`)}
+                {profile?.role === 'doctorate' && (isCoban ? 'Doctorant Coban' : `Espace Recherche — ${profile?.first_name?.startsWith('Dr') ? '' : 'DrD. '}${profile?.first_name} ${profile?.last_name}`)}
+                {(!profile?.role || profile?.role === 'lawyer' || profile?.role === 'admin') && (isCoban ? 'Doctorant Coban' : `Cabinet de Maître ${profile?.first_name} ${profile?.last_name}`)}
               </h1>
 
               <p className="text-cyan-50 text-sm sm:text-base max-w-2xl font-normal leading-relaxed">

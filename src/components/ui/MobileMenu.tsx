@@ -24,6 +24,7 @@ import { Button } from './Button';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import LanguageSwitcher from './LanguageSwitcher';
+import { isUserAdmin } from '../../hooks/useAuth';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -381,7 +382,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                 className="w-full justify-center rounded-xl py-3.5 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-bold shadow-md shadow-cyan-600/25"
                 onClick={() => {
                   navigate(
-                    role === 'admin'
+                    isUserAdmin(user?.email, role)
                       ? '/dashboard/admin'
                       : role === 'lawyer'
                       ? '/dashboard/lawyer'
