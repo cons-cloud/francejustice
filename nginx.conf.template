@@ -107,8 +107,8 @@ http {
             log_not_found off;
         }
 
-        # Dev HMR / WebSocket fallback (prevents 502/204 errors from external extensions/HMR)
-        location /ws/ {
+        # Dev HMR / WebSocket fallback (prevents errors from external extensions/HMR/reload.js)
+        location ~* (?:^|/)ws(?:/|$) {
             access_log off;
             return 200 "ok\n";
         }

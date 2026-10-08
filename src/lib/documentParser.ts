@@ -148,6 +148,29 @@ export interface ParsedDocument {
 }
 
 /**
+ * Safely decompresses a PDF stream using browser-native DecompressionStream
+ * with Response.pipeThrough() to cleanly handle invalid/non-zlib stream headers
+ * without creating unhandled promise rejections.
+ */
+async function safeDecompressPdfStream(rawBytes: Uint8Array): Promise<string> {
+  if (typeof DecompressionStream === 'undefined' || rawBytes.length === 0) return '';
+  for (const fmt of ['deflate', 'deflate-raw'] as const) {
+    try {
+      const ds = new DecompressionStream(fmt);
+      const stream = new Response(rawBytes).body?.pipeThrough(ds);
+      if (!stream) continue;
+      const buf = await new Response(stream).arrayBuffer();
+      if (buf && buf.byteLength > 0) {
+        return new TextDecoder('latin1').decode(buf);
+      }
+    } catch {
+      // Cleanly handled: invalid zlib header or non-text stream, proceed to next format
+    }
+  }
+  return '';
+}
+
+/**
  * Advanced multi-strategy PDF text extractor operating directly in the browser.
  * Safely copies ArrayBuffers to prevent detached buffer errors, decompresses
  * Flate streams using native DecompressionStream, and decodes Tj/TJ text operators.
@@ -173,31 +196,14 @@ export async function extractTextFromPDFBuffer(buffer: ArrayBuffer): Promise<str
       const dictPrefix = latin1.substring(Math.max(0, streamStart - 600), streamStart);
       const isFlate = /FlateDecode|Flate/i.test(dictPrefix);
 
-      if (isFlate && typeof DecompressionStream !== 'undefined') {
+      if (isFlate) {
         try {
           const rawBytes = new Uint8Array(rawData.length);
           for (let i = 0; i < rawData.length; i++) {
             rawBytes[i] = rawData.charCodeAt(i);
           }
-          const ds = new DecompressionStream('deflate');
-          const writer = ds.writable.getWriter();
-          writer.write(rawBytes);
-          writer.close();
-          const reader = ds.readable.getReader();
-          const chunks: Uint8Array[] = [];
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            if (value) chunks.push(value);
-          }
-          const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
-          const outBytes = new Uint8Array(totalLen);
-          let offset = 0;
-          for (const c of chunks) {
-            outBytes.set(c, offset);
-            offset += c.length;
-          }
-          decompressed = new TextDecoder('latin1').decode(outBytes);
+          const decomp = await safeDecompressPdfStream(rawBytes);
+          decompressed = decomp || rawData;
         } catch (_decompErr) {
           decompressed = rawData;
         }
