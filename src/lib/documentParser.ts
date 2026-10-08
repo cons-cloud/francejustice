@@ -148,32 +148,128 @@ export interface ParsedDocument {
 }
 
 /**
+ * Checks if a byte sequence starts with a valid zlib header (RFC 1950)
+ * CMF method must be 8 (deflate) and (CMF * 256 + FLG) % 31 === 0
+ */
+function hasZlibHeader(bytes: Uint8Array): boolean {
+  if (!bytes || bytes.length < 2) return false;
+  const cmf = bytes[0];
+  const flg = bytes[1];
+  if ((cmf & 0x0f) !== 8) return false;
+  return (cmf * 256 + flg) % 31 === 0;
+}
+
+/**
  * Safely decompresses a PDF stream using browser-native DecompressionStream
- * with Response.pipeThrough() to cleanly handle invalid/non-zlib stream headers
- * without creating unhandled promise rejections.
+ * with explicit reader/writer error catching to prevent unhandled promise rejections.
  */
 async function safeDecompressPdfStream(rawBytes: Uint8Array): Promise<string> {
-  if (typeof DecompressionStream === 'undefined' || rawBytes.length === 0) return '';
-  for (const fmt of ['deflate', 'deflate-raw'] as const) {
+  if (typeof DecompressionStream === 'undefined' || !rawBytes || rawBytes.length < 2) return '';
+
+  const formats: ('deflate' | 'deflate-raw')[] = hasZlibHeader(rawBytes)
+    ? ['deflate', 'deflate-raw']
+    : ['deflate-raw'];
+
+  for (const fmt of formats) {
     try {
       const ds = new DecompressionStream(fmt);
-      const stream = new Response(rawBytes).body?.pipeThrough(ds);
-      if (!stream) continue;
-      const buf = await new Response(stream).arrayBuffer();
-      if (buf && buf.byteLength > 0) {
-        return new TextDecoder('latin1').decode(buf);
+      const writer = ds.writable.getWriter();
+      const reader = ds.readable.getReader();
+
+      const writePromise = writer.write(rawBytes)
+        .then(() => writer.close())
+        .catch(() => {});
+
+      const chunks: Uint8Array[] = [];
+      let done = false;
+      while (!done) {
+        const { value, done: streamDone } = await reader.read().catch(() => ({ value: undefined, done: true }));
+        if (value) chunks.push(value);
+        done = streamDone;
       }
+      await writePromise;
+
+      let totalLen = 0;
+      for (const c of chunks) totalLen += c.length;
+      if (totalLen === 0) continue;
+      const combined = new Uint8Array(totalLen);
+      let offset = 0;
+      for (const c of chunks) {
+        combined.set(c, offset);
+        offset += c.length;
+      }
+      return new TextDecoder('latin1').decode(combined);
     } catch {
-      // Cleanly handled: invalid zlib header or non-text stream, proceed to next format
+      // Cleanly handled: invalid stream, try next format
     }
   }
   return '';
 }
 
 /**
+ * Rigorously checks if extracted string is genuine readable human text
+ * rather than binary noise, font tables, or stream artifacts.
+ */
+export function isValidHumanText(text: string): boolean {
+  if (!text || typeof text !== 'string') return false;
+  const trimmed = text.trim();
+  if (trimmed.length < 30) return false;
+
+  // 1. Ratio of printable characters (ASCII printable, accented Latin-1, standard whitespace)
+  let printableCount = 0;
+  for (let i = 0; i < trimmed.length; i++) {
+    const code = trimmed.charCodeAt(i);
+    if ((code >= 32 && code <= 126) || (code >= 160 && code <= 383) || code === 10 || code === 13 || code === 9) {
+      printableCount++;
+    }
+  }
+  const printableRatio = printableCount / trimmed.length;
+  if (printableRatio < 0.88) return false;
+
+  // 2. Tokenize words (sequences of letters)
+  const tokens = trimmed.match(/[a-zA-ZÀ-ÿ]{2,}/g) || [];
+  if (tokens.length < 5) return false;
+
+  // 3. Check for presence of common French / natural language words
+  const commonFrenchWords = new Set([
+    'le', 'la', 'les', 'un', 'une', 'des', 'du', 'de', 'en', 'et', 'ou', 'pour', 'par', 'sur',
+    'dans', 'avec', 'sans', 'est', 'sont', 'a', 'au', 'aux', 'qui', 'que', 'ce', 'cette', 'ces',
+    'il', 'elle', 'ils', 'elles', 'nous', 'vous', 'je', 'tu', 'se', 'sa', 'son', 'ses', 'leur',
+    'leurs', 'ne', 'pas', 'plus', 'tout', 'tous', 'toute', 'toutes', 'cour', 'tribunal', 'juge',
+    'jugement', 'decision', 'décision', 'ordonnance', 'arret', 'arrêt', 'droit', 'droits', 'article',
+    'parties', 'demandeur', 'defendeur', 'défendeur', 'avocat', 'affaire', 'fait', 'date', 'somme',
+    'euros', 'euro', 'monsieur', 'madame', 'societe', 'société', 'considérant', 'attendu', 'motifs',
+    'dispositif', 'appel', 'chambre', 'loi', 'code', 'civil', 'pénal', 'commerce', 'contrat',
+    'divorce', 'enfant', 'enfants', 'pension', 'prestation', 'vice', 'expertise', 'requete', 'requête'
+  ]);
+
+  let commonWordMatches = 0;
+  for (const token of tokens) {
+    if (commonFrenchWords.has(token.toLowerCase())) {
+      commonWordMatches++;
+    }
+  }
+
+  const minRequiredMatches = trimmed.length > 200 ? 4 : (trimmed.length > 80 ? 2 : 1);
+  if (commonWordMatches < minRequiredMatches) {
+    return false;
+  }
+
+  // 4. Check average word length to filter out long unbroken binary strings
+  const totalWordLength = tokens.reduce((acc, t) => acc + t.length, 0);
+  const avgWordLength = totalWordLength / tokens.length;
+  if (avgWordLength > 18 || avgWordLength < 2) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Advanced multi-strategy PDF text extractor operating directly in the browser.
  * Safely copies ArrayBuffers to prevent detached buffer errors, decompresses
  * Flate streams using native DecompressionStream, and decodes Tj/TJ text operators.
+ * Rejects binary garbage so that OCR Vision can properly trigger on scanned documents.
  */
 export async function extractTextFromPDFBuffer(buffer: ArrayBuffer): Promise<string | null> {
   try {
@@ -203,12 +299,19 @@ export async function extractTextFromPDFBuffer(buffer: ArrayBuffer): Promise<str
             rawBytes[i] = rawData.charCodeAt(i);
           }
           const decomp = await safeDecompressPdfStream(rawBytes);
-          decompressed = decomp || rawData;
+          // Only use decomp if successfully decompressed; DO NOT fall back to raw binary bytes!
+          decompressed = decomp || '';
         } catch (_decompErr) {
-          decompressed = rawData;
+          decompressed = '';
         }
       } else {
-        decompressed = rawData;
+        // If not Flate, only examine rawData if it is NOT a compressed or binary image filter
+        const isBinaryFilter = /\/(?:DCTDecode|JPXDecode|CCITTFaxDecode|JBIG2Decode|Filter|XObject)/i.test(dictPrefix);
+        if (!isBinaryFilter) {
+          decompressed = rawData;
+        } else {
+          decompressed = '';
+        }
       }
 
       if (decompressed && decompressed.length > 5) {
@@ -265,9 +368,12 @@ export async function extractTextFromPDFBuffer(buffer: ArrayBuffer): Promise<str
         .replace(/\s+/g, ' ')
         .trim();
 
-      if (fullText.length > 15) {
-        console.log(`[NativeStreamParser] ✅ Texte extrait du flux PDF (${fullText.length} caractères)`);
+      // Ensure extracted text is genuine human language, not raw binary stream noise
+      if (fullText.length > 25 && isValidHumanText(fullText)) {
+        console.log(`[NativeStreamParser] ✅ Texte valide extrait du flux PDF (${fullText.length} caractères)`);
         return fullText;
+      } else {
+        console.log(`[NativeStreamParser] ℹ️ Données de flux non textuelles (${fullText.length} car.) rejetées en faveur de l'OCR Vision`);
       }
     }
   } catch (err) {
@@ -321,41 +427,97 @@ export async function extractTextFromDocxBuffer(buffer: ArrayBuffer): Promise<st
  * Converts a PDF buffer to a base64 image (first N pages) using PDF.js loaded from CDN.
  * Returns an array of data URLs (one per page rendered).
  */
-async function convertPdfPagesToImages(buffer: ArrayBuffer, maxPages = 5): Promise<string[]> {
+/**
+ * Fast direct extraction of scanned JPEG images directly from the PDF byte buffer
+ * Used as high-reliability fallback if PDF.js fails to initialize in the browser.
+ */
+function extractEmbeddedJpegImagesFromBuffer(buffer: ArrayBuffer, maxImages = 6): string[] {
+  try {
+    const bytes = new Uint8Array(buffer);
+    const results: string[] = [];
+    let i = 0;
+    while (i < bytes.length - 4 && results.length < maxImages) {
+      // Detect JPEG SOI (Start of Image): 0xFF, 0xD8, 0xFF
+      if (bytes[i] === 0xFF && bytes[i + 1] === 0xD8 && bytes[i + 2] === 0xFF) {
+        const start = i;
+        i += 3;
+        let end = -1;
+        while (i < bytes.length - 1) {
+          if (bytes[i] === 0xFF && bytes[i + 1] === 0xD9) {
+            end = i + 2;
+            break;
+          }
+          i++;
+        }
+        if (end !== -1 && (end - start) > 5000) { // Keep images > 5KB (filter out tiny icons/stamps)
+          const imageBytes = bytes.subarray(start, end);
+          let binary = '';
+          const chunkSize = 8192;
+          for (let c = 0; c < imageBytes.length; c += chunkSize) {
+            binary += String.fromCharCode.apply(null, Array.from(imageBytes.subarray(c, c + chunkSize)));
+          }
+          const base64 = btoa(binary);
+          results.push(`data:image/jpeg;base64,${base64}`);
+        }
+      } else {
+        i++;
+      }
+    }
+    return results;
+  } catch (_e) {
+    return [];
+  }
+}
+
+/**
+ * Converts a PDF buffer to a base64 image (first N pages) using PDF.js loaded from CDN,
+ * with direct embedded JPEG extraction fallback for scanned documents.
+ */
+async function convertPdfPagesToImages(buffer: ArrayBuffer, maxPages = 6): Promise<string[]> {
   try {
     if (!buffer || buffer.byteLength === 0) return [];
     // Dynamically load PDF.js from CDN if not already available
     const pdfjsLib = await loadPdfJs();
-    if (!pdfjsLib) return [];
+    if (pdfjsLib) {
+      const data = new Uint8Array(buffer.slice(0));
+      const loadingTask = pdfjsLib.getDocument({ data });
+      const pdf = await loadingTask.promise;
+      const numPages = Math.min(pdf.numPages, maxPages);
+      const dataUrls: string[] = [];
 
-    const data = new Uint8Array(buffer.slice(0));
-    const loadingTask = pdfjsLib.getDocument({ data });
-    const pdf = await loadingTask.promise;
-    const numPages = Math.min(pdf.numPages, maxPages);
-    const dataUrls: string[] = [];
+      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        try {
+          const page = await pdf.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 2.0 }); // High resolution for better OCR
 
-    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-      try {
-        const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale: 2.0 }); // High resolution for better OCR
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) continue;
 
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) continue;
-
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        dataUrls.push(canvas.toDataURL('image/jpeg', 0.92));
-      } catch (pageErr) {
-        console.warn(`Erreur page ${pageNum}:`, pageErr);
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          dataUrls.push(canvas.toDataURL('image/jpeg', 0.92));
+        } catch (pageErr) {
+          console.warn(`Erreur page ${pageNum}:`, pageErr);
+        }
       }
+      if (dataUrls.length > 0) return dataUrls;
     }
-    return dataUrls;
   } catch (err) {
     console.warn('PDF.js conversion error:', err);
-    return [];
   }
+
+  // Fallback: extract embedded JPEG streams directly from PDF buffer
+  try {
+    const embeddedImages = extractEmbeddedJpegImagesFromBuffer(buffer.slice(0), maxPages);
+    if (embeddedImages.length > 0) {
+      console.log(`[OCR] ✅ Extraction directe de ${embeddedImages.length} image(s) JPEG depuis le flux PDF`);
+      return embeddedImages;
+    }
+  } catch (_embErr) {}
+
+  return [];
 }
 
 /**
@@ -395,8 +557,28 @@ async function loadPdfJs(): Promise<any> {
         resolve(lib || null);
       };
       script.onerror = () => {
-        console.warn('[PDF.js] Impossible de charger le CDN PDF.js');
-        resolve(null);
+        // Fallback to jsDelivr CDN
+        const fallbackScript = document.createElement('script');
+        fallbackScript.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+        fallbackScript.onload = () => {
+          const lib = (window as any).pdfjsLib;
+          if (lib) {
+            try {
+              const workerCode = `importScripts("https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js");`;
+              const blob = new Blob([workerCode], { type: 'application/javascript' });
+              lib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(blob);
+            } catch (_wErr) {
+              lib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+            }
+            _pdfjsLib = lib;
+          }
+          resolve(lib || null);
+        };
+        fallbackScript.onerror = () => {
+          console.warn('[PDF.js] Impossible de charger les CDN PDF.js');
+          resolve(null);
+        };
+        document.head.appendChild(fallbackScript);
       };
       document.head.appendChild(script);
     } catch (_loadErr) {
@@ -442,7 +624,7 @@ export async function extractTextWithPdfJs(buffer: ArrayBuffer): Promise<string 
     }
 
     const fullText = pageTexts.join('\n\n').trim();
-    if (fullText.length > 20) {
+    if (fullText.length > 25 && isValidHumanText(fullText)) {
       console.log(`[PDF.js] ✅ Extraction numérique native réussie (${pdf.numPages} pages, ${fullText.length} caractères)`);
       return fullText;
     }
@@ -554,7 +736,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
         let cleanText = '';
         try {
           const nativeText = await extractTextWithPdfJs(getBufferCopy());
-          if (nativeText && nativeText.trim().length > 30) {
+          if (nativeText && nativeText.trim().length > 30 && isValidHumanText(nativeText)) {
             cleanText = sanitizeExtractedText(nativeText);
           }
         } catch (_nativeErr) {}
@@ -563,7 +745,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
         if (!cleanText || cleanText.length < 40) {
           try {
             const rawText = await extractTextFromPDFBuffer(getBufferCopy());
-            if (rawText && rawText.trim().length > 30) {
+            if (rawText && rawText.trim().length > 30 && isValidHumanText(rawText)) {
               cleanText = sanitizeExtractedText(rawText);
             }
           } catch (_rawErr) {}

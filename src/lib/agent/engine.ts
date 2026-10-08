@@ -439,9 +439,9 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
         try {
           const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
 
-          // Per-model 15-second timeout controller linked with parent abort signal
+          // Per-model 30-second timeout controller linked with parent abort signal
           const perModelController = new AbortController();
-          const timeoutId = setTimeout(() => perModelController.abort(), 15000);
+          const timeoutId = setTimeout(() => perModelController.abort(), 30000);
           if (signal) {
             signal.addEventListener('abort', () => perModelController.abort(), { once: true });
           }
@@ -477,8 +477,12 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
             console.warn(`[Engine] Gemini ${m} status ${res.status}:`, errBody.substring(0, 200));
             continue;
           }
-        } catch (_err) {
-          console.warn(`[Engine] Gemini ${m} timeout ou erreur réseau, basculement vers le modèle suivant...`);
+        } catch (err: any) {
+          if (err?.name === 'AbortError') {
+            console.warn(`[Engine] Gemini ${m} délai dépassé (30s), basculement vers le modèle suivant...`);
+          } else {
+            console.warn(`[Engine] Gemini ${m} erreur réseau ou API:`, err?.message || err);
+          }
         }
         if (!isInvalidText(generatedText)) break;
       }
