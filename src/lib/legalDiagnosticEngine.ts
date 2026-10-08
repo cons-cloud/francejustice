@@ -454,7 +454,7 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
   let jsonRawText = '';
 
   if (geminiApiKey && geminiApiKey.trim().length >= 20) {
-    const diagModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    const diagModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
     for (const dModel of diagModels) {
       try {
         const response = await fetch(

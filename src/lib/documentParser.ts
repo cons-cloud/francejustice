@@ -16,13 +16,11 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
   if (config.gemini_key && config.gemini_status !== "invalid_key") {
     const geminiModels = [
       "gemini-3.8-flash",
-      "gemini-2.5-flash",
-      "gemini-2.0-flash",
-      "gemini-1.5-flash",
       "gemini-3.7-flash",
-      "gemini-2.5-pro",
-      "gemini-1.5-pro",
-      "gemini-flash-latest"
+      "gemini-3.6-flash",
+      "gemini-3.5-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite"
     ];
     for (const gModel of geminiModels) {
       try {
@@ -150,78 +148,124 @@ export interface ParsedDocument {
 }
 
 /**
- * Advanced multi-strategy PDF text extractor operating directly in the browser
+ * Advanced multi-strategy PDF text extractor operating directly in the browser.
+ * Safely copies ArrayBuffers to prevent detached buffer errors, decompresses
+ * Flate streams using native DecompressionStream, and decodes Tj/TJ text operators.
  */
-export function extractTextFromPDFBuffer(buffer: ArrayBuffer): string | null {
+export async function extractTextFromPDFBuffer(buffer: ArrayBuffer): Promise<string | null> {
   try {
-    const bytes = new Uint8Array(buffer);
-    let raw = "";
-    const chunkSize = 8192;
-    for (let i = 0; i < bytes.length; i += chunkSize) {
-      const chunk = bytes.subarray(i, i + chunkSize);
-      raw += String.fromCharCode.apply(null, Array.from(chunk));
-    }
+    if (!buffer || buffer.byteLength === 0) return null;
+    const safeBytes = new Uint8Array(buffer.slice(0));
+    const latin1 = new TextDecoder('latin1').decode(safeBytes);
 
-    const isValidHumanText = (str: string): boolean => {
-      if (!str || str.length < 15) return false;
-      if (/%PDF|DCTDecode|FlateDecode|BitsPerComponent|DeviceRGB|Image[A-Z0-9]+|MediaBox|Parent\s+\d|ProcSet/i.test(str)) {
-        return false;
-      }
-      const nonStandardChars = (str.match(/[^\x20-\x7E\u00C0-\u017F\s]/g) || []).length;
-      if (nonStandardChars > str.length * 0.08) {
-        return false;
-      }
-      const hasFrenchWords = /\b(le|la|les|un|une|des|du|de|en|dans|pour|par|avec|sur|qui|que|est|sont|fait|cour|tribunal|juge|jugement|audience|dossier|decision|partie|demandeur|defendeur|avocat|article|code|loi|contrat|somme|euro|euros)\b/i.test(str);
-      return hasFrenchWords;
-    };
+    const extractedStrings: string[] = [];
 
-    const extractedBlocks: string[] = [];
-    const rawWithoutStreams = raw.replace(/stream[\r\n][\s\S]*?endstream/gi, " ");
+    // 1. Process all PDF content streams (stream ... endstream)
+    const streamRegex = /stream[\r\n]([\s\S]*?)[\r\n]endstream/g;
+    let match: RegExpExecArray | null;
 
-    // Strategy 1: Extract literal text strings within PDF stream blocks
-    const matches = rawWithoutStreams.match(/\(([^()]{2,})\)/g);
-    if (matches && matches.length > 0) {
-      const extracted = matches
-        .map(m => m.slice(1, -1))
-        .filter(str => /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]/i.test(str) && !/^\/[A-Z]/i.test(str))
-        .join(" ")
-        .replace(/\\([nrtbf()\\])/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-      if (extracted.length > 20 && isValidHumanText(extracted)) {
-        extractedBlocks.push(extracted);
-      }
-    }
+    while ((match = streamRegex.exec(latin1)) !== null) {
+      const rawData = match[1];
+      let decompressed = '';
 
-    // Strategy 2: Extract hex-encoded text strings
-    const hexMatches = rawWithoutStreams.match(/<([0-9A-Fa-f]{6,})>/g);
-    if (hexMatches && hexMatches.length > 0) {
-      try {
-        const hexDecoded = hexMatches
-          .map(h => {
-            const hex = h.slice(1, -1);
-            let str = "";
-            for (let i = 0; i < hex.length; i += 2) {
-              const code = parseInt(hex.substr(i, 2), 16);
-              if (code >= 32 && code <= 255) str += String.fromCharCode(code);
-            }
-            return str;
-          })
-          .filter(s => /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]{2,}/i.test(s))
-          .join(" ")
-          .trim();
-        if (hexDecoded.length > 20 && isValidHumanText(hexDecoded)) {
-          extractedBlocks.push(hexDecoded);
+      // Check if preceding PDF object specifies /FlateDecode
+      const streamStart = match.index;
+      const dictPrefix = latin1.substring(Math.max(0, streamStart - 600), streamStart);
+      const isFlate = /FlateDecode|Flate/i.test(dictPrefix);
+
+      if (isFlate && typeof DecompressionStream !== 'undefined') {
+        try {
+          const rawBytes = new Uint8Array(rawData.length);
+          for (let i = 0; i < rawData.length; i++) {
+            rawBytes[i] = rawData.charCodeAt(i);
+          }
+          const ds = new DecompressionStream('deflate');
+          const writer = ds.writable.getWriter();
+          writer.write(rawBytes);
+          writer.close();
+          const reader = ds.readable.getReader();
+          const chunks: Uint8Array[] = [];
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            if (value) chunks.push(value);
+          }
+          const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
+          const outBytes = new Uint8Array(totalLen);
+          let offset = 0;
+          for (const c of chunks) {
+            outBytes.set(c, offset);
+            offset += c.length;
+          }
+          decompressed = new TextDecoder('latin1').decode(outBytes);
+        } catch (_decompErr) {
+          decompressed = rawData;
         }
-      } catch {}
+      } else {
+        decompressed = rawData;
+      }
+
+      if (decompressed && decompressed.length > 5) {
+        // Extract literal text strings: (Text) Tj or ' or "
+        const tjRegex = /\(([^()]{1,400})\)\s*(?:Tj|\x27|\x22)/g;
+        let tjMatch: RegExpExecArray | null;
+        while ((tjMatch = tjRegex.exec(decompressed)) !== null) {
+          if (tjMatch[1]) extractedStrings.push(tjMatch[1]);
+        }
+
+        // Extract array text blocks: [(Part1) -10 (Part2)] TJ
+        const tjArrayRegex = /\[(.*?)\]\s*TJ/g;
+        let arrayMatch: RegExpExecArray | null;
+        while ((arrayMatch = tjArrayRegex.exec(decompressed)) !== null) {
+          const inner = arrayMatch[1];
+          const subMatches = inner.match(/\(([^()]+)\)/g);
+          if (subMatches) {
+            extractedStrings.push(subMatches.map(s => s.slice(1, -1)).join(''));
+          }
+        }
+
+        // Extract hex-encoded text: <00480065006C006C006F> Tj
+        const hexRegex = /<([0-9A-Fa-f]{4,})>\s*(?:Tj|\x27|\x22)/g;
+        let hexMatch: RegExpExecArray | null;
+        while ((hexMatch = hexRegex.exec(decompressed)) !== null) {
+          const hex = hexMatch[1];
+          let str = '';
+          for (let i = 0; i < hex.length; i += 2) {
+            const code = parseInt(hex.substr(i, 2), 16);
+            if (code >= 32 && code <= 255) str += String.fromCharCode(code);
+          }
+          if (str.length > 2) extractedStrings.push(str);
+        }
+      }
     }
 
-    if (extractedBlocks.length > 0) {
-      const longest = extractedBlocks.reduce((a, b) => a.length > b.length ? a : b);
-      return longest;
+    // 2. Fallback: Search for literal text strings outside stream boundaries
+    if (extractedStrings.length === 0) {
+      const literalMatches = latin1.match(/\(([^()]{3,})\)/g);
+      if (literalMatches) {
+        for (const m of literalMatches) {
+          const clean = m.slice(1, -1).trim();
+          if (clean.length > 2 && /[a-zA-Zàáâäæçèéêëîïôœùûüÿ0-9]/.test(clean)) {
+            extractedStrings.push(clean);
+          }
+        }
+      }
+    }
+
+    if (extractedStrings.length > 0) {
+      const fullText = extractedStrings
+        .join(' ')
+        .replace(/\\([nrtbf()\\])/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (fullText.length > 15) {
+        console.log(`[NativeStreamParser] ✅ Texte extrait du flux PDF (${fullText.length} caractères)`);
+        return fullText;
+      }
     }
   } catch (err) {
-    console.warn("Erreur d extraction du PDF:", err);
+    console.warn("Erreur d'extraction native du PDF:", err);
   }
 
   return null;
@@ -273,11 +317,13 @@ export async function extractTextFromDocxBuffer(buffer: ArrayBuffer): Promise<st
  */
 async function convertPdfPagesToImages(buffer: ArrayBuffer, maxPages = 5): Promise<string[]> {
   try {
+    if (!buffer || buffer.byteLength === 0) return [];
     // Dynamically load PDF.js from CDN if not already available
     const pdfjsLib = await loadPdfJs();
     if (!pdfjsLib) return [];
 
-    const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buffer) });
+    const data = new Uint8Array(buffer.slice(0));
+    const loadingTask = pdfjsLib.getDocument({ data });
     const pdf = await loadingTask.promise;
     const numPages = Math.min(pdf.numPages, maxPages);
     const dataUrls: string[] = [];
@@ -307,11 +353,14 @@ async function convertPdfPagesToImages(buffer: ArrayBuffer, maxPages = 5): Promi
 }
 
 /**
- * Lazily loads PDF.js from CDN (only once).
+ * Lazily loads PDF.js from CDN with same-origin Blob Worker wrapper
+ * to bypass browser cross-origin worker restrictions in production.
  */
 let _pdfjsLib: any = null;
+let _pdfjsLoadingPromise: Promise<any> | null = null;
 async function loadPdfJs(): Promise<any> {
   if (_pdfjsLib) return _pdfjsLib;
+  if (_pdfjsLoadingPromise) return _pdfjsLoadingPromise;
   if (typeof window === 'undefined') return null;
 
   // Check if already loaded
@@ -320,21 +369,36 @@ async function loadPdfJs(): Promise<any> {
     return _pdfjsLib;
   }
 
-  return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-    script.onload = () => {
-      const lib = (window as any).pdfjsLib;
-      if (lib) {
-        // Set worker source
-        lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        _pdfjsLib = lib;
-      }
-      resolve(lib || null);
-    };
-    script.onerror = () => resolve(null);
-    document.head.appendChild(script);
+  _pdfjsLoadingPromise = new Promise((resolve) => {
+    try {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      script.crossOrigin = 'anonymous';
+      script.onload = () => {
+        const lib = (window as any).pdfjsLib;
+        if (lib) {
+          try {
+            const workerCode = `importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");`;
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            lib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(blob);
+          } catch (_wErr) {
+            lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          }
+          _pdfjsLib = lib;
+        }
+        resolve(lib || null);
+      };
+      script.onerror = () => {
+        console.warn('[PDF.js] Impossible de charger le CDN PDF.js');
+        resolve(null);
+      };
+      document.head.appendChild(script);
+    } catch (_loadErr) {
+      resolve(null);
+    }
   });
+
+  return _pdfjsLoadingPromise;
 }
 
 /**
@@ -343,10 +407,12 @@ async function loadPdfJs(): Promise<any> {
  */
 export async function extractTextWithPdfJs(buffer: ArrayBuffer): Promise<string | null> {
   try {
+    if (!buffer || buffer.byteLength === 0) return null;
     const pdfjsLib = await loadPdfJs();
     if (!pdfjsLib) return null;
 
-    const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buffer) });
+    const data = new Uint8Array(buffer.slice(0));
+    const loadingTask = pdfjsLib.getDocument({ data });
     const pdf = await loadingTask.promise;
     if (!pdf || pdf.numPages === 0) return null;
 
@@ -370,7 +436,7 @@ export async function extractTextWithPdfJs(buffer: ArrayBuffer): Promise<string 
     }
 
     const fullText = pageTexts.join('\n\n').trim();
-    if (fullText.length > 30) {
+    if (fullText.length > 20) {
       console.log(`[PDF.js] ✅ Extraction numérique native réussie (${pdf.numPages} pages, ${fullText.length} caractères)`);
       return fullText;
     }
@@ -388,8 +454,11 @@ export async function extractTextWithPdfJs(buffer: ArrayBuffer): Promise<string 
  */
 export async function ocrScannedPdf(buffer: ArrayBuffer, fileName?: string): Promise<string> {
   console.log('[OCR] Tentative OCR Vision sur PDF scanné:', fileName);
+  if (!buffer || buffer.byteLength === 0) {
+    return `[Pièce PDF "${fileName || 'Document'}" reçue pour analyse juridique]`;
+  }
 
-  const pageImages = await convertPdfPagesToImages(buffer, 5);
+  const pageImages = await convertPdfPagesToImages(buffer.slice(0), 5);
 
   if (pageImages.length === 0) {
     return `[Pièce PDF "${fileName || 'Document'}" importée pour analyse juridique]`;
@@ -472,29 +541,34 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           return;
         }
 
+        // Safely produce independent ArrayBuffer slices so that PDF.js workers cannot detach the master buffer
+        const getBufferCopy = () => buffer.slice(0);
+
         // STEP 1: Fast direct native extraction via PDF.js getTextContent()
         let cleanText = '';
         try {
-          const nativeText = await extractTextWithPdfJs(buffer);
-          if (nativeText && nativeText.trim().length > 40) {
+          const nativeText = await extractTextWithPdfJs(getBufferCopy());
+          if (nativeText && nativeText.trim().length > 30) {
             cleanText = sanitizeExtractedText(nativeText);
           }
         } catch (_nativeErr) {}
 
-        // STEP 2: Heuristic raw stream extraction fallback
-        if (!cleanText || cleanText.length < 50) {
-          const rawText = extractTextFromPDFBuffer(buffer);
-          if (rawText && rawText.trim().length > 40) {
-            cleanText = sanitizeExtractedText(rawText);
-          }
+        // STEP 2: Pure-JS PDF stream decompressor fallback (DecompressionStream deflate)
+        if (!cleanText || cleanText.length < 40) {
+          try {
+            const rawText = await extractTextFromPDFBuffer(getBufferCopy());
+            if (rawText && rawText.trim().length > 30) {
+              cleanText = sanitizeExtractedText(rawText);
+            }
+          } catch (_rawErr) {}
         }
 
         // STEP 3: If still no text layer → truly a scanned/image PDF → Vision OCR
-        const isScannedPdf = !cleanText || cleanText.length < 50;
+        const isScannedPdf = !cleanText || cleanText.length < 40;
         if (isScannedPdf) {
           console.log(`[OCR] PDF "${file.name}" détecté comme scan sans calque texte - activation OCR Vision...`);
           try {
-            const ocrText = await ocrScannedPdf(buffer, file.name);
+            const ocrText = await ocrScannedPdf(getBufferCopy(), file.name);
             resolve({
               id: Math.random().toString(36).substring(2, 9),
               name: file.name,
