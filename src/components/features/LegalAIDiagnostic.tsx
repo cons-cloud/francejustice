@@ -141,6 +141,8 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [extractedText, setExtractedText] = useState('');
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [extractingProgress, setExtractingProgress] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const chatBottomRef = useRef<HTMLDivElement | null>(null);
   const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -502,12 +504,14 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
     const selectedFiles = Array.from(fileList);
     if (selectedFiles.length === 0) return;
     setFiles(prev => [...prev, ...selectedFiles]);
+    setIsExtracting(true);
+    setExtractingProgress(`Lecture de ${selectedFiles.length} document(s)...`);
 
     try {
       const parsed = await parseMultipleFiles(selectedFiles);
       let combined = '';
       parsed.forEach(doc => {
-        combined += `\n--- PIÈCE : ${doc.name} ---\n${doc.content.substring(0, 12000)}`;
+        combined += `\n--- PIÈCE : ${doc.name} ---\n${doc.content.substring(0, 30000)}`;
       });
       setExtractedText(prev => prev + combined);
       success(`${selectedFiles.length} document(s) importé(s) dans le contexte de l'Agent.`);
@@ -518,6 +522,9 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
       });
     } catch (err) {
       console.warn("Erreur extraction fichiers:", err);
+    } finally {
+      setIsExtracting(false);
+      setExtractingProgress('');
     }
   };
 
@@ -592,22 +599,41 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
 
   // RUN AGENT EXECUTION (THE CORE AGENTIC LOOP)
   const handleRunAgent = async (promptOverride?: string, customHistory?: AgentMessage[]) => {
+    if (isExtracting) {
+      toastError("Veuillez patienter pendant l'extraction du document...");
+      return;
+    }
+
     const promptToSend = (promptOverride || userInput).trim();
-    if (!promptToSend && files.length === 0 && !extractedText.trim()) {
+    if (!promptToSend && files.length === 0 && !extractedText.trim() && !activeThread?.extractedText?.trim()) {
       toastError("Veuillez saisir votre demande ou joindre au moins un document.");
       return;
     }
 
     if (!activeThread) return;
 
+    // ── SAFETY NET: If files are attached but extractedText is somehow empty, extract them synchronously now!
+    let capturedExtractedText = extractedText || activeThread.extractedText || '';
+    if (files.length > 0 && !capturedExtractedText.trim()) {
+      setIsExtracting(true);
+      setCurrentRunStatus("Lecture et extraction immédiate des pièces jointes...");
+      try {
+        const parsed = await parseMultipleFiles(files);
+        let directText = '';
+        parsed.forEach(doc => {
+          directText += `\n--- PIÈCE : ${doc.name} ---\n${doc.content.substring(0, 30000)}`;
+        });
+        capturedExtractedText = directText;
+        setExtractedText(directText);
+      } catch (err) {
+        console.warn("Direct parse error in handleRunAgent:", err);
+      } finally {
+        setIsExtracting(false);
+      }
+    }
+
     const fileNames = files.map(f => f.name);
     const updatedFiles = Array.from(new Set([...activeThread.uploadedFiles, ...fileNames]));
-
-    // ── CRITICAL FIX: capture extractedText BEFORE any state mutations ──────
-    // React state updates are batched; reading `extractedText` after setFiles([])
-    // or setIsRunning(true) can yield a stale (empty) closure value in the
-    // async executeAgentRun call. We snapshot it synchronously here.
-    const capturedExtractedText = extractedText || activeThread.extractedText || '';
 
     // Construct User Message
     const userMessage: AgentMessage = {
@@ -622,6 +648,9 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
     let threadTitle = activeThread.title;
     if (threadTitle === 'Nouvelle Analyse Juridique' || !threadTitle) {
       threadTitle = promptToSend.slice(0, 42) + (promptToSend.length > 42 ? '...' : '');
+      if (!threadTitle && fileNames.length > 0) {
+        threadTitle = `Analyse : ${fileNames[0].slice(0, 35)}`;
+      }
     }
 
     const baseHistory = customHistory !== undefined ? customHistory : activeThread.messages;
@@ -639,8 +668,6 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
     handleUpdateActiveThread(interimThread);
     setUserInput('');
     setFiles([]);
-    // Do NOT clear extractedText here — it will be cleared after a new thread
-    // or when the user explicitly removes files
     setIsRunning(true);
     setStreamingContent('');
     setCurrentRunSteps([]);
@@ -1802,7 +1829,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
               <div className="bg-white border-2 border-slate-200 hover:border-cyan-400 focus-within:border-cyan-600 rounded-2xl sm:rounded-3xl shadow-md sm:shadow-lg p-2.5 sm:p-3 transition-all flex flex-col gap-1.5 sm:gap-2 mb-0.5">
                 
                 {/* Uploaded Files Chips (Inside the input card) */}
-                {files.length > 0 && (
+                {(files.length > 0 || isExtracting) && (
                   <div className="flex flex-wrap items-center gap-1.5 pt-0.5 px-0.5">
                     {files.map((file, idx) => (
                       <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-50 border border-cyan-200 text-[11px] sm:text-xs font-bold text-cyan-900 shadow-2xs">
@@ -1810,13 +1837,22 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
                         <span className="max-w-[120px] sm:max-w-[150px] truncate">{file.name}</span>
                         <button
                           type="button"
-                          onClick={() => setFiles(prev => prev.filter((_, i) => i !== idx))}
+                          onClick={() => {
+                            setFiles(prev => prev.filter((_, i) => i !== idx));
+                            if (files.length <= 1) setExtractedText('');
+                          }}
                           className="ml-1 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
                       </span>
                     ))}
+                    {isExtracting && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200 text-[11px] sm:text-xs font-bold text-amber-800 animate-pulse">
+                        <RotateCw className="w-3 h-3 animate-spin text-amber-600" />
+                        <span>{extractingProgress || "Extraction du texte en cours..."}</span>
+                      </span>
+                    )}
                   </div>
                 )}
 
@@ -1891,12 +1927,16 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
                       <button
                         type="button"
                         onClick={() => handleRunAgent()}
-                        disabled={!userInput.trim() && files.length === 0}
+                        disabled={(!userInput.trim() && files.length === 0 && !extractedText.trim()) || isExtracting}
                         className="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-linear-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-md flex items-center justify-center transition-all hover:scale-105 active:scale-95 shrink-0 cursor-pointer"
-                        title="Lancer le Run de l'Agent IA"
+                        title={isExtracting ? "Extraction du document en cours..." : "Lancer le Run de l'Agent IA"}
                         aria-label="Envoyer"
                       >
-                        <Send className="w-3.5 sm:w-4 h-3.5 sm:h-4 translate-x-px -translate-y-px" />
+                        {isExtracting ? (
+                          <RotateCw className="w-3.5 sm:w-4 h-3.5 sm:h-4 animate-spin text-white" />
+                        ) : (
+                          <Send className="w-3.5 sm:w-4 h-3.5 sm:h-4 translate-x-px -translate-y-px" />
+                        )}
                       </button>
                     )}
                   </div>

@@ -46,17 +46,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<AuthContextType['profile']>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const email = session.user.email?.toLowerCase().trim();
+    const purgeStaleAuth = () => {
+      try {
+        supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+        if (typeof window !== 'undefined') {
+          for (let i = localStorage.length - 1; i >= 0; i--) {
+            const k = localStorage.key(i);
+            if (k && (k.startsWith('sb-') && k.endsWith('-auth-token'))) {
+              localStorage.removeItem(k);
+            }
+          }
+          localStorage.removeItem('role');
+        }
+      } catch (_e) {}
+    };
+
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        if (
+          error.message?.includes('Refresh Token') || 
+          error.message?.includes('refresh_token_not_found') ||
+          (error as any).status === 400
+        ) {
+          console.warn('[useAuth] Jeton de session expiré ou invalide - réinitialisation propre');
+          purgeStaleAuth();
+          setSession(null);
+          setUser(null);
+          setRole(null);
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+      }
+      const currentSession = data?.session ?? null;
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      if (currentSession?.user) {
+        const email = currentSession.user.email?.toLowerCase().trim();
         const isAdmin = isUserAdmin(email);
         if (isAdmin) {
           setRole('admin');
           localStorage.setItem('role', 'admin');
         }
-        fetchProfile(session.user.id, email);
+        fetchProfile(currentSession.user.id, email);
       } else {
         setRole(null);
         setProfile(null);
@@ -65,10 +97,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     }).catch((err) => {
       console.warn('Supabase getSession failed/timed out:', err);
+      if (
+        err?.message?.includes('Refresh Token') ||
+        err?.message?.includes('refresh_token_not_found') ||
+        err?.status === 400
+      ) {
+        purgeStaleAuth();
+      }
+      setSession(null);
+      setUser(null);
+      setRole(null);
+      setProfile(null);
       setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (_event === 'SIGNED_OUT' || !session) {
+        setSession(null);
+        setUser(null);
+        setRole(null);
+        setProfile(null);
+        localStorage.removeItem('role');
+        setLoading(false);
+        return;
+      }
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {

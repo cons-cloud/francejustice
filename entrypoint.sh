@@ -42,7 +42,7 @@ GUNICORN_PID=$!
 # ─── Wait for Gunicorn to be ready (max 30s) ─────────────────────────────────
 echo "=== Waiting for Gunicorn to be ready... ==="
 RETRIES=0
-until curl -sf "http://${BACKEND_UPSTREAM}/health" > /dev/null 2>&1 || [ $RETRIES -ge 15 ]; do
+until curl -sfL "http://${BACKEND_UPSTREAM}/health/" > /dev/null 2>&1 || curl -sfL "http://${BACKEND_UPSTREAM}/health" > /dev/null 2>&1 || [ $RETRIES -ge 15 ]; do
     sleep 2
     RETRIES=$((RETRIES + 1))
     echo "  → Attempt ${RETRIES}/15..."

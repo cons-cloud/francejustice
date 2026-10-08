@@ -453,25 +453,31 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
 
   let jsonRawText = '';
 
-  if (geminiApiKey && !geminiApiKey.startsWith('AQ.')) {
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: combinedPrompt }] }]
-          })
-        }
-      );
+  if (geminiApiKey && geminiApiKey.trim().length >= 20) {
+    const diagModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    for (const dModel of diagModels) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${dModel}:generateContent?key=${geminiApiKey.trim()}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: combinedPrompt }] }]
+            })
+          }
+        );
 
-      if (response.ok) {
-        const data = await response.json();
-        jsonRawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if (response.ok) {
+          const data = await response.json();
+          jsonRawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (jsonRawText) break;
+        } else if (response.status === 503) {
+          console.warn(`[DiagnosticEngine] Gemini ${dModel} 503 (Spike) - essai du modèle suivant...`);
+        }
+      } catch (err) {
+        console.warn(`Direct Gemini call failed for legal diagnosis on ${dModel}:`, err);
       }
-    } catch (err) {
-      console.warn("Direct Gemini call failed for legal diagnosis:", err);
     }
   }
 

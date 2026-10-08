@@ -2538,32 +2538,35 @@ export async function generateLegalDocument(type: string, details: string, targe
   const lang = targetLang || (typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : 'fr') || 'fr';
   const langName = LANGUAGE_NAMES[lang] || 'French (Français)';
 
-  if (geminiApiKey && !geminiApiKey.startsWith('AQ.')) {
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: {
-              parts: [{ text: MASTER_LEGAL_SYSTEM_PROMPT }]
-            },
-            contents: [{ 
-              role: 'user',
-              parts: [{ text: `Rédigez un document juridique officiel complet, irréprochable et prêt à être signé/notifié de type "${type}". Détails du litige et des parties : ${details}. [INSTRUCTION IMPÉRATIVE: Rédigez l'intégralité du document en ${langName}. Utilisez exclusivement l'Euro (€). Citez les articles de loi applicables et formulez un délai impératif].` }] 
-            }]
-          })
-        }
-      );
+  if (geminiApiKey && geminiApiKey.trim().length >= 20) {
+    const docModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    for (const docModel of docModels) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${docModel}:generateContent?key=${geminiApiKey.trim()}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: {
+                parts: [{ text: MASTER_LEGAL_SYSTEM_PROMPT }]
+              },
+              contents: [{ 
+                role: 'user',
+                parts: [{ text: `Rédigez un document juridique officiel complet, irréprochable et prêt à être signé/notifié de type "${type}". Détails du litige et des parties : ${details}. [INSTRUCTION IMPÉRATIVE: Rédigez l'intégralité du document en ${langName}. Utilisez exclusivement l'Euro (€). Citez les articles de loi applicables et formulez un délai impératif].` }] 
+              }]
+            })
+          }
+        );
 
-      if (response.ok) {
-        const data = await response.json();
-        const generatedText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (generatedText) return generatedText;
+        if (response.ok) {
+          const data = await response.json();
+          const generatedText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (generatedText) return generatedText;
+        }
+      } catch (e) {
+        console.warn(`Direct Gemini call error in generateLegalDocument on ${docModel}:`, e);
       }
-    } catch (e) {
-      console.warn("Direct Gemini call error in generateLegalDocument:", e);
     }
   }
 
@@ -2621,7 +2624,19 @@ export async function chatWithAI(
   if (geminiApiKey && geminiApiKey.trim().length >= 20) {
     try {
       const cleanKey = geminiApiKey.trim();
-      const geminiModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite', 'gemini-pro-latest'];
+      const geminiModels = [
+        'gemini-3.8-flash',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
+        'gemini-3.7-flash',
+        'gemini-2.5-pro',
+        'gemini-1.5-pro',
+        'gemini-3.6-flash',
+        'gemini-flash-latest',
+        'gemini-3.1-flash-lite',
+        'gemini-pro-latest'
+      ];
 
       // Build conversation contents including past user and assistant turns
       const conversationContents: { role: string; parts: { text: string }[] }[] = [];
@@ -2801,47 +2816,50 @@ Question de l'utilisateur : "${userPrompt}"
   const aiCfg = getAIConfig();
   const geminiApiKey = aiCfg.gemini_key || import.meta.env.VITE_GEMINI_API_KEY;
 
-  if (geminiApiKey && !geminiApiKey.startsWith('AQ.')) {
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: {
-              parts: [{ text: MASTER_LEGAL_SYSTEM_PROMPT }]
-            },
-            contents: [
-              ...(history && history.length > 0 ? history : []),
-              {
-                role: 'user',
-                parts: [{ text: systemPrompt }]
+  if (geminiApiKey && geminiApiKey.trim().length >= 20) {
+    const sumModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    for (const sumModel of sumModels) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${sumModel}:generateContent?key=${geminiApiKey.trim()}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: {
+                parts: [{ text: MASTER_LEGAL_SYSTEM_PROMPT }]
+              },
+              contents: [
+                ...(history && history.length > 0 ? history : []),
+                {
+                  role: 'user',
+                  parts: [{ text: systemPrompt }]
+                }
+              ],
+              generationConfig: {
+                temperature: 0.35,
+                maxOutputTokens: 2500
               }
-            ],
-            generationConfig: {
-              temperature: 0.35,
-              maxOutputTokens: 2500
-            }
-          })
-        }
-      );
+            })
+          }
+        );
 
-      if (response.ok) {
-        const data = await response.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) {
-          return {
-            text,
-            lawyers: relatedLawyers,
-            courses: relatedCourses,
-            news: relatedNews,
-            reviews: relatedReviews
-          };
+        if (response.ok) {
+          const data = await response.json();
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            return {
+              text,
+              lawyers: relatedLawyers,
+              courses: relatedCourses,
+              news: relatedNews,
+              reviews: relatedReviews
+            };
+          }
         }
+      } catch (e) {
+        console.warn(`Direct Gemini call error on ${sumModel}:`, e);
       }
-    } catch (e) {
-      console.warn("Direct Gemini call error in smartGlobalLegalAssistantQuery", e);
     }
   }
 

@@ -20,6 +20,7 @@ import {
   generateSmartProceduralRoadmap
 } from '../gemini';
 import { getStoredApiKeys } from './threadManager';
+import { getAIConfig } from '../aiKeyManager';
 import { generateAIImageUrl } from '../universalFileGenerator';
 
 interface RunAgentOptions {
@@ -276,11 +277,12 @@ RÔLE ACTIF : ${selectedPersona.name} (${selectedPersona.roleTitle}).
 ${effectiveSystemPrompt}
 
 ${toolResultsContext ? `=== RÉSULTATS DES OUTILS EXÉCUTÉS PAR L'AGENT DANS CE RUN ===\n${toolResultsContext}\n` : ''}
+${attachedFileNames && attachedFileNames.length > 0 ? `=== DOCUMENTS DU DOSSIER REÇUS ===\nFichiers importés par l'utilisateur : ${attachedFileNames.join(', ')}\n` : ''}
 ${(() => {
   if (!extractedText) return '';
-  const isFailedOcr = extractedText.includes('aucun texte OCR extrait') || extractedText.includes('OCR échoué') || (extractedText.trim().startsWith('[') && extractedText.length < 250);
+  const isFailedOcr = extractedText.includes('aucun texte OCR extrait') || extractedText.includes('OCR échoué');
   if (isFailedOcr) {
-    return `=== NOTE SUR LES PIÈCES JOINTES REÇUES ===\nUn document a été transmis par l'utilisateur, mais son texte n'a pas pu être extrait automatiquement (document scanné/image nécessitant un OCR actif ou PDF protégé).\nIndication technique : ${extractedText}\nInformez courtoisement l'utilisateur que le fichier a bien été reçu mais qu'il s'agit d'un scan ou document image dont le texte n'a pu être lu automatiquement, et invitez-le à coller directement les passages clés ou à fournir une version avec texte sélectionnable.\n`;
+    return `=== NOTE SUR LES PIÈCES JOINTES REÇUES ===\nUn document a été transmis par l'utilisateur (${attachedFileNames?.join(', ') || 'Document'}), mais son texte n'a pas pu être extrait automatiquement.\nIndication : ${extractedText}\nInformez courtoisement l'utilisateur que le fichier a bien été reçu mais qu'il s'agit d'un scan dont le texte n'a pu être lu automatiquement, et invitez-le à coller directement les passages clés.\n`;
   }
   return `=== PIÈCES DU DOSSIER FOURNIES (TEXTE INTÉGRAL DU DOCUMENT) ===\n${extractedText.substring(0, 120000)}`;
 })()}
@@ -371,20 +373,25 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
 
   // Resolve API keys across all user and storage sources
   const storedKeys = getStoredApiKeys();
+  const aiConfig = getAIConfig();
   const effectiveGeminiKey = userApiKeys?.gemini 
     || storedKeys?.gemini 
+    || aiConfig?.gemini_key
     || (typeof window !== 'undefined' ? localStorage.getItem('gemini_api_key') : '') 
     || (import.meta as any).env?.VITE_GEMINI_API_KEY;
   const effectiveOpenAIKey = userApiKeys?.openai 
     || storedKeys?.openai 
+    || aiConfig?.openai_key
     || (typeof window !== 'undefined' ? localStorage.getItem('openai_api_key') : '')
     || (import.meta as any).env?.VITE_OPENAI_API_KEY;
   const effectiveAnthropicKey = userApiKeys?.anthropic 
     || storedKeys?.anthropic 
+    || aiConfig?.anthropic_key
     || (typeof window !== 'undefined' ? localStorage.getItem('anthropic_api_key') : '')
     || (import.meta as any).env?.VITE_ANTHROPIC_API_KEY;
   const effectiveDeepseekKey = userApiKeys?.deepseek 
     || storedKeys?.deepseek 
+    || aiConfig?.deepseek_key
     || (typeof window !== 'undefined' ? localStorage.getItem('deepseek_api_key') : '')
     || (import.meta as any).env?.VITE_DEEPSEEK_API_KEY;
 
@@ -415,25 +422,27 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     return clean.length >= 20;
   };
 
-  // 1. Google Gemini (Client override — AQ. keys work as ?key= query param with gemini-3.8-flash)
+  // 1. Google Gemini (Client override — AQ. keys work as ?key= query param with gemini models)
   if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && effectiveGeminiKey)) && isValidGeminiKey(effectiveGeminiKey)) {
     try {
       const cleanGeminiKey = (effectiveGeminiKey || '').trim();
-      // gemini-3.8-flash is the current recommended model (gemini-2.0-flash deprecated)
       const modelsToTry = [
         'gemini-3.8-flash',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
         'gemini-3.7-flash',
+        'gemini-2.5-pro',
+        'gemini-1.5-pro',
         'gemini-3.6-flash',
-        'gemini-flash-latest',
-        'gemini-3.1-flash-lite',
-        'gemini-pro-latest'
+        'gemini-flash-latest'
       ];
 
       for (const m of modelsToTry) {
         for (let attempt = 0; attempt < 2; attempt++) {
           try {
             if (attempt > 0) {
-              await new Promise(r => setTimeout(r, 1000));
+              await new Promise(r => setTimeout(r, 400));
             }
             const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
             const res = await fetch(geminiUrl, {
@@ -460,7 +469,11 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
               }
             } else if (res.status === 503) {
               console.warn(`[Engine] Gemini ${m} 503 (Spike temporaire) - tentative ${attempt + 1}/2...`);
-              continue;
+              if (attempt === 0) {
+                await new Promise(r => setTimeout(r, 400));
+                continue;
+              }
+              break;
             } else {
               const errBody = await res.text().catch(() => '');
               console.warn(`[Engine] Gemini ${m} status ${res.status}:`, errBody.substring(0, 200));

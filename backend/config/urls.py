@@ -10,7 +10,9 @@ def health_check(request):
 
 urlpatterns = [
     path('health/', health_check, name='health-check'),
+    path('health', health_check, name='health-check-noslash'),
     path('api/health/', health_check, name='api-health-check'),
+    path('api/health', health_check, name='api-health-check-noslash'),
     path('admin/', admin.site.urls),
     path('api/accounts/', include('app.accounts.urls')),
     path('api/profiles/', include('app.profiles.urls')),

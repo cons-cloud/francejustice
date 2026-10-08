@@ -114,7 +114,7 @@ http {
         }
 
         # Health check for Railway edge / deploy verification
-        location = /health {
+        location ~ ^/health/?$ {
             access_log off;
             return 200 "healthy\n";
             add_header Content-Type text/plain;
