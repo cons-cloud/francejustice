@@ -427,56 +427,58 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     try {
       const cleanGeminiKey = (effectiveGeminiKey || '').trim();
       const modelsToTry = [
-        'gemini-3.8-flash',
-        'gemini-3.7-flash',
-        'gemini-3.6-flash',
         'gemini-3.5-flash',
+        'gemini-3.6-flash',
+        'gemini-3.7-flash',
+        'gemini-3.8-flash',
         'gemini-3.5-flash-lite',
         'gemini-3.1-flash-lite'
       ];
 
       for (const m of modelsToTry) {
-        for (let attempt = 0; attempt < 2; attempt++) {
-          try {
-            if (attempt > 0) {
-              await new Promise(r => setTimeout(r, 400));
-            }
-            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
-            const res = await fetch(geminiUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 8000) }] },
-                contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 100000) }] }],
-                generationConfig: {
-                  temperature: 0.35,
-                  maxOutputTokens: 4000,
-                  topP: 0.95
-                }
-              })
-            });
+        try {
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
 
-            if (res.ok) {
-              const data = await res.json();
-              const candidate = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (!isInvalidText(candidate)) {
-                generatedText = cleanAgentOutput(candidate);
-                console.log(`[Engine] ✅ Succès Gemini avec le modèle ${m}`);
-                break;
+          // Per-model 15-second timeout controller linked with parent abort signal
+          const perModelController = new AbortController();
+          const timeoutId = setTimeout(() => perModelController.abort(), 15000);
+          if (signal) {
+            signal.addEventListener('abort', () => perModelController.abort(), { once: true });
+          }
+
+          const res = await fetch(geminiUrl, {
+            method: 'POST',
+            signal: perModelController.signal,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 8000) }] },
+              contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 100000) }] }],
+              generationConfig: {
+                temperature: 0.35,
+                maxOutputTokens: 4000,
+                topP: 0.95
               }
-            } else if (res.status === 503) {
-              console.warn(`[Engine] Gemini ${m} 503 (Spike temporaire) - tentative ${attempt + 1}/2...`);
-              if (attempt === 0) {
-                await new Promise(r => setTimeout(r, 400));
-                continue;
-              }
-              break;
-            } else {
-              const errBody = await res.text().catch(() => '');
-              console.warn(`[Engine] Gemini ${m} status ${res.status}:`, errBody.substring(0, 200));
+            })
+          }).finally(() => clearTimeout(timeoutId));
+
+          if (res.ok) {
+            const data = await res.json();
+            const candidate = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!isInvalidText(candidate)) {
+              generatedText = cleanAgentOutput(candidate);
+              console.log(`[Engine] ✅ Succès Gemini avec le modèle ${m}`);
               break;
             }
-          } catch (_err) {}
+          } else if (res.status === 503) {
+            console.warn(`[Engine] Gemini ${m} 503 (Spike de charge) - basculement immédiat vers le modèle suivant...`);
+            continue;
+          } else {
+            const errBody = await res.text().catch(() => '');
+            console.warn(`[Engine] Gemini ${m} status ${res.status}:`, errBody.substring(0, 200));
+            continue;
+          }
+        } catch (_err) {
+          console.warn(`[Engine] Gemini ${m} timeout ou erreur réseau, basculement vers le modèle suivant...`);
         }
         if (!isInvalidText(generatedText)) break;
       }

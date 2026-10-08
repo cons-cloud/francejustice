@@ -2539,7 +2539,7 @@ export async function generateLegalDocument(type: string, details: string, targe
   const langName = LANGUAGE_NAMES[lang] || 'French (Français)';
 
   if (geminiApiKey && geminiApiKey.trim().length >= 20) {
-    const docModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+    const docModels = ['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
     for (const docModel of docModels) {
       try {
         const response = await fetch(
@@ -2625,10 +2625,10 @@ export async function chatWithAI(
     try {
       const cleanKey = geminiApiKey.trim();
       const geminiModels = [
-        'gemini-3.8-flash',
-        'gemini-3.7-flash',
-        'gemini-3.6-flash',
         'gemini-3.5-flash',
+        'gemini-3.6-flash',
+        'gemini-3.7-flash',
+        'gemini-3.8-flash',
         'gemini-3.5-flash-lite',
         'gemini-3.1-flash-lite'
       ];
@@ -2812,7 +2812,7 @@ Question de l'utilisateur : "${userPrompt}"
   const geminiApiKey = aiCfg.gemini_key || import.meta.env.VITE_GEMINI_API_KEY;
 
   if (geminiApiKey && geminiApiKey.trim().length >= 20) {
-    const sumModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+    const sumModels = ['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
     for (const sumModel of sumModels) {
       try {
         const response = await fetch(

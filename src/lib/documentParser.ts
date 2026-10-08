@@ -15,10 +15,10 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
   // Provider 1: Google Gemini Vision (Priorité absolue avec chaîne de résilience)
   if (config.gemini_key && config.gemini_status !== "invalid_key") {
     const geminiModels = [
-      "gemini-3.8-flash",
-      "gemini-3.7-flash",
-      "gemini-3.6-flash",
       "gemini-3.5-flash",
+      "gemini-3.6-flash",
+      "gemini-3.7-flash",
+      "gemini-3.8-flash",
       "gemini-3.5-flash-lite",
       "gemini-3.1-flash-lite"
     ];
