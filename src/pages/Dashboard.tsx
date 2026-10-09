@@ -1674,13 +1674,16 @@ Ce document est généré par la plateforme France Justice.
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Modern Hero Glassmorphism Header */}
-        <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 text-white shadow-lg border border-cyan-400/30 transition-all ${
+        <div className={`relative rounded-3xl bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 text-white shadow-lg border border-cyan-400/30 transition-all ${
           activeTab === 'diagnostic' || activeTab === 'analyse' 
             ? 'p-4 sm:p-6 mb-4 sm:mb-6' 
             : 'p-6 sm:p-8 mb-8'
         }`}>
-          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-teal-400/20 blur-3xl pointer-events-none" />
+          {/* Decorative background glows safely contained */}
+          <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-1/3 -mb-10 w-80 h-80 rounded-full bg-teal-400/20 blur-3xl pointer-events-none" />
+          </div>
           
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3">

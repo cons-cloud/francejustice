@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Bell, X, Check, CheckCheck, FileText, Calendar, CreditCard, MessageSquare, Radio, Info } from 'lucide-react';
 import { useNotifications, type Notification } from '../../hooks/useNotifications';
 
@@ -41,22 +42,66 @@ const timeAgo = (date: string): string => {
 const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(userId || null);
   const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<{ top: number; right: number } | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Close panel on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+  const updatePosition = useCallback(() => {
+    if (buttonRef.current && typeof window !== 'undefined') {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const right = Math.max(12, window.innerWidth - rect.right);
+      const top = rect.bottom + 8;
+      setCoords({ top, right });
+    }
   }, []);
 
   const handleOpen = () => {
-    setOpen((prev) => !prev);
+    setOpen((prev) => {
+      const next = !prev;
+      if (next) {
+        updatePosition();
+      }
+      return next;
+    });
   };
+
+  // Close panel on outside click or escape key, and sync position on scroll/resize
+  useEffect(() => {
+    if (!open) return;
+    updatePosition();
+
+    const handleScrollOrResize = () => {
+      updatePosition();
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        panelRef.current && !panelRef.current.contains(target) &&
+        buttonRef.current && !buttonRef.current.contains(target)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleScrollOrResize);
+    window.addEventListener('scroll', handleScrollOrResize, true);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+    };
+  }, [open, updatePosition]);
 
   const handleClick = async (notif: Notification) => {
     if (!notif.is_read) await markAsRead(notif.id);
@@ -64,9 +109,10 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
   };
 
   return (
-    <div className="relative" ref={panelRef}>
+    <div className="relative inline-block">
       {/* ── Bell button ── */}
       <button
+        ref={buttonRef}
         onClick={handleOpen}
         className="relative p-2 rounded-full text-secondary-600 hover:text-primary-600 hover:bg-primary-50 transition-colors focus:outline-none"
         aria-label="Notifications"
@@ -79,9 +125,18 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
         )}
       </button>
 
-      {/* ── Dropdown panel ── */}
-      {open && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white text-slate-900 rounded-2xl shadow-2xl shadow-cyan-900/10 border border-slate-200 z-50 overflow-hidden animate-fade-in">
+      {/* ── Dropdown panel rendered in Portal at document body to avoid any parent overflow clipping ── */}
+      {open && typeof document !== 'undefined' && createPortal(
+        <div
+          ref={panelRef}
+          style={{
+            position: 'fixed',
+            top: coords ? `${coords.top}px` : '72px',
+            right: coords ? `${coords.right}px` : '16px',
+            zIndex: 999999,
+          }}
+          className="w-[calc(100vw-24px)] max-w-sm sm:max-w-md bg-white text-slate-900 rounded-2xl shadow-2xl shadow-cyan-950/20 border border-slate-200 overflow-hidden animate-fade-in"
+        >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
             <div className="flex items-center gap-2">
@@ -172,7 +227,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
               <p className="text-xs text-slate-500">{notifications.length} notification{notifications.length > 1 ? 's' : ''} au total</p>
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
