@@ -284,7 +284,7 @@ ${(() => {
   if (isFailedOcr) {
     return `=== NOTE SUR LES PIÈCES JOINTES REÇUES ===\nUn document a été transmis par l'utilisateur (${attachedFileNames?.join(', ') || 'Document'}), mais son texte n'a pas pu être extrait automatiquement.\nIndication : ${extractedText}\nInformez courtoisement l'utilisateur que le fichier a bien été reçu mais qu'il s'agit d'un scan dont le texte n'a pu être lu automatiquement, et invitez-le à coller directement les passages clés.\n`;
   }
-  return `=== PIÈCES DU DOSSIER FOURNIES (TEXTE INTÉGRAL DU DOCUMENT) ===\n${extractedText.substring(0, 120000)}`;
+  return `=== PIÈCES DU DOSSIER FOURNIES (TEXTE INTÉGRAL DU DOCUMENT) ===\n${extractedText.substring(0, 3500000)}`;
 })()}
 
 === DEMANDE DE L'UTILISATEUR ===
@@ -444,9 +444,9 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
           try {
             const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
 
-            // Per-model 30-second timeout controller linked with parent abort signal
+            // Per-model 90-second timeout controller (allows massive multi-document dossiers) linked with parent abort signal
             const perModelController = new AbortController();
-            const timeoutId = setTimeout(() => perModelController.abort(), 30000);
+            const timeoutId = setTimeout(() => perModelController.abort(), 90000);
             if (signal) {
               signal.addEventListener('abort', () => perModelController.abort(), { once: true });
             }
@@ -457,7 +457,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 8000) }] },
-                contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 600000) }] }],
+                contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 3500000) }] }],
                 generationConfig: {
                   temperature: 0.35,
                   maxOutputTokens: 4000,

@@ -482,7 +482,7 @@ function extractEmbeddedJpegImagesFromBuffer(buffer: ArrayBuffer, maxImages = 6)
  * Converts a PDF buffer to a base64 image (up to maxPages pages) using PDF.js loaded from CDN,
  * with direct embedded JPEG extraction fallback for scanned documents.
  */
-async function convertPdfPagesToImages(buffer: ArrayBuffer, maxPages = 25): Promise<string[]> {
+async function convertPdfPagesToImages(buffer: ArrayBuffer, maxPages = 100): Promise<string[]> {
   try {
     if (!buffer || buffer.byteLength === 0) return [];
     // Dynamically load PDF.js from CDN if not already available
@@ -614,7 +614,7 @@ export async function extractTextWithPdfJs(buffer: ArrayBuffer): Promise<string 
     if (!pdf || pdf.numPages === 0) return null;
 
     const pageTexts: string[] = [];
-    const maxPages = Math.min(pdf.numPages, 150);
+    const maxPages = pdf.numPages; // Extract 100% of all pages without limit
     for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
       try {
         const page = await pdf.getPage(pageNum);
@@ -655,7 +655,7 @@ export async function ocrScannedPdf(buffer: ArrayBuffer, fileName?: string): Pro
     return `[Pièce PDF "${fileName || 'Document'}" reçue pour analyse juridique]`;
   }
 
-  const pageImages = await convertPdfPagesToImages(buffer.slice(0), 25);
+  const pageImages = await convertPdfPagesToImages(buffer.slice(0), 100);
 
   if (pageImages.length === 0) {
     return `[Pièce PDF "${fileName || 'Document'}" importée pour analyse juridique]`;
@@ -771,7 +771,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
               name: file.name,
               type: 'application/pdf',
               size: file.size,
-              content: ocrText.length > 500000 ? ocrText.substring(0, 500000) + "\n...[Texte OCR tronqué pour analyse]" : ocrText,
+              content: ocrText,
               uploadedAt: Date.now()
             });
           } catch (ocrErr) {
@@ -794,7 +794,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           name: file.name,
           type: 'application/pdf',
           size: file.size,
-          content: cleanText.length > 500000 ? cleanText.substring(0, 500000) + "\n...[Texte du document tronqué pour analyse]" : cleanText,
+          content: cleanText,
           uploadedAt: Date.now()
         });
       };
@@ -822,7 +822,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           name: file.name,
           type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
           size: file.size,
-          content: cleanText.length > 500000 ? cleanText.substring(0, 500000) + "\n...[Texte du document tronqué pour analyse]" : cleanText,
+          content: cleanText,
           uploadedAt: Date.now()
         });
       };
@@ -850,7 +850,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           name: file.name,
           type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
           size: file.size,
-          content: cleanText.length > 500000 ? cleanText.substring(0, 500000) + "\n...[Texte de la présentation tronqué]" : cleanText,
+          content: cleanText,
           uploadedAt: Date.now()
         });
       };
@@ -874,7 +874,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           name: file.name,
           type: file.type || 'text/plain',
           size: file.size,
-          content: cleanText.length > 500000 ? cleanText.substring(0, 500000) + "\n...[Texte du document tronqué pour analyse]" : cleanText,
+          content: cleanText,
           uploadedAt: Date.now()
         });
       };
