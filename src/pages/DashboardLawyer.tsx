@@ -1593,8 +1593,8 @@ const DashboardLawyer: React.FC = () => {
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
                 {profile?.role === 'professor' && `Espace Enseignant — Prof. ${profile?.first_name} ${profile?.last_name}`}
-                {profile?.role === 'doctorate' && (isCoban ? 'Doctorant Coban' : `Espace Recherche — ${profile?.first_name?.startsWith('Dr') ? '' : 'DrD. '}${profile?.first_name} ${profile?.last_name}`)}
-                {(!profile?.role || profile?.role === 'lawyer' || profile?.role === 'admin') && (isCoban ? 'Doctorant Coban' : `Cabinet de Maître ${profile?.first_name} ${profile?.last_name}`)}
+                {profile?.role === 'doctorate' && (isCoban ? 'Doctorant Imam Coban' : `Espace Recherche — ${profile?.first_name?.startsWith('Dr') ? '' : 'DrD. '}${profile?.first_name} ${profile?.last_name}`)}
+                {(!profile?.role || profile?.role === 'lawyer' || profile?.role === 'admin') && (isCoban ? 'Doctorant Imam Coban' : `Cabinet de Maître ${profile?.first_name} ${profile?.last_name}`)}
               </h1>
 
               <p className="text-cyan-50 text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
@@ -3714,7 +3714,7 @@ const DashboardLawyer: React.FC = () => {
       <Modal
         isOpen={showWelcome}
         onClose={() => setShowWelcome(false)}
-        title={isCoban ? "Bienvenue Doctorant Coban" : (profile?.role === 'doctorate' ? "Bienvenue Docteur / Chercheur" : "Bienvenue Maître")}
+        title={isCoban ? "Bienvenue Doctorant Imam Coban" : (profile?.role === 'doctorate' ? "Bienvenue Docteur / Chercheur" : "Bienvenue Maître")}
       >
         <div className="text-center py-6">
           <div className="mx-auto h-16 w-16 bg-cyan-50 border border-cyan-200 rounded-full flex items-center justify-center mb-4 shadow-md shadow-cyan-500/10">
@@ -3722,7 +3722,7 @@ const DashboardLawyer: React.FC = () => {
           </div>
           <h3 className="text-2xl font-extrabold text-slate-900 mb-2">
             {isCoban 
-              ? "Bienvenue Doctorant Coban !" 
+              ? "Bienvenue Doctorant Imam Coban !" 
               : profile?.role === 'doctorate' 
                 ? `Bienvenue DrD. ${profile?.last_name || profile?.first_name} !` 
                 : `Bienvenue Maître ${profile?.last_name || profile?.first_name} !`}
