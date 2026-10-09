@@ -457,7 +457,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 8000) }] },
-                contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 100000) }] }],
+                contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 600000) }] }],
                 generationConfig: {
                   temperature: 0.35,
                   maxOutputTokens: 4000,

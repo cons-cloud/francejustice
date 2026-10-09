@@ -479,10 +479,10 @@ function extractEmbeddedJpegImagesFromBuffer(buffer: ArrayBuffer, maxImages = 6)
 }
 
 /**
- * Converts a PDF buffer to a base64 image (first N pages) using PDF.js loaded from CDN,
+ * Converts a PDF buffer to a base64 image (up to maxPages pages) using PDF.js loaded from CDN,
  * with direct embedded JPEG extraction fallback for scanned documents.
  */
-async function convertPdfPagesToImages(buffer: ArrayBuffer, maxPages = 6): Promise<string[]> {
+async function convertPdfPagesToImages(buffer: ArrayBuffer, maxPages = 25): Promise<string[]> {
   try {
     if (!buffer || buffer.byteLength === 0) return [];
     // Dynamically load PDF.js from CDN if not already available
@@ -600,7 +600,7 @@ async function loadPdfJs(): Promise<any> {
 
 /**
  * Fast direct digital text extractor using PDF.js getTextContent()
- * Extracts 100% of native digital text locally without any OCR or network latency
+ * Extracts 100% of native digital text locally without any OCR or network latency (up to 150 pages)
  */
 export async function extractTextWithPdfJs(buffer: ArrayBuffer): Promise<string | null> {
   try {
@@ -614,7 +614,7 @@ export async function extractTextWithPdfJs(buffer: ArrayBuffer): Promise<string 
     if (!pdf || pdf.numPages === 0) return null;
 
     const pageTexts: string[] = [];
-    const maxPages = Math.min(pdf.numPages, 30);
+    const maxPages = Math.min(pdf.numPages, 150);
     for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
       try {
         const page = await pdf.getPage(pageNum);
@@ -645,7 +645,7 @@ export async function extractTextWithPdfJs(buffer: ArrayBuffer): Promise<string 
 
 /**
  * Full OCR pipeline for scanned PDFs:
- * 1. Convert pages to images via PDF.js
+ * 1. Convert pages to images via PDF.js (up to 25 pages)
  * 2. Run Vision OCR on each page
  * 3. Concatenate results
  */
@@ -655,7 +655,7 @@ export async function ocrScannedPdf(buffer: ArrayBuffer, fileName?: string): Pro
     return `[Pièce PDF "${fileName || 'Document'}" reçue pour analyse juridique]`;
   }
 
-  const pageImages = await convertPdfPagesToImages(buffer.slice(0), 5);
+  const pageImages = await convertPdfPagesToImages(buffer.slice(0), 25);
 
   if (pageImages.length === 0) {
     return `[Pièce PDF "${fileName || 'Document'}" importée pour analyse juridique]`;
@@ -771,7 +771,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
               name: file.name,
               type: 'application/pdf',
               size: file.size,
-              content: ocrText.length > 40000 ? ocrText.substring(0, 40000) + "\n...[Texte OCR tronqué pour analyse]" : ocrText,
+              content: ocrText.length > 500000 ? ocrText.substring(0, 500000) + "\n...[Texte OCR tronqué pour analyse]" : ocrText,
               uploadedAt: Date.now()
             });
           } catch (ocrErr) {
@@ -794,7 +794,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           name: file.name,
           type: 'application/pdf',
           size: file.size,
-          content: cleanText.length > 40000 ? cleanText.substring(0, 40000) + "\n...[Texte du document tronqué pour analyse]" : cleanText,
+          content: cleanText.length > 500000 ? cleanText.substring(0, 500000) + "\n...[Texte du document tronqué pour analyse]" : cleanText,
           uploadedAt: Date.now()
         });
       };
@@ -822,7 +822,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           name: file.name,
           type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
           size: file.size,
-          content: cleanText.length > 30000 ? cleanText.substring(0, 30000) + "\n...[Texte du document tronqué pour analyse]" : cleanText,
+          content: cleanText.length > 500000 ? cleanText.substring(0, 500000) + "\n...[Texte du document tronqué pour analyse]" : cleanText,
           uploadedAt: Date.now()
         });
       };
@@ -850,7 +850,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           name: file.name,
           type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
           size: file.size,
-          content: cleanText.length > 30000 ? cleanText.substring(0, 30000) + "\n...[Texte de la présentation tronqué]" : cleanText,
+          content: cleanText.length > 500000 ? cleanText.substring(0, 500000) + "\n...[Texte de la présentation tronqué]" : cleanText,
           uploadedAt: Date.now()
         });
       };
@@ -874,7 +874,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           name: file.name,
           type: file.type || 'text/plain',
           size: file.size,
-          content: cleanText.length > 30000 ? cleanText.substring(0, 30000) + "\n...[Texte du document tronqué pour analyse]" : cleanText,
+          content: cleanText.length > 500000 ? cleanText.substring(0, 500000) + "\n...[Texte du document tronqué pour analyse]" : cleanText,
           uploadedAt: Date.now()
         });
       };

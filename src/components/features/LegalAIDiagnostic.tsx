@@ -511,7 +511,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
       const parsed = await parseMultipleFiles(selectedFiles);
       let combined = '';
       parsed.forEach(doc => {
-        combined += `\n--- PIÈCE : ${doc.name} ---\n${doc.content.substring(0, 30000)}`;
+        combined += `\n--- PIÈCE : ${doc.name} ---\n${doc.content.substring(0, 500000)}`;
       });
       setExtractedText(prev => prev + combined);
       success(`${selectedFiles.length} document(s) importé(s) dans le contexte de l'Agent.`);
