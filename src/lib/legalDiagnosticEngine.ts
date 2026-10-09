@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { chatWithAI, detectConversationalGreeting } from './gemini';
+import { getAvailableGeminiKeys, reportKeyFailure } from './aiKeyManager';
 
 export interface CaseParty {
   name: string;
@@ -453,12 +454,17 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
 
   let jsonRawText = '';
 
-  if (geminiApiKey && geminiApiKey.trim().length >= 20) {
-    const diagModels = ['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+  const availableKeys = getAvailableGeminiKeys();
+  const diagModels = ['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+
+  for (const gKey of availableKeys) {
+    if (jsonRawText) break;
+    let keyDepleted = false;
     for (const dModel of diagModels) {
+      if (keyDepleted) break;
       try {
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${dModel}:generateContent?key=${geminiApiKey.trim()}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/${dModel}:generateContent?key=${gKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -472,6 +478,11 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
           const data = await response.json();
           jsonRawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
           if (jsonRawText) break;
+        } else if (response.status === 402 || response.status === 429 || response.status === 401) {
+          console.warn(`[DiagnosticEngine] Gemini clé ${gKey.substring(0, 12)}... HTTP ${response.status} (Crédits épuisés), basculement sur la clé suivante...`);
+          await reportKeyFailure('gemini', 'quota_exceeded', `HTTP ${response.status}`, gKey);
+          keyDepleted = true;
+          break; // Try next key!
         } else if (response.status === 503) {
           console.warn(`[DiagnosticEngine] Gemini ${dModel} 503 (Spike) - essai du modèle suivant...`);
         }

@@ -20,7 +20,7 @@ import {
   generateSmartProceduralRoadmap
 } from '../gemini';
 import { getStoredApiKeys } from './threadManager';
-import { getAIConfig } from '../aiKeyManager';
+import { getAIConfig, getAvailableGeminiKeys, reportKeyFailure } from '../aiKeyManager';
 import { generateAIImageUrl } from '../universalFileGenerator';
 
 interface RunAgentOptions {
@@ -423,9 +423,9 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   };
 
   // 1. Google Gemini (Client override — AQ. keys work as ?key= query param with gemini models)
-  if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && effectiveGeminiKey)) && isValidGeminiKey(effectiveGeminiKey)) {
+  const geminiKeysToTry = getAvailableGeminiKeys();
+  if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && geminiKeysToTry.length > 0))) {
     try {
-      const cleanGeminiKey = (effectiveGeminiKey || '').trim();
       const modelsToTry = [
         'gemini-3.5-flash',
         'gemini-3.6-flash',
@@ -435,56 +435,67 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
         'gemini-3.1-flash-lite'
       ];
 
-      for (const m of modelsToTry) {
-        try {
-          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
-
-          // Per-model 30-second timeout controller linked with parent abort signal
-          const perModelController = new AbortController();
-          const timeoutId = setTimeout(() => perModelController.abort(), 30000);
-          if (signal) {
-            signal.addEventListener('abort', () => perModelController.abort(), { once: true });
-          }
-
-          const res = await fetch(geminiUrl, {
-            method: 'POST',
-            signal: perModelController.signal,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 8000) }] },
-              contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 100000) }] }],
-              generationConfig: {
-                temperature: 0.35,
-                maxOutputTokens: 4000,
-                topP: 0.95
-              }
-            })
-          }).finally(() => clearTimeout(timeoutId));
-
-          if (res.ok) {
-            const data = await res.json();
-            const candidate = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!isInvalidText(candidate)) {
-              generatedText = cleanAgentOutput(candidate);
-              console.log(`[Engine] ✅ Succès Gemini avec le modèle ${m}`);
-              break;
-            }
-          } else if (res.status === 503) {
-            console.warn(`[Engine] Gemini ${m} 503 (Spike de charge) - basculement immédiat vers le modèle suivant...`);
-            continue;
-          } else {
-            const errBody = await res.text().catch(() => '');
-            console.warn(`[Engine] Gemini ${m} status ${res.status}:`, errBody.substring(0, 200));
-            continue;
-          }
-        } catch (err: any) {
-          if (err?.name === 'AbortError') {
-            console.warn(`[Engine] Gemini ${m} délai dépassé (30s), basculement vers le modèle suivant...`);
-          } else {
-            console.warn(`[Engine] Gemini ${m} erreur réseau ou API:`, err?.message || err);
-          }
-        }
+      for (const cleanGeminiKey of geminiKeysToTry) {
         if (!isInvalidText(generatedText)) break;
+        let keyDepleted = false;
+
+        for (const m of modelsToTry) {
+          if (keyDepleted) break;
+          try {
+            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
+
+            // Per-model 30-second timeout controller linked with parent abort signal
+            const perModelController = new AbortController();
+            const timeoutId = setTimeout(() => perModelController.abort(), 30000);
+            if (signal) {
+              signal.addEventListener('abort', () => perModelController.abort(), { once: true });
+            }
+
+            const res = await fetch(geminiUrl, {
+              method: 'POST',
+              signal: perModelController.signal,
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 8000) }] },
+                contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 100000) }] }],
+                generationConfig: {
+                  temperature: 0.35,
+                  maxOutputTokens: 4000,
+                  topP: 0.95
+                }
+              })
+            }).finally(() => clearTimeout(timeoutId));
+
+            if (res.ok) {
+              const data = await res.json();
+              const candidate = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (!isInvalidText(candidate)) {
+                generatedText = cleanAgentOutput(candidate);
+                console.log(`[Engine] ✅ Succès Gemini avec le modèle ${m}`);
+                break;
+              }
+            } else if (res.status === 402 || res.status === 429 || res.status === 401) {
+              console.warn(`[Engine] Gemini clé ${cleanGeminiKey.substring(0, 12)}... HTTP ${res.status} (Crédits épuisés), basculement sur la clé de secours...`);
+              await reportKeyFailure('gemini', 'quota_exceeded', `HTTP ${res.status}`, cleanGeminiKey);
+              keyDepleted = true;
+              break; // Try next key in geminiKeysToTry!
+            } else if (res.status === 503) {
+              console.warn(`[Engine] Gemini ${m} 503 (Spike de charge) - basculement immédiat vers le modèle suivant...`);
+              continue;
+            } else {
+              const errBody = await res.text().catch(() => '');
+              console.warn(`[Engine] Gemini ${m} status ${res.status}:`, errBody.substring(0, 200));
+              continue;
+            }
+          } catch (err: any) {
+            if (err?.name === 'AbortError') {
+              console.warn(`[Engine] Gemini ${m} délai dépassé (30s), basculement vers le modèle suivant...`);
+            } else {
+              console.warn(`[Engine] Gemini ${m} erreur réseau ou API:`, err?.message || err);
+            }
+          }
+          if (!isInvalidText(generatedText)) break;
+        }
       }
     } catch (e) {
       console.warn("Direct Gemini LLM call notice:", e);

@@ -1,4 +1,4 @@
-import { getAIConfig, reportKeyFailure, markKeyActive } from "./aiKeyManager";
+import { getAIConfig, reportKeyFailure, markKeyActive, getAvailableGeminiKeys } from "./aiKeyManager";
 import { supabase } from './supabase';
 
 const LANGUAGE_NAMES: Record<string, string> = {
@@ -2619,11 +2619,10 @@ export async function chatWithAI(
 
   const fullPromptWithLang = `${prompt}\n\n[MANDAT LINGUISTIQUE IMPÉRATIF: Vous DEVEZ rédiger STRICTEMENT et INTÉGRALEMENT dans la langue suivante: ${langName}. Si la langue cible est l'anglais (English), TOUTE l'explication et la réponse DOIVENT être en anglais. Si la langue cible est l'arabe (العربية), TOUTE la réponse DOIT être en arabe littéraire (الفصحى). Conservez fidèlement les numéros d'articles et codes juridiques applicables. Répondez avec précision chirurgicale, clarté et pertinence. Utilisez l'Euro (€) pour toute référence monétaire.]`;
 
-  // 1. DIRECT GEMINI API CALL WITH CONVERSATION HISTORY & SYSTEM INSTRUCTION
-  // AQ. keys work as ?key= query param with gemini-3.8-flash (confirmed working)
-  if (geminiApiKey && geminiApiKey.trim().length >= 20) {
+  // 1. DIRECT GEMINI API CALL WITH CONVERSATION HISTORY & MULTI-KEY RESILIENCE
+  const availableGeminiKeys = getAvailableGeminiKeys();
+  if (availableGeminiKeys.length > 0) {
     try {
-      const cleanKey = geminiApiKey.trim();
       const geminiModels = [
         'gemini-3.5-flash',
         'gemini-3.6-flash',
@@ -2658,47 +2657,57 @@ export async function chatWithAI(
         parts: [{ text: fullPromptWithLang }]
       });
 
-      for (const geminiModel of geminiModels) {
-        try {
-          const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${cleanKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                system_instruction: {
-                  parts: [{ text: MASTER_LEGAL_SYSTEM_PROMPT }]
-                },
-                contents: conversationContents,
-                generationConfig: {
-                  temperature: 0.4,
-                  maxOutputTokens: 3500,
-                  topP: 0.95
-                }
-              })
-            }
-          );
+      for (const cleanKey of availableGeminiKeys) {
+        let keyDepleted = false;
+        for (const geminiModel of geminiModels) {
+          if (keyDepleted) break;
+          try {
+            const response = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${cleanKey}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  system_instruction: {
+                    parts: [{ text: MASTER_LEGAL_SYSTEM_PROMPT }]
+                  },
+                  contents: conversationContents,
+                  generationConfig: {
+                    temperature: 0.4,
+                    maxOutputTokens: 3500,
+                    topP: 0.95
+                  }
+                })
+              }
+            );
 
-          if (response.ok) {
-            const data = await response.json();
-            const generatedText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (generatedText) {
-              const detectedDomain = detectLegalDomain(prompt + ' ' + generatedText);
-              const sources = getTargetedLegalSources(prompt + ' ' + generatedText, detectedDomain);
-              const suggestions = generateSmartLegalSuggestions(prompt + ' ' + generatedText, detectedDomain);
-              const automations = generateSmartLegalAutomations(prompt + ' ' + generatedText);
-              return {
-                text: generatedText,
-                sources_web: sources,
-                suggestions,
-                automations
-              };
+            if (response.ok) {
+              const data = await response.json();
+              const generatedText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (generatedText) {
+                markKeyActive('gemini');
+                const detectedDomain = detectLegalDomain(prompt + ' ' + generatedText);
+                const sources = getTargetedLegalSources(prompt + ' ' + generatedText, detectedDomain);
+                const suggestions = generateSmartLegalSuggestions(prompt + ' ' + generatedText, detectedDomain);
+                const automations = generateSmartLegalAutomations(prompt + ' ' + generatedText);
+                return {
+                  text: generatedText,
+                  sources_web: sources,
+                  suggestions,
+                  automations
+                };
+              }
+            } else if (response.status === 402 || response.status === 429 || response.status === 401) {
+              console.warn(`[Gemini] Clé ${cleanKey.substring(0, 12)}... HTTP ${response.status} (Crédits épuisés), basculement sur la clé de secours...`);
+              await reportKeyFailure('gemini', 'quota_exceeded', `HTTP ${response.status}`, cleanKey);
+              keyDepleted = true;
+              break; // Try next key in availableGeminiKeys pool!
+            } else {
+              console.warn(`Direct Gemini call on ${geminiModel} returned ${response.status}, trying next model...`);
             }
-          } else {
-            console.warn(`Direct Gemini call on ${geminiModel} returned ${response.status}, trying next model...`);
+          } catch (innerErr) {
+            console.warn(`Direct Gemini error on ${geminiModel}:`, innerErr);
           }
-        } catch (innerErr) {
-          console.warn(`Direct Gemini error on ${geminiModel}:`, innerErr);
         }
       }
     } catch (e) {

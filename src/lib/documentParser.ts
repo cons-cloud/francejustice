@@ -1,7 +1,7 @@
-import { getAIConfig, reportKeyFailure, markKeyActive } from "./aiKeyManager";
+import { getAIConfig, reportKeyFailure, markKeyActive, getAvailableGeminiKeys } from "./aiKeyManager";
 /**
  * Transcribe physical scanned documents or photos using AI Vision OCR
- * Priority: 1. Anthropic Claude Vision  2. Google Gemini Vision  3. OpenAI GPT-4o
+ * Priority: 1. Google Gemini Vision (avec pool de clés résilient)  2. Anthropic Claude Vision  3. OpenAI GPT-4o
  */
 export async function performVisionOCR(dataUrl: string, fileName?: string): Promise<string> {
   const config = getAIConfig();
@@ -12,19 +12,23 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
   const validMimes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
   const mimeType = validMimes.includes(rawMime) ? rawMime : "image/jpeg";
 
-  // Provider 1: Google Gemini Vision (Priorité absolue avec chaîne de résilience)
-  if (config.gemini_key && config.gemini_status !== "invalid_key") {
-    const geminiModels = [
-      "gemini-3.5-flash",
-      "gemini-3.6-flash",
-      "gemini-3.7-flash",
-      "gemini-3.8-flash",
-      "gemini-3.5-flash-lite",
-      "gemini-3.1-flash-lite"
-    ];
+  // Provider 1: Google Gemini Vision (Pool de clés avec basculement automatique sur 402/429/401)
+  const geminiKeys = getAvailableGeminiKeys();
+  const geminiModels = [
+    "gemini-3.5-flash",
+    "gemini-3.6-flash",
+    "gemini-3.7-flash",
+    "gemini-3.8-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite"
+  ];
+
+  for (const gKey of geminiKeys) {
+    let keyDepleted = false;
     for (const gModel of geminiModels) {
+      if (keyDepleted) break;
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${gModel}:generateContent?key=${config.gemini_key}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${gModel}:generateContent?key=${gKey}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -43,9 +47,14 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
             console.log(`[OCR] ✅ Gemini Vision (${gModel}) - transcription réussie`);
             return transcribed;
           }
+        } else if (res.status === 402 || res.status === 429 || res.status === 401) {
+          console.warn(`[OCR] Gemini clé ${gKey.substring(0, 12)}... status ${res.status} (Crédits épuisés), basculement sur la clé suivante...`);
+          await reportKeyFailure("gemini", "quota_exceeded", `HTTP ${res.status}`, gKey);
+          keyDepleted = true;
+          break; // Try next key in geminiKeys pool!
         } else if (res.status === 503) {
           console.warn(`[OCR] Gemini ${gModel} 503 (Spike temporaire) - basculement immédiat vers le modèle suivant...`);
-          await new Promise(r => setTimeout(r, 300));
+          await new Promise(r => setTimeout(r, 200));
         } else {
           console.warn(`[OCR] Gemini ${gModel} status ${res.status}, essai du suivant...`);
         }
@@ -55,8 +64,8 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
     }
   }
 
-  // Provider 2: Anthropic Claude Vision (Fallback haute précision)
-  if (config.anthropic_key && config.anthropic_status !== "invalid_key") {
+  // Provider 2: Anthropic Claude Vision (Fallback haute précision - API keys only, not usr tokens)
+  if (config.anthropic_key && config.anthropic_key.startsWith('sk-ant-api') && config.anthropic_status !== "invalid_key") {
     const claudeVisionModels = ["claude-3-5-sonnet-20241022", "claude-3-7-sonnet-20250219", "claude-3-haiku-20240307"];
     for (const cModel of claudeVisionModels) {
       try {

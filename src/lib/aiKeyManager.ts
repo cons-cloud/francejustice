@@ -13,6 +13,25 @@ import { supabase } from './supabase';
 
 export type AIProvider = 'openai' | 'gemini' | 'anthropic' | 'deepseek';
 
+/**
+ * Checks if a key matches known depleted/defective keys without hardcoding secrets
+ */
+export function isKnownDepletedKey(key?: string): boolean {
+  if (!key) return false;
+  const k = key.trim();
+  return k.includes('LTQVZ131') || k.endsWith('S0Op4g');
+}
+
+// Runtime blacklist for keys that returned 402/429/401 during this session
+const runtimeBlacklist = new Set<string>();
+
+/**
+ * Read verified environment Gemini key
+ */
+export function getEnvGeminiKey(): string {
+  return ((import.meta as any).env?.VITE_GEMINI_API_KEY || '').trim();
+}
+
 export interface KeyStatus {
   provider: AIProvider;
   key: string;
@@ -46,9 +65,10 @@ let broadcastChannel: BroadcastChannel | null = null;
 const listeners = new Set<(config: PlatformAIConfig) => void>();
 
 function loadInitialConfig(): PlatformAIConfig {
+  const envGemini = getEnvGeminiKey();
   const envConfig: PlatformAIConfig = {
     openai_key: (import.meta as any).env?.VITE_OPENAI_API_KEY || '',
-    gemini_key: (import.meta as any).env?.VITE_GEMINI_API_KEY || '',
+    gemini_key: envGemini,
     anthropic_key: (import.meta as any).env?.VITE_ANTHROPIC_API_KEY || '',
     deepseek_key: (import.meta as any).env?.VITE_DEEPSEEK_API_KEY || '',
     openai_status: 'active',
@@ -62,12 +82,22 @@ function loadInitialConfig(): PlatformAIConfig {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
+        let gKey = parsed.gemini_key || envGemini;
+
+        // Auto-purge depleted key from storage
+        if (gKey && isKnownDepletedKey(gKey)) {
+          gKey = envGemini;
+          parsed.gemini_key = gKey;
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...parsed, gemini_key: gKey }));
+          } catch (_e) {}
+        }
+
         return {
           ...envConfig,
           ...parsed,
-          // Ensure keys prefer localStorage if present, else fallback to env
+          gemini_key: gKey,
           openai_key: parsed.openai_key || envConfig.openai_key,
-          gemini_key: parsed.gemini_key || envConfig.gemini_key,
           anthropic_key: parsed.anthropic_key || envConfig.anthropic_key,
           deepseek_key: parsed.deepseek_key || envConfig.deepseek_key,
         };
@@ -93,6 +123,25 @@ if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
 
 function notifyListeners() {
   listeners.forEach(fn => fn({ ...cachedConfig }));
+}
+
+/**
+ * Returns an ordered array of valid Gemini API keys to try.
+ * Excludes depleted or runtime-blacklisted keys.
+ */
+export function getAvailableGeminiKeys(): string[] {
+  const keys: string[] = [];
+  const currentKey = cachedConfig.gemini_key?.trim();
+  const envKey = getEnvGeminiKey();
+
+  if (currentKey && !isKnownDepletedKey(currentKey) && !runtimeBlacklist.has(currentKey)) {
+    keys.push(currentKey);
+  }
+  if (envKey && !keys.includes(envKey) && !isKnownDepletedKey(envKey) && !runtimeBlacklist.has(envKey)) {
+    keys.push(envKey);
+  }
+
+  return keys.length > 0 ? keys : (envKey ? [envKey] : []);
 }
 
 /**
@@ -134,23 +183,38 @@ export async function updateAIConfig(newConfig: Partial<PlatformAIConfig>): Prom
     } catch (_e) {}
   }
 
-  // 3. Local storage & in-browser broadcast channel (no direct failing table upsert)
-
   notifyListeners();
 }
 
 /**
- * Report a key failure (e.g. 429 quota or 401 invalid) and trigger an admin notification
+ * Report a key failure (e.g. 429 quota, 402 depleted, or 401 invalid) and trigger automatic failover
  */
-export async function reportKeyFailure(provider: AIProvider, reason: 'quota_exceeded' | 'invalid_key', errorDetails?: string) {
+export async function reportKeyFailure(provider: AIProvider, reason: 'quota_exceeded' | 'invalid_key', errorDetails?: string, failedKey?: string) {
   console.warn(`[AIKeyManager] ⚠️ Clef ${provider.toUpperCase()} en échec: ${reason} (${errorDetails || 'Erreur'})`);
+
+  if (failedKey) {
+    runtimeBlacklist.add(failedKey.trim());
+  }
+
+  // Immediate failover for Gemini if a backup key exists
+  if (provider === 'gemini') {
+    const available = getAvailableGeminiKeys();
+    if (available.length > 0 && available[0] !== cachedConfig.gemini_key) {
+      console.log(`[AIKeyManager] 🔄 Basculement automatique sur la clé Gemini de secours: ${available[0].substring(0, 14)}...`);
+      await updateAIConfig({
+        gemini_key: available[0],
+        gemini_status: 'active'
+      });
+      return;
+    }
+  }
 
   const statusKey = `${provider}_status` as keyof PlatformAIConfig;
   const alert = {
     provider,
     message: reason === 'quota_exceeded' 
-      ? `Quota dépassé pour ${provider.toUpperCase()} (Erreur 429). Bascule automatique activée.`
-      : `Clé ${provider.toUpperCase()} invalide ou révoquée (Erreur 401). Bascule automatique activée.`,
+      ? `Quota ou crédits épuisés pour ${provider.toUpperCase()} (${errorDetails || 'HTTP 429/402'}). Bascule automatique activée.`
+      : `Clé ${provider.toUpperCase()} invalide ou révoquée (${errorDetails || 'HTTP 401'}). Bascule automatique activée.`,
     timestamp: new Date().toISOString()
   };
 
@@ -159,15 +223,19 @@ export async function reportKeyFailure(provider: AIProvider, reason: 'quota_exce
     last_alert: alert
   } as any);
 
-  // Send in-app notification to admins
+  // Silently try to insert in-app notification without causing uncaught error on RLS
   try {
-    await supabase.from('notifications_just').insert([{
-      title: `🚨 Alerte Clé IA: ${provider.toUpperCase()}`,
-      message: `${alert.message} Veuillez mettre à jour la clé dans le Dashboard Admin.`,
-      type: 'warning',
-      category: 'system',
-      created_at: new Date().toISOString()
-    }]);
+    const { data: session } = await supabase.auth.getSession().catch(() => ({ data: null }));
+    if (session?.session?.user?.id) {
+      await supabase.from('notifications_just').insert([{
+        user_id: session.session.user.id,
+        title: `🚨 Alerte Clé IA: ${provider.toUpperCase()}`,
+        message: `${alert.message} Veuillez mettre à jour la clé dans le Dashboard Admin.`,
+        type: 'warning',
+        category: 'system',
+        created_at: new Date().toISOString()
+      }]).catch(() => {});
+    }
   } catch (_e) {}
 }
 
