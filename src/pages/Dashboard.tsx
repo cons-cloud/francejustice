@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   User, 
   FileText, 
@@ -375,20 +375,22 @@ const DashboardPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (user && profile) {
-      if (!sessionStorage.getItem('user_welcome_shown')) {
-        setShowWelcome(true);
-        sessionStorage.setItem('user_welcome_shown', 'true');
+    if (user) {
+      if (profile) {
+        if (!sessionStorage.getItem('user_welcome_shown')) {
+          setShowWelcome(true);
+          sessionStorage.setItem('user_welcome_shown', 'true');
+        }
+        setProfileForm({
+          first_name: profile.first_name || '',
+          last_name: profile.last_name || '',
+          phone: (profile as any).phone || '',
+          city: (profile as any).city || '',
+          postal_code: (profile as any).postal_code || '',
+          birth_date: (profile as any).birth_date || ''
+        });
       }
-      setProfileForm({
-        first_name: profile.first_name || '',
-        last_name: profile.last_name || '',
-        phone: (profile as any).phone || '',
-        city: (profile as any).city || '',
-        postal_code: (profile as any).postal_code || '',
-        birth_date: (profile as any).birth_date || ''
-      });
-      fetchDashboardData();
+      fetchDashboardData(hasLoadedRef.current);
       
       const docsSub = supabase
         .channel('user-docs')
@@ -447,7 +449,7 @@ const DashboardPage: React.FC = () => {
         supabase.removeChannel(ticketSub);
       };
     }
-  }, [user]);
+  }, [user, profile]);
 
   // UX Shortcut: Preselect lawyer from URL query params (for public directory redirect)
   useEffect(() => {
@@ -484,8 +486,12 @@ const DashboardPage: React.FC = () => {
     }
   }, [user]);
 
-  const fetchDashboardData = async () => {
-    setLoading(true);
+  const hasLoadedRef = useRef(false);
+
+  const fetchDashboardData = async (isBackground = false) => {
+    if (!isBackground && !hasLoadedRef.current) {
+      setLoading(true);
+    }
     try {
       await Promise.all([
         fetchDocuments().catch(err => console.error("Error fetching documents:", err)),
@@ -497,6 +503,7 @@ const DashboardPage: React.FC = () => {
         fetchAppointments().catch(err => console.error("Error fetching appointments:", err)),
         fetchClassrooms().catch(err => console.error("Error fetching classrooms:", err))
       ]);
+      hasLoadedRef.current = true;
     } catch (err) {
       console.error("Error loading dashboard data:", err);
     } finally {
@@ -1891,7 +1898,9 @@ Ce document est généré par la plateforme France Justice.
               <>
                 {activeTab === 'legal' && renderLegalComplianceTab()}
                 {activeTab === 'overview' && renderOverview()}
-                {(activeTab === 'diagnostic' || activeTab === 'analyse') && <LegalAIDiagnostic roleMode="citizen" />}
+                <div className={(activeTab === 'diagnostic' || activeTab === 'analyse') ? 'block' : 'hidden'}>
+                  <LegalAIDiagnostic roleMode="citizen" />
+                </div>
                 {activeTab === 'appointments' && renderAppointments()}
                 {activeTab === 'generator' && (
                   <div className="space-y-4 animate-fade-in">

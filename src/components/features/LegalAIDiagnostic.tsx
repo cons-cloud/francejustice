@@ -148,6 +148,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
   const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const hasCloudSyncedRef = useRef(false);
 
   // 5. Agent Run Lifecycle State
   const [isRunning, setIsRunning] = useState(false);
@@ -356,8 +357,9 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
       setSelectedPersonaId(current.personaId || AGENT_PERSONAS[0].id);
     }
 
-    // Cloud Sync: Fetch threads from Supabase when user is authenticated
-    if (user?.id) {
+    // Cloud Sync: Fetch threads from Supabase when user is authenticated (once per session)
+    if (user?.id && !hasCloudSyncedRef.current) {
+      hasCloudSyncedRef.current = true;
       fetchThreadsFromSupabase(user.id).then(cloudThreads => {
         if (cloudThreads && cloudThreads.length > 0) {
           setThreads(prev => {
@@ -1007,21 +1009,7 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-auto">
-          {/* Note: Bouton paramètres et modal conservés dans le code mais masqués de l'interface conformément à la demande */}
-
-          {/* Export PDF Button */}
-          {activeThread && activeThread.messages.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => downloadThreadPDF(activeThread)}
-              className="rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold p-1.5 sm:px-2.5 sm:py-1.5 h-auto"
-              title="Exporter l'analyse complète au format Tribunal"
-            >
-              <Download className="w-3.5 h-3.5 text-cyan-600 sm:mr-1" />
-              <span className="hidden sm:inline">Export PDF</span>
-            </Button>
-          )}
+          {/* Note: Bouton paramètres et export PDF conservés dans le code mais masqués de l'interface conformément à la demande (export sur demande) */}
 
           {/* Share / Partager Conversation */}
           {activeThread && activeThread.messages.length > 0 && (
@@ -1449,95 +1437,25 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
                         </div>
                       )}
 
-                      {/* Évaluation indicative du dossier */}
-                      {msg.prognosis && (
-                        <div className="mt-2 p-3 rounded-2xl border border-slate-200 bg-white space-y-2">
-                          <div className="flex items-center justify-between gap-2 flex-wrap">
-                            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                              <Scale className="w-3.5 h-3.5 text-cyan-600" /> Évaluation indicative du dossier
-                            </span>
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${msg.prognosis.score >= 80 ? 'bg-emerald-50 text-emerald-700' : msg.prognosis.score >= 60 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}`}>
-                              {msg.prognosis.label}
-                            </span>
-                          </div>
-                          <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-700 ${msg.prognosis.score >= 80 ? 'bg-emerald-500' : msg.prognosis.score >= 60 ? 'bg-amber-500' : 'bg-red-500'}`}
-                              style={{ width: `${msg.prognosis.score}%` }}
-                            />
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px]">
-                            <span className="text-slate-600">Risque : <strong className="text-slate-800">{msg.prognosis.riskLevel}</strong></span>
-                            <span className="text-slate-600">Délais : <strong className={msg.prognosis.prescriptionStatus === 'urgent' ? 'text-red-600' : 'text-slate-800'}>{msg.prognosis.prescriptionStatus}</strong></span>
-                            <span className="text-slate-600 sm:col-span-1">{msg.prognosis.strengthText}</span>
-                          </div>
-                          <p className="text-[10px] text-slate-400 leading-snug">
-                            Estimation automatique indicative basée sur le type de litige — ne constitue pas une prédiction de décision de justice.
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Frise chronologique de procédure */}
-                      {msg.timelineRoadmap && msg.timelineRoadmap.length > 0 && (
-                        <div className="mt-2 p-3 rounded-2xl border border-slate-200 bg-white space-y-2">
-                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700">Feuille de route procédurale</span>
-                          <ol className="relative border-l-2 border-cyan-100 ml-2 space-y-3">
-                            {msg.timelineRoadmap.map(step => (
-                              <li key={step.stepNumber} className="ml-4 relative">
-                                <span className="absolute -left-[25px] top-0.5 w-4 h-4 rounded-full bg-cyan-600 text-white text-[9px] font-bold flex items-center justify-center">{step.stepNumber}</span>
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[10px] font-mono font-bold text-cyan-700 bg-cyan-50 px-1.5 py-0.5 rounded">{step.timeframe}</span>
-                                  <span className="text-xs font-bold text-slate-900">{step.title}</span>
-                                  {step.badge && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">{step.badge}</span>}
-                                </div>
-                                <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">{step.description}</p>
-                              </li>
-                            ))}
-                          </ol>
-                        </div>
-                      )}
-
-                      {/* Validation par un avocat */}
-                      {msg.prognosis && (
-                        <a
-                          href="/lawyers"
-                          className="mt-2 flex items-center justify-between gap-2 p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white transition-colors group"
-                        >
-                          <span className="flex items-center gap-2 text-xs font-bold">
-                            <ShieldCheck className="w-4 h-4 text-cyan-300" />
-                            Faire valider cette analyse par un avocat partenaire
-                          </span>
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                        </a>
-                      )}
-
-                      {/* Automatisations & Actions juridiques concrètes (comme ChatGPT Actions & Claude) */}
+                      {/* Automatisations & Actions juridiques concrètes */}
                       {msg.automations && msg.automations.length > 0 && (
                         <div className="pt-2.5 pb-1 space-y-2">
-                          <div className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-cyan-950">
+                          <div className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-slate-700">
                             <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                             <span>Actions juridiques concrètes recommandées :</span>
                           </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
                             {msg.automations.map((auto, aIdx) => (
                               <button
                                 key={aIdx}
                                 type="button"
                                 onClick={() => handleRunAgent(auto.actionPrompt)}
                                 disabled={isRunning}
-                                className="text-left bg-gradient-to-br from-cyan-50/80 via-white to-teal-50/40 hover:from-cyan-100/90 hover:to-white border border-cyan-200/90 hover:border-cyan-400 p-2.5 rounded-xl transition-all shadow-2xs hover:shadow-xs cursor-pointer group flex flex-col justify-between gap-1 disabled:opacity-50"
+                                className="text-xs text-left bg-slate-50 hover:bg-cyan-50 text-slate-800 hover:text-cyan-950 border border-slate-200 hover:border-cyan-400 py-1.5 px-3 rounded-full font-semibold transition-all cursor-pointer shadow-2xs hover:shadow-xs flex items-center gap-2 group disabled:opacity-50"
+                                title={auto.description || auto.label}
                               >
-                                <div>
-                                  <span className="text-xs font-bold text-cyan-950 group-hover:text-cyan-800 transition-colors block">
-                                    {auto.label}
-                                  </span>
-                                  <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-snug">
-                                    {auto.description}
-                                  </p>
-                                </div>
-                                <span className="text-[10px] font-bold text-cyan-700 flex items-center gap-1 group-hover:underline pt-1">
-                                  ⚡ Déclencher l'action <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
-                                </span>
+                                <span>{auto.label}</span>
+                                <ArrowRight className="w-3 h-3 text-cyan-600 group-hover:translate-x-0.5 transition-transform shrink-0" />
                               </button>
                             ))}
                           </div>
@@ -1688,98 +1606,6 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
                             </button>
                           </div>
                         </div>
-
-                        {/* Actions d'export universel (Pack Office, Word, Excel, PowerPoint, Signature) */}
-                        {(() => {
-                          const hasTable = msg.content && /\|.+\|.+\|/.test(msg.content);
-                          const hasSlides = msg.content && /#\s+.+\n[•\-*]/.test(msg.content);
-                          const isSignableAct = msg.content && /MISE EN DEMEURE|CONVENTION|PROJET D['’]ACCORD|CONTRAT DE|LETTRE DE MISE EN DEMEURE VALANT SOMMATION|ACTE SOUS SIGNATURE PRIVÉE/i.test(msg.content);
-                          const canDownloadWord = msg.content && msg.content.length > 80;
-
-                          return (
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              {/* Export PDF direct du message */}
-                              {canDownloadWord && (
-                                <button
-                                  type="button"
-                                  onClick={() => downloadMessagePDF(msg, activeThread?.title)}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 rounded-lg text-xs font-medium transition-colors cursor-pointer border border-rose-200"
-                                  title="Imprimer ou exporter cette consultation en PDF officiel"
-                                >
-                                  <FileText className="w-3.5 h-3.5 text-rose-600" />
-                                  <span>PDF</span>
-                                </button>
-                              )}
-
-                              {/* Export Word (.doc) */}
-                              {canDownloadWord && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    downloadWordDocument(msg.content, activeThread?.title || "Document_FranceJustice");
-                                    success("Document Word (.doc) téléchargé avec succès !");
-                                  }}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 text-slate-700 hover:text-cyan-800 bg-slate-100 hover:bg-cyan-50 rounded-lg text-xs font-medium transition-colors cursor-pointer border border-slate-200"
-                                  title="Télécharger la réponse en document Word (.doc)"
-                                >
-                                  <Download className="w-3.5 h-3.5 text-cyan-600" />
-                                  <span>Word (.doc)</span>
-                                </button>
-                              )}
-
-                              {/* Export Excel (.csv) */}
-                              {hasTable && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    downloadExcelSpreadsheet(msg.content, activeThread?.title || "Tableau_Donnees");
-                                    success("Tableau Excel (.csv) exporté avec succès !");
-                                  }}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 text-emerald-800 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 rounded-lg text-xs font-medium transition-colors cursor-pointer border border-emerald-200"
-                                  title="Télécharger les données en fichier Excel (.csv)"
-                                >
-                                  <Download className="w-3.5 h-3.5 text-emerald-600" />
-                                  <span>Excel (.csv)</span>
-                                </button>
-                              )}
-
-                              {/* Export Diapositives PowerPoint (.html / slides) */}
-                              {hasSlides && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    downloadPowerPointPresentation(msg.content, activeThread?.title || "Presentation_FranceJustice");
-                                    success("Présentation diapos exportée avec succès !");
-                                  }}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 rounded-lg text-xs font-medium transition-colors cursor-pointer border border-amber-200"
-                                  title="Exporter en présentation de diapositives"
-                                >
-                                  <Download className="w-3.5 h-3.5 text-amber-600" />
-                                  <span>Diapos (PPT)</span>
-                                </button>
-                              )}
-
-                              {/* Ouvrir dans Canvas / Artifacts (Style Claude Artifacts & ChatGPT Canvas) */}
-                              {msg.content && msg.content.length > 180 && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setCanvasDocument({
-                                      title: activeThread?.title || "Document & Analyse Officielle",
-                                      content: msg.content
-                                    });
-                                    setCanvasOpen(true);
-                                  }}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 text-cyan-800 hover:text-cyan-900 bg-cyan-50/80 hover:bg-cyan-100 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-cyan-200"
-                                  title="Ouvrir dans le panneau interactif Canvas pour éditer en direct"
-                                >
-                                  <LayoutTemplate className="w-3.5 h-3.5 text-cyan-700" />
-                                  <span>Canvas</span>
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })()}
                       </div>
                     </div>
                   </div>

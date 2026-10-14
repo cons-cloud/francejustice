@@ -6,6 +6,8 @@ import {
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card';
 import { supabase } from '../../lib/supabase';
+import { analyzeContractWithBackend } from '../../lib/backendAI';
+
 
 interface RiskIndicator {
   title: string;
@@ -99,6 +101,59 @@ const CodeAnalysis: React.FC = () => {
     for (const step of steps) {
       setAnalysisStep(step);
       await new Promise(resolve => setTimeout(resolve, 800));
+    }
+
+    // Priorité 0 : Exécution de l'algorithme d'audit contractuel en Python sur le Backend
+    try {
+      const backendContract = await analyzeContractWithBackend({
+        contractText: inputText,
+        contractType: 'Contrat analysé',
+        targetLang: 'fr'
+      });
+      if (backendContract && Array.isArray(backendContract.clauses) && backendContract.clauses.length > 0) {
+        const mappedClauses: AnalyzedClause[] = backendContract.clauses.map((c: any, i: number) => ({
+          id: c.id || `c_py_${i}`,
+          name: c.title || c.name || `Clause ${i + 1}`,
+          content: c.excerpt || c.content || c.suggestedRedline || '',
+          status: c.risk === 'Critique' || c.risk === 'Élevé' ? 'danger' : c.risk === 'Moyen' ? 'warning' : 'approved',
+          explanation: `${c.analysis || ''} ${c.legalBasis ? `(${c.legalBasis})` : ''}`.trim(),
+          recommendation: `${c.recommendation || ''} ${c.suggestedRedline ? `\nRédaction recommandée : ${c.suggestedRedline}` : ''}`.trim()
+        }));
+
+        const pyScore = typeof backendContract.score === 'number' ? (100 - backendContract.score) : 45;
+        const mappedIndicators: RiskIndicator[] = [
+          {
+            title: "Conformité Légale",
+            level: pyScore > 70 ? 'high' : pyScore > 35 ? 'medium' : 'low',
+            score: Math.max(100 - pyScore, 10),
+            description: "Mesure l'adéquation globale des clauses avec le droit positif français."
+          },
+          {
+            title: "Équilibre Contractuel",
+            level: pyScore > 60 ? 'high' : pyScore > 30 ? 'medium' : 'low',
+            score: Math.max(100 - pyScore - 5, 8),
+            description: "Évalue si les droits et obligations sont équitablement répartis entre les parties."
+          },
+          {
+            title: "Risque de Litige",
+            level: pyScore > 70 ? 'high' : pyScore > 40 ? 'medium' : 'low',
+            score: pyScore,
+            description: "Probabilité que certaines clauses soient contestées ou conduisent à des poursuites judiciaires."
+          }
+        ];
+
+        setResult({
+          score: pyScore,
+          level: pyScore > 70 ? 'Élevé' : pyScore > 35 ? 'Modéré' : 'Faible',
+          summary: backendContract.summary || (pyScore > 70 ? "Attention : Ce document contient des clauses potentiellement abusives ou à haut risque juridique." : "Le document est globalement équilibré."),
+          clauses: mappedClauses,
+          indicators: mappedIndicators
+        });
+        setIsAnalyzing(false);
+        return;
+      }
+    } catch (e) {
+      console.warn('[CodeAnalysis] Python backend analysis unavailable, using local heuristics:', e);
     }
 
     // Generate mock analysis depending on the content length/keywords

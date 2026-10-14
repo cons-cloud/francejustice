@@ -1,6 +1,8 @@
 import { supabase } from './supabase';
 import { chatWithAI, detectConversationalGreeting } from './gemini';
 import { getAvailableGeminiKeys, reportKeyFailure } from './aiKeyManager';
+import { analyzeLegalCaseWithBackend } from './backendAI';
+
 
 export interface CaseParty {
   name: string;
@@ -415,6 +417,22 @@ export async function analyzeLegalCaseWithAI(
     };
   }
 
+  // 1.5. PRIORITY 0: EXECUTE PYTHON ALGORITHMIC ANALYSIS ON DJANGO BACKEND
+  try {
+    const pyResult = await analyzeLegalCaseWithBackend({
+      caseTitle,
+      userDescription,
+      extractedDocumentsText,
+      targetLang,
+      uploadedFileNames,
+    });
+    if (pyResult && pyResult.pillar1_CaseManagement && pyResult.ingestionPipeline) {
+      return pyResult as LegalDiagnosticResult;
+    }
+  } catch (backendErr) {
+    console.warn('[DiagnosticEngine] Backend Python analysis fallback:', backendErr);
+  }
+
   // 2. GET INTELLIGENT DIRECT ANSWER FROM GEMINI CHAT ENGINE
   let dynamicConversationalAnswer = '';
   let _chatSources: any[] = [];
@@ -455,7 +473,7 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
   let jsonRawText = '';
 
   const availableKeys = getAvailableGeminiKeys();
-  const diagModels = ['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+  const diagModels = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
 
   for (const gKey of availableKeys) {
     if (jsonRawText) break;

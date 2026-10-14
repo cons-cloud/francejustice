@@ -1069,67 +1069,6 @@ INSTRUCTION DE L'UTILISATEUR : "${commandText}"
                           </button>
                         </div>
                       </div>
-
-                      {/* Office Pack & Canvas exports */}
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {/* Word (.doc) */}
-                        {response.length > 80 && (
-                          <button
-                            type="button"
-                            onClick={() => downloadWordDocument(response, generatedDoc?.title || "Consultation_Vocale_FranceJustice")}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-cyan-800 hover:text-cyan-900 bg-cyan-50 hover:bg-cyan-100 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-cyan-200"
-                            title="Télécharger en Word (.doc)"
-                          >
-                            <Download className="w-3.5 h-3.5 text-cyan-600" />
-                            <span>Word (.doc)</span>
-                          </button>
-                        )}
-
-                        {/* Excel (.csv) */}
-                        {/\|.+\|.+\|/.test(response) && (
-                          <button
-                            type="button"
-                            onClick={() => downloadExcelSpreadsheet(response, "Tableau_Vocale_FranceJustice")}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-emerald-800 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-emerald-200"
-                            title="Télécharger en Excel (.csv)"
-                          >
-                            <Download className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Excel (.csv)</span>
-                          </button>
-                        )}
-
-                        {/* Diapos (PPT) */}
-                        {/#\s+.+\n[•\-*]/.test(response) && (
-                          <button
-                            type="button"
-                            onClick={() => downloadPowerPointPresentation(response, "Presentation_Vocale_FranceJustice")}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-amber-200"
-                            title="Télécharger en Diapos PowerPoint"
-                          >
-                            <Download className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Diapos (PPT)</span>
-                          </button>
-                        )}
-
-                        {/* Canvas */}
-                        {response.length > 150 && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCanvasDoc({
-                                title: generatedDoc?.title || "Document & Consultation Juridique",
-                                content: response
-                              });
-                              setCanvasOpen(true);
-                            }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-slate-800 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-slate-200"
-                            title="Ouvrir dans le studio Canvas"
-                          >
-                            <LayoutTemplate className="w-3.5 h-3.5 text-cyan-600" />
-                            <span>Canvas</span>
-                          </button>
-                        )}
-                      </div>
                     </div>
                   </div>
                 </div>

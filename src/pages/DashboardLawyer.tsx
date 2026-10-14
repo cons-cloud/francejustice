@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import {
   Users,
   FileText,
@@ -586,10 +586,12 @@ const DashboardLawyer: React.FC = () => {
     }
   }, [user])
 
-  // Refetch lawyer data when city or postal code changes in real-time
+  const hasLoadedRef = useRef(false);
+
+  // Refetch lawyer data when city or postal code changes in real-time (silent background refresh)
   useEffect(() => {
-    if (user && profile) {
-      fetchLawyerData()
+    if (user && profile && hasLoadedRef.current) {
+      fetchLawyerData(true);
     }
   }, [user, profile?.city, profile?.postal_code])
 
@@ -656,8 +658,10 @@ const DashboardLawyer: React.FC = () => {
     return null
   }
 
-  const fetchLawyerData = async () => {
-    setLoading(true)
+  const fetchLawyerData = async (isBackground = false) => {
+    if (!isBackground && !hasLoadedRef.current) {
+      setLoading(true)
+    }
     try {
       const lawyerLoc = await fetchFullProfile();
       await Promise.all([
@@ -671,6 +675,7 @@ const DashboardLawyer: React.FC = () => {
       await fetchTickets().catch(e => console.error("Error fetching tickets:", e))
       await fetchFormations().catch(e => console.error("Error fetching formations:", e))
       await fetchLawyers().catch(e => console.error("Error fetching lawyers:", e))
+      hasLoadedRef.current = true;
     } catch (err) {
       console.error("Error loading lawyer data:", err)
     } finally {
@@ -2571,7 +2576,9 @@ const DashboardLawyer: React.FC = () => {
                     </Card>
                   </div>
                 )}
-                {(activeTab === 'diagnostic' || activeTab === 'analyse') && <LegalAIDiagnostic roleMode="lawyer" />}
+                <div className={(activeTab === 'diagnostic' || activeTab === 'analyse') ? 'block' : 'hidden'}>
+                  <LegalAIDiagnostic roleMode="lawyer" />
+                </div>
                 {activeTab === 'avocats' && (
                   <div className={cn('space-y-6', 'animate-fade-in')}>
                     <h2 className={cn('text-2xl', 'font-semibold', 'text-slate-900')}>Réseau des Avocats</h2>

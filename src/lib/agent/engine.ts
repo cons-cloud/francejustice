@@ -22,6 +22,7 @@ import {
 import { getStoredApiKeys } from './threadManager';
 import { getAIConfig, getAvailableGeminiKeys, reportKeyFailure } from '../aiKeyManager';
 import { generateAIImageUrl } from '../universalFileGenerator';
+import { callUniversalProxy, isBackendAIAvailable } from '../backendAI';
 
 interface RunAgentOptions {
   threadId: string;
@@ -242,20 +243,15 @@ RÈGLE D'OR D'ADAPTATION : Détectez systématiquement la juridiction applicable
     }
   }
 
-  // STEP 3: EXECUTING TOOLS (FUNCTION CALLING)
+  // STEP 3: EXECUTING TOOLS (FUNCTION CALLING - PARALLEL EXECUTION)
   const executedToolCalls: ToolCall[] = [];
   if (toolsToCall.length > 0) {
-    for (const toolReq of toolsToCall) {
-      addStep('calling_tool', `Appel de l'outil : ${toolReq.name}`, `Paramètres : ${JSON.stringify(toolReq.input)}`);
-      const toolCallResult = await executeAgentTool(toolReq.name, toolReq.input, extractedText);
-      executedToolCalls.push(toolCallResult);
-      addStep(
-        toolCallResult.status === 'success' ? 'reasoning' : 'calling_tool',
-        `Outil exécuté : ${toolReq.name} (${toolCallResult.durationMs}ms)`,
-        JSON.stringify(toolCallResult.output).substring(0, 150) + '...',
-        toolCallResult
-      );
-    }
+    const results = await Promise.all(
+      toolsToCall.map(async (toolReq) => {
+        return executeAgentTool(toolReq.name, toolReq.input, extractedText);
+      })
+    );
+    executedToolCalls.push(...results);
   }
 
   // STEP 4: REASONING & SYNTHESIS
@@ -304,21 +300,25 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
 - CODE SOURCE UNIQUEMENT SUR DEMANDE : Si du code ou un script est demandé, insérez un bloc syntaxique \`\`\`lang ... \`\`\`.
 - POLYVALENCE ET RIGUEUR : Traitez chaque demande avec la même excellence que Claude, ChatGPT et Gemini, sans refus artificiel.
 - SI L'UTILISATEUR POSE UNE QUESTION DE CONSEIL, D'ORIENTATION OU CONVERSATIONNELLE : Répondez sous forme d'échange fluide et naturel, avec des explications concrètes, vos conseils stratégiques et les options envisageables.
-- ANALYSE COMPLÈTE ET EXHAUSTIVE DE DOCUMENTS OFFICIELS / JUGEMENTS (STANDARD CLAUDE 3.5 SONNET) :
-  LORSQU'UN DOCUMENT (JUGEMENT, DÉCISION, CONTRAT, LETTRE) EST FOURNI DANS LE DOSSIER, VOUS DEVEZ IMPÉRATIVEMENT LIRE ET ANALYSER L'INTÉGRALITÉ DU DOCUMENT RÉEL :
-  1. LE CONTEXTE COMPLET : Identifiez la juridiction exacte, la date du jugement, le numéro de RG, le caractère contradictoire ou par défaut, l'identité des parties (Demandeur, Défendeur), la date et le lieu du mariage, le régime matrimonial, et les enfants avec leurs prénoms, âges, années de naissance et statuts (majeurs / mineurs).
-  2. LES DÉCISIONS DU JUGE DÉCORTIQUÉES POINT PAR POINT :
-     - Le prononcé (motif du divorce, articles de loi visés, séparation de fait).
-     - Les effets patrimoniaux (date de fixation des effets, liquidation du régime matrimonial).
-     - La prestation compensatoire (montant exact alloué ou rejeté, forme en capital ou rente, motivation du juge au regard des disparités de revenus).
-     - L'autorité parentale et la résidence habituelle des enfants.
-     - Les pensions alimentaires et contribution à l'entretien et l'éducation (montants exacts par enfant, indexation, dates d'exigibilité).
-     - Les dépens et les frais irrépétibles (article 700 du CPC).
-  3. POINTS D'ATTENTION & RECOMMANDATIONS STRATÉGIQUES :
-     - Relevez les éventuelles incohérences ou erreurs matérielles dans la décision.
-     - Précisez les voies et délais de recours (délai d'appel d'un mois à compter de la signification par Commissaire de Justice).
-     - Précisez la force exécutoire à titre provisoire et les étapes concrètes d'exécution.
-  4. INTERDICTION ABSOLUE D'INVENTER : Ne plaquez JAMAIS un template pré-écrit ou un litige contractuel / clause abusive sur une affaire de famille ou de divorce. Traitez UNIQUEMENT les faits réels du document.
+- EXIGENCE STRICTE D'ANALYSE INTÉGRALE ET EXHAUSTIVE DE DOCUMENTS (AUCUN RÉSUMÉ, TOUS LES ÉLÉMENTS DOIVENT ÊTRE DÉTAILLÉS) :
+  QUAND UN DOCUMENT EST FOURNI (JUGEMENT, DÉCISION, CONTRAT, BAIL, STATUTS, CONCLUSIONS, MISE EN DEMEURE, RAPPORT D'EXPERTISE, ACTE NOTARIÉ, LETTRE) OU QUE L'UTILISATEUR DEMANDE L'ANALYSE D'UN DOCUMENT :
+  • INTERDICTION FORMELLE DE FAIRE UN BREF RÉSUMÉ OU UNE VUE D'ENSEMBLE SUCCINCTE.
+  • L'UTILISATEUR VEUT L'ANALYSE COMPLÈTE DE TOUT LE DOCUMENT, DE TOUS LES ÉLÉMENTS QUI Y FIGURENT, PAS JUSTE UNE PARTIE : TOUS LES POINTS SOULEVÉS, TOUT CE QUI EST CITÉ, SANS OUBLIER AUCUNE DONNÉE.
+  • VOUS DEVEZ EXAMINER ET DÉCORTIQUER POINT PAR POINT :
+    1. L'IDENTIFICATION INTÉGRALE : Juridiction ou rédacteur de l'acte, date exacte, numéros de RG / minute, nature de la décision (contradictoire, par défaut, exécutoire à titre provisoire), et identité de toutes les parties (avec enfants, dates de naissance et situation si applicable).
+    2. L'EXPOSÉ COMPLET DES FAITS ET DE LA CHRONOLOGIE : Reprenez point par point tous les faits énoncés, dates d'événements, manquements allégués, démarches préalables et pièces échangées.
+    3. LES PRÉTENTIONS ET DEMANDES DE CHACUNE DES PARTIES : Décortiquez ce que chaque partie réclamait initialement (demandes principales et reconventionnelles).
+    4. L'ANALYSE DÉTAILLÉE DE TOUS LES MOTIFS ET MOYENS DE DROIT : Analysez chaque attendu du juge ou chaque clause contractuelle, les articles de lois appliqués (Code Civil, Code du Travail, Code de Procédure Civile, Code de Commerce, Dahir, etc.), l'appréciation des preuves et la justification juridique de chaque point retenu ou rejeté.
+    5. LE DISPOSITIF INTÉGRAL (« PAR CES MOTIFS ») OU L'ENSEMBLE DES CLAUSES :
+       - Détaillez chaque décision, condamnation ou obligation prononcée sans en omettre une seule.
+       - Relevez tous les montants financiers chiffrés : principal, créances, pensions alimentaires, prestations compensatoires, indemnités, dommages et intérêts, intérêts moratoires, dépens, frais irrépétibles (article 700 du CPC), astreintes journalières.
+       - Précisez les modalités de paiement, dates d'échéance et conditions de révision ou indexation.
+       - Pour les litiges familiaux : autorité parentale, résidence habituelle des enfants, calendrier détaillé des droits de visite et d'hébergement (week-ends pairs/impairs, moitié des vacances scolaires), partage des frais exceptionnels.
+       - Pour les contrats et baux : clause résolutoire, limitation de responsabilité, pénalités, préavis, cession, compétence territoriale.
+    6. AUDIT CRITIQUE, POINTS DE VIGILANCE ET RISQUES : Erreurs matérielles éventuelles, omissions du juge, clauses abusives, déséquilibres, forclusions ou vices de procédure.
+    7. VOIES ET DÉLAIS DE RECOURS : Juridiction d'appel ou de cassation compétente, délai strict de recours (ex: 1 mois / 15 jours à compter de la signification par Commissaire de Justice), point de départ du délai et actes requis.
+    8. RECOMMANDATIONS STRATÉGIQUES D'EXÉCUTION : Étapes pratiques immédiates pour faire exécuter la décision ou faire valoir ses droits.
+  • RÈGLE D'OR : RIEN NE DOIT ÊTRE LAISSÉ DE CÔTÉ. Tout élément figurant dans le document doit être traité avec une rigueur juridique chirurgicale digne d'un grand cabinet d'avocats.
 - Intégrez fidèlement les résultats des outils juridiques s'ils ont été exécutés.
 - N'insérez jamais de balises markdown # ou ## orphelines.
 - ${languageDirective}
@@ -395,7 +395,31 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     || (typeof window !== 'undefined' ? localStorage.getItem('deepseek_api_key') : '')
     || (import.meta as any).env?.VITE_DEEPSEEK_API_KEY;
 
-  // 0. SECURE SERVER RELAY (Edge Function if explicitly deployed and enabled)
+  // 0. BACKEND SECURE PROXY (priority 0 — keys never exposed in browser)
+  // Try the Django backend universal proxy first; falls back to direct calls if unavailable.
+  if (isInvalidText(generatedText)) {
+    try {
+      const backendAvailable = await isBackendAIAvailable();
+      if (backendAvailable) {
+        const providerHint =
+          selectedModel.provider === 'openai' ? 'openai'
+          : selectedModel.provider === 'anthropic' ? 'anthropic'
+          : 'gemini';
+        const backendResult = await callUniversalProxy(fullPromptForLLM, {
+          systemPrompt: effectiveSystemPrompt.substring(0, 8000),
+          preferredProvider: providerHint,
+        });
+        if (backendResult?.text && !isInvalidText(backendResult.text)) {
+          generatedText = cleanAgentOutput(backendResult.text);
+          console.log(`[Engine] ✅ Réponse via backend proxy (${backendResult.provider_used || 'auto'})`);
+        }
+      }
+    } catch (_backendErr) {
+      // Backend unavailable (offline/dev) — continue with direct API calls below
+    }
+  }
+
+  // 0b. SECURE SERVER RELAY (Supabase Edge Function if explicitly deployed and enabled)
   const enableSupabaseEdge = (import.meta as any).env?.VITE_ENABLE_SUPABASE_EDGE === 'true';
   if (isInvalidText(generatedText) && enableSupabaseEdge) {
     try {
@@ -427,12 +451,10 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && geminiKeysToTry.length > 0))) {
     try {
       const modelsToTry = [
-        'gemini-3.5-flash',
-        'gemini-3.6-flash',
-        'gemini-3.7-flash',
-        'gemini-3.8-flash',
-        'gemini-3.5-flash-lite',
-        'gemini-3.1-flash-lite'
+        'gemini-2.5-flash',
+        'gemini-1.5-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-pro'
       ];
 
       for (const cleanGeminiKey of geminiKeysToTry) {
@@ -444,9 +466,9 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
           try {
             const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
 
-            // Per-model 90-second timeout controller (allows massive multi-document dossiers) linked with parent abort signal
+            // Fast timeout controller (10s) to fallback instantly if model spikes
             const perModelController = new AbortController();
-            const timeoutId = setTimeout(() => perModelController.abort(), 90000);
+            const timeoutId = setTimeout(() => perModelController.abort(), 10000);
             if (signal) {
               signal.addEventListener('abort', () => perModelController.abort(), { once: true });
             }
@@ -460,7 +482,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
                 contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 3500000) }] }],
                 generationConfig: {
                   temperature: 0.35,
-                  maxOutputTokens: 4000,
+                  maxOutputTokens: 16000,
                   topP: 0.95
                 }
               })
@@ -519,11 +541,11 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
           body: JSON.stringify({
             model: openAIModel,
             messages: [
-              { role: 'system', content: effectiveSystemPrompt.substring(0, 6000) },
-              { role: 'user', content: fullPromptForLLM.substring(0, 10000) }
+              { role: 'system', content: effectiveSystemPrompt.substring(0, 8000) },
+              { role: 'user', content: fullPromptForLLM.substring(0, 120000) }
             ],
             temperature: 0.3,
-            max_tokens: 2000
+            max_tokens: 8000
           })
         });
         if (res.ok) {
@@ -549,9 +571,9 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   if (isInvalidText(generatedText) && (selectedModel.provider === 'anthropic' || selectedModel.provider === 'francejustice' || effectiveAnthropicKey) && effectiveAnthropicKey) {
     try {
       // Truncate user prompt to avoid 400 from oversized payload.
-      // Keep up to 50k chars (expanded from 14k) to handle large legal documents
-      const anthropicUserContent = fullPromptForLLM.length > 50000
-        ? fullPromptForLLM.substring(0, 50000) + '\n\n[...Contenu tronqué pour respecter les limites du modèle...]'
+      // Keep up to 120k chars to handle large legal documents
+      const anthropicUserContent = fullPromptForLLM.length > 120000
+        ? fullPromptForLLM.substring(0, 120000) + '\n\n[...Contenu tronqué pour respecter les limites du modèle...]'
         : fullPromptForLLM;
       const anthropicSystemContent = effectiveSystemPrompt.length > 8000
         ? effectiveSystemPrompt.substring(0, 8000)
@@ -569,7 +591,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
         },
         body: JSON.stringify({
           model: anthropicModelName,
-          max_tokens: 2000,
+          max_tokens: 8000,
           system: anthropicSystemContent,
           messages: [{ role: 'user', content: anthropicUserContent }]
         })
@@ -692,17 +714,19 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   const thinkingText = thinkingLines.join('\n');
   onThinkingStream?.(thinkingText);
 
-  // Streaming en temps réel mot-à-mot (Style ChatGPT / Claude)
+  // Streaming en temps réel mot-à-mot (Style ChatGPT / Claude) — délai 0ms pour fluidité max
   if (onTokenStream && generatedText) {
     const tokens = generatedText.split(/(\s+)/);
     let accumulated = '';
-    const step = Math.max(1, Math.floor(tokens.length / 45));
+    // Chunks plus grands = moins d'itérations = plus rapide
+    const step = Math.max(2, Math.floor(tokens.length / 60));
     for (let i = 0; i < tokens.length; i += step) {
       if (signal?.aborted) break;
       const slice = tokens.slice(i, i + step).join('');
       accumulated += slice;
       onTokenStream(slice, accumulated);
-      await new Promise(res => setTimeout(res, 15));
+      // Yield control to UI without artificial delay
+      if (i % (step * 10) === 0) await new Promise(res => setTimeout(res, 0));
     }
     if (!signal?.aborted && accumulated !== generatedText) {
       onTokenStream(generatedText.substring(accumulated.length), generatedText);
@@ -713,8 +737,6 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   const suggestionDomain = detectLegalDomain(fullContextForSuggestions);
   const suggestions = generateSmartLegalSuggestions(fullContextForSuggestions, suggestionDomain);
   const automations = generateSmartLegalAutomations(fullContextForSuggestions, attachedFileNames.length);
-  const prognosis = generateSmartLegalPrognosis(fullContextForSuggestions, suggestionDomain, attachedFileNames.length);
-  const timelineRoadmap = generateSmartProceduralRoadmap(fullContextForSuggestions, suggestionDomain, jurisdictionId || 'fr_eu');
 
   const assistantMessage: AgentMessage = {
     id: `msg_${Date.now()}_assistant`,
@@ -727,9 +749,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     thinking: thinkingText,
     thinkingDurationMs,
     suggestions,
-    automations,
-    prognosis,
-    timelineRoadmap
+    automations
   };
 
   return {
