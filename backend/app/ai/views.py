@@ -87,9 +87,9 @@ def _try_gemini(prompt: str, history: list, system: str = SYSTEM_INSTRUCTION):
 # 1. Gemini Chat Proxy  (existing)
 # ---------------------------------------------------------------------------
 
-@ratelimit(key='user', rate='10/m', block=True)
+@ratelimit(key='ip', rate='30/m', block=True)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def chat_proxy(request):
     """Backend proxy for Gemini Chat with Rate Limiting."""
     prompt = request.data.get('prompt')
@@ -114,9 +114,9 @@ def chat_proxy(request):
 # 2. Gemini Document Generation Proxy  (existing)
 # ---------------------------------------------------------------------------
 
-@ratelimit(key='user', rate='5/m', block=True)
+@ratelimit(key='ip', rate='20/m', block=True)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def document_proxy(request):
     """Backend proxy for Legal Document Generation."""
     doc_type = request.data.get('type')
@@ -133,43 +133,22 @@ def document_proxy(request):
         f'de type: {doc_type}. Détails fournis: {details}. '
         f'Utilisez le droit en vigueur (Maroc/France).'
     )
-    try:
-        model = genai.GenerativeModel(
-            model_name='gemini-3.5-flash',
-            system_instruction=SYSTEM_INSTRUCTION,
-            tools=None
-        )
-        response = model.generate_content(prompt)
-        return Response({'text': response.text})
-    except Exception as e:
-        err = str(e)
-        if '429' in err or 'ResourceExhausted' in err or 'quota' in err.lower():
-            try:
-                model = genai.GenerativeModel(
-                    model_name='gemini-2.5-flash',
-                    system_instruction=SYSTEM_INSTRUCTION,
-                    tools=None
-                )
-                response = model.generate_content(prompt)
-                return Response({'text': response.text})
-            except Exception:
-                return Response({
-                    'error': 'Quota Gemini dépassé.',
-                    'is_fallback_trigger': True
-                }, status=200)
-        return Response({
-            'error': err,
-            'is_fallback_trigger': True
-        }, status=200)
+    text, err = _try_gemini(prompt, [], system=SYSTEM_INSTRUCTION)
+    if text:
+        return Response({'text': text})
+    return Response({
+        'error': err or 'Impossible de générer le document.',
+        'is_fallback_trigger': True
+    }, status=200)
 
 
 # ---------------------------------------------------------------------------
 # 3. OpenAI Proxy  (NEW — clé côté serveur uniquement)
 # ---------------------------------------------------------------------------
 
-@ratelimit(key='user', rate='10/m', block=True)
+@ratelimit(key='ip', rate='30/m', block=True)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def openai_proxy(request):
     """
     Secure backend proxy for OpenAI API.
@@ -250,9 +229,9 @@ def openai_proxy(request):
 # 4. Anthropic Claude Proxy  (NEW — clé côté serveur uniquement)
 # ---------------------------------------------------------------------------
 
-@ratelimit(key='user', rate='10/m', block=True)
+@ratelimit(key='ip', rate='30/m', block=True)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def anthropic_proxy(request):
     """
     Secure backend proxy for Anthropic Claude API.
@@ -323,9 +302,9 @@ def anthropic_proxy(request):
 # 5. Universal AI Proxy  (NEW — routes to best available provider)
 # ---------------------------------------------------------------------------
 
-@ratelimit(key='user', rate='20/m', block=True)
+@ratelimit(key='ip', rate='30/m', block=True)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def universal_proxy(request):
     """
     Universal AI proxy: tries providers in order (Gemini → OpenAI → Anthropic).
@@ -345,6 +324,18 @@ def universal_proxy(request):
 
     # Build ordered provider list
     providers = [preferred] + [p for p in ['gemini', 'openai', 'anthropic'] if p != preferred]
+
+    # Format history for OpenAI and Anthropic
+    openai_history = []
+    anthropic_history = []
+    if history and isinstance(history, list):
+        for h in history[-8:]:
+            role = 'assistant' if h.get('role') in ['model', 'assistant'] else 'user'
+            parts = h.get('parts', [])
+            txt = parts[0].get('text', '') if (parts and isinstance(parts, list) and isinstance(parts[0], dict)) else ''
+            if txt:
+                openai_history.append({'role': role, 'content': txt[:4000]})
+                anthropic_history.append({'role': role, 'content': txt[:4000]})
 
     for provider in providers:
         if provider == 'gemini' and _gemini_key():
@@ -366,6 +357,7 @@ def universal_proxy(request):
                                 'model': 'gpt-4o-mini',
                                 'messages': [
                                     {'role': 'system', 'content': system_prompt},
+                                    *openai_history,
                                     {'role': 'user', 'content': prompt},
                                 ],
                                 'temperature': 0.2,
@@ -397,7 +389,7 @@ def universal_proxy(request):
                                 'model': 'claude-3-5-haiku-20241022',
                                 'max_tokens': 8000,
                                 'system': system_prompt,
-                                'messages': [{'role': 'user', 'content': prompt}],
+                                'messages': anthropic_history + [{'role': 'user', 'content': prompt}],
                             }
                         )
                     if res.status_code == 200:

@@ -15,9 +15,29 @@
 import { supabase } from './supabase';
 
 // ── Base URL ─────────────────────────────────────────────────────────────────
-// The backend URL is resolved from the env variable; falls back to localhost for dev.
-const BACKEND_BASE = (import.meta as any).env?.VITE_API_BASE_URL?.replace(/\/$/, '')
-  || 'http://localhost:8000';
+// Since frontend and backend are deployed together on Railway under the same origin (Nginx proxy),
+// API requests must default to relative paths ('') so the browser sends them to the current domain (e.g. /api/...)
+// instead of trying localhost:8000 on the client's machine.
+function getBackendBase(): string {
+  const envUrl = (import.meta as any).env?.VITE_API_BASE_URL;
+  if (typeof window !== 'undefined') {
+    const isRemote = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    // If on production / remote domain, ignore any hardcoded localhost:8000
+    if (isRemote) {
+      if (envUrl && typeof envUrl === 'string' && envUrl.startsWith('http') && !envUrl.includes('localhost')) {
+        return envUrl.replace(/\/$/, '');
+      }
+      return '';
+    }
+  }
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '' && !envUrl.includes('localhost')) {
+    return envUrl.trim().replace(/\/$/, '');
+  }
+  // Default to relative path: works both in Vite dev (proxied to 127.0.0.1:8000) and in production (Nginx)
+  return '';
+}
+
+const BACKEND_BASE = getBackendBase();
 
 // ── Auth header helper ────────────────────────────────────────────────────────
 async function getAuthHeaders(): Promise<Record<string, string>> {
@@ -159,18 +179,21 @@ let _backendCheckCache: { available: boolean; timestamp: number } | null = null;
 
 /**
  * Check if backend AI proxy is reachable and configured.
- * Cached for 60 seconds to prevent polling delays.
+ * Cached for 30s on success, 5s on failure to allow fast recovery.
  */
 export async function isBackendAIAvailable(): Promise<boolean> {
   const now = Date.now();
-  if (_backendCheckCache && (now - _backendCheckCache.timestamp < 60000)) {
-    return _backendCheckCache.available;
+  if (_backendCheckCache) {
+    const ttl = _backendCheckCache.available ? 30000 : 5000;
+    if (now - _backendCheckCache.timestamp < ttl) {
+      return _backendCheckCache.available;
+    }
   }
   try {
     const res = await fetch(`${BACKEND_BASE}/api/health/`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
-      signal: AbortSignal.timeout(600),
+      signal: AbortSignal.timeout(3500),
     });
     const isOk = res.ok;
     _backendCheckCache = { available: isOk, timestamp: now };

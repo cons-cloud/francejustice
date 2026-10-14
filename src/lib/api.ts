@@ -1,6 +1,23 @@
 import { supabase } from './supabase';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
+function getApiBaseUrl(): string {
+  const envUrl = (import.meta as any).env?.VITE_API_BASE_URL;
+  if (typeof window !== 'undefined') {
+    const isRemote = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    if (isRemote) {
+      if (envUrl && typeof envUrl === 'string' && envUrl.startsWith('http') && !envUrl.includes('localhost')) {
+        return envUrl.replace(/\/$/, '') + '/api';
+      }
+      return '/api';
+    }
+  }
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '' && !envUrl.includes('localhost')) {
+    return envUrl.trim().replace(/\/$/, '') + '/api';
+  }
+  return '/api';
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 async function request(path: string, init?: RequestInit) {
   const res = await fetch(`${API_BASE_URL}${path}`, {

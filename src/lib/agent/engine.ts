@@ -262,8 +262,13 @@ RÈGLE D'OR D'ADAPTATION : Détectez systématiquement la juridiction applicable
 
   // Build enhanced prompt with tool results injected
   const toolResultsContext = executedToolCalls.map(tc => {
-    return `\n--- RÉSULTAT OUTIL OFFICIEL [${tc.toolName}] ---\n${JSON.stringify(tc.output, null, 2)}`;
-  }).join('\n');
+  // Format conversation history turns for continuous context memory
+  const previousTurns = (historyMessages || [])
+    .filter(m => m.content && m.content.trim() && m.content !== userPrompt)
+    .slice(-8);
+  const conversationHistoryContext = previousTurns
+    .map(m => `[${m.role === 'user' ? 'UTILISATEUR' : 'AVOCAT CONSEIL IA'}]\n${m.content.trim()}`)
+    .join('\n\n');
 
   const fullPromptForLLM = `
 VOUS ÊTES L'AGENT IA D'ÉLITE FRANCE JUSTICE.
@@ -283,7 +288,8 @@ ${(() => {
   return `=== PIÈCES DU DOSSIER FOURNIES (TEXTE INTÉGRAL DU DOCUMENT) ===\n${extractedText.substring(0, 3500000)}`;
 })()}
 
-=== DEMANDE DE L'UTILISATEUR ===
+${conversationHistoryContext ? `=== HISTORIQUE DE LA CONVERSATION EN COURS ===\n${conversationHistoryContext}\n` : ''}
+=== DEMANDE ACTUELLE DE L'UTILISATEUR ===
 ${userPrompt}
 
 RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) :
@@ -396,26 +402,32 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     || (import.meta as any).env?.VITE_DEEPSEEK_API_KEY;
 
   // 0. BACKEND SECURE PROXY (priority 0 — keys never exposed in browser)
-  // Try the Django backend universal proxy first; falls back to direct calls if unavailable.
+  // Front and backend are deployed together on Railway (or local Vite proxy).
+  // Call the universal proxy directly to eliminate health-check latency and get instant AI response.
   if (isInvalidText(generatedText)) {
     try {
-      const backendAvailable = await isBackendAIAvailable();
-      if (backendAvailable) {
-        const providerHint =
-          selectedModel.provider === 'openai' ? 'openai'
-          : selectedModel.provider === 'anthropic' ? 'anthropic'
-          : 'gemini';
-        const backendResult = await callUniversalProxy(fullPromptForLLM, {
-          systemPrompt: effectiveSystemPrompt.substring(0, 8000),
-          preferredProvider: providerHint,
-        });
-        if (backendResult?.text && !isInvalidText(backendResult.text)) {
-          generatedText = cleanAgentOutput(backendResult.text);
-          console.log(`[Engine] ✅ Réponse via backend proxy (${backendResult.provider_used || 'auto'})`);
-        }
+      const providerHint =
+        selectedModel.provider === 'openai' ? 'openai'
+        : selectedModel.provider === 'anthropic' ? 'anthropic'
+        : 'gemini';
+      const formattedHistoryForBackend = (previousTurns || []).map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: (m.content || '').substring(0, 4000) }]
+      }));
+
+      const backendResult = await callUniversalProxy(fullPromptForLLM, {
+        systemPrompt: effectiveSystemPrompt.substring(0, 16000),
+        preferredProvider: providerHint,
+        history: formattedHistoryForBackend,
+      });
+      if (backendResult?.text && !isInvalidText(backendResult.text)) {
+        generatedText = cleanAgentOutput(backendResult.text);
+        console.log(`[Engine] ✅ Réponse via backend proxy (${backendResult.provider_used || 'auto'})`);
+      } else if (backendResult?.error) {
+        console.warn(`[Engine] Backend proxy returned error:`, backendResult.error);
       }
     } catch (_backendErr) {
-      // Backend unavailable (offline/dev) — continue with direct API calls below
+      console.warn('[Engine] Backend proxy unreachable:', _backendErr);
     }
   }
 
