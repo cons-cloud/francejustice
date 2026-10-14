@@ -10,7 +10,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // Proactive stale auth token verification before client initialization
 if (typeof window !== 'undefined') {
   try {
-    for (let i = 0; i < localStorage.length; i++) {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
       const key = localStorage.key(i);
       if (key && (key.startsWith('sb-') && key.endsWith('-auth-token'))) {
         const raw = localStorage.getItem(key);
@@ -28,16 +28,44 @@ if (typeof window !== 'undefined') {
     }
   } catch (_e) {}
 
+  // Filter internal GoTrue console.error for expired refresh tokens and purge immediately
+  const originalConsoleError = console.error;
+  console.error = (...args: any[]) => {
+    const firstArg = args[0];
+    const message = typeof firstArg === 'string' ? firstArg : (firstArg?.message || '');
+    if (
+      message.includes('Invalid Refresh Token') ||
+      message.includes('Refresh Token Not Found') ||
+      message.includes('refresh_token_not_found') ||
+      (firstArg?.name === 'AuthApiError' && (firstArg?.status === 400 || message.includes('refresh_token')))
+    ) {
+      console.info('[Supabase] Jeton de rafraîchissement obsolète purgé automatiquement.');
+      try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (k && (k.startsWith('sb-') && k.endsWith('-auth-token'))) {
+            localStorage.removeItem(k);
+          }
+        }
+        localStorage.removeItem('role');
+      } catch (_err) {}
+      return;
+    }
+    originalConsoleError.apply(console, args);
+  };
+
   // Global listener to cleanly intercept invalid refresh tokens without console crashes
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event?.reason;
     if (
       reason?.name === 'AuthApiError' &&
       (reason?.message?.includes('Invalid Refresh Token') ||
-       reason?.message?.includes('Refresh Token Not Found'))
+       reason?.message?.includes('Refresh Token Not Found') ||
+       reason?.message?.includes('refresh_token_not_found') ||
+       reason?.status === 400)
     ) {
       event.preventDefault();
-      console.info('[Supabase] Jeton de rafraîchissement obsolète purgé automatiquement.');
+      console.info('[Supabase] Jeton de rafraîchissement obsolète intercepté et purgé.');
       try {
         supabase.auth.signOut({ scope: 'local' }).catch(() => {});
         for (let i = localStorage.length - 1; i >= 0; i--) {

@@ -22,6 +22,9 @@ if (typeof window !== 'undefined') {
     if (
       event.message?.includes("reading 'startTime'") ||
       event.message?.includes('reportAllChanges') ||
+      event.filename?.includes('reload.js') ||
+      event.message?.includes('WebSocket') ||
+      event.message?.includes('ws/ws') ||
       (event.filename === '' && event.message?.includes('startTime'))
     ) {
       event.preventDefault();
