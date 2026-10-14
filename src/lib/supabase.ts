@@ -67,7 +67,6 @@ if (typeof window !== 'undefined') {
       event.preventDefault();
       console.info('[Supabase] Jeton de rafraîchissement obsolète intercepté et purgé.');
       try {
-        supabase.auth.signOut({ scope: 'local' }).catch(() => {});
         for (let i = localStorage.length - 1; i >= 0; i--) {
           const k = localStorage.key(i);
           if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {

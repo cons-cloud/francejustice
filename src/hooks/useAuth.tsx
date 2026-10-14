@@ -46,10 +46,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<AuthContextType['profile']>(null);
 
   useEffect(() => {
-    const purgeStaleAuth = () => {
-      try {
-        supabase.auth.signOut({ scope: 'local' }).catch(() => {});
-        if (typeof window !== 'undefined') {
+    // Safety fallback: guarantee loading never hangs more than 1000ms
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+
+    const cleanStaleTokens = () => {
+      if (typeof window !== 'undefined') {
+        try {
           for (let i = localStorage.length - 1; i >= 0; i--) {
             const k = localStorage.key(i);
             if (k && (k.startsWith('sb-') && k.endsWith('-auth-token'))) {
@@ -57,8 +61,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           }
           localStorage.removeItem('role');
-        }
-      } catch (_e) {}
+        } catch (_e) {}
+      }
     };
 
     supabase.auth.getSession().then(({ data, error }) => {
@@ -69,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           (error as any).status === 400
         ) {
           console.warn('[useAuth] Jeton de session expiré ou invalide - réinitialisation propre');
-          purgeStaleAuth();
+          cleanStaleTokens();
           setSession(null);
           setUser(null);
           setRole(null);
@@ -102,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         err?.message?.includes('refresh_token_not_found') ||
         err?.status === 400
       ) {
-        purgeStaleAuth();
+        cleanStaleTokens();
       }
       setSession(null);
       setUser(null);
@@ -113,7 +117,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (_event === 'SIGNED_OUT' || !session) {
-        purgeStaleAuth();
         setSession(null);
         setUser(null);
         setRole(null);
@@ -141,6 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     return () => {
+      clearTimeout(safetyTimer);
       subscription.unsubscribe();
     };
   }, []);
