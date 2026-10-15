@@ -262,6 +262,9 @@ RÈGLE D'OR D'ADAPTATION : Détectez systématiquement la juridiction applicable
 
   // Build enhanced prompt with tool results injected
   const toolResultsContext = executedToolCalls.map(tc => {
+    return `\n--- RÉSULTAT OUTIL OFFICIEL [${tc.toolName}] ---\n${JSON.stringify(tc.output, null, 2)}`;
+  }).join('\n');
+
   // Format conversation history turns for continuous context memory
   const previousTurns = (historyMessages || [])
     .filter(m => m.content && m.content.trim() && m.content !== userPrompt)
