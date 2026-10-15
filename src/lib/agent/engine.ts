@@ -466,10 +466,11 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && geminiKeysToTry.length > 0))) {
     try {
       const modelsToTry = [
-        'gemini-2.5-flash',
-        'gemini-1.5-flash',
-        'gemini-2.0-flash',
-        'gemini-1.5-pro'
+        'gemini-3.8-flash',
+        'gemini-3.5-flash',
+        'gemini-flash-latest',
+        'gemini-3.1-flash-lite',
+        'gemini-pro-latest'
       ];
 
       for (const cleanGeminiKey of geminiKeysToTry) {
@@ -863,7 +864,7 @@ function synthesizeFallbackAgentResponse(
   }
 
   // SCENARIO 0: QUESTION SUR L'IDENTITÉ DES PARTIES / DE QUI IL S'AGIT
-  if (/qui.*s['’]agit|qui sont les parties|qui attaque qui|demandeur|d[ée]fendeur|identit[ée].*parties|qui est en cause/i.test(promptLower)) {
+  if (/qui.*s['’]agit|qui sont les parties|qui attaque qui|demandeur|d[ée]fendeur|identit[ée].*parties|qui est en cause|de qui (?:on|il)\s+parle|qui est concern[ée]|qui est impliqu[ée]|quelles sont les personnes/i.test(promptLower)) {
     const rawSample = docContext || '';
     const demMatch = rawSample.match(/(?:demandeur|demanderesse|appelant|requérant)\s*[:\-]?\s*([A-Za-zÀ-ÖØ-öø-ÿ\s.\-]{3,40})/i);
     const defMatch = rawSample.match(/(?:défendeur|défenderesse|intimé)\s*[:\-]?\s*([A-Za-zÀ-ÖØ-öø-ÿ\s.\-]{3,40})/i);

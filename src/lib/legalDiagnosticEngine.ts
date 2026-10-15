@@ -473,7 +473,7 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
   let jsonRawText = '';
 
   const availableKeys = getAvailableGeminiKeys();
-  const diagModels = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+  const diagModels = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
 
   for (const gKey of availableKeys) {
     if (jsonRawText) break;

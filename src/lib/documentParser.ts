@@ -15,9 +15,10 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
   // Provider 1: Google Gemini Vision (Pool de clés avec basculement automatique sur 402/429/401)
   const geminiKeys = getAvailableGeminiKeys();
   const geminiModels = [
-    "gemini-2.5-flash",
-    "gemini-1.5-flash",
-    "gemini-2.0-flash"
+    "gemini-3.8-flash",
+    "gemini-3.5-flash",
+    "gemini-flash-latest",
+    "gemini-3.1-flash-lite"
   ];
 
   for (const gKey of geminiKeys) {

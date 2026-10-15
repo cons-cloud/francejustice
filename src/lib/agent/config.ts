@@ -9,27 +9,27 @@ export const AVAILABLE_MODELS: LLMModelConfig[] = [
     description: 'Modèle souverain optimisé pour le droit français. Inclus par défaut avec zéro configuration requise.',
     badge: 'Recommandé • Prêt à l\'emploi',
     requiresCustomApiKey: false,
-    defaultModelName: 'gemini-1.5-flash'
+    defaultModelName: 'gemini-3.8-flash'
   },
   {
-    id: 'gemini-1.5-pro',
-    name: 'Gemini 1.5 Pro (Google DeepMind)',
+    id: 'gemini-pro-latest',
+    name: 'Gemini Pro Latest (Google DeepMind)',
     provider: 'google',
     contextWindow: '2M tokens',
     description: 'Capacité d\'analyse monumentale pour éplucher des centaines de pages de pièces, contrats et jurisprudences.',
     badge: 'Ultra Long-Context',
     requiresCustomApiKey: false,
-    defaultModelName: 'gemini-1.5-pro'
+    defaultModelName: 'gemini-pro-latest'
   },
   {
-    id: 'gemini-1.5-flash',
-    name: 'Gemini 1.5 Flash (Google)',
+    id: 'gemini-3.8-flash',
+    name: 'Gemini 3.8 Flash (Google)',
     provider: 'google',
     contextWindow: '1M tokens',
     description: 'Réponses instantanées et vives avec un raisonnement juridique direct et précis.',
     badge: 'Ultra Rapide',
     requiresCustomApiKey: false,
-    defaultModelName: 'gemini-1.5-flash'
+    defaultModelName: 'gemini-3.8-flash'
   },
   {
     id: 'gpt-4o',

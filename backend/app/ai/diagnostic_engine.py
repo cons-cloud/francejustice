@@ -631,7 +631,7 @@ def run_llm_for_json(prompt: str, system_prompt: str) -> Optional[Dict[str, Any]
         try:
             import google.generativeai as genai
             genai.configure(api_key=gemini_key)
-            models = ['gemini-3.5-flash', 'gemini-2.5-flash']
+            models = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite']
             for m in models:
                 try:
                     model = genai.GenerativeModel(
