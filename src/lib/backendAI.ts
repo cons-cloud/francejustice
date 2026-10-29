@@ -49,14 +49,21 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
   };
 }
 
-// ── Generic POST helper ───────────────────────────────────────────────────────
 async function backendPost<T>(path: string, body: Record<string, unknown>): Promise<T> {
   const headers = await getAuthHeaders();
-  const res = await fetch(`${BACKEND_BASE}${path}`, {
+  let res = await fetch(`${BACKEND_BASE}${path}`, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
   });
+  if ((res.status === 401 || res.status === 403) && headers.Authorization) {
+    // Retry without Authorization header in case browser session JWT is expired or invalid
+    res = await fetch(`${BACKEND_BASE}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  }
   if (!res.ok) {
     throw new Error(`[BackendAI] HTTP ${res.status} on ${path}`);
   }

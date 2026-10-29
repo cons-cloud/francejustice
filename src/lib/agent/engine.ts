@@ -597,10 +597,10 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && geminiKeysToTry.length > 0))) {
     try {
       const modelsToTry = [
-        'gemini-2.5-flash',
-        'gemini-2.0-flash',
-        'gemini-1.5-flash',
-        'gemini-flash-latest'
+        'gemini-3.8-flash',
+        'gemini-3.5-flash',
+        'gemini-flash-latest',
+        'gemini-3.1-flash-lite'
       ];
 
       for (const cleanGeminiKey of geminiKeysToTry) {
@@ -674,7 +674,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   if (isInvalidText(generatedText) && (selectedModel.provider === 'openai' || selectedModel.provider === 'francejustice' || effectiveOpenAIKey) && effectiveOpenAIKey) {
     const openAIModels = selectedModel.defaultModelName && selectedModel.provider === 'openai'
       ? [selectedModel.defaultModelName]
-      : ['gpt-4o-mini', 'gpt-3.5-turbo']; // fallback chain: mini first (cheaper), then 3.5
+      : ['gpt-4o-mini', 'gpt-4o']; // fallback chain: mini first, then 4o
     for (const openAIModel of openAIModels) {
       if (!isInvalidText(generatedText)) break;
       try {

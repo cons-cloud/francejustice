@@ -5,9 +5,10 @@ with warnings.catch_warnings():
 import json
 import httpx
 from django.conf import settings
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
 from django_ratelimit.decorators import ratelimit
 from .diagnostic_engine import (
     perform_legal_case_analysis,
@@ -334,9 +335,11 @@ def anthropic_proxy(request):
 # 5. Groq Proxy (Ultra-rapide LPU — Qwen / GPT OSS / Llama)
 # ---------------------------------------------------------------------------
 
-@ratelimit(key='ip', rate='60/m', block=True)
+@csrf_exempt
+@ratelimit(key='ip', rate='120/m', block=False)
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])
 def groq_proxy(request):
     """
     Secure backend proxy for Groq API (Inférence ultra-rapide en quelques millisecondes).
@@ -414,9 +417,11 @@ def groq_proxy(request):
 # 6. Universal AI Proxy  (Routes to Groq / Gemini / OpenAI / Anthropic)
 # ---------------------------------------------------------------------------
 
-@ratelimit(key='ip', rate='60/m', block=True)
+@csrf_exempt
+@ratelimit(key='ip', rate='120/m', block=False)
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])
 def universal_proxy(request):
     """
     Universal AI proxy: tries providers in order (Groq → Gemini → OpenAI → Anthropic).
@@ -452,31 +457,35 @@ def universal_proxy(request):
         if provider == 'groq':
             groq_key = getattr(settings, 'GROQ_API_KEY', '')
             if groq_key:
-                try:
-                    with httpx.Client(timeout=30) as client:
-                        res = client.post(
-                            'https://api.groq.com/openai/v1/chat/completions',
-                            headers={'Authorization': f'Bearer {groq_key}', 'Content-Type': 'application/json'},
-                            json={
-                                'model': 'qwen/qwen3.8-27b',
-                                'messages': [
-                                    {'role': 'system', 'content': system_prompt},
-                                    *formatted_history,
-                                    {'role': 'user', 'content': prompt},
-                                ],
-                                'temperature': 0.25,
-                                'max_tokens': 8000,
-                            }
-                        )
-                    if res.status_code == 200:
-                        choice = res.json().get('choices', [{}])[0].get('message', {})
-                        text = choice.get('content', '') or choice.get('reasoning', '')
-                        if text:
-                            return Response({'text': text, 'provider_used': 'groq', 'model_used': 'qwen/qwen3.8-27b', 'sources_web': []})
-                    else:
-                        errors.append(f'Groq: HTTP {res.status_code}')
-                except Exception as e:
-                    errors.append(f'Groq: {str(e)}')
+                groq_models = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b']
+                for g_model in groq_models:
+                    try:
+                        with httpx.Client(timeout=45) as client:
+                            res = client.post(
+                                'https://api.groq.com/openai/v1/chat/completions',
+                                headers={'Authorization': f'Bearer {groq_key}', 'Content-Type': 'application/json'},
+                                json={
+                                    'model': g_model,
+                                    'messages': [
+                                        {'role': 'system', 'content': system_prompt},
+                                        *formatted_history,
+                                        {'role': 'user', 'content': prompt},
+                                    ],
+                                    'temperature': 0.25,
+                                    'max_tokens': 8000,
+                                }
+                            )
+                        if res.status_code == 200:
+                            choice = res.json().get('choices', [{}])[0].get('message', {})
+                            text = choice.get('content', '') or choice.get('reasoning', '')
+                            if text:
+                                return Response({'text': text, 'provider_used': 'groq', 'model_used': g_model, 'sources_web': []})
+                        elif res.status_code == 429:
+                            continue
+                        else:
+                            errors.append(f'Groq ({g_model}): HTTP {res.status_code}')
+                    except Exception as e:
+                        errors.append(f'Groq ({g_model}): {str(e)}')
 
         elif provider == 'gemini' and _gemini_key():
             text, err = _try_gemini(prompt, history, system=system_prompt)

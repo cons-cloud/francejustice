@@ -41,8 +41,9 @@ class SupabaseJWTAuthentication(authentication.BaseAuthentication):
             )
             return (user, None)
 
-        except exceptions.AuthenticationFailed:
-            raise
-        except Exception as exc:
-            raise exceptions.AuthenticationFailed(f'Invalid token: {exc}')
+        except Exception:
+            # Token could not be validated (expired, invalid signature, or malformed).
+            # Return None so DRF treats request as AnonymousUser.
+            # Views with IsAuthenticated will reject gracefully, while AllowAny views (e.g. AI proxy) will succeed.
+            return None
 
