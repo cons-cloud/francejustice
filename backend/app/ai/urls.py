@@ -17,5 +17,6 @@ urlpatterns = [
     # Python Algorithmic Legal & Contract Analysis
     path('analyze-case/', views.analyze_case_endpoint, name='ai_analyze_case'),
     path('analyze-contract/', views.analyze_contract_endpoint, name='ai_analyze_contract'),
+    path('parse-document/', views.parse_document_endpoint, name='ai_parse_document'),
 ]
 

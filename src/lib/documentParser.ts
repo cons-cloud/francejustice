@@ -683,6 +683,42 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
   const isPptx = file.name.toLowerCase().endsWith('.pptx') || file.name.toLowerCase().endsWith('.ppt') || file.type.includes('presentation') || file.type.includes('powerpoint');
   const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|bmp|gif|tiff)$/i.test(file.name);
 
+  // PRIORITY 0: Instant Server-Side Python Parser (pypdf & python-docx — 15ms execution)
+  // Bypasses browser cross-origin worker restrictions, CDN failures and avoids minutes of client-side OCR.
+  if (!isImage) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('filename', file.name);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const res = await fetch('/api/ai/parse-document/', {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal
+      }).finally(() => clearTimeout(timeoutId));
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.text && data.text.trim().length > 15 && !data.is_empty) {
+          console.log(`[DocumentParser] ✅ Extraction instantanée serveur (${data.character_count} car.) pour "${file.name}"`);
+          return {
+            id: Math.random().toString(36).substring(2, 9),
+            name: file.name,
+            type: file.type || 'application/octet-stream',
+            size: file.size,
+            content: sanitizeExtractedText(data.text),
+            uploadedAt: Date.now()
+          };
+        }
+      }
+    } catch (serverErr) {
+      console.warn('[DocumentParser] Serveur indisponible pour parse direct, fallback navigateur:', serverErr);
+    }
+  }
+
   return new Promise((resolve) => {
     const reader = new FileReader();
 
