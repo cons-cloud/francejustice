@@ -39,7 +39,7 @@ async function request(path: string, init?: RequestInit) {
  * for the SupabaseJWTAuthentication middleware.
  */
 export async function apiPost<T = any>(path: string, body: object): Promise<T> {
-  const { data: sessionData } = await supabase.auth.getSession();
+  const { data: sessionData } = await supabase.auth.getSession().catch(() => ({ data: { session: null } } as any));
   const token = sessionData?.session?.access_token;
 
   const res = await fetch(`${API_BASE_URL}${path}`, {

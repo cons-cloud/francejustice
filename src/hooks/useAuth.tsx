@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, purgeStaleSupabaseTokens } from '../lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -52,17 +52,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 1000);
 
     const cleanStaleTokens = () => {
-      if (typeof window !== 'undefined') {
-        try {
-          for (let i = localStorage.length - 1; i >= 0; i--) {
-            const k = localStorage.key(i);
-            if (k && (k.startsWith('sb-') && k.endsWith('-auth-token'))) {
-              localStorage.removeItem(k);
-            }
-          }
-          localStorage.removeItem('role');
-        } catch (_e) {}
-      }
+      purgeStaleSupabaseTokens();
+      supabase.auth.signOut({ scope: 'local' }).catch(() => {});
     };
 
     supabase.auth.getSession().then(({ data, error }) => {

@@ -2,7 +2,7 @@
 
 export const AGENT_TYPES_VERSION = '1.0';
 
-export type LLMProvider = 'google' | 'openai' | 'anthropic' | 'deepseek' | 'francejustice';
+export type LLMProvider = 'google' | 'openai' | 'anthropic' | 'deepseek' | 'francejustice' | 'groq';
 
 export interface LLMModelConfig {
   id: string;
@@ -145,4 +145,5 @@ export interface UserApiKeys {
   openai?: string;
   anthropic?: string;
   deepseek?: string;
+  groq?: string;
 }

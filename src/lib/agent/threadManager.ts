@@ -11,6 +11,7 @@ export function getStoredApiKeys(): UserApiKeys {
     const parsed = raw ? JSON.parse(raw) : {};
     return {
       gemini: parsed.gemini || (import.meta as any).env?.VITE_GEMINI_API_KEY || '',
+      groq: parsed.groq || (import.meta as any).env?.VITE_GROQ_API_KEY || '',
       openai: parsed.openai || (import.meta as any).env?.VITE_OPENAI_API_KEY || '',
       anthropic: parsed.anthropic || (import.meta as any).env?.VITE_ANTHROPIC_API_KEY || '',
       deepseek: parsed.deepseek || (import.meta as any).env?.VITE_DEEPSEEK_API_KEY || '',
@@ -19,6 +20,7 @@ export function getStoredApiKeys(): UserApiKeys {
   } catch (_e) {
     return {
       gemini: (import.meta as any).env?.VITE_GEMINI_API_KEY || '',
+      groq: (import.meta as any).env?.VITE_GROQ_API_KEY || '',
       openai: (import.meta as any).env?.VITE_OPENAI_API_KEY || '',
       anthropic: (import.meta as any).env?.VITE_ANTHROPIC_API_KEY || '',
       deepseek: (import.meta as any).env?.VITE_DEEPSEEK_API_KEY || '',

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { MapPin, Building2, Search, Globe, X, Shield, Sparkles, Award } from 'lucide-react';
 import { CourtsAnnuaireModal } from './CourtsAnnuaireModal';
 import { ALL_BARREAUX_FRANCE, type BarreauData } from '../../data/allBarreauxFrance';
-import { matchBarreau } from '../../lib/avocatsDataGouvSync';
+import { matchBarreau } from '../../lib/barreauUtils';
 import carteGif from '../../assets/images/carte.gif';
 
 export type { BarreauData };

@@ -41,7 +41,7 @@ const BACKEND_BASE = getBackendBase();
 
 // ── Auth header helper ────────────────────────────────────────────────────────
 async function getAuthHeaders(): Promise<Record<string, string>> {
-  const { data } = await supabase.auth.getSession();
+  const { data } = await supabase.auth.getSession().catch(() => ({ data: { session: null } } as any));
   const token = data?.session?.access_token;
   return {
     'Content-Type': 'application/json',
@@ -76,14 +76,14 @@ export interface BackendAIResponse {
 // ── Public API ────────────────────────────────────────────────────────────────
 
 /**
- * Universal proxy — tries Gemini → OpenAI → Anthropic automatically.
+ * Universal proxy — tries Groq → Gemini → OpenAI → Anthropic automatically.
  * This should be the default call for all AI requests.
  */
 export async function callUniversalProxy(
   prompt: string,
   options: {
     systemPrompt?: string;
-    preferredProvider?: 'gemini' | 'openai' | 'anthropic';
+    preferredProvider?: 'groq' | 'gemini' | 'openai' | 'anthropic';
     history?: { role: string; parts: { text: string }[] }[];
   } = {}
 ): Promise<BackendAIResponse> {
@@ -91,8 +91,33 @@ export async function callUniversalProxy(
     return await backendPost<BackendAIResponse>('/api/ai/universal/', {
       prompt,
       system_prompt: options.systemPrompt,
-      preferred_provider: options.preferredProvider ?? 'gemini',
+      preferred_provider: options.preferredProvider ?? 'groq',
       history: options.history ?? [],
+    });
+  } catch (e) {
+    return { error: String(e), is_fallback_trigger: true };
+  }
+}
+
+/**
+ * Groq Ultra-fast proxy (5-20ms inference).
+ */
+export async function callGroqProxy(
+  prompt: string,
+  options: {
+    systemPrompt?: string;
+    model?: string;
+    maxTokens?: number;
+    temperature?: number;
+  } = {}
+): Promise<BackendAIResponse> {
+  try {
+    return await backendPost<BackendAIResponse>('/api/ai/groq/', {
+      prompt,
+      system_prompt: options.systemPrompt,
+      model: options.model ?? 'qwen/qwen3.8-27b',
+      max_tokens: options.maxTokens ?? 8000,
+      temperature: options.temperature ?? 0.2,
     });
   } catch (e) {
     return { error: String(e), is_fallback_trigger: true };

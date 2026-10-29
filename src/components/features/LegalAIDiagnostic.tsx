@@ -84,6 +84,7 @@ import { AgentSettingsModal } from './AgentSettingsModal';
 import { ElectronicSignatureModal } from './ElectronicSignatureModal';
 import { uploadMultipleCaseDocuments } from '../../lib/storageUtils';
 import { notifyAnalysisReady } from '../../lib/emailService';
+import { purgeLocalSessionSecurity } from '../../lib/dataSecurityUtils';
 
 const SpeechRecognition = typeof window !== 'undefined' 
   ? ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition) 
@@ -499,6 +500,19 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
       }
     }
     success("Conversation supprimée.");
+  };
+
+  const handlePurgeConfidentialSession = () => {
+    const ok = window.confirm(
+      "🛡️ MODE CONFIDENTIEL & PURGE RGPD\n\nSouhaitez-vous purger immédiatement cette session ?\n\nToutes les pièces importées, mémoires de conversation et brouillons temporaires seront définitivement effacés de votre navigateur."
+    );
+    if (!ok) return;
+    purgeLocalSessionSecurity();
+    setExtractedText('');
+    setFiles([]);
+    setUserInput('');
+    handleNewThread();
+    success("🛡️ Session purgée : Données locales et pièces temporaires effacées avec succès (RGPD).");
   };
 
   // File Upload & Text Extraction
@@ -1009,7 +1023,17 @@ export const LegalAIDiagnostic: React.FC<LegalAIDiagnosticProps> = ({ roleMode =
 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-auto">
-          {/* Note: Bouton paramètres et export PDF conservés dans le code mais masqués de l'interface conformément à la demande (export sur demande) */}
+          {/* Mode Confidentiel / Purge RGPD */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePurgeConfidentialSession}
+            className="rounded-xl border-emerald-300 text-emerald-800 hover:bg-emerald-50 text-xs font-bold p-1.5 sm:px-2.5 sm:py-1.5 h-auto cursor-pointer shadow-2xs"
+            title="Purger immédiatement toutes les pièces, mémoires et brouillons de cette session (RGPD)"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 sm:mr-1" />
+            <span className="hidden sm:inline">Session Confidentielle</span>
+          </Button>
 
           {/* Share / Partager Conversation */}
           {activeThread && activeThread.messages.length > 0 && (

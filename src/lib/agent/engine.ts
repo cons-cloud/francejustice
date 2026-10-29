@@ -22,7 +22,7 @@ import {
 import { getStoredApiKeys } from './threadManager';
 import { getAIConfig, getAvailableGeminiKeys, reportKeyFailure } from '../aiKeyManager';
 import { generateAIImageUrl } from '../universalFileGenerator';
-import { callUniversalProxy, isBackendAIAvailable } from '../backendAI';
+import { callUniversalProxy, callGroqProxy, isBackendAIAvailable } from '../backendAI';
 
 interface RunAgentOptions {
   threadId: string;
@@ -186,42 +186,48 @@ RÈGLE D'OR D'ADAPTATION : Détectez systématiquement la juridiction applicable
     return !hasExplicitAction && !hasDocumentAnalysis && !hasLegalKeyword;
   })();
 
-  // Only trigger tools for non-conversational requests
-  if (!isConversationalOrAdvice) {
-    // 1. Labor law calculation
+  const hasDocumentAttached = (attachedFileNames && attachedFileNames.length > 0) || (extractedText && extractedText.trim().length > 30);
+
+  // Only trigger tools for specific manual requests when NO document is attached.
+  // When a document is attached, the document itself is the 100% dynamic, sole and authentic source of truth!
+  // Synthetic tools with dummy defaults (e.g. 2500€, 800€) must NEVER run and pollute real document text.
+  if (!isConversationalOrAdvice && !hasDocumentAttached) {
+    // 1. Labor law calculation (only if user provided explicit salary and years)
     const hasSalaryOrLicenciement = /licenciement|salaire|ancienneté|prud'hom|barème|macron|indemnité|rupture/i.test(queryLower);
     if (hasSalaryOrLicenciement) {
       const salaryMatch = queryLower.match(/(\d+[\s.]?\d*)\s*(?:€|euros?)/);
       const yearsMatch = queryLower.match(/(\d+)\s*(?:ans?|années?)/);
-      const parsedSalary = salaryMatch ? parseFloat(salaryMatch[1].replace(/\s/g, '')) : 2500;
-      const parsedYears = yearsMatch ? parseInt(yearsMatch[1], 10) : 4;
-
-      toolsToCall.push({
-        name: 'calculate_legal_quantum',
-        input: { type: 'bareme_macron', monthlySalary: parsedSalary, seniorityYears: parsedYears, companySize: '11_et_plus' }
-      });
+      if (salaryMatch && yearsMatch) {
+        const parsedSalary = parseFloat(salaryMatch[1].replace(/\s/g, ''));
+        const parsedYears = parseInt(yearsMatch[1], 10);
+        toolsToCall.push({
+          name: 'calculate_legal_quantum',
+          input: { type: 'bareme_macron', monthlySalary: parsedSalary, seniorityYears: parsedYears, companySize: '11_et_plus' }
+        });
+      }
       toolsToCall.push({ name: 'search_legal_codes', input: { query: 'L. 1235-3', code: 'travail' } });
       toolsToCall.push({ name: 'compute_prescription_deadline', input: { domain: 'rupture_travail', startDate: new Date().toISOString().split('T')[0] } });
     }
 
-    // 2. Real estate deposit / rent
+    // 2. Real estate deposit / rent (only if user provided explicit rent amount)
     const hasCautionOrBail = /caution|dépôt de garantie|loyer|bail|locataire|propriétaire|bailleur/i.test(queryLower);
     if (hasCautionOrBail && !toolsToCall.some(t => t.name === 'calculate_legal_quantum')) {
       const rentMatch = queryLower.match(/(\d+[\s.]?\d*)\s*(?:€|euros?)/);
       const monthsMatch = queryLower.match(/(\d+)\s*mois/);
-      const parsedRent = rentMatch ? parseFloat(rentMatch[1].replace(/\s/g, '')) : 800;
-      const parsedMonths = monthsMatch ? parseInt(monthsMatch[1], 10) : 2;
-
-      toolsToCall.push({
-        name: 'calculate_legal_quantum',
-        input: { type: 'depot_garantie_retard', rentAmount: parsedRent, monthsLate: parsedMonths }
-      });
+      if (rentMatch && monthsMatch) {
+        const parsedRent = parseFloat(rentMatch[1].replace(/\s/g, ''));
+        const parsedMonths = parseInt(monthsMatch[1], 10);
+        toolsToCall.push({
+          name: 'calculate_legal_quantum',
+          input: { type: 'depot_garantie_retard', rentAmount: parsedRent, monthsLate: parsedMonths }
+        });
+      }
       toolsToCall.push({ name: 'search_legal_codes', input: { query: 'Article 22', code: 'loi_1989' } });
     }
 
-    // 3. Contract / Abusive clauses (only if NO document is attached, to avoid poisoning divorce/family documents)
+    // 3. Contract / Abusive clauses
     const hasContrat = /clause|contrat|déséquilibre|résiliation|pénalité/i.test(queryLower);
-    if (hasContrat && !extractedText && !toolsToCall.some(t => t.name === 'search_legal_codes')) {
+    if (hasContrat && !toolsToCall.some(t => t.name === 'search_legal_codes')) {
       toolsToCall.push({ name: 'search_legal_codes', input: { query: '1171', code: 'civil' } });
     }
 
@@ -309,25 +315,67 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
 - CODE SOURCE UNIQUEMENT SUR DEMANDE : Si du code ou un script est demandé, insérez un bloc syntaxique \`\`\`lang ... \`\`\`.
 - POLYVALENCE ET RIGUEUR : Traitez chaque demande avec la même excellence que Claude, ChatGPT et Gemini, sans refus artificiel.
 - SI L'UTILISATEUR POSE UNE QUESTION DE CONSEIL, D'ORIENTATION OU CONVERSATIONNELLE : Répondez sous forme d'échange fluide et naturel, avec des explications concrètes, vos conseils stratégiques et les options envisageables.
-- EXIGENCE STRICTE D'ANALYSE INTÉGRALE ET EXHAUSTIVE DE DOCUMENTS (AUCUN RÉSUMÉ, TOUS LES ÉLÉMENTS DOIVENT ÊTRE DÉTAILLÉS) :
-  QUAND UN DOCUMENT EST FOURNI (JUGEMENT, DÉCISION, CONTRAT, BAIL, STATUTS, CONCLUSIONS, MISE EN DEMEURE, RAPPORT D'EXPERTISE, ACTE NOTARIÉ, LETTRE) OU QUE L'UTILISATEUR DEMANDE L'ANALYSE D'UN DOCUMENT :
-  • INTERDICTION FORMELLE DE FAIRE UN BREF RÉSUMÉ OU UNE VUE D'ENSEMBLE SUCCINCTE.
-  • L'UTILISATEUR VEUT L'ANALYSE COMPLÈTE DE TOUT LE DOCUMENT, DE TOUS LES ÉLÉMENTS QUI Y FIGURENT, PAS JUSTE UNE PARTIE : TOUS LES POINTS SOULEVÉS, TOUT CE QUI EST CITÉ, SANS OUBLIER AUCUNE DONNÉE.
-  • VOUS DEVEZ EXAMINER ET DÉCORTIQUER POINT PAR POINT :
-    1. L'IDENTIFICATION INTÉGRALE : Juridiction ou rédacteur de l'acte, date exacte, numéros de RG / minute, nature de la décision (contradictoire, par défaut, exécutoire à titre provisoire), et identité de toutes les parties (avec enfants, dates de naissance et situation si applicable).
-    2. L'EXPOSÉ COMPLET DES FAITS ET DE LA CHRONOLOGIE : Reprenez point par point tous les faits énoncés, dates d'événements, manquements allégués, démarches préalables et pièces échangées.
-    3. LES PRÉTENTIONS ET DEMANDES DE CHACUNE DES PARTIES : Décortiquez ce que chaque partie réclamait initialement (demandes principales et reconventionnelles).
-    4. L'ANALYSE DÉTAILLÉE DE TOUS LES MOTIFS ET MOYENS DE DROIT : Analysez chaque attendu du juge ou chaque clause contractuelle, les articles de lois appliqués (Code Civil, Code du Travail, Code de Procédure Civile, Code de Commerce, Dahir, etc.), l'appréciation des preuves et la justification juridique de chaque point retenu ou rejeté.
-    5. LE DISPOSITIF INTÉGRAL (« PAR CES MOTIFS ») OU L'ENSEMBLE DES CLAUSES :
-       - Détaillez chaque décision, condamnation ou obligation prononcée sans en omettre une seule.
-       - Relevez tous les montants financiers chiffrés : principal, créances, pensions alimentaires, prestations compensatoires, indemnités, dommages et intérêts, intérêts moratoires, dépens, frais irrépétibles (article 700 du CPC), astreintes journalières.
-       - Précisez les modalités de paiement, dates d'échéance et conditions de révision ou indexation.
-       - Pour les litiges familiaux : autorité parentale, résidence habituelle des enfants, calendrier détaillé des droits de visite et d'hébergement (week-ends pairs/impairs, moitié des vacances scolaires), partage des frais exceptionnels.
-       - Pour les contrats et baux : clause résolutoire, limitation de responsabilité, pénalités, préavis, cession, compétence territoriale.
-    6. AUDIT CRITIQUE, POINTS DE VIGILANCE ET RISQUES : Erreurs matérielles éventuelles, omissions du juge, clauses abusives, déséquilibres, forclusions ou vices de procédure.
-    7. VOIES ET DÉLAIS DE RECOURS : Juridiction d'appel ou de cassation compétente, délai strict de recours (ex: 1 mois / 15 jours à compter de la signification par Commissaire de Justice), point de départ du délai et actes requis.
-    8. RECOMMANDATIONS STRATÉGIQUES D'EXÉCUTION : Étapes pratiques immédiates pour faire exécuter la décision ou faire valoir ses droits.
-  • RÈGLE D'OR : RIEN NE DOIT ÊTRE LAISSÉ DE CÔTÉ. Tout élément figurant dans le document doit être traité avec une rigueur juridique chirurgicale digne d'un grand cabinet d'avocats.
+- ARCHITECTURE ABSOLUE DE L'ANALYSE DE DOCUMENTS & DÉCISIONS (CANEVAS D'ÉLITE CLAUDE / FRANCE JUSTICE) :
+  LORSQU'UN DOCUMENT EST TRANSMIS (JUGEMENT, ARRÊT, ORDONNANCE, CONTRAT, CONCLUSIONS, BAIL, MISE EN DEMEURE, ACTE DE PROCÉDURE) OU QUE L'UTILISATEUR DEMANDE L'ANALYSE D'UN DOCUMENT OU D'UNE DÉCISION DE JUSTICE, STRUCTUREZ SYSTÉMATIQUEMENT VOTRE ANALYSE SELON CE CANEVAS DIRECT, CHIRURGICAL ET EXTRÊMEMENT LISIBLE.
+
+  • RÈGLE D'EXHAUSTIVITÉ CHIRURGICALE (ZÉRO OUBLI, ZÉRO SURVOL) :
+    - Traitez 100% de la pièce de la première à la dernière ligne.
+    - AUCUN ÉLÉMENT NE DOIT ÊTRE ÉLUDÉ : chaque personne physique ou morale (parties, enfants avec statuts et dates, conjoints, employeurs, témoins), chaque chef de décision du dispositif sans aucune exception (« Par ces motifs »), chaque montant en euros (principal, astreinte, prestation, pension, frais irrépétibles, dépens, charges mensuelles, dettes), chaque date et délai légal, et chaque pièce du dossier citée (ex: pièce 16, pièce 24).
+    - C'est cette minutie absolue qui garantit la supériorité et la fiabilité de votre analyse.
+
+  # Analyse du [jugement / arrêt / ordonnance / acte] du [Date exacte du document]
+  **[Juridiction : TJ, Cour d'Appel, JAF, CPH, TC...] – RG [Numéro de RG ou de minute] – [NOM DEMANDEUR] / [NOM DÉFENDEUR]**
+  *Je ne suis pas juriste : cette analyse est informative et ne remplace pas l'avis d'un avocat, notamment pour les délais de recours.*
+
+  ## 1. Le cadre
+  - Présentation vivante, nette et objective des VRAIES PARTIES (Noms réels complets, prénoms, âges réels s'ils figurent, professions, situations de revenus réelles : salaires exacts, AAH, allocations, etc.).
+  - Durée réelle du lien (années de mariage, date d'embauche et ancienneté, date de conclusion du bail ou du contrat).
+  - Personnes à charge / Enfants réels avec leurs prénoms, statuts (majeurs avec date précise de majorité, mineurs avec année de naissance).
+  - Historique synthétique de la saisine / assignation et le fondement juridique exact (articles précis du Code civil, Code du travail, Code de commerce, CPC...).
+
+  ## 2. Ce que le juge a décidé [OU Ce que stipule l'acte]
+  - Rédigez OBLIGATOIREMENT un tableau Markdown synthétique et complet à 2 colonnes balayant TOUS les chefs de décision du dispositif (« Par ces motifs ») :
+  | Point | Décision |
+  |---|---|
+  - Détaillez chaque point sans exception :
+    • Sort du litige principal (Divorce prononcé avec motif exact, résiliation du bail, validation ou nullité du licenciement, condamnation contractuelle).
+    • Sort patrimonial et date d'effet (report des effets, date du bail ou de la rupture).
+    • Nom marital / Usage du nom.
+    • Avantages matrimoniaux et donations (révocation de plein droit art. 265 C. civ.).
+    • Liquidation du régime ou désignation d'un notaire (art. 1359 et s. CPC).
+    • Prestation compensatoire (MONTANT EXACT ACCORDÉ EN CAPITAL OU RENTE vs MONTANT INITIALEMENT DEMANDÉ).
+    • Autorité parentale (exercice exclusif vs conjoint, droit de surveillance et d'information).
+    • Résidence principale de l'enfant ou alternée.
+    • Droit d'accueil et de visite (fixé précisément, médiatisé ou "réservé").
+    • Contribution à l'entretien et l'éducation / Pension alimentaire (MONTANT EXACT PAR MOIS ET PAR ENFANT, TOTAL MENSUEL, indexation annuelle, intermédiation financière CAF / Aripa, exécution provisoire).
+    • Dépens et article 700 du CPC (à la charge de qui, montants exacts).
+
+  ## 3. Points de fond à relever
+  - Analysez la logique et les motivations réelles du juge (ou les stipulations fondamentales du contrat) :
+    • Prestation compensatoire / Indemnités : Pourquoi ce montant précis ? Pourquoi le juge a-t-il accordé cette somme au lieu de celle demandée ? Détaillez les chiffres exacts (salaires réels vs allocations/AAH), les charges réelles (loyers, remboursements de prêts immobiliers par mois).
+    • Carence probatoire : pointez l'absence de déclaration sur l'honneur (art. 272 C. civ.), l'absence de relevé de carrière, de justificatifs médicaux, ou de preuve de sacrifice de carrière.
+    • Régime matrimonial et biens réels : qualification du régime (séparation non homologuée vs communauté légale), acquisition de biens (valeur d'achat, qualification du bien), liquidation restant à faire.
+    • Enfants et mesures parentales : motifs de l'exercice exclusif (ex: messages violents et irrespectueux cités dans les pièces), absence de demande d'audition de l'enfant, conséquences d'un droit d'accueil "réservé".
+
+  ## 4. Anomalies et incohérences du texte
+  (LE VRAI REGARD CRITIQUE D'UN JURISTE CHEVRONNÉ — Traquez sans complaisance les failles de la décision ou de l'acte) :
+  1. Contradictions internes entre motifs et dispositif (ex: condamnation à une pension pour des enfants majeurs sans demande explicite ni justification de leur situation étudiante ou de besoin).
+  2. Incohérences de formules ou clauses types (ex: rappeler dans le dispositif que la pension est « due pendant l'exercice du droit d'accueil » alors que ce droit d'accueil est formellement réservé).
+  3. Coquilles et erreurs matérielles (ex: prénom ou nom écorché comme « Enadjette » au lieu de « Nadjette », erreurs sur les dates ou numéros).
+  4. Discordances de dates (ex: date de séparation concordante vs date d'effet patrimonial fixée à une autre date).
+  5. Références de pièces et pièces à vérifier (ex: pièces manquantes au dossier, justificatifs indispensables pour une éventuelle procédure future).
+
+  ## 5. Suites possibles et stratégie d'action
+  - Appel : Indiquez si le jugement est rendu en premier ressort, le délai d'appel exact (1 mois en matière civile/famille, 15 jours en référé), le point de départ du délai (signification par commissaire de justice / notification par le greffe), l'opportunité réelle d'interjeter appel et l'impact de l'exécution provisoire.
+  - Liquidation et partage : Démarches concrètes chez le notaire (art. 1359 CPC) ou assignation en partage.
+  - Saisine ultérieure : Modalités pour faire fixer ultérieurement le droit d'accueil réservé devant le JAF (art. 373-2-9 C. civ.).
+  - Rectification d'erreur matérielle : Requête en rectification d'erreur matérielle (art. 462 CPC) pour corriger les fautes d'état civil sans passer par un appel coûteux.
+
+  • CONCLUSION OUVERTE ET PROACTIVE :
+  Terminez TOUJOURS par une ouverture stratégique proactive et courtoise invitant à approfondir :
+  « Souhaitez-vous que j'approfondisse un point en particulier : la prestation compensatoire, la pension alimentaire pour les majeurs, ou les voies de recours ? » (adapté au cas d'espèce).
+
+  • EXCEPTION POUR REQUÊTE UNIVERSITAIRE : Si et seulement si l'utilisateur demande expressément un « commentaire d'arrêt universitaire » ou un « exercice académique de fac avec plan I-A / I-B / II-A / II-B », fournissez en complément la Fiche d'arrêt formelle et le Plan dialectique sans verbe.
 - Intégrez fidèlement les résultats des outils juridiques s'ils ont été exécutés.
 - N'insérez jamais de balises markdown # ou ## orphelines.
 - ${languageDirective}
@@ -403,31 +451,52 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     || aiConfig?.deepseek_key
     || (typeof window !== 'undefined' ? localStorage.getItem('deepseek_api_key') : '')
     || (import.meta as any).env?.VITE_DEEPSEEK_API_KEY;
+  const effectiveGroqKey = userApiKeys?.groq
+    || storedKeys?.groq
+    || aiConfig?.groq_key
+    || (typeof window !== 'undefined' ? localStorage.getItem('groq_api_key') : '')
+    || (import.meta as any).env?.VITE_GROQ_API_KEY
+    || '';
 
   // 0. BACKEND SECURE PROXY (priority 0 — keys never exposed in browser)
   // Front and backend are deployed together on Railway (or local Vite proxy).
   // Call the universal proxy directly to eliminate health-check latency and get instant AI response.
   if (isInvalidText(generatedText)) {
     try {
-      const providerHint =
-        selectedModel.provider === 'openai' ? 'openai'
-        : selectedModel.provider === 'anthropic' ? 'anthropic'
-        : 'gemini';
-      const formattedHistoryForBackend = (previousTurns || []).map(m => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: (m.content || '').substring(0, 4000) }]
-      }));
+      if (selectedModel.provider === 'groq') {
+        const groqBackendRes = await callGroqProxy(fullPromptForLLM, {
+          systemPrompt: effectiveSystemPrompt.substring(0, 16000),
+          model: selectedModel.defaultModelName || 'qwen/qwen3.8-27b',
+          maxTokens: 8000
+        });
+        if (groqBackendRes?.text && !isInvalidText(groqBackendRes.text)) {
+          generatedText = cleanAgentOutput(groqBackendRes.text);
+          console.log(`[Engine] ✅ Réponse Groq spécifique via backend proxy (${selectedModel.defaultModelName})`);
+        }
+      }
 
-      const backendResult = await callUniversalProxy(fullPromptForLLM, {
-        systemPrompt: effectiveSystemPrompt.substring(0, 16000),
-        preferredProvider: providerHint,
-        history: formattedHistoryForBackend,
-      });
-      if (backendResult?.text && !isInvalidText(backendResult.text)) {
-        generatedText = cleanAgentOutput(backendResult.text);
-        console.log(`[Engine] ✅ Réponse via backend proxy (${backendResult.provider_used || 'auto'})`);
-      } else if (backendResult?.error) {
-        console.warn(`[Engine] Backend proxy returned error:`, backendResult.error);
+      if (isInvalidText(generatedText)) {
+        const providerHint =
+          selectedModel.provider === 'groq' ? 'groq'
+          : selectedModel.provider === 'openai' ? 'openai'
+          : selectedModel.provider === 'anthropic' ? 'anthropic'
+          : 'groq';
+        const formattedHistoryForBackend = (previousTurns || []).map(m => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: (m.content || '').substring(0, 4000) }]
+        }));
+
+        const backendResult = await callUniversalProxy(fullPromptForLLM, {
+          systemPrompt: effectiveSystemPrompt.substring(0, 16000),
+          preferredProvider: providerHint,
+          history: formattedHistoryForBackend,
+        });
+        if (backendResult?.text && !isInvalidText(backendResult.text)) {
+          generatedText = cleanAgentOutput(backendResult.text);
+          console.log(`[Engine] ✅ Réponse via backend proxy (${backendResult.provider_used || 'auto'})`);
+        } else if (backendResult?.error) {
+          console.warn(`[Engine] Backend proxy returned error:`, backendResult.error);
+        }
       }
     } catch (_backendErr) {
       console.warn('[Engine] Backend proxy unreachable:', _backendErr);
@@ -654,6 +723,67 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
       }
     } catch (e) {
       console.warn("DeepSeek API call error:", e);
+    }
+  }
+
+  // 4b. Groq LPU Ultra-Rapide (Inférence en 5ms — Qwen 27B / GPT OSS 120B / 20B)
+  if (isInvalidText(generatedText) && (selectedModel.provider === 'groq' || selectedModel.provider === 'francejustice' || effectiveGroqKey) && effectiveGroqKey) {
+    const groqModelName = selectedModel.provider === 'groq' && selectedModel.defaultModelName
+      ? selectedModel.defaultModelName
+      : 'qwen/qwen3.8-27b';
+    const modelsToTry = [groqModelName, 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+    const seen = new Set<string>();
+    const uniqueModels = modelsToTry.filter(m => !seen.has(m) && seen.add(m));
+
+    for (const gModel of uniqueModels) {
+      if (!isInvalidText(generatedText)) break;
+      try {
+        const groqController = new AbortController();
+        const timeoutId = setTimeout(() => groqController.abort(), 25000);
+        if (signal) {
+          signal.addEventListener('abort', () => groqController.abort(), { once: true });
+        }
+
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          signal: groqController.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${effectiveGroqKey}`
+          },
+          body: JSON.stringify({
+            model: gModel,
+            messages: [
+              { role: 'system', content: effectiveSystemPrompt.substring(0, 16000) },
+              { role: 'user', content: fullPromptForLLM.substring(0, 120000) }
+            ],
+            temperature: 0.25,
+            max_tokens: 8000
+          })
+        }).finally(() => clearTimeout(timeoutId));
+
+        if (res.ok) {
+          const json = await res.json();
+          const choice = json?.choices?.[0]?.message;
+          const candidate = choice?.content;
+          const reasoning = choice?.reasoning;
+          if (reasoning && onThinkingStream) {
+            onThinkingStream(reasoning);
+          }
+          if (!isInvalidText(candidate)) {
+            generatedText = cleanAgentOutput(candidate);
+            console.log(`[Engine] ✅ Succès Groq LPU avec le modèle ${gModel} (ultra-rapide)`);
+            break;
+          }
+        } else if (res.status === 429) {
+          console.warn(`[Engine] Groq quota atteint sur ${gModel} (429), essai du modèle suivant...`);
+        } else {
+          const errBody = await res.text().catch(() => '');
+          console.warn(`[Engine] Groq API status ${res.status}:`, errBody.substring(0, 200));
+        }
+      } catch (err: any) {
+        console.warn(`[Engine] Groq direct call error on ${gModel}:`, err?.message || err);
+      }
     }
   }
 

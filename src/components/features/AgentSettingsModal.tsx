@@ -283,6 +283,21 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
                 </div>
 
                 <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
+                    <span>Groq API Key (Inférence Ultra-Rapide 5ms)</span>
+                    <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Recommandé • Actif</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={keys.groq || ''}
+                    onChange={e => setKeys(prev => ({ ...prev, groq: e.target.value }))}
+                    placeholder="gsk_..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 focus:outline-hidden focus:ring-1 focus:ring-cyan-500"
+                  />
+                  <span className="text-[10px] text-slate-400">Propulse l'analyse juridique et le chat à la vitesse des processeurs LPU Groq (500 tokens/s).</span>
+                </div>
+
+                <div>
                   <label className="block text-xs font-bold text-slate-800 mb-1">
                     DeepSeek API Key (DeepSeek-V3 / R1)
                   </label>

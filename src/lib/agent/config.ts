@@ -54,6 +54,28 @@ export const AVAILABLE_MODELS: LLMModelConfig[] = [
     defaultModelName: 'claude-3-5-sonnet-20241022'
   },
   {
+    id: 'groq-qwen-27b',
+    name: 'Groq Qwen 27B (LPU Ultra-Rapide)',
+    provider: 'groq',
+    contextWindow: '131k tokens',
+    description: 'Inférence instantanée sur puces Groq LPU (500 tokens/s). Réactivité absolue pour les consultations et questions juridiques.',
+    badge: '⚡ Inférence Instantanée (5ms)',
+    requiresCustomApiKey: false,
+    endpoint: '/api/ai/groq/',
+    defaultModelName: 'qwen/qwen3.8-27b'
+  },
+  {
+    id: 'groq-gpt-oss-120b',
+    name: 'Groq GPT OSS 120B (Raisonnement Élite)',
+    provider: 'groq',
+    contextWindow: '131k tokens',
+    description: 'Modèle massif de 120 milliards de paramètres propulsé par Groq. Raisonnement juridique poussé et chaîne de pensée approfondie.',
+    badge: '🧠 120B • Raisonnement Profond',
+    requiresCustomApiKey: false,
+    endpoint: '/api/ai/groq/',
+    defaultModelName: 'openai/gpt-oss-120b'
+  },
+  {
     id: 'deepseek-chat',
     name: 'DeepSeek-V3 / R1 (DeepSeek)',
     provider: 'deepseek',

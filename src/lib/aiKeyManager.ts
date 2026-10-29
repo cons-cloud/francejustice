@@ -11,7 +11,7 @@
 
 import { supabase } from './supabase';
 
-export type AIProvider = 'openai' | 'gemini' | 'anthropic' | 'deepseek';
+export type AIProvider = 'openai' | 'gemini' | 'anthropic' | 'deepseek' | 'groq';
 
 /**
  * Checks if a key matches known depleted/defective keys without hardcoding secrets
@@ -32,6 +32,13 @@ export function getEnvGeminiKey(): string {
   return ((import.meta as any).env?.VITE_GEMINI_API_KEY || '').trim();
 }
 
+/**
+ * Read verified environment Groq key
+ */
+export function getEnvGroqKey(): string {
+  return ((import.meta as any).env?.VITE_GROQ_API_KEY || '').trim();
+}
+
 export interface KeyStatus {
   provider: AIProvider;
   key: string;
@@ -45,10 +52,12 @@ export interface PlatformAIConfig {
   gemini_key: string;
   anthropic_key: string;
   deepseek_key: string;
+  groq_key?: string;
   openai_status?: 'active' | 'quota_exceeded' | 'invalid_key' | 'disabled';
   gemini_status?: 'active' | 'quota_exceeded' | 'invalid_key' | 'disabled';
   anthropic_status?: 'active' | 'quota_exceeded' | 'invalid_key' | 'disabled';
   deepseek_status?: 'active' | 'quota_exceeded' | 'invalid_key' | 'disabled';
+  groq_status?: 'active' | 'quota_exceeded' | 'invalid_key' | 'disabled';
   last_alert?: {
     provider: AIProvider;
     message: string;
@@ -66,15 +75,18 @@ const listeners = new Set<(config: PlatformAIConfig) => void>();
 
 function loadInitialConfig(): PlatformAIConfig {
   const envGemini = getEnvGeminiKey();
+  const envGroq = getEnvGroqKey();
   const envConfig: PlatformAIConfig = {
     openai_key: (import.meta as any).env?.VITE_OPENAI_API_KEY || '',
     gemini_key: envGemini,
     anthropic_key: (import.meta as any).env?.VITE_ANTHROPIC_API_KEY || '',
     deepseek_key: (import.meta as any).env?.VITE_DEEPSEEK_API_KEY || '',
+    groq_key: envGroq,
     openai_status: 'active',
     gemini_status: 'active',
     anthropic_status: 'active',
-    deepseek_status: 'active'
+    deepseek_status: 'active',
+    groq_status: 'active'
   };
 
   if (typeof window !== 'undefined') {
@@ -100,12 +112,24 @@ function loadInitialConfig(): PlatformAIConfig {
           openai_key: parsed.openai_key || envConfig.openai_key,
           anthropic_key: parsed.anthropic_key || envConfig.anthropic_key,
           deepseek_key: parsed.deepseek_key || envConfig.deepseek_key,
+          groq_key: parsed.groq_key || envConfig.groq_key,
         };
       }
     } catch (_e) {}
   }
 
   return envConfig;
+}
+
+/**
+ * Returns the active Groq API key
+ */
+export function getAvailableGroqKey(): string {
+  const currentKey = cachedConfig.groq_key?.trim();
+  const envKey = getEnvGroqKey();
+  if (currentKey && !runtimeBlacklist.has(currentKey)) return currentKey;
+  if (envKey && !runtimeBlacklist.has(envKey)) return envKey;
+  return '';
 }
 
 // Setup BroadcastChannel for instant same-browser cross-tab sync

@@ -22,7 +22,7 @@ const ResetPasswordPage: React.FC = () => {
   useEffect(() => {
     // Check initial session & auth state
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } } as any));
       if (session) {
         // Check if current user is Admin
         const { data: profile } = await supabase

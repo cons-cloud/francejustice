@@ -16,19 +16,27 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('DJANGO_SECRET_KEY', default='django-insecure-law-just-development-key')
 DEBUG = env('DEBUG')
-_allowed = env.list('ALLOWED_HOSTS', default=['*'])
-# Allow all Railway domains, internal hosts, local dev hosts, and custom domains
-ALLOWED_HOSTS = list(set(_allowed + [
-    '*',
-    '.railway.app',
-    '.up.railway.app',
-    '.railway.internal',
-    'localhost',
-    '127.0.0.1',
-    '0.0.0.0',
-    '[::1]',
-    '::1',
-]))
+_allowed = [h.strip() for h in env.list('ALLOWED_HOSTS', default=[]) if h.strip() and h.strip() != '*']
+if DEBUG:
+    ALLOWED_HOSTS = list(set(_allowed + [
+        '*',
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0',
+        '[::1]',
+        '::1',
+    ]))
+else:
+    # Production: restrict to specific domains (zero wildcard '*')
+    ALLOWED_HOSTS = list(set(_allowed + [
+        '.francejustice.com',
+        'francejustice.com',
+        '.railway.app',
+        '.up.railway.app',
+        '.railway.internal',
+        'localhost',
+        '127.0.0.1',
+    ]))
 
 
 # Application definition
@@ -196,6 +204,7 @@ SUPABASE_JWT_SECRET = env('SUPABASE_JWT_SECRET', default='')
 GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
 OPENAI_API_KEY = env('OPENAI_API_KEY', default='')
 ANTHROPIC_API_KEY = env('ANTHROPIC_API_KEY', default='')
+GROQ_API_KEY = env('GROQ_API_KEY', default='')
 
 # 8x8 JaaS (Jitsi as a Service) — for 2-hour video classrooms
 # JAAS_PRIVATE_KEY must be stored with literal \n between lines in .env
@@ -236,21 +245,28 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS & CSRF configuration for Railway and Frontend
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
+    'https://francejustice.com',
+    'https://www.francejustice.com',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000',
     'http://localhost:8080',
     'http://localhost:80',
 ])
-CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=True)
+# Only allow all origins during development; in production it is strictly restricted to authorized domains
+CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=bool(DEBUG))
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.francejustice\.com$",
     r"^https://.*\.railway\.app$",
     r"^https://.*\.up\.railway\.app$",
     r"^https://.*\.vercel\.app$",
 ]
 
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
+    'https://francejustice.com',
+    'https://www.francejustice.com',
+    'https://*.francejustice.com',
     'https://*.railway.app',
     'https://*.up.railway.app',
     'https://*.vercel.app',

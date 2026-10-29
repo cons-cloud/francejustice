@@ -29,7 +29,7 @@ import {
   exportAllAttachments,
   getFormationAttachments
 } from '../lib/formationAttachmentUtils';
-import { registerDeletedUser } from '../lib/avocatsDataGouvSync';
+import { registerDeletedUser } from '../lib/deletedUsersManager';
 import { getMergedOfficialFormations } from '../data/officialFormationsData';
 
 interface UserProfile {

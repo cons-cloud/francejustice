@@ -1,5 +1,6 @@
-import { getAIConfig, reportKeyFailure, markKeyActive, getAvailableGeminiKeys } from "./aiKeyManager";
+import { getAIConfig, reportKeyFailure, markKeyActive, getAvailableGeminiKeys, getAvailableGroqKey } from "./aiKeyManager";
 import { supabase } from './supabase';
+import { callUniversalProxy } from './backendAI';
 
 const LANGUAGE_NAMES: Record<string, string> = {
   fr: 'French (Français)',
@@ -64,8 +65,14 @@ DIRECTIVES FONDAMENTALES D'ANALYSE & DE RÉPONSE :
    - Citez les faits, dates, montants en € et personnes mentionnés par l'utilisateur pour une réponse 100% individualisée.
    - Ne rédigez un acte ou document in extenso (mise en demeure, contrat, lettre, assignation) QUE si l'utilisateur en fait la demande expresse.
 
-5. ANALYSE CROISÉE DES DOCUMENTS FOURNIS (SI APPLICABLE) :
-   - Lorsque des pièces sont jointes, analysez leur contenu en lien direct avec la question de l'utilisateur.
+5. ANALYSE CROISÉE DES DOCUMENTS FOURNIS, EXTRACTION RÉELLE ET COMMENTAIRE D'ARRÊT :
+   - EXTRACTION DE VRAIES DONNÉES RÉELLES DU DOCUMENT : Relevez scrupuleusement les VRAIS NOMS des personnes (parties, magistrats, greffiers, avocats, experts), les MONTANTS RÉELS chiffrés (€, MAD, etc.) et les DATES RÉELLES. Aucun nom fictif ou générique n'est toléré lorsque le document comporte des données réelles.
+   - VRAI POINT DE VUE & JUGEMENT CRITIQUE : Donnez un avis juridique tranché et motivé sur la décision. Indiquez sans détour si le jugement rendu est approprié, disproportionné ou critiquable en droit, avec les voies de recours recommandées.
+   - MÉTHODOLOGIE DU COMMENTAIRE D'ARRÊT (SI DÉCISION DE JUSTICE) : Si le document est un arrêt ou un jugement, appliquez systématiquement la méthode en 4 temps :
+     1. Fiche d'arrêt complète (Accroche, Faits réels objectifs, Procédure chronologique, Problème de droit universel, Solution de la cour, Annonce du plan).
+     2. Plan structuré en 2 parties et 2 sous-parties équilibrées (I. A, I. B / II. A, II. B).
+     3. Développement articulé autour du Sens, de la Valeur et de la Portée.
+     4. Jugement critique et positionnement stratégique d'orientation.
 
 6. COMPÉTENCE MULTI-JURIDICTIONNELLE MONDIALE & MONNAIE ADAPTATIVE :
    - Vous maîtrisez l'ensemble des systèmes juridiques du monde avec une égale rigueur :
@@ -2619,7 +2626,95 @@ export async function chatWithAI(
 
   const fullPromptWithLang = `${prompt}\n\n[MANDAT LINGUISTIQUE IMPÉRATIF: Vous DEVEZ rédiger STRICTEMENT et INTÉGRALEMENT dans la langue suivante: ${langName}. Si la langue cible est l'anglais (English), TOUTE l'explication et la réponse DOIVENT être en anglais. Si la langue cible est l'arabe (العربية), TOUTE la réponse DOIT être en arabe littéraire (الفصحى). Conservez fidèlement les numéros d'articles et codes juridiques applicables. Répondez avec précision chirurgicale, clarté et pertinence. Utilisez l'Euro (€) pour toute référence monétaire.]`;
 
-  // 1. DIRECT GEMINI API CALL WITH CONVERSATION HISTORY & MULTI-KEY RESILIENCE
+  // 1. SECURE SERVER-SIDE BACKEND PROXY (Groq LPU ultra-rapide / Gemini / OpenAI côté serveur uniquement)
+  // Aucune clé ne transite ni n'est exposée dans le navigateur
+  try {
+    const formattedHistory = (history || []).slice(-8).map(h => ({
+      role: h.role === 'model' ? 'model' : 'user',
+      parts: h.parts || [{ text: '' }]
+    }));
+    const backendRes = await callUniversalProxy(fullPromptWithLang, {
+      systemPrompt: MASTER_LEGAL_SYSTEM_PROMPT,
+      preferredProvider: 'groq',
+      history: formattedHistory
+    });
+    if (backendRes?.text && backendRes.text.trim().length > 15 && !backendRes.is_fallback_trigger) {
+      const detectedDomain = detectLegalDomain(prompt + ' ' + backendRes.text);
+      const sources = getTargetedLegalSources(prompt + ' ' + backendRes.text, detectedDomain);
+      const suggestions = generateSmartLegalSuggestions(prompt + ' ' + backendRes.text, detectedDomain);
+      const automations = generateSmartLegalAutomations(prompt + ' ' + backendRes.text);
+      return {
+        text: backendRes.text,
+        sources_web: sources,
+        suggestions,
+        automations
+      };
+    }
+  } catch (backendErr) {
+    console.warn('[chatWithAI] Backend universal proxy notice:', backendErr);
+  }
+
+  // 2. OPTIONAL CLIENT-SIDE BYOK (seulement si l'utilisateur a configuré sa propre clé personnelle dans son navigateur)
+  const userClientGroqKey = getAvailableGroqKey();
+  if (userClientGroqKey) {
+    try {
+      const groqHistory = (history || []).slice(-6).map(h => ({
+        role: h.role === 'model' ? 'assistant' : 'user',
+        content: h.parts?.[0]?.text || ''
+      })).filter(m => m.content);
+
+      const groqModels = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+      for (const gm of groqModels) {
+        try {
+          const groqController = new AbortController();
+          const tId = setTimeout(() => groqController.abort(), 15000);
+          const gRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            signal: groqController.signal,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${userClientGroqKey}`
+            },
+            body: JSON.stringify({
+              model: gm,
+              messages: [
+                { role: 'system', content: MASTER_LEGAL_SYSTEM_PROMPT },
+                ...groqHistory,
+                { role: 'user', content: fullPromptWithLang }
+              ],
+              temperature: 0.25,
+              max_tokens: 4000
+            })
+          }).finally(() => clearTimeout(tId));
+
+          if (gRes.ok) {
+            const gJson = await gRes.json();
+            const choice = gJson?.choices?.[0]?.message;
+            const genText = choice?.content;
+            if (genText && genText.trim().length > 10) {
+              markKeyActive('groq');
+              const detectedDomain = detectLegalDomain(prompt + ' ' + genText);
+              const sources = getTargetedLegalSources(prompt + ' ' + genText, detectedDomain);
+              const suggestions = generateSmartLegalSuggestions(prompt + ' ' + genText, detectedDomain);
+              const automations = generateSmartLegalAutomations(prompt + ' ' + genText);
+              return {
+                text: genText,
+                sources_web: sources,
+                suggestions,
+                automations
+              };
+            }
+          }
+        } catch (innerGroqErr) {
+          console.warn(`[Groq BYOK] Erreur sur ${gm}:`, innerGroqErr);
+        }
+      }
+    } catch (groqErr) {
+      console.warn('[Groq BYOK] Échec:', groqErr);
+    }
+  }
+
+  // 3. DIRECT GEMINI API CALL (Client BYOK)
   const availableGeminiKeys = getAvailableGeminiKeys();
   if (availableGeminiKeys.length > 0) {
     try {

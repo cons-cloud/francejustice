@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Scale, User as UserIcon, ChevronDown, Sparkles, FileText, Cpu, Wrench, BookOpen } from 'lucide-react';
+import { Menu, Scale, User as UserIcon, ChevronDown, Sparkles, FileText, Cpu, Wrench, BookOpen, ShieldCheck } from 'lucide-react';
 import { Button } from '../ui/Button';
 import MobileMenu from '../ui/MobileMenu';
 import { useAuth, isUserAdmin } from '../../hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
+import { purgeLocalSessionSecurity } from '../../lib/dataSecurityUtils';
 
 // Banner Images
 import conseilImg from '../../assets/images/conseil.webp';
@@ -68,6 +69,15 @@ const Header: React.FC = () => {
     setIsAiDropdownOpen(false);
     setIsOutilsDropdownOpen(false);
   }, [location.pathname]);
+
+  const handleSecurityPurge = () => {
+    const ok = window.confirm(
+      "🛡️ MODE SESSION CONFIDENTIELLE (RGPD)\n\nSouhaitez-vous purger immédiatement vos mémoires locales, brouillons et données temporaires sur ce navigateur ?"
+    );
+    if (!ok) return;
+    purgeLocalSessionSecurity();
+    alert("🛡️ Session purgée : Toutes les mémoires locales et données temporaires ont été effacées conformément au RGPD.");
+  };
 
   const navigationBefore = [
     { name: t('nav.home'), href: '/' },
@@ -349,6 +359,15 @@ const Header: React.FC = () => {
 
           {/* Actions Desktop */}
           <div className="hidden lg:flex items-center space-x-3">
+            <button
+              onClick={handleSecurityPurge}
+              type="button"
+              title="Mode Session Confidentielle & Purge RGPD"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 transition-all hover:scale-105 cursor-pointer shadow-xs"
+            >
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="hidden xl:inline">Session Sécurisée</span>
+            </button>
             <LanguageSwitcher />
             {loading ? (
               <div className="h-9 w-24 bg-slate-100 rounded-full animate-pulse" />
@@ -387,6 +406,15 @@ const Header: React.FC = () => {
 
           {/* Mobile menu button */}
           <div className="flex lg:hidden items-center gap-2">
+            <button
+              onClick={handleSecurityPurge}
+              type="button"
+              title="Session Confidentielle (Purge)"
+              className="p-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 cursor-pointer"
+              aria-label="Purger la session"
+            >
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+            </button>
             <LanguageSwitcher />
             <button
               onClick={() => setIsMenuOpen(true)}

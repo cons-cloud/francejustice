@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedCounter from '../components/ui/AnimatedCounter';
 import { useTranslation } from '../i18n';
 import { HeroPappersSearch } from '../components/features/HeroPappersSearch';
-import { getDeletedUserEmails } from '../lib/avocatsDataGouvSync';
+import { getDeletedUserEmails } from '../lib/deletedUsersManager';
 import { getMergedOfficialClassrooms } from '../data/officialFormationsData';
 import SEO from '../components/common/SEO';
 import { OfficialGovernmentLinks } from '../components/ui/OfficialGovernmentLinks';
@@ -424,7 +424,7 @@ const Home: React.FC = () => {
             <span className="text-slate-800 font-black">{t('home.hero_sub2', 'Visioconférences sécurisées en direct')}</span> •{' '}
             <span className="text-cyan-700 font-black">{t('home.hero_sub3', 'Salles de classe virtuelles')}</span> •{' '}
             <span className="text-slate-800 font-black">{t('home.hero_sub4', 'Planning Annuel national')}</span> •{' '}
-            <span className="text-teal-700 font-black">{t('home.hero_sub5', 'Centre d\'Études Doctrinales & Revues Scientifiques')}</span>{' '}
+            <span className="text-teal-700 font-black">{t('home.hero_sub5', 'Centre d\'Études Doctorales & Revues Scientifiques')}</span>{' '}
             <span className="text-slate-600">{t('home.hero_sub6', 'en temps réel.')}</span>
           </motion.p>
 

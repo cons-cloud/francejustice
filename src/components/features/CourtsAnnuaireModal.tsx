@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Building2, UserCheck, Mail, Phone, MapPin, Search, X, Award, Briefcase, GraduationCap } from 'lucide-react';
 import { COURS_D_APPEL_LIST } from '../../lib/jurisdictions';
-import { ANNUAIRE_AVOCATS_FRANCE_DATA } from '../../data/annuaireAvocatsFrance';
+import type { DataGouvAvocat } from '../../data/annuaireAvocatsFrance';
+import { getAnnuaireData } from '../../lib/avocatsDataGouvSync';
 import { useTranslation } from '../../i18n';
 
 interface CourtsAnnuaireModalProps {
@@ -14,12 +15,19 @@ export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen
   const { t } = useTranslation();
   const [search, setSearch] = useState(initialSearch);
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
+  const [lawyersList, setLawyersList] = useState<DataGouvAvocat[]>([]);
 
   useEffect(() => {
     if (initialSearch) {
       setSearch(initialSearch);
     }
   }, [initialSearch]);
+
+  useEffect(() => {
+    if (isOpen && lawyersList.length === 0) {
+      getAnnuaireData().then(data => setLawyersList(data)).catch(() => {});
+    }
+  }, [isOpen, lawyersList.length]);
 
   const filteredCourts = useMemo(() => {
     return COURS_D_APPEL_LIST.filter(court => {
@@ -41,16 +49,16 @@ export const CourtsAnnuaireModal: React.FC<CourtsAnnuaireModalProps> = ({ isOpen
     return Array.from(new Set(COURS_D_APPEL_LIST.filter(c => c.type !== 'CSM').map(c => c.region))).sort();
   }, []);
 
-  // Map court city to lawyers from official dataset
+  // Map court city to lawyers from official dataset (loaded on demand)
   const lawyersByCourt = useMemo(() => {
-    const map: Record<string, typeof ANNUAIRE_AVOCATS_FRANCE_DATA> = {};
-    ANNUAIRE_AVOCATS_FRANCE_DATA.forEach(av => {
+    const map: Record<string, DataGouvAvocat[]> = {};
+    lawyersList.forEach(av => {
       const barreau = av.NomBarreau || 'Paris';
       if (!map[barreau]) map[barreau] = [];
       map[barreau].push(av);
     });
     return map;
-  }, []);
+  }, [lawyersList]);
 
   if (!isOpen) return null;
 

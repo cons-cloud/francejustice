@@ -1,6 +1,22 @@
 import { supabase } from './supabase';
-import { ANNUAIRE_AVOCATS_FRANCE_DATA, type DataGouvAvocat } from '../data/annuaireAvocatsFrance';
+import type { DataGouvAvocat } from '../data/annuaireAvocatsFrance';
 import { getCourDAppelForCity } from './jurisdictions';
+import { normalizeBarreau, matchBarreau } from './barreauUtils';
+import { getDeletedUserEmails, registerDeletedUser } from './deletedUsersManager';
+
+export type { DataGouvAvocat };
+export { normalizeBarreau, matchBarreau, getDeletedUserEmails, registerDeletedUser };
+
+let cachedAnnuaireData: DataGouvAvocat[] | null = null;
+
+export async function getAnnuaireData(): Promise<DataGouvAvocat[]> {
+  if (cachedAnnuaireData && cachedAnnuaireData.length > 0) {
+    return cachedAnnuaireData;
+  }
+  const mod = await import('../data/annuaireAvocatsFrance');
+  cachedAnnuaireData = mod.ANNUAIRE_AVOCATS_FRANCE_DATA;
+  return cachedAnnuaireData;
+}
 
 export interface UnifiedLawyer {
   id: string;
@@ -28,25 +44,6 @@ export interface UnifiedLawyer {
   };
 }
 
-export function normalizeBarreau(name?: string | null): string {
-  if (!name) return '';
-  return name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/^barreau\s+(de\s+|d'|des\s+|du\s+)?/i, '')
-    .replace(/[\(\)-]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-export function matchBarreau(bar1?: string | null, bar2?: string | null): boolean {
-  if (!bar1 || !bar2) return false;
-  const n1 = normalizeBarreau(bar1);
-  const n2 = normalizeBarreau(bar2);
-  return n1 === n2 || n1.includes(n2) || n2.includes(n1);
-}
-
 let cachedAllCsvLawyers: DataGouvAvocat[] | null = null;
 let isCsvLoading = false;
 
@@ -56,14 +53,14 @@ export async function loadFullDatasetFromCsv(): Promise<DataGouvAvocat[]> {
   }
   if (isCsvLoading) {
     await new Promise(res => setTimeout(res, 250));
-    return cachedAllCsvLawyers || ANNUAIRE_AVOCATS_FRANCE_DATA;
+    return cachedAllCsvLawyers || (await getAnnuaireData());
   }
   isCsvLoading = true;
   try {
     const res = await fetch('/data/annuaire-avocats-complet.csv');
     if (!res.ok) {
       isCsvLoading = false;
-      return ANNUAIRE_AVOCATS_FRANCE_DATA;
+      return await getAnnuaireData();
     }
     const text = await res.text();
     const lines = text.split('\n');
@@ -97,7 +94,7 @@ export async function loadFullDatasetFromCsv(): Promise<DataGouvAvocat[]> {
   } catch (err) {
     console.error('Error fetching full CSV dataset:', err);
     isCsvLoading = false;
-    return ANNUAIRE_AVOCATS_FRANCE_DATA;
+    return await getAnnuaireData();
   }
 }
 
@@ -133,34 +130,14 @@ export function normalizeDataGouvAvocat(av: DataGouvAvocat, index: number): Unif
   };
 }
 
-export function getDeletedUserEmails(): Set<string> {
-  try {
-    const raw = localStorage.getItem('francejustice_deleted_emails');
-    if (raw) return new Set(JSON.parse(raw));
-  } catch (e) {
-    console.error(e);
-  }
-  return new Set<string>();
-}
-
-export function registerDeletedUser(email?: string) {
-  if (!email) return;
-  const set = getDeletedUserEmails();
-  set.add(email.toLowerCase());
-  try {
-    localStorage.setItem('francejustice_deleted_emails', JSON.stringify(Array.from(set)));
-  } catch (e) {
-    console.error(e);
-  }
-}
-
 /**
  * Fetches real-time lawyers from Supabase, enriches with Cour d'Appel,
  * and merges with the official data.gouv.fr dataset.
  */
 export async function getUnifiedLawyersList(): Promise<UnifiedLawyer[]> {
   const deletedEmails = getDeletedUserEmails();
-  const datasetLawyers = ANNUAIRE_AVOCATS_FRANCE_DATA.map((av, idx) => normalizeDataGouvAvocat(av, idx))
+  const annuaire = await getAnnuaireData();
+  const datasetLawyers = annuaire.map((av, idx) => normalizeDataGouvAvocat(av, idx))
     .filter(d => !deletedEmails.has(d.email.toLowerCase()));
 
   try {
@@ -231,7 +208,8 @@ export async function getUnifiedLawyersList(): Promise<UnifiedLawyer[]> {
  */
 export async function seedDataGouvLawyersToSupabase(): Promise<void> {
   try {
-    const datasetLawyers = ANNUAIRE_AVOCATS_FRANCE_DATA.map((av, idx) => normalizeDataGouvAvocat(av, idx));
+    const annuaire = await getAnnuaireData();
+    const datasetLawyers = annuaire.map((av, idx) => normalizeDataGouvAvocat(av, idx));
     for (const av of datasetLawyers) {
       const { data: existing } = await supabase
         .from('profiles_just')

@@ -7,6 +7,7 @@ urlpatterns = [
     path('generate-document/', views.document_proxy, name='ai_document_proxy'),
 
     # New secure provider proxies
+    path('groq/', views.groq_proxy, name='ai_groq_proxy'),
     path('openai/', views.openai_proxy, name='ai_openai_proxy'),
     path('anthropic/', views.anthropic_proxy, name='ai_anthropic_proxy'),
 
