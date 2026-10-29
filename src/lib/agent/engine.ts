@@ -455,6 +455,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     || storedKeys?.groq
     || aiConfig?.groq_key
     || (typeof window !== 'undefined' ? localStorage.getItem('groq_api_key') : '')
+    || import.meta.env.VITE_GROQ_API_KEY
     || (import.meta as any).env?.VITE_GROQ_API_KEY
     || '';
 

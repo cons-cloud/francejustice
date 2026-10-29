@@ -949,9 +949,10 @@ function getAdvancedLocalLegalAI(
   let attachedDocText = '';
   let attachedDocTitle = '';
 
-  const fileSectionMatch = prompt.match(/===\s*(?:DOCUMENTS ET PIÈCES JOINTES|DOSSIERS ET PIÈCES JOINTES|PIÈCES JOINTES & DOSSIERS JURIDIQUES|PIÈCES JOINTES)[^=]*===\n([\s\S]*?)(?=\n===|\nQUESTION|\nINSTRUCTION|\nSi l'utilisateur|\nContexte|\n\[MANDAT|$)/i)
+  const fileSectionMatch = prompt.match(/===\s*(?:PIÈCES DU DOSSIER FOURNIES|DOCUMENTS DU DOSSIER|DOCUMENTS ET PIÈCES JOINTES|DOSSIERS ET PIÈCES JOINTES|PIÈCES JOINTES & DOSSIERS JURIDIQUES|PIÈCES JOINTES)[^=]*===\n([\s\S]*?)(?=\n===|\nQUESTION|\nINSTRUCTION|\nSi l'utilisateur|\nContexte|\n\[MANDAT|$)/i)
     || prompt.match(/PIÈCES & TEXTE EXTRAIT DES DOCUMENTS JOINTS\s*:\s*([\s\S]*?)(?=\n\[MANDAT|$)/i)
-    || prompt.match(/TEXTE ET PIÈCES EXTRAITES DES DOCUMENTS IMPORTÉS\s*:\s*([\s\S]*?)(?=\n\[MANDAT|$)/i);
+    || prompt.match(/TEXTE ET PIÈCES EXTRAITES DES DOCUMENTS IMPORTÉS\s*:\s*([\s\S]*?)(?=\n\[MANDAT|$)/i)
+    || prompt.match(/(?:TEXTE INTÉGRAL DU DOCUMENT|CONTENU DE LA PIÈCE)[^:]*:\s*([\s\S]*?)(?=\n===|\n\[MANDAT|$)/i);
 
   if (fileSectionMatch && fileSectionMatch[1]) {
     attachedDocText = fileSectionMatch[1].trim();
@@ -970,7 +971,7 @@ function getAdvancedLocalLegalAI(
     .replace(/<[^>]+>/g, ' ')
     .trim();
 
-  const hasFiles = attachedDocText.length > 20 || /dossier_divorce|\.docx?|\.pdf/i.test(prompt);
+  const hasFiles = attachedDocText.length > 20 || /dossier_divorce|\.docx?|\.pdf|TJ de|JAF|RG \d+|Par ces motifs/i.test(prompt);
 
   // Explicit dashboard navigation action (only if explicit command verb and no document analysis requested)
   const hasExplicitNavVerb = /^(\bva\b|\bouvre\b|\baffiche\b|\bmontre\b|\bbascule\b|\bnavigue\b|\baller\b|\baccède\b)/.test(clean);
@@ -1467,108 +1468,13 @@ function getAdvancedLocalLegalAI(
         };
       }
 
-    // INTENT 2: GARDE DES ENFANTS / AUTORITÉ PARENTALE
-    } else if (isGardeEnfants && detectedDomain === 'famille') {
-      responseText = `Voici les règles juridiques précises et les modalités concrètes concernant la garde de vos enfants pour votre dossier (*${docNameDisplay}*) :\n\n` +
-        `**1. Principe fondamental : L'autorité parentale conjointe (Art. 371-1 et 372 du Code civil)**\n` +
-        `La séparation ou le divorce des parents est sans incidence sur les règles de dévolution de l'exercice de l'autorité parentale. Les deux parents conservent les mêmes droits et devoirs. Cela signifie que tout choix déterminant (changement d'école, interventions médicales non urgentes, voyages à l'étranger) nécessite obligatoirement l'accord des deux parents.\n\n` +
-        `**2. Les deux options de résidence pour les enfants**\n` +
-        `- **Option A : La résidence alternée (Art. 373-2-9 du Code civil)**\n` +
-        `  Les enfants partagent leur temps de manière équilibrée entre le domicile du père et celui de la mère (généralement une semaine sur deux, avec bascule le vendredi à la sortie des classes). Conditions pratiques : proximité géographique des deux domiciles, respect des repères scolaires et capacité des parents à dialoguer de manière constructive.\n` +
-        `- **Option B : La résidence principale chez un parent + Droit de visite et d'hébergement (DVH)**\n` +
-        `  L'enfant a sa résidence habituelle fixée chez l'un des parents (par exemple la mère ou le père). L'autre parent bénéficie alors d'un droit de visite et d'hébergement classique : un week-end sur deux (les fins de semaine paires ou impaires selon le calendrier officiel) et la moitié de toutes les vacances scolaires (1ère moitié les années paires, 2nde moitié les années impaires).\n\n` +
-        `**3. Prise en charge des frais du quotidien & Frais exceptionnels**\n` +
-        `- **Frais habituels :** Nourriture, logement et habillement quotidien sont pris en charge par le parent qui accueille l'enfant au moment considéré.\n` +
-        `- **Frais exceptionnels :** Les frais de scolarité, cantine, activités extrascolaires, voyages scolaires et soins de santé non remboursés (optique, orthodontie) font l'objet d'un partage par moitié (50/50), sous réserve d'un accord préalable sur devis ou présentation de facture acquittée.\n\n` +
-        `**4. Ce que vous devez acter dès maintenant**\n` +
-        `Dans le cadre d'un divorce par consentement mutuel, vos deux avocats inséreront ces modalités dans la convention. Si vous êtes d'accord sur le principe d'une résidence alternée ou d'une résidence principale, je peux vous rédiger la clause parentale type prête à signer.`;
-
-    // INTENT 3: PENSION ALIMENTAIRE & CONTRIBUTION
-    } else if (isPensionAlimentaire && detectedDomain === 'famille') {
-      responseText = `Voici le cadre juridique officiel et la méthode de calcul de la contribution à l'entretien et l'éducation des enfants (Art. 371-2 du Code civil) pour votre dossier :\n\n` +
-        `**1. Fondement légal de la pension alimentaire (Art. 371-2 du Code civil)**\n` +
-        `Chacun des parents contribue à l'entretien et à l'éducation des enfants à proportion de ses ressources personnelles et des besoins de l'enfant. Cette obligation ne cesse pas automatiquement à la majorité, mais se poursuit tant que l'enfant n'est pas financièrement autonome (études supérieures, formation).\n\n` +
-        `**2. Barème et table de référence officielle du Ministère de la Justice**\n` +
-        `Le montant est calculé à partir du **revenu net mensuel disponible du parent débiteur**, après déduction du minimum vital (montant forfaitaire du RSA, soit environ 635 €) :\n` +
-        `- **En garde classique (droit de visite et d'hébergement standard) :**\n` +
-        `  • Pour 1 enfant : environ 11,5% du revenu net disponible.\n` +
-        `  • Pour 2 enfants : environ 9,5% par enfant (soit 19% au total).\n` +
-        `  • Pour 3 enfants : environ 8,5% par enfant (soit 25,5% au total).\n` +
-        `- **En résidence alternée :**\n` +
-        `  En principe, chaque parent assume directement les frais durant sa semaine de garde. Toutefois, si une **disparité significative de revenus** existe entre les parents, une pension alimentaire d'ajustement est fixée pour maintenir un niveau de vie harmonieux à l'enfant dans ses deux foyers.\n\n` +
-        `**3. Modalités de paiement & Revalorisation automatique**\n` +
-        `- **Échéance :** Paiement d'avance par virement bancaire automatique avant le 1er ou le 5 de chaque mois.\n` +
-        `- **Indexation obligatoire :** La pension est révisée chaque année au 1er janvier en fonction de la variation de l'indice des prix à la consommation (série France entière hors tabac publiée par l'INSEE).\n` +
-        `- **Sécurité anti-impayés (ARIPA) :** Le paiement peut être automatiquement intermédié par l'Agence de recouvrement des impayés de pensions alimentaires (CAF/MSA), garantissant le versement sans conflit direct.\n\n` +
-        `💡 Souhaitez-vous que nous simulions le montant exact de la pension en fonction des revenus respectifs ?`;
-
-    // INTENT 4: PRESTATION COMPENSATOIRE
-    } else if (isPrestationCompensatoire && detectedDomain === 'famille') {
-      responseText = `Voici l'analyse juridique approfondie sur la prestation compensatoire (Articles 270 et 271 du Code civil) applicable à votre dossier :\n\n` +
-        `**1. Définition et finalité (Art. 270 du Code civil)**\n` +
-        `La prestation compensatoire est destinée à compenser, autant qu'il est possible, la disparité que la rupture du mariage crée dans les conditions de vie respectives des époux. Elle présente un caractère forfaitaire.\n\n` +
-        `**2. Critères légaux d'évaluation (Art. 271 du Code civil)**\n` +
-        `Le montant est fixé en tenant compte notamment :\n` +
-        `- De la durée du mariage et de la vie commune.\n` +
-        `- De l'âge et de l'état de santé des époux.\n` +
-        `- De leur qualification et de leur situation professionnelles.\n` +
-        `- Des conséquences des choix professionnels faits par l'un des époux pendant la vie commune pour l'éducation des enfants et du temps qu'il faudra encore y consacrer.\n` +
-        `- Du patrimoine estimé ou prévisible des époux, tant en capital qu'en revenu, après la liquidation du régime matrimonial.\n` +
-        `- De leurs droits existants et prévisibles à la retraite.\n\n` +
-        `**3. Forme du versement**\n` +
-        `- **Principe : Le capital (Art. 274 du Code civil)** : Versement d'une somme d'argent en une seule fois, ou abandon d'un bien en pleine propriété ou d'un droit d'usager.\n` +
-        `- **Modalités échelonnées (Art. 275 du Code civil)** : Possibilité de verser ce capital sous forme de versements mensuels ou annuels étalés sur une durée maximale de **8 ans** (96 mensualités).\n\n` +
-        `**4. Régime fiscal**\n` +
-        `- Si versée dans les 12 mois du divorce définitif : Réduction d'impôt sur le revenu de 25% dans la limite de 30 500 € pour le débiteur, et non imposable pour le bénéficiaire.\n` +
-        `- Si étalée sur plus de 12 mois : Déductible des revenus pour le débiteur, mais imposable dans la catégorie des pensions pour le créancier.`;
-
-    // INTENT 5: LOGEMENT FAMILIAL & PATRIMOINE IMMOBILIER
-    } else if (isLogementOuImmobilier && detectedDomain === 'famille') {
-      responseText = `Voici le sort juridique du logement familial et des biens immobiliers pour votre dossier :\n\n` +
-        `**1. Si le domicile conjugal est loué (bail d'habitation)**\n` +
-        `- **Cotitularité légale (Art. 1751 du Code civil)** : Même si un seul des époux a signé le bail avant le mariage, les deux conjoints sont légalement cotitulaires du bail et solidairement responsables du paiement des loyers pendant toute la durée du mariage.\n` +
-        `- **Rupture de la solidarité :** La convention de divorce doit expressément attribuer la jouissance exclusive du logement à l'un des époux. Dès le dépôt de la convention chez le notaire, l'avocat notifie le bailleur pour acter la désolidarisation de l'autre époux pour les loyers futurs.\n\n` +
-        `**2. Si le domicile conjugal est la propriété des époux (bien commun ou indivis)**\n` +
-        `En présence d'un bien immobilier commun ou acquis ensemble, le passage devant un **notaire est obligatoirement requis** avant de finaliser la convention de divorce (Art. 229-1 alinéa 3 du Code civil). Trois solutions s'offrent à vous :\n` +
-        `- **Option 1 : La vente du bien à un tiers**\n` +
-        `  Le bien est mis en vente, le crédit immobilier est remboursé par anticipation, et le reliquat net vendeur est partagé selon les quotes-parts chez le notaire.\n` +
-        `- **Option 2 : Le rachat de part (rachat de soulte)**\n` +
-        `  L'un des époux conserve le logement et rachète la part de l'autre en lui versant une soulte chiffrée par le notaire, avec reprise intégrale du prêt immobilier auprès de la banque (désolidarisation bancaire indispensable).\n` +
-        `- **Option 3 : Le maintien dans l'indivision (Convention d'indivision notariée)**\n` +
-        `  Les époux restent copropriétaires du bien pour une durée déterminée (ex: 5 ans) en fixant les modalités de paiement des charges et une éventuelle indemnité d'occupation si un époux l'occupe seul.`;
-
-    // INTENT 6: PROCÉDURE, DÉLAIS & ÉTAPES
-    } else if (isProcedureOuDelais) {
-      if (detectedDomain === 'famille') {
-        responseText = `Voici la chronologie exacte, les délais incompressibles et le coût d'une procédure de divorce par consentement mutuel (Art. 229-1 du Code civil) :\n\n` +
-          `**1. Les 5 étapes indispensables de la procédure**\n` +
-          `- **Étape 1 : Désignation de deux avocats distincts (Obligation légale)**\n` +
-          `  Un avocat unique est formellement interdit par l'article 229-1 du Code Civil, afin de garantir l'absence de conflit d'intérêts et l'équilibre des accords.\n` +
-          `- **Étape 2 : Rédaction commune de la convention de divorce**\n` +
-          `  Vos avocats rédigent le projet de convention réglant l'intégralité des effets : résidence des enfants, pension alimentaire, sort du logement et liquidation patrimoniale (état liquidatif notarié préalable si bien immobilier).\n` +
-          `- **Étape 3 : Notification par LRAR & Délai de réflexion strict de 15 jours (Art. 229-4 C. civ.)**\n` +
-          `  Chaque avocat adresse le projet de convention à son client par lettre recommandée avec accusé de réception. **Un délai légal de réflexion de 15 jours incompressibles** doit obligatoirement s'écouler. La signature avant le 16ème jour est frappée de nullité absolue de plein droit.\n` +
-          `- **Étape 4 : Signature conjointe en présentiel**\n` +
-          `  Les deux époux et leurs deux avocats signent la convention en 4 exemplaires originaux lors d'une séance commune.\n` +
-          `- **Étape 5 : Enregistrement chez le notaire sous 7 jours (Art. 229-1 C. civ.)**\n` +
-          `  L'un des avocats transmet la convention à un notaire dans un délai de 7 jours. Le notaire dispose de 15 jours pour vérifier les mentions obligatoires et la déposer au rang de ses minutes. Ce dépôt confère au divorce date certaine et force exécutoire immédiate.\n\n` +
-          `**2. Délais réels & Coût indicatif**\n` +
-          `- **Durée globale :** Entre **1 et 3 mois** si les époux sont d'accord sur tous les points (contre 12 à 24 mois pour un divorce judiciaire contentieux devant le JAF).\n` +
-          `- **Coût moyen :** En moyenne entre 1 200 € et 2 500 € par époux selon la complexité patrimoniale (frais d'avocat) + frais fixes d'enregistrement notarié de 41,20 € TTC.`;
-      } else {
-        responseText = `Pour faire valoir vos droits efficacement dans cette situation, la démarche se déroule généralement en deux étapes complémentaires :\n\n` +
-          `D'abord, la phase amiable préalable : il est préconisé d'adresser une mise en demeure officielle par lettre recommandée avec accusé de réception (LRAR). Ce courrier fixe un délai clair de régularisation (généralement 8 à 15 jours) et formalise les manquements. Conformément à l'article 750-1 du Code de procédure civile, une tentative préalable de conciliation ou médiation est d'ailleurs obligatoire pour la plupart des litiges civils avant de saisir le juge.\n\n` +
-          `Ensuite, si aucune issue amiable n'aboutit au terme du délai, la phase judiciaire permet de saisir la juridiction compétente dans votre secteur (${detectedLocation}). Il convient de surveiller attentivement les délais de prescription pour préserver l'intégralité de vos droits.\n\n` +
-          `Souhaitez-vous que nous examinions ensemble les détails de vos pièces ou que nous préparions un courrier adapté ?`;
-      }
-
-    // INTENT 7: SYNTHÈSE / RÉSUMÉ EN 3 OU 4 POINTS
+    // INTENT 2: SYNTHÈSE / RÉSUMÉ RAPIDE
     } else if (isResume) {
       responseText = `Voici le résumé concis et percutant de votre dossier en 4 points clés :\n\n` +
         `1. **Situation et parties :** ${partiesMapping.quiContreQui}\n` +
         `2. **Points forts :** ${enVotreFaveur.slice(0, 2).join(' ')}\n` +
         `3. **Points de vigilance :** ${contreVous.slice(0, 2).join(' ')}\n` +
-        `4. **Action immédiate recommandée :** ${procedureEtapes[0] || "Valider les termes de l'accord amiable avec vos conseils respectifs."}\n\n` +
+        `4. **Action immédiate recommandée :** ${procedureEtapes[0] || "Examiner les délais de recours et les modalités d'exécution."}\n\n` +
         `Que souhaitez-vous approfondir parmi ces points ?`;
 
     // INTENT 8: SPECIFIC FOLLOW-UP QUESTION (ANSWER DIRECTLY, RESPECTING USER INSTRUCTIONS TO THE LETTER)

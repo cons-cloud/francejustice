@@ -36,7 +36,8 @@ export function getEnvGeminiKey(): string {
  * Read verified environment Groq key
  */
 export function getEnvGroqKey(): string {
-  return ((import.meta as any).env?.VITE_GROQ_API_KEY || '').trim();
+  const envKey = import.meta.env.VITE_GROQ_API_KEY || (import.meta as any).env?.VITE_GROQ_API_KEY;
+  return (typeof envKey === 'string' ? envKey : '').trim();
 }
 
 export interface KeyStatus {
