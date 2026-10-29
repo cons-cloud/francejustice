@@ -1375,17 +1375,19 @@ function getAdvancedLocalLegalAI(
     }
 
     // DETECT USER SPECIFIC CONVERSATIONAL INTENTS (LIKE CHATGPT / CLAUDE)
-    const isGardeEnfants = /(garde|enfant|autorité parentale|résidence alternée|résidence principale|droit de visite|dvh|vacances|scolaire|scolarité|week-end|mineur)/i.test(clean);
-    const isPensionAlimentaire = /(pension|alimentaire|contribution|barème|combien|montant|frais|caf|aripa|entretien)/i.test(clean);
-    const isPrestationCompensatoire = /(prestation|compensatoire|disparité|capital|270|271|train de vie)/i.test(clean);
-    const isLogementOuImmobilier = /(logement|appartement|maison|bien|immobilier|crédit|loyer|bail|1751|jouissance|vendre|vente|indivision|soulte|notaire)/i.test(clean);
-    const isProcedureOuDelais = /(délai|délais|combien de temps|durée|étape|étapes|procédure|comment faire|marche à suivre|coût|tarif|prix|avocat|notaire)/i.test(clean);
+    // IMPORTANT: If a real document is attached (>60 chars), do NOT hijack it with generic educational brochures!
+    const hasRealDocText = Boolean(attachedDocText && attachedDocText.trim().length > 60);
+    const isGardeEnfants = !hasRealDocText && /(garde|enfant|autorité parentale|résidence alternée|résidence principale|droit de visite|dvh|vacances|scolaire|scolarité|week-end|mineur)/i.test(clean);
+    const isPensionAlimentaire = !hasRealDocText && /(pension|alimentaire|contribution|barème|combien|montant|frais|caf|aripa|entretien)/i.test(clean);
+    const isPrestationCompensatoire = !hasRealDocText && /(prestation|compensatoire|disparité|capital|270|271|train de vie)/i.test(clean);
+    const isLogementOuImmobilier = !hasRealDocText && /(logement|appartement|maison|bien|immobilier|crédit|loyer|bail|1751|jouissance|vendre|vente|indivision|soulte|notaire)/i.test(clean);
+    const isProcedureOuDelais = !hasRealDocText && /(délai|délais|combien de temps|durée|étape|étapes|procédure|comment faire|marche à suivre|coût|tarif|prix|avocat|notaire)/i.test(clean);
     const isResume = /(résumé|résume|synthèse|synthétise|bref|en quelques lignes|court|synthétique)/i.test(clean);
     const isGenericDossierUpload = !clean || 
       /^(analyse|analyser|voici mon dossier|voici mes pièces|dossier juridique|audit|analyse de dossier|examen|étudie|étudier|regarde ce dossier)[\s!?.]*$/i.test(clean) ||
       /^(audit et analyse complète du dossier|dossier soumis)[\s!?.]*$/i.test(clean);
 
-    const isSpecificFollowUp = (history && history.length > 0) || (!isGenericDossierUpload && clean.length > 3);
+    const isSpecificFollowUp = !hasRealDocText && ((history && history.length > 0) || (!isGenericDossierUpload && clean.length > 3));
 
     // INTENT 1: DOCUMENT DRAFTING (CONVENTION, MISE EN DEMEURE, PROJET D'ACCORD)
     if (isDocGeneration) {
@@ -1584,28 +1586,32 @@ function getAdvancedLocalLegalAI(
         `**3. Prochaine étape recommandée**\n` +
         `Je peux vous aider à formuler immédiatement la clause correspondante, préparer un courrier officiel ou simuler l'impact financier. Quelle est votre prochaine instruction ?`;
 
-    // INTENT 9: INITIAL DOSSIER UPLOAD (FULL 5-PILLAR DIAGNOSTIC TEMPLATE)
+    // INTENT 9: INITIAL DOSSIER UPLOAD (FULL 5-SECTION PRACTITIONER FORMAT)
     } else {
-      responseText = `Bonjour. J'ai examiné attentivement votre dossier (**${docCount} document(s) analysé(s) :** *${docNameDisplay}* — Domaine : *${docType}*).\n\n` +
-        `Voici mon analyse juridique complète, personnalisée et directement applicable à votre situation :\n\n` +
-        `**Synthèse du dossier & Qualification juridique**\n` +
-        `- **Votre position :** ${partiesMapping.demandeur}\n` +
+      responseText = `# Analyse de votre dossier : ${docNameDisplay}\n\n` +
+        `**${partiesMapping.demandeur} / ${partiesMapping.adversaire}**\n` +
+        `*Je ne suis pas juriste : cette analyse est informative et ne remplace pas l'avis d'un avocat, notamment pour les délais de recours.*\n\n` +
+        `## 1. Le cadre\n` +
+        `- **Demandeur :** ${partiesMapping.demandeur}\n` +
         `- **Partie adverse :** ${partiesMapping.adversaire}\n` +
-        `- **Objet du litige :** ${partiesMapping.quiContreQui}\n` +
+        `- **Contexte et chronologie :** ${timeline.length > 0 ? timeline.join(' ; ') : partiesMapping.quiContreQui}\n` +
+        `- **Domaine juridique :** ${docType}\n\n` +
+        `## 2. Ce que le juge a décidé [ou Ce que stipule l'acte]\n\n` +
+        `| Point | Décision / Mesure |\n` +
+        `|---|---|\n` +
+        `| **Objet principal** | ${partiesMapping.quiContreQui} |\n` +
+        `| **Dispositions financières** | ${detectedAmount ? `Montant identifié de **${detectedAmount}**` : 'Fixation selon justificatifs probants'} |\n` +
+        `| **Mesures d'exécution** | Respect des formalités impératives et des délais légaux |\n\n` +
+        `## 3. Points de fond à relever\n` +
+        `${enVotreFaveur.map(f => `- **Point favorable :** ${f}`).join('\n')}\n` +
         `- **Rapport de force juridique :** ${partiesMapping.rapportDeForce}\n\n` +
-        `**Chronologie des faits & Éléments clés**\n` +
-        `${timeline.map(t => `- ${t}`).join('\n')}\n\n` +
-        `**Analyse stratégique : Atouts & Points de vigilance**\n` +
-        `**Vos points forts et atouts :**\n` +
-        `${enVotreFaveur.map(f => `- ${f}`).join('\n')}\n\n` +
-        `**Points de vigilance et risques à anticiper :**\n` +
-        `${contreVous.map(c => `- ${c}`).join('\n')}\n\n` +
-        `**Plan d'action recommandé & Démarches étape par étape**\n` +
-        `${procedureEtapes.map(e => `- ${e}`).join('\n')}\n\n` +
-        `**Textes de loi & Fondements juridiques applicables**\n` +
-        `${statutoryArticles.map(a => `- ${a}`).join('\n')}\n\n` +
-        `**Suite de votre dossier**\n` +
-        `Vous pouvez me poser toute question complémentaire sur ces points, m'importer d'autres pièces justificatives, ou me demander de préparer directement la mise en demeure ou les actes nécessaires à cette démarche.`;
+        `## 4. Anomalies et points de vigilance\n` +
+        `${contreVous.map(c => `- **Vigilance :** ${c}`).join('\n')}\n` +
+        `- Vérifier scrupuleusement la cohérence entre les dates et les pièces justificatives produites.\n\n` +
+        `## 5. Suites possibles et stratégie\n` +
+        `${procedureEtapes.map(e => `- ${e}`).join('\n')}\n` +
+        `- **Fondements légaux :** ${statutoryArticles.join(' ; ')}\n\n` +
+        `Souhaitez-vous que j'approfondisse un point spécifique ou que je prépare l'acte juridique correspondant ?`;
     }
 
   // 2. SCENARIO: REGULAR CONVERSATIONAL QUESTION (WITHOUT DOCUMENT)

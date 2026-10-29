@@ -89,7 +89,7 @@ def _gemini_key():
 
 def _try_gemini(prompt: str, history: list, system: str = SYSTEM_INSTRUCTION):
     """Attempt Gemini with automatic model fallback (max_output_tokens=16000 for full document analysis)."""
-    models = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite', 'gemini-pro-latest']
+    models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest']
     last_err = None
     generation_config = {
         'temperature': 0.35,

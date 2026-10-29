@@ -530,16 +530,76 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     return clean.length >= 20;
   };
 
-  // 1. Google Gemini (Client override — AQ. keys work as ?key= query param with gemini models)
+  // 1. Groq LPU Ultra-Rapide (Priority 1 direct fallback — 24ms inference, Qwen 27B / GPT OSS 120B)
+  if (isInvalidText(generatedText) && (selectedModel.provider === 'groq' || selectedModel.provider === 'francejustice' || effectiveGroqKey) && effectiveGroqKey) {
+    const groqModelName = selectedModel.provider === 'groq' && selectedModel.defaultModelName
+      ? selectedModel.defaultModelName
+      : 'qwen/qwen3.8-27b';
+    const modelsToTry = [groqModelName, 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+    const seen = new Set<string>();
+    const uniqueModels = modelsToTry.filter(m => !seen.has(m) && seen.add(m));
+
+    for (const gModel of uniqueModels) {
+      if (!isInvalidText(generatedText)) break;
+      try {
+        const groqController = new AbortController();
+        const timeoutId = setTimeout(() => groqController.abort(), 25000);
+        if (signal) {
+          signal.addEventListener('abort', () => groqController.abort(), { once: true });
+        }
+
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          signal: groqController.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${effectiveGroqKey}`
+          },
+          body: JSON.stringify({
+            model: gModel,
+            messages: [
+              { role: 'system', content: effectiveSystemPrompt.substring(0, 16000) },
+              { role: 'user', content: fullPromptForLLM.substring(0, 120000) }
+            ],
+            temperature: 0.25,
+            max_tokens: 8000
+          })
+        }).finally(() => clearTimeout(timeoutId));
+
+        if (res.ok) {
+          const json = await res.json();
+          const choice = json?.choices?.[0]?.message;
+          const candidate = choice?.content;
+          const reasoning = choice?.reasoning;
+          if (reasoning && onThinkingStream) {
+            onThinkingStream(reasoning);
+          }
+          if (!isInvalidText(candidate)) {
+            generatedText = cleanAgentOutput(candidate);
+            console.log(`[Engine] ✅ Succès Groq LPU avec le modèle ${gModel} (ultra-rapide)`);
+            break;
+          }
+        } else if (res.status === 429) {
+          console.warn(`[Engine] Groq quota atteint sur ${gModel} (429), essai du modèle suivant...`);
+        } else {
+          const errBody = await res.text().catch(() => '');
+          console.warn(`[Engine] Groq API status ${res.status}:`, errBody.substring(0, 200));
+        }
+      } catch (err: any) {
+        console.warn(`[Engine] Groq direct call error on ${gModel}:`, err?.message || err);
+      }
+    }
+  }
+
+  // 2. Google Gemini (Client override — AQ. keys work as ?key= query param with gemini models)
   const geminiKeysToTry = getAvailableGeminiKeys();
   if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && geminiKeysToTry.length > 0))) {
     try {
       const modelsToTry = [
-        'gemini-3.8-flash',
-        'gemini-3.5-flash',
-        'gemini-flash-latest',
-        'gemini-3.1-flash-lite',
-        'gemini-pro-latest'
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
+        'gemini-flash-latest'
       ];
 
       for (const cleanGeminiKey of geminiKeysToTry) {
@@ -551,9 +611,9 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
           try {
             const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
 
-            // Fast timeout controller (10s) to fallback instantly if model spikes
+            // Fast timeout controller (4s) to fallback instantly if model spikes or is missing
             const perModelController = new AbortController();
-            const timeoutId = setTimeout(() => perModelController.abort(), 10000);
+            const timeoutId = setTimeout(() => perModelController.abort(), 4000);
             if (signal) {
               signal.addEventListener('abort', () => perModelController.abort(), { once: true });
             }
@@ -596,7 +656,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
             }
           } catch (err: any) {
             if (err?.name === 'AbortError') {
-              console.warn(`[Engine] Gemini ${m} délai dépassé (30s), basculement vers le modèle suivant...`);
+              console.warn(`[Engine] Gemini ${m} délai dépassé (4s), basculement vers le modèle suivant...`);
             } else {
               console.warn(`[Engine] Gemini ${m} erreur réseau ou API:`, err?.message || err);
             }
@@ -726,66 +786,6 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     }
   }
 
-  // 4b. Groq LPU Ultra-Rapide (Inférence en 5ms — Qwen 27B / GPT OSS 120B / 20B)
-  if (isInvalidText(generatedText) && (selectedModel.provider === 'groq' || selectedModel.provider === 'francejustice' || effectiveGroqKey) && effectiveGroqKey) {
-    const groqModelName = selectedModel.provider === 'groq' && selectedModel.defaultModelName
-      ? selectedModel.defaultModelName
-      : 'qwen/qwen3.8-27b';
-    const modelsToTry = [groqModelName, 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
-    const seen = new Set<string>();
-    const uniqueModels = modelsToTry.filter(m => !seen.has(m) && seen.add(m));
-
-    for (const gModel of uniqueModels) {
-      if (!isInvalidText(generatedText)) break;
-      try {
-        const groqController = new AbortController();
-        const timeoutId = setTimeout(() => groqController.abort(), 25000);
-        if (signal) {
-          signal.addEventListener('abort', () => groqController.abort(), { once: true });
-        }
-
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          signal: groqController.signal,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${effectiveGroqKey}`
-          },
-          body: JSON.stringify({
-            model: gModel,
-            messages: [
-              { role: 'system', content: effectiveSystemPrompt.substring(0, 16000) },
-              { role: 'user', content: fullPromptForLLM.substring(0, 120000) }
-            ],
-            temperature: 0.25,
-            max_tokens: 8000
-          })
-        }).finally(() => clearTimeout(timeoutId));
-
-        if (res.ok) {
-          const json = await res.json();
-          const choice = json?.choices?.[0]?.message;
-          const candidate = choice?.content;
-          const reasoning = choice?.reasoning;
-          if (reasoning && onThinkingStream) {
-            onThinkingStream(reasoning);
-          }
-          if (!isInvalidText(candidate)) {
-            generatedText = cleanAgentOutput(candidate);
-            console.log(`[Engine] ✅ Succès Groq LPU avec le modèle ${gModel} (ultra-rapide)`);
-            break;
-          }
-        } else if (res.status === 429) {
-          console.warn(`[Engine] Groq quota atteint sur ${gModel} (429), essai du modèle suivant...`);
-        } else {
-          const errBody = await res.text().catch(() => '');
-          console.warn(`[Engine] Groq API status ${res.status}:`, errBody.substring(0, 200));
-        }
-      } catch (err: any) {
-        console.warn(`[Engine] Groq direct call error on ${gModel}:`, err?.message || err);
-      }
-    }
-  }
 
   // 5. Intelligent Multi-lingual AI Engine & Cognitive Synthesis
   if (signal?.aborted) {
