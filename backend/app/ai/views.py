@@ -90,7 +90,7 @@ def _gemini_key():
 
 def _try_gemini(prompt: str, history: list, system: str = SYSTEM_INSTRUCTION):
     """Attempt Gemini with automatic model fallback (max_output_tokens=16000 for full document analysis)."""
-    models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest']
+    models = ['gemini-2.5-flash', 'gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite']
     last_err = None
     generation_config = {
         'temperature': 0.35,
@@ -360,6 +360,7 @@ def groq_proxy(request):
     # Support full length legal documents with strict DLP & RGPD sanitization
     prompt = sanitize_sensitive_data_dlp(prompt[:250000])
     system_prompt = system_prompt[:16000]
+    groq_prompt = prompt[:24000]
 
     models_to_try = [model, 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b']
     seen = set()
@@ -378,7 +379,7 @@ def groq_proxy(request):
                         'model': attempt_model,
                         'messages': [
                             {'role': 'system', 'content': system_prompt},
-                            {'role': 'user', 'content': prompt},
+                            {'role': 'user', 'content': groq_prompt},
                         ],
                         'temperature': temperature,
                         'max_tokens': max_tokens,
@@ -391,7 +392,7 @@ def groq_proxy(request):
                 text = choice.get('content', '') or choice.get('reasoning', '')
                 if text:
                     return Response({'text': text, 'model_used': attempt_model, 'provider_used': 'groq'})
-            elif res.status_code == 429:
+            elif res.status_code in [413, 429]:
                 continue
             else:
                 return Response({
@@ -457,6 +458,7 @@ def universal_proxy(request):
         if provider == 'groq':
             groq_key = getattr(settings, 'GROQ_API_KEY', '')
             if groq_key:
+                groq_prompt = prompt[:24000]
                 groq_models = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b']
                 for g_model in groq_models:
                     try:
@@ -469,7 +471,7 @@ def universal_proxy(request):
                                     'messages': [
                                         {'role': 'system', 'content': system_prompt},
                                         *formatted_history,
-                                        {'role': 'user', 'content': prompt},
+                                        {'role': 'user', 'content': groq_prompt},
                                     ],
                                     'temperature': 0.25,
                                     'max_tokens': 8000,
@@ -480,7 +482,7 @@ def universal_proxy(request):
                             text = choice.get('content', '') or choice.get('reasoning', '')
                             if text:
                                 return Response({'text': text, 'provider_used': 'groq', 'model_used': g_model, 'sources_web': []})
-                        elif res.status_code == 429:
+                        elif res.status_code in [413, 429]:
                             continue
                         else:
                             errors.append(f'Groq ({g_model}): HTTP {res.status_code}')

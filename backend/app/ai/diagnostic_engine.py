@@ -776,6 +776,7 @@ def run_llm_for_json(prompt: str, system_prompt: str) -> Optional[Dict[str, Any]
     groq_key = getattr(settings, 'GROQ_API_KEY', '')
     if groq_key:
         groq_models = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b']
+        groq_prompt = prompt[:24000]
         for g_model in groq_models:
             try:
                 with httpx.Client(timeout=45) as client:
@@ -790,7 +791,7 @@ def run_llm_for_json(prompt: str, system_prompt: str) -> Optional[Dict[str, Any]
                             'response_format': {"type": "json_object"},
                             'messages': [
                                 {'role': 'system', 'content': system_prompt},
-                                {'role': 'user', 'content': prompt}
+                                {'role': 'user', 'content': groq_prompt}
                             ],
                             'temperature': 0.15,
                             'max_tokens': 8000
