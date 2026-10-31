@@ -49,12 +49,25 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
   };
 }
 
-async function backendPost<T>(path: string, body: Record<string, unknown>): Promise<T> {
+async function backendPost<T>(
+  path: string,
+  body: Record<string, unknown>,
+  signal?: AbortSignal
+): Promise<T> {
   const headers = await getAuthHeaders();
+
+  // Combine external signal (user cancel) + 55s hard timeout so the browser
+  // never hangs forever if the Django backend itself is stuck waiting on an LLM.
+  const timeout = AbortSignal.timeout(55000);
+  const combined = signal
+    ? AbortSignal.any([signal, timeout])
+    : timeout;
+
   let res = await fetch(`${BACKEND_BASE}${path}`, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
+    signal: combined,
   });
   if ((res.status === 401 || res.status === 403) && headers.Authorization) {
     // Retry without Authorization header in case browser session JWT is expired or invalid
@@ -62,6 +75,7 @@ async function backendPost<T>(path: string, body: Record<string, unknown>): Prom
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: combined,
     });
   }
   if (!res.ok) {
@@ -92,6 +106,7 @@ export async function callUniversalProxy(
     systemPrompt?: string;
     preferredProvider?: 'groq' | 'gemini' | 'openai' | 'anthropic';
     history?: { role: string; parts: { text: string }[] }[];
+    signal?: AbortSignal;
   } = {}
 ): Promise<BackendAIResponse> {
   try {
@@ -100,7 +115,7 @@ export async function callUniversalProxy(
       system_prompt: options.systemPrompt,
       preferred_provider: options.preferredProvider ?? 'groq',
       history: options.history ?? [],
-    });
+    }, options.signal);
   } catch (e) {
     return { error: String(e), is_fallback_trigger: true };
   }
@@ -116,16 +131,17 @@ export async function callGroqProxy(
     model?: string;
     maxTokens?: number;
     temperature?: number;
+    signal?: AbortSignal;
   } = {}
 ): Promise<BackendAIResponse> {
   try {
     return await backendPost<BackendAIResponse>('/api/ai/groq/', {
       prompt,
       system_prompt: options.systemPrompt,
-      model: options.model ?? 'qwen/qwen3.8-27b',
-      max_tokens: options.maxTokens ?? 8000,
+      model: options.model ?? 'openai/gpt-oss-120b',
+      max_tokens: options.maxTokens ?? 4000,
       temperature: options.temperature ?? 0.2,
-    });
+    }, options.signal);
   } catch (e) {
     return { error: String(e), is_fallback_trigger: true };
   }
@@ -267,6 +283,48 @@ export async function analyzeContractWithBackend(params: {
   } catch (e) {
     console.warn('[BackendAI] analyzeContractWithBackend failed:', e);
     return null;
+  }
+}
+
+/**
+ * Server-side Vision OCR proxy for scanned PDF documents.
+ * Extracts embedded images and sends them through server Vision models
+ * (Gemini REST, Claude Vision, GPT-4o Vision).
+ */
+export async function callOcrProxy(
+  file: File,
+  signal?: AbortSignal
+): Promise<{ text?: string; error?: string; pages_processed?: number; is_empty?: boolean }> {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('filename', file.name);
+    formData.append('max_pages', '20');
+
+    const headers = await getAuthHeaders();
+    delete (headers as any)['Content-Type'];
+
+    const timeout = AbortSignal.timeout(120000); // 2 minutes max for multi-page OCR
+    const combinedSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
+
+    const res = await fetch(`${BACKEND_BASE}/api/ai/ocr-document/`, {
+      method: 'POST',
+      headers: {
+        ...(headers.Authorization ? { Authorization: headers.Authorization } : {})
+      },
+      body: formData,
+      signal: combinedSignal
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (err: any) {
+    console.warn('[BackendAI] callOcrProxy error:', err);
+    return { error: err?.message || String(err), is_empty: true };
   }
 }
 

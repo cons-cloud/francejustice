@@ -159,14 +159,20 @@ export function getAvailableGeminiKeys(): string[] {
   const currentKey = cachedConfig.gemini_key?.trim();
   const envKey = getEnvGeminiKey();
 
-  if (currentKey && !isKnownDepletedKey(currentKey) && !runtimeBlacklist.has(currentKey)) {
+  // AQ. prefix = GCP Application Default Credentials / service account keys.
+  // These ONLY work with the Python google-generativeai SDK (server-side).
+  // They always return HTTP 404 when used directly with the REST API ?key= param.
+  // → Filter them out from browser-side calls; the backend Django proxy handles them.
+  const isRestCompatible = (k: string) => k.length >= 20 && !k.startsWith('AQ.');
+
+  if (currentKey && isRestCompatible(currentKey) && !isKnownDepletedKey(currentKey) && !runtimeBlacklist.has(currentKey)) {
     keys.push(currentKey);
   }
-  if (envKey && !keys.includes(envKey) && !isKnownDepletedKey(envKey) && !runtimeBlacklist.has(envKey)) {
+  if (envKey && isRestCompatible(envKey) && !keys.includes(envKey) && !isKnownDepletedKey(envKey) && !runtimeBlacklist.has(envKey)) {
     keys.push(envKey);
   }
 
-  return keys.length > 0 ? keys : (envKey ? [envKey] : []);
+  return keys;
 }
 
 /**

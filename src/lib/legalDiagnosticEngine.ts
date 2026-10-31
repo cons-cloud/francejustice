@@ -511,8 +511,8 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
     try {
       const serverGroqRes = await callGroqProxy(combinedPrompt, {
         systemPrompt: 'Vous êtes le moteur d\'analyse juridique automatisé de France Justice. Vous devez répondre UNIQUEMENT par un objet JSON valide correspondant strictement au schéma des 5 piliers juridiques demandé, avec extraction réelle des parties, montants, et commentaire d\'arrêt complet.',
-        model: 'qwen/qwen3.8-27b',
-        maxTokens: 8000
+        model: 'openai/gpt-oss-120b',
+        maxTokens: 4000
       });
       if (serverGroqRes?.text && (serverGroqRes.text.includes('pillar1_CaseManagement') || serverGroqRes.text.includes('verdictAnalysis'))) {
         jsonRawText = serverGroqRes.text;
@@ -526,12 +526,12 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
   // 1b. OPTIONAL CLIENT-SIDE BYOK GROQ (seulement si l'utilisateur a configuré sa propre clé personnelle)
   const clientGroqKey = getAvailableGroqKey();
   if (!jsonRawText && clientGroqKey) {
-    const groqDiagModels = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+    const groqDiagModels = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
     for (const gModel of groqDiagModels) {
       if (jsonRawText) break;
       try {
         const groqController = new AbortController();
-        const tId = setTimeout(() => groqController.abort(), 20000);
+        const tId = setTimeout(() => groqController.abort(), 25000);
         const gRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           signal: groqController.signal,
@@ -548,12 +548,12 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
               },
               {
                 role: 'user',
-                content: combinedPrompt
+                content: combinedPrompt.substring(0, 3500)
               }
             ],
             response_format: { type: 'json_object' },
             temperature: 0.2,
-            max_tokens: 8000
+            max_tokens: 4000
           })
         }).finally(() => clearTimeout(tId));
 
@@ -574,7 +574,7 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
 
   // 2. GEMINI FALLBACK IF GROQ DID NOT RETURN COMPLETE JSON
   const availableKeys = getAvailableGeminiKeys();
-  const diagModels = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
+  const diagModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest'];
 
   for (const gKey of availableKeys) {
     if (jsonRawText) break;

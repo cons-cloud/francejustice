@@ -467,8 +467,9 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
       if (selectedModel.provider === 'groq') {
         const groqBackendRes = await callGroqProxy(fullPromptForLLM, {
           systemPrompt: effectiveSystemPrompt.substring(0, 16000),
-          model: selectedModel.defaultModelName || 'qwen/qwen3.8-27b',
-          maxTokens: 8000
+          model: selectedModel.defaultModelName || 'openai/gpt-oss-120b',
+          maxTokens: 8000,
+          signal,
         });
         if (groqBackendRes?.text && !isInvalidText(groqBackendRes.text)) {
           generatedText = cleanAgentOutput(groqBackendRes.text);
@@ -491,6 +492,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
           systemPrompt: effectiveSystemPrompt.substring(0, 16000),
           preferredProvider: providerHint,
           history: formattedHistoryForBackend,
+          signal,
         });
         if (backendResult?.text && !isInvalidText(backendResult.text)) {
           generatedText = cleanAgentOutput(backendResult.text);
@@ -531,12 +533,12 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     return clean.length >= 20;
   };
 
-  // 1. Groq LPU Ultra-Rapide (Priority 1 direct fallback — 24ms inference, Qwen 27B / GPT OSS 120B)
+  // 1. Groq LPU Ultra-Rapide (Priority 1 direct fallback — Llama 3.3 70B / Llama 3.1 8B)
   if (isInvalidText(generatedText) && (selectedModel.provider === 'groq' || selectedModel.provider === 'francejustice' || effectiveGroqKey) && effectiveGroqKey) {
     const groqModelName = selectedModel.provider === 'groq' && selectedModel.defaultModelName
       ? selectedModel.defaultModelName
-      : 'qwen/qwen3.8-27b';
-    const modelsToTry = [groqModelName, 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+      : 'openai/gpt-oss-120b';
+    const modelsToTry = [groqModelName, 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
     const seen = new Set<string>();
     const uniqueModels = modelsToTry.filter(m => !seen.has(m) && seen.add(m));
 
@@ -544,7 +546,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
       if (!isInvalidText(generatedText)) break;
       try {
         const groqController = new AbortController();
-        const timeoutId = setTimeout(() => groqController.abort(), 25000);
+        const timeoutId = setTimeout(() => groqController.abort(), 35000);
         if (signal) {
           signal.addEventListener('abort', () => groqController.abort(), { once: true });
         }
@@ -559,11 +561,12 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
           body: JSON.stringify({
             model: gModel,
             messages: [
-              { role: 'system', content: effectiveSystemPrompt.substring(0, 16000) },
-              { role: 'user', content: fullPromptForLLM.substring(0, 120000) }
+              { role: 'system', content: effectiveSystemPrompt.substring(0, 1500) },
+              // Cap at 3500 chars (~2500 tokens) to stay well within Groq 8000 TPM limit
+              { role: 'user', content: fullPromptForLLM.substring(0, 3500) }
             ],
             temperature: 0.25,
-            max_tokens: 8000
+            max_tokens: 4000
           })
         }).finally(() => clearTimeout(timeoutId));
 
@@ -597,10 +600,10 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && geminiKeysToTry.length > 0))) {
     try {
       const modelsToTry = [
-        'gemini-3.8-flash',
-        'gemini-3.5-flash',
-        'gemini-flash-latest',
-        'gemini-3.1-flash-lite'
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
+        'gemini-flash-latest'
       ];
 
       for (const cleanGeminiKey of geminiKeysToTry) {
@@ -612,9 +615,9 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
           try {
             const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
 
-            // Fast timeout controller (4s) to fallback instantly if model spikes or is missing
+            // 30s timeout controller so model has sufficient time to analyze legal document
             const perModelController = new AbortController();
-            const timeoutId = setTimeout(() => perModelController.abort(), 4000);
+            const timeoutId = setTimeout(() => perModelController.abort(), 30000);
             if (signal) {
               signal.addEventListener('abort', () => perModelController.abort(), { once: true });
             }
@@ -628,7 +631,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
                 contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 3500000) }] }],
                 generationConfig: {
                   temperature: 0.35,
-                  maxOutputTokens: 16000,
+                  maxOutputTokens: 8192,
                   topP: 0.95
                 }
               })
@@ -657,7 +660,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
             }
           } catch (err: any) {
             if (err?.name === 'AbortError') {
-              console.warn(`[Engine] Gemini ${m} délai dépassé (4s), basculement vers le modèle suivant...`);
+              console.warn(`[Engine] Gemini ${m} délai dépassé (30s), basculement vers le modèle suivant...`);
             } else {
               console.warn(`[Engine] Gemini ${m} erreur réseau ou API:`, err?.message || err);
             }
@@ -727,14 +730,23 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
       const anthropicModelName = selectedModel.defaultModelName && selectedModel.provider === 'anthropic'
         ? selectedModel.defaultModelName
         : 'claude-3-5-haiku-20241022'; // Use Haiku as default — cheaper, faster, fewer 400s
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
+      const anthropicHeaders: Record<string, string> = {
           'Content-Type': 'application/json',
           'x-api-key': effectiveAnthropicKey,
           'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
+          'anthropic-dangerous-direct-browser-access': 'true',
+        };
+        // Personal keys (sk-ant-usr-*) require workspace scoping via this header.
+        const workspaceId = (window as any).__ANTHROPIC_WORKSPACE_ID__ 
+          || (import.meta as any).env?.VITE_ANTHROPIC_WORKSPACE_ID 
+          || localStorage.getItem('anthropic_workspace_id') 
+          || '';
+        if (workspaceId) {
+          anthropicHeaders['anthropic-workspace-id'] = workspaceId;
+        }
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: anthropicHeaders,
         body: JSON.stringify({
           model: anthropicModelName,
           max_tokens: 8000,
@@ -806,15 +818,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
   }
 
   if (isInvalidText(generatedText)) {
-    generatedText = cleanAgentOutput(
-      synthesizeFallbackAgentResponse(
-        userPrompt,
-        selectedPersona,
-        executedToolCalls,
-        attachedFileNames,
-        extractedText
-      )
-    );
+    generatedText = "⚠️ Les serveurs d'intelligence artificielle sont actuellement indisponibles ou en surcharge (quotas atteints). Aucun contenu fictif ou préfabriqué n'a été inséré. Veuillez vérifier vos clés d'API dans les paramètres ou relancer votre demande dans quelques instants.";
   }
 
   // Support automatique de génération d'images / photos par IA si explicitement demandé
@@ -906,17 +910,15 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
 }
 
 function synthesizeFallbackAgentResponse(
-  prompt: string,
-  persona: AgentPersona,
-  toolCalls: ToolCall[],
-  files: string[],
-  docContext?: string
+  _prompt?: string,
+  _persona?: any,
+  _toolCalls?: any[],
+  _files?: any[],
+  _docContext?: string
 ): string {
-  const toolResults = toolCalls.map(tc => tc.output).filter(Boolean);
-  const quantum = toolResults.find(r => r.calculationType);
-  const codeResult = toolResults.find(r => r.articles);
-  const prescription = toolResults.find(r => r.domainLabel);
-  const promptLower = prompt.toLowerCase();
+  return "⚠️ Les serveurs d'intelligence artificielle sont actuellement indisponibles ou en surcharge. Aucun contenu fictif ou préfabriqué n'a été inséré.";
+  // Dead code below never reached
+  const promptLower = '';
 
   // SCENARIO -4: PHOTO & IMAGE IA GÉNÉRATION
   if (/g[ée]n[èe]re.*(?:image|photo|dessin|illustration|visuel)|(?:image|photo|dessin|illustration)\s+de\s+|dessine[- ]moi|peins[- ]moi|photo\s+d['’]/i.test(promptLower)) {

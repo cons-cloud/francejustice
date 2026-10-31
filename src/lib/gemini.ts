@@ -953,13 +953,18 @@ export function detectConversationalGreeting(input: string, lang?: string): {
 
 // Advanced cognitive engine for human-like legal reasoning and document analysis
 function getAdvancedLocalLegalAI(
-  prompt: string, 
+  _prompt: string, 
   _targetLang?: string,
-  history: { role: 'user' | 'model'; parts: { text: string }[] }[] = []
+  _history: { role: 'user' | 'model'; parts: { text: string }[] }[] = []
 ) {
-  const isLawyer = prompt.includes('Le mode actuel du dashboard est: "Avocat"');
-  const userQuery = cleanPromptForFallback(prompt);
-  const clean = userQuery.toLowerCase().trim();
+  return {
+    text: "⚠️ L'analyse automatique par l'intelligence artificielle n'a pas pu aboutir (les services d'IA sont momentanément indisponibles). Aucun contenu préfabriqué n'a été inséré. Veuillez relancer votre demande dans quelques instants.",
+    sources_web: [],
+    suggestions: ["Relancer l'analyse IA"],
+    automations: []
+  };
+  // Dead code below never reached
+  const isLawyer = false;
 
   // Incorporate previous multi-turn conversation context
   const previousTurnsContext = (history && history.length > 0)
@@ -1112,16 +1117,25 @@ function getAdvancedLocalLegalAI(
   );
 
   // Extract financial amounts, dates, or parties from user text or document
-  const amountMatch = (userQuery + ' ' + attachedDocText).match(/(?:^|\s)(\d{1,3}(?:[\s.,]\d{3})*(?:[.,]\d{2})?|\d+)\s*(?:€|euros?)/i);
+  // Extract financial amounts (> 0 € only, ignore 0 € which is not a claim)
+  const amountMatch = (userQuery + ' ' + attachedDocText).match(/(?:^|\s)([1-9]\d{0,2}(?:[\s.,]\d{3})*(?:[.,]\d{2})?|[1-9]\d*)\s*(?:€|euros?)/i);
   const detectedAmount = amountMatch ? `${amountMatch[1].replace(/\s+/g, ' ')} €` : null;
 
   // Extract dates (DD/MM/YYYY or words)
   const dateMatch = (userQuery + ' ' + attachedDocText).match(/(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre|\/\d{1,2}\/\d{2,4})\s*\d{0,4})/i);
   const detectedDate = dateMatch ? dateMatch[1] : null;
 
-  // Extract city or jurisdiction
-  const locMatch = (userQuery + ' ' + attachedDocText).match(/(?:à|au|dans le ressort de|tribunal de|ville de|demeurant à|barreau de|siège social à)\s+([A-Z][a-zàáâäçèéêëîïôöùûü]+(?:-[A-Z][a-zàáâäçèéêëîïôöùûü]+)*)/);
-  const detectedLocation = locMatch ? locMatch[1] : "France (ressort du domicile conjugal ou du défendeur)";
+  // Extract city or jurisdiction (filter out stop words like Barreau, Tribunal, Palais, etc.)
+  const locStopWords = new Set(['Barreau', 'Tribunal', 'Palais', 'Cour', 'Justice', 'France', 'Code', 'Civil', 'Droit', 'Ordre', 'Avocat', 'Avocats', 'Monsieur', 'Madame']);
+  const allLocMatches = [...(userQuery + ' ' + attachedDocText).matchAll(/(?:à|au|dans le ressort de|tribunal de|tribunal judiciaire de|ville de|demeurant à|barreau de|siège social à)\s+([A-ZÀ-Ÿ][a-zàáâäçèéêëîïôöùûü]+(?:-[A-ZÀ-Ÿ][a-zàáâäçèéêëîïôöùûü]+)*)/gi)];
+  let detectedLocation = "France (ressort du domicile conjugal ou du défendeur)";
+  for (const m of allLocMatches) {
+    const candidate = m[1]?.trim();
+    if (candidate && !locStopWords.has(candidate) && candidate.length > 2) {
+      detectedLocation = candidate;
+      break;
+    }
+  }
 
   let responseText = '';
 
@@ -1165,18 +1179,21 @@ function getAdvancedLocalLegalAI(
     if (detectedDomain === 'famille') {
       docType = "Droit de la Famille, Divorce & Régimes Matrimoniaux (Code Civil)";
       
-      // Extract spouses names if present in document text or filename
-      // NOTE: regex WITHOUT /i flag so only truly ALL-CAPS surnames match (MARCHAND, DUBOIS)
-      // and not mixed-case words like "Dossier" or "Divorce" that appear in filenames
       let epouxDisplay = "Époux";
       let epouseDisplay = "Épouse";
-      // First try to find fully uppercase surnames 4+ chars separated by a delimiter
-      const partiesStrict = (attachedDocText + ' ' + docNameDisplay).match(/([A-ZÀ-Ÿ]{4,})\s*(?:[-_&/]|\s+et\s+|\s+contre\s+)\s*([A-ZÀ-Ÿ]{4,})/);
-      // Fallback: look for typical "NOM Prénom" pattern in document text
+      // 1. Look for French legal act patterns: "M. [Prénom] NOM ... Mme [Prénom] NOM"
+      const mMatches = attachedDocText.match(/(?:M\.|Monsieur)\s+([A-ZÀ-Ÿ][a-zà-ÿ]+)?\s*([A-ZÀ-Ÿ]{3,})/);
+      const fMatches = attachedDocText.match(/(?:Mme|Madame)\s+([A-ZÀ-Ÿ][a-zà-ÿ]+)?\s*([A-ZÀ-Ÿ]{3,})/);
+      // 2. Strict uppercase surnames separated by delimiter
+      const partiesStrict = (attachedDocText + ' ' + docNameDisplay).match(/([A-ZÀ-Ÿ]{4,})\s*(?:[-_&/]|\s+et\s+|\s+contre\s+|\s+c\/\s+)\s*([A-ZÀ-Ÿ]{4,})/);
+      // 3. Fallback: look for typical "NOM Prénom" pattern in document text
       const partiesText = !partiesStrict && attachedDocText.match(/(?:M\.|Monsieur|époux)\s+([A-ZÀ-Ÿ][a-zà-ÿ]{2,})/i);
       const partiesText2 = !partiesStrict && attachedDocText.match(/(?:Mme|Madame|épouse)\s+([A-ZÀ-Ÿ][a-zà-ÿ]{2,})/i);
 
-      if (partiesStrict) {
+      if (mMatches && fMatches) {
+        epouxDisplay = `M. ${mMatches[2]}${mMatches[1] ? ` (${mMatches[1]})` : ''}`;
+        epouseDisplay = `Mme ${fMatches[2]}${fMatches[1] ? ` (${fMatches[1]})` : ''}`;
+      } else if (partiesStrict) {
         epouxDisplay = `M. ${partiesStrict[1]}`;
         epouseDisplay = `Mme ${partiesStrict[2]}`;
       } else if (partiesText && partiesText2) {
@@ -1211,8 +1228,12 @@ function getAdvancedLocalLegalAI(
         `Liquidation notariée obligatoire en cas de bien immobilier : En présence d'un bien immobilier commun ou indivis à ${detectedLocation}, un état liquidatif rédigé par un notaire doit impérativement précéder la signature de la convention.`
       ];
 
+      const tribunalDisplay = detectedLocation.startsWith("France")
+        ? "Tribunal Judiciaire territorialement compétent"
+        : `Tribunal Judiciaire de ${detectedLocation}`;
+
       procedureEtapes = [
-        `1. Choix de la procédure : Consentement mutuel (procédure extrajudiciaire par avocats et notaire) ou saisine du Juge aux Affaires Familiales (JAF) du Tribunal Judiciaire de ${detectedLocation}.`,
+        `1. Choix de la procédure : Consentement mutuel (procédure extrajudiciaire par avocats et notaire) ou saisine du Juge aux Affaires Familiales (JAF) du ${tribunalDisplay}.`,
         "2. Négociation et rédaction de la convention : Accord sur l'autorité parentale, la résidence des enfants (alternée ou principale), la pension alimentaire et le partage patrimonial.",
         "3. Enregistrement chez le notaire : Dépôt de la convention au rang des minutes d'un notaire pour lui conférer force exécutoire de plein droit."
       ];
@@ -1493,8 +1514,12 @@ function getAdvancedLocalLegalAI(
 
     // INTENT 2: SYNTHÈSE / RÉSUMÉ RAPIDE
     } else if (isResume) {
+      const summaryContext = hasRealDocText
+        ? `Examen des pièces versées au dossier (*${docNameDisplay}*) : La procédure concerne ${partiesMapping.demandeur} et ${partiesMapping.adversaire} portant sur le règlement des conséquences juridiques, personnelles et patrimoniales.`
+        : partiesMapping.quiContreQui;
+
       responseText = `Voici le résumé concis et percutant de votre dossier en 4 points clés :\n\n` +
-        `1. **Situation et parties :** ${partiesMapping.quiContreQui}\n` +
+        `1. **Situation et parties :** ${summaryContext}\n` +
         `2. **Points forts :** ${enVotreFaveur.slice(0, 2).join(' ')}\n` +
         `3. **Points de vigilance :** ${contreVous.slice(0, 2).join(' ')}\n` +
         `4. **Action immédiate recommandée :** ${procedureEtapes[0] || "Examiner les délais de recours et les modalités d'exécution."}\n\n` +
@@ -2481,7 +2506,7 @@ export async function generateLegalDocument(type: string, details: string, targe
   const langName = LANGUAGE_NAMES[lang] || 'French (Français)';
 
   if (geminiApiKey && geminiApiKey.trim().length >= 20) {
-    const docModels = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite', 'gemini-pro-latest'];
+    const docModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest', 'gemini-1.5-pro'];
     for (const docModel of docModels) {
       try {
         const response = await fetch(
@@ -2598,11 +2623,16 @@ export async function chatWithAI(
         content: h.parts?.[0]?.text || ''
       })).filter(m => m.content);
 
-      const groqModels = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+      // Compact prompt for Groq to stay safely within TPM rate limits
+      const compactGroqPrompt = fullPromptWithLang.length > 12000
+        ? `${fullPromptWithLang.substring(0, 7500)}\n\n[...Extrait intermédiaire condensé...]\n\n${fullPromptWithLang.substring(fullPromptWithLang.length - 4500)}`
+        : fullPromptWithLang;
+
+      const groqModels = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
       for (const gm of groqModels) {
         try {
           const groqController = new AbortController();
-          const tId = setTimeout(() => groqController.abort(), 15000);
+          const tId = setTimeout(() => groqController.abort(), 30000);
           const gRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             signal: groqController.signal,
@@ -2613,9 +2643,9 @@ export async function chatWithAI(
             body: JSON.stringify({
               model: gm,
               messages: [
-                { role: 'system', content: MASTER_LEGAL_SYSTEM_PROMPT },
+                { role: 'system', content: MASTER_LEGAL_SYSTEM_PROMPT.substring(0, 6000) },
                 ...groqHistory,
-                { role: 'user', content: fullPromptWithLang }
+                { role: 'user', content: compactGroqPrompt }
               ],
               temperature: 0.25,
               max_tokens: 4000
@@ -2654,11 +2684,11 @@ export async function chatWithAI(
   if (availableGeminiKeys.length > 0) {
     try {
       const geminiModels = [
-        'gemini-3.8-flash',
-        'gemini-3.5-flash',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
         'gemini-flash-latest',
-        'gemini-3.1-flash-lite',
-        'gemini-pro-latest'
+        'gemini-1.5-pro'
       ];
 
       // Build conversation contents including past user and assistant turns
@@ -2770,8 +2800,16 @@ export async function chatWithAI(
     console.warn("Supabase edge function notice:", err);
   }
 
-  // 3. ADVANCED COGNITIVE REASONING ENGINE (Full offline & fallback parity)
-  return getAdvancedLocalLegalAI(prompt, activeLang, history);
+  // Si aucun modèle IA n'a répondu (quota ou indisponibilité réseau), renvoyer une erreur transparente sans rien inventer
+  return {
+    text: "⚠️ L'analyse automatique par l'intelligence artificielle n'a pas pu aboutir (les services d'IA sont momentanément indisponibles ou les quotas d'API sont saturés). Aucun contenu fictif ou préfabriqué n'a été inséré. Veuillez vérifier votre connexion ou vos clés d'API dans les paramètres, puis relancer l'analyse.",
+    sources_web: [],
+    suggestions: [
+      "Relancer l'analyse IA",
+      "Vérifier les paramètres d'API"
+    ],
+    automations: []
+  };
 }
 
 export async function smartGlobalLegalAssistantQuery(
@@ -2850,7 +2888,7 @@ Question de l'utilisateur : "${userPrompt}"
   const geminiApiKey = aiCfg.gemini_key || import.meta.env.VITE_GEMINI_API_KEY;
 
   if (geminiApiKey && geminiApiKey.trim().length >= 20) {
-    const sumModels = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite', 'gemini-pro-latest'];
+    const sumModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest', 'gemini-1.5-pro'];
     for (const sumModel of sumModels) {
       try {
         const response = await fetch(
@@ -2896,10 +2934,8 @@ Question de l'utilisateur : "${userPrompt}"
     }
   }
 
-  const localRes = getAdvancedLocalLegalAI(userPrompt, activeLang, history);
-
   return {
-    text: localRes.text,
+    text: "⚠️ Les serveurs d'intelligence artificielle sont temporairement indisponibles ou en surcharge. Aucun contenu fictif n'a été inséré. Veuillez réessayer dans quelques instants.",
     lawyers: relatedLawyers,
     courses: relatedCourses,
     news: relatedNews,

@@ -204,6 +204,7 @@ SUPABASE_JWT_SECRET = env('SUPABASE_JWT_SECRET', default='')
 GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
 OPENAI_API_KEY = env('OPENAI_API_KEY', default='')
 ANTHROPIC_API_KEY = env('ANTHROPIC_API_KEY', default='')
+ANTHROPIC_WORKSPACE_ID = env('ANTHROPIC_WORKSPACE_ID', default='')
 GROQ_API_KEY = env('GROQ_API_KEY', default='')
 
 # 8x8 JaaS (Jitsi as a Service) — for 2-hour video classrooms

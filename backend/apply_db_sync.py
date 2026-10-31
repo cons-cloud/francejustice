@@ -132,7 +132,12 @@ def apply_full_sync():
         DECLARE
             tab text;
         BEGIN
-            FOR tab IN SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE '%_just'
+            FOR tab IN SELECT table_name FROM information_schema.tables 
+                       WHERE table_schema = 'public' 
+                         AND (table_name LIKE '%_just' OR table_name IN (
+                             'notifications', 'appointments', 'quotes', 'chat_rooms', 'chat_messages', 
+                             'assistance_tickets', 'classrooms', 'documents', 'profiles', 'lawyers', 'payments'
+                         ))
             LOOP
                 BEGIN
                     EXECUTE format('ALTER TABLE public.%I REPLICA IDENTITY FULL', tab);

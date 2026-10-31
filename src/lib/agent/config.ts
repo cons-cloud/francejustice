@@ -9,7 +9,7 @@ export const AVAILABLE_MODELS: LLMModelConfig[] = [
     description: 'Modèle souverain optimisé pour le droit français. Inclus par défaut avec zéro configuration requise.',
     badge: 'Recommandé • Prêt à l\'emploi',
     requiresCustomApiKey: false,
-    defaultModelName: 'qwen/qwen3.8-27b'
+    defaultModelName: 'openai/gpt-oss-120b'
   },
   {
     id: 'gemini-pro-latest',
@@ -54,26 +54,26 @@ export const AVAILABLE_MODELS: LLMModelConfig[] = [
     defaultModelName: 'claude-3-5-sonnet-20241022'
   },
   {
-    id: 'groq-qwen-27b',
-    name: 'Groq Qwen 27B (LPU Ultra-Rapide)',
-    provider: 'groq',
-    contextWindow: '131k tokens',
-    description: 'Inférence instantanée sur puces Groq LPU (500 tokens/s). Réactivité absolue pour les consultations et questions juridiques.',
-    badge: '⚡ Inférence Instantanée (5ms)',
-    requiresCustomApiKey: false,
-    endpoint: '/api/ai/groq/',
-    defaultModelName: 'qwen/qwen3.8-27b'
-  },
-  {
     id: 'groq-gpt-oss-120b',
-    name: 'Groq GPT OSS 120B (Raisonnement Élite)',
+    name: 'Groq GPT-OSS 120B (LPU Ultra-Rapide)',
     provider: 'groq',
     contextWindow: '131k tokens',
-    description: 'Modèle massif de 120 milliards de paramètres propulsé par Groq. Raisonnement juridique poussé et chaîne de pensée approfondie.',
-    badge: '🧠 120B • Raisonnement Profond',
+    description: 'Inférence instantanée sur puces Groq LPU. Modèle 120B ultra-puissant pour le raisonnement juridique avancé.',
+    badge: '⚡ Inférence Instantanée',
     requiresCustomApiKey: false,
     endpoint: '/api/ai/groq/',
     defaultModelName: 'openai/gpt-oss-120b'
+  },
+  {
+    id: 'groq-gpt-oss-20b',
+    name: 'Groq GPT-OSS 20B (Vitesse Éclair)',
+    provider: 'groq',
+    contextWindow: '131k tokens',
+    description: 'Modèle rapide 20B sur Groq LPU. Réponses immédiates pour questions rapides.',
+    badge: '⚡ Ultra Rapide',
+    requiresCustomApiKey: false,
+    endpoint: '/api/ai/groq/',
+    defaultModelName: 'openai/gpt-oss-20b'
   },
   {
     id: 'deepseek-chat',

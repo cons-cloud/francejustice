@@ -53,38 +53,78 @@ def stripe_webhook(request):
         if quote_id:
             with connection.cursor() as cursor:
                 if payment_type == 'quote_payment':
-                    # Citizen paid the lawyer — mark quote as paid
-                    cursor.execute(
-                        "UPDATE quotes_just SET status = 'paid' WHERE id = %s",
-                        [quote_id],
-                    )
-                    # Fetch the client_id to notify them
-                    cursor.execute(
-                        "SELECT client_id FROM quotes_just WHERE id = %s",
-                        [quote_id],
-                    )
-                    row = cursor.fetchone()
-                    if row and row[0]:
+                    # Citizen paid the lawyer — mark quote as paid across both tables
+                    for q_tbl in ['quotes_just', 'quotes']:
+                        try:
+                            cursor.execute(
+                                f"UPDATE {q_tbl} SET status = 'paid' WHERE id = %s",
+                                [quote_id],
+                            )
+                        except Exception:
+                            pass
+
+                    # Fetch the client_id to notify them and log transaction
+                    client_id = None
+                    for q_tbl in ['quotes_just', 'quotes']:
+                        try:
+                            cursor.execute(
+                                f"SELECT client_id FROM {q_tbl} WHERE id = %s",
+                                [quote_id],
+                            )
+                            row = cursor.fetchone()
+                            if row and row[0]:
+                                client_id = str(row[0])
+                                break
+                        except Exception:
+                            pass
+
+                    if client_id:
                         notify_payment_received(
-                            user_id=str(row[0]),
+                            user_id=client_id,
                             amount_str=_fmt_amount(amount_total),
                         )
+                        # Record payment history for citizen
+                        for p_tbl in ['payments_just', 'payments']:
+                            try:
+                                cursor.execute(
+                                    f"""
+                                    INSERT INTO public.{p_tbl} (user_id, amount, status, service_type)
+                                    VALUES (%s::uuid, %s, 'Complété', 'Consultation Avocat - Devis')
+                                    """,
+                                    [client_id, amount_total / 100.0],
+                                )
+                            except Exception:
+                                pass
 
                 elif payment_type == 'commission_payment':
                     # Lawyer paid the platform commission
-                    cursor.execute(
-                        "UPDATE quotes_just SET status = 'commissioned' WHERE id = %s",
-                        [quote_id],
-                    )
+                    for q_tbl in ['quotes_just', 'quotes']:
+                        try:
+                            cursor.execute(
+                                f"UPDATE {q_tbl} SET status = 'commissioned' WHERE id = %s",
+                                [quote_id],
+                            )
+                        except Exception:
+                            pass
+
                     # Fetch lawyer_id to notify them
-                    cursor.execute(
-                        "SELECT lawyer_id FROM quotes_just WHERE id = %s",
-                        [quote_id],
-                    )
-                    row = cursor.fetchone()
-                    if row and row[0]:
+                    lawyer_id = None
+                    for q_tbl in ['quotes_just', 'quotes']:
+                        try:
+                            cursor.execute(
+                                f"SELECT lawyer_id FROM {q_tbl} WHERE id = %s",
+                                [quote_id],
+                            )
+                            row = cursor.fetchone()
+                            if row and row[0]:
+                                lawyer_id = str(row[0])
+                                break
+                        except Exception:
+                            pass
+
+                    if lawyer_id:
                         notify_commission_received(
-                            user_id=str(row[0]),
+                            user_id=lawyer_id,
                             amount_str=_fmt_amount(amount_total),
                         )
 

@@ -41,18 +41,40 @@ def notify(
         logger.warning("notify(): called with empty user_id, skipping")
         return False
 
+    success = False
     try:
         with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO public.notifications
-                    (user_id, type, title, message, link)
-                VALUES
-                    (%s::uuid, %s, %s, %s, %s)
-                """,
-                [user_id, notif_type, title, message, link],
-            )
-        return True
+            # 1. Insert into public.notifications
+            try:
+                cursor.execute(
+                    """
+                    INSERT INTO public.notifications
+                        (user_id, type, title, message, link)
+                    VALUES
+                        (%s::uuid, %s, %s, %s, %s)
+                    """,
+                    [user_id, notif_type, title, message, link],
+                )
+                success = True
+            except Exception as e1:
+                logger.debug("notify() public.notifications insert note: %s", e1)
+
+            # 2. Mirror into public.notifications_just for realtime synchronization
+            try:
+                cursor.execute(
+                    """
+                    INSERT INTO public.notifications_just
+                        (user_id, type, title, message, link)
+                    VALUES
+                        (%s::uuid, %s, %s, %s, %s)
+                    """,
+                    [user_id, notif_type, title, message, link],
+                )
+                success = True
+            except Exception as e2:
+                logger.debug("notify() public.notifications_just insert note: %s", e2)
+
+        return success
     except Exception as exc:
         logger.error("notify(): failed to insert notification: %s", exc)
         return False

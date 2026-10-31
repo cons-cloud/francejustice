@@ -775,7 +775,7 @@ def run_llm_for_json(prompt: str, system_prompt: str) -> Optional[Dict[str, Any]
     # 1. Tenter Groq LPU (Priorité absolue sur le serveur : ultra-rapide et sans quota bloquant)
     groq_key = getattr(settings, 'GROQ_API_KEY', '')
     if groq_key:
-        groq_models = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b']
+        groq_models = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b']
         groq_prompt = prompt[:24000]
         for g_model in groq_models:
             try:
@@ -794,7 +794,7 @@ def run_llm_for_json(prompt: str, system_prompt: str) -> Optional[Dict[str, Any]
                                 {'role': 'user', 'content': groq_prompt}
                             ],
                             'temperature': 0.15,
-                            'max_tokens': 8000
+                            'max_tokens': 4000
                         }
                     )
                     if res.status_code == 200:
@@ -811,7 +811,7 @@ def run_llm_for_json(prompt: str, system_prompt: str) -> Optional[Dict[str, Any]
         try:
             import google.generativeai as genai
             genai.configure(api_key=gemini_key)
-            models = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite']
+            models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest']
             for m in models:
                 try:
                     model = genai.GenerativeModel(
@@ -864,13 +864,18 @@ def run_llm_for_json(prompt: str, system_prompt: str) -> Optional[Dict[str, Any]
     if anthropic_key:
         try:
             with httpx.Client(timeout=90) as client:
+                ant_headers = {
+                    'x-api-key': anthropic_key,
+                    'anthropic-version': '2023-06-01',
+                    'Content-Type': 'application/json'
+                }
+                ant_ws = getattr(settings, 'ANTHROPIC_WORKSPACE_ID', '')
+                if ant_ws:
+                    ant_headers['anthropic-workspace-id'] = ant_ws
+
                 res = client.post(
                     'https://api.anthropic.com/v1/messages',
-                    headers={
-                        'x-api-key': anthropic_key,
-                        'anthropic-version': '2023-06-01',
-                        'Content-Type': 'application/json'
-                    },
+                    headers=ant_headers,
                     json={
                         'model': 'claude-3-5-haiku-20241022',
                         'max_tokens': 3500,

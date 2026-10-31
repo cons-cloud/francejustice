@@ -15,10 +15,10 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
   // Provider 1: Google Gemini Vision (Pool de clés avec basculement automatique sur 402/429/401)
   const geminiKeys = getAvailableGeminiKeys();
   const geminiModels = [
-    "gemini-3.8-flash",
-    "gemini-3.5-flash",
-    "gemini-flash-latest",
-    "gemini-3.1-flash-lite"
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-flash-latest"
   ];
 
   for (const gKey of geminiKeys) {
@@ -30,10 +30,12 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [{ parts: [
-              { text: ocrPrompt },
-              { inline_data: { mime_type: mimeType, data: base64Data } }
-            ]}]
+            contents: [{
+              parts: [
+                { text: ocrPrompt },
+                { inline_data: { mime_type: mimeType, data: base64Data } }
+              ]
+            }]
           })
         });
 
@@ -97,7 +99,7 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
             return transcribed;
           }
         }
-      } catch (_e) {}
+      } catch (_e) { }
     }
   }
 
@@ -111,10 +113,12 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
           headers: { "Content-Type": "application/json", "Authorization": "Bearer " + config.openai_key },
           body: JSON.stringify({
             model: oModel,
-            messages: [{ role: "user", content: [
-              { type: "text", text: ocrPrompt },
-              { type: "image_url", image_url: { url: dataUrl, detail: "high" } }
-            ]}],
+            messages: [{
+              role: "user", content: [
+                { type: "text", text: ocrPrompt },
+                { type: "image_url", image_url: { url: dataUrl, detail: "high" } }
+              ]
+            }],
             max_tokens: 3500
           })
         });
@@ -138,6 +142,28 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
         console.warn("Vision OCR OpenAI failover trigger:", e?.message);
       }
     }
+  }
+
+  // Provider 4: Server-Side Vision OCR via Backend Proxy (Gemini REST / Claude / OpenAI)
+  try {
+    const res = await fetch('/api/ai/ocr-document/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: fileName || 'image.jpg',
+        base64: base64Data
+      }),
+      signal: AbortSignal.timeout(45000)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.text && data.text.trim().length > 15 && !data.is_empty) {
+        console.log(`[OCR] ✅ OCR Serveur Vision réussi pour "${fileName}"`);
+        return data.text.trim();
+      }
+    }
+  } catch (backendErr) {
+    console.warn('[OCR] Fallback OCR Serveur Vision indisponible:', backendErr);
   }
 
   return `[Pièce visuelle / Image numérisée : "${fileName || "Document"}" importée pour analyse OCR et Vision Multimodale]`;
@@ -185,7 +211,7 @@ async function safeDecompressPdfStream(rawBytes: Uint8Array): Promise<string> {
 
       const writePromise = writer.write(rawBytes)
         .then(() => writer.close())
-        .catch(() => {});
+        .catch(() => { });
 
       const chunks: Uint8Array[] = [];
       let done = false;
@@ -496,7 +522,7 @@ async function convertPdfPagesToImages(buffer: ArrayBuffer, maxPages = 100): Pro
       console.log(`[OCR] ✅ Extraction directe de ${embeddedImages.length} image(s) JPEG depuis le flux PDF`);
       return embeddedImages;
     }
-  } catch (_embErr) {}
+  } catch (_embErr) { }
 
   return [];
 }
@@ -573,9 +599,9 @@ async function loadPdfJs(): Promise<any> {
 // Pre-warm PDF.js in background idle time so that the library is ready in 0ms on user drop
 if (typeof window !== 'undefined') {
   if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(() => { loadPdfJs().catch(() => {}); });
+    (window as any).requestIdleCallback(() => { loadPdfJs().catch(() => { }); });
   } else {
-    setTimeout(() => { loadPdfJs().catch(() => {}); }, 1200);
+    setTimeout(() => { loadPdfJs().catch(() => { }); }, 1200);
   }
 }
 
@@ -692,7 +718,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
       formData.append('filename', file.name);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const timeoutId = setTimeout(() => controller.abort(), 35000);
 
       const res = await fetch('/api/ai/parse-document/', {
         method: 'POST',
@@ -716,6 +742,28 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
       }
     } catch (serverErr) {
       console.warn('[DocumentParser] Serveur indisponible pour parse direct, fallback navigateur:', serverErr);
+    }
+  }
+
+  // PRIORITY 0b: Server-Side Vision OCR for Scanned PDFs or Images
+  // If the document had no digital text layer, invoke the server Vision OCR pipeline directly.
+  if (isPdf || isImage) {
+    try {
+      const { callOcrProxy } = await import('./backendAI');
+      const ocrData = await callOcrProxy(file);
+      if (ocrData?.text && ocrData.text.trim().length > 30 && !ocrData.is_empty) {
+        console.log(`[DocumentParser] ✅ OCR serveur Vision (${ocrData.pages_processed || 1} pages, ${ocrData.character_count || ocrData.text.length} car.) pour "${file.name}"`);
+        return {
+          id: Math.random().toString(36).substring(2, 9),
+          name: file.name,
+          type: file.type || (isPdf ? 'application/pdf' : 'image/jpeg'),
+          size: file.size,
+          content: sanitizeExtractedText(ocrData.text),
+          uploadedAt: Date.now()
+        };
+      }
+    } catch (ocrErr) {
+      console.warn('[DocumentParser] OCR serveur indisponible, fallback local:', ocrErr);
     }
   }
 
@@ -777,7 +825,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
           if (rawText && rawText.trim().length > 20 && isValidHumanText(rawText)) {
             cleanText = sanitizeExtractedText(rawText);
           }
-        } catch (_rawErr) {}
+        } catch (_rawErr) { }
 
         // STEP 2: PDF.js native extraction (concurrent Promise.all across pages)
         if (!cleanText || cleanText.length < 30) {
@@ -786,7 +834,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
             if (nativeText && nativeText.trim().length > 20 && isValidHumanText(nativeText)) {
               cleanText = sanitizeExtractedText(nativeText);
             }
-          } catch (_nativeErr) {}
+          } catch (_nativeErr) { }
         }
 
         // STEP 3: If still no text layer → truly a scanned/image PDF → Vision OCR

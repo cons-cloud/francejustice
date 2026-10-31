@@ -18,5 +18,8 @@ urlpatterns = [
     path('analyze-case/', views.analyze_case_endpoint, name='ai_analyze_case'),
     path('analyze-contract/', views.analyze_contract_endpoint, name='ai_analyze_contract'),
     path('parse-document/', views.parse_document_endpoint, name='ai_parse_document'),
+
+    # Server-side Vision OCR for scanned PDFs (uses Gemini Vision REST — bypasses AQ. SDK restriction)
+    path('ocr-document/', views.ocr_document_endpoint, name='ai_ocr_document'),
 ]
 

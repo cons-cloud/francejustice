@@ -83,14 +83,29 @@ Ouverture proactive invitant à approfondir.
 
 def _gemini_key():
     key = getattr(settings, 'GEMINI_API_KEY', '')
-    if key:
+    if key and not key.startswith('AQ.'):
         genai.configure(api_key=key)
-    return key
+        return key
+    return ''
+
+
+def _format_groq_prompt(prompt: str) -> str:
+    """
+    Format and compact prompt specifically for Groq on-demand tier.
+    Hard TPM limit: 8000 tokens/min ≈ ~5500 chars safe margin.
+    Extracts head (facts, parties) + tail (dispositif, orders) to stay well under quota.
+    """
+    MAX_CHARS = 5000  # ~3500 tokens — safe margin under the 8000 TPM limit
+    if len(prompt) <= MAX_CHARS:
+        return prompt
+    head = prompt[:2800]
+    tail = prompt[-2000:]
+    return f"{head}\n\n[... MOTIFS INTERMEDIAIRES NON REPRODUITS - SYNTHESE LPU ...]\n\n{tail}"
 
 
 def _try_gemini(prompt: str, history: list, system: str = SYSTEM_INSTRUCTION):
     """Attempt Gemini with automatic model fallback (max_output_tokens=16000 for full document analysis)."""
-    models = ['gemini-2.5-flash', 'gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite']
+    models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest']
     last_err = None
     generation_config = {
         'temperature': 0.35,
@@ -212,7 +227,7 @@ def openai_proxy(request):
 
     for attempt_model in models_to_try:
         try:
-            with httpx.Client(timeout=60) as client:
+            with httpx.Client(timeout=25) as client:
                 res = client.post(
                     'https://api.openai.com/v1/chat/completions',
                     headers={
@@ -288,7 +303,7 @@ def anthropic_proxy(request):
     system_prompt = system_prompt[:16000]
 
     try:
-        with httpx.Client(timeout=90) as client:
+        with httpx.Client(timeout=40) as client:
             res = client.post(
                 'https://api.anthropic.com/v1/messages',
                 headers={
@@ -353,22 +368,22 @@ def groq_proxy(request):
 
     prompt = request.data.get('prompt', '')
     system_prompt = request.data.get('system_prompt', SYSTEM_INSTRUCTION)
-    model = request.data.get('model', 'qwen/qwen3.8-27b')
-    max_tokens = int(request.data.get('max_tokens', 8000))
+    model = request.data.get('model', 'openai/gpt-oss-120b')
+    max_tokens = int(request.data.get('max_tokens', 4000))
     temperature = float(request.data.get('temperature', 0.2))
 
     # Support full length legal documents with strict DLP & RGPD sanitization
     prompt = sanitize_sensitive_data_dlp(prompt[:250000])
     system_prompt = system_prompt[:16000]
-    groq_prompt = prompt[:24000]
+    groq_prompt = _format_groq_prompt(prompt)
 
-    models_to_try = [model, 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b']
+    models_to_try = [model, 'openai/gpt-oss-120b', 'openai/gpt-oss-20b']
     seen = set()
     models_to_try = [m for m in models_to_try if not (m in seen or seen.add(m))]
 
     for attempt_model in models_to_try:
         try:
-            with httpx.Client(timeout=45) as client:
+            with httpx.Client(timeout=20) as client:
                 res = client.post(
                     'https://api.groq.com/openai/v1/chat/completions',
                     headers={
@@ -458,11 +473,11 @@ def universal_proxy(request):
         if provider == 'groq':
             groq_key = getattr(settings, 'GROQ_API_KEY', '')
             if groq_key:
-                groq_prompt = prompt[:24000]
-                groq_models = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b']
+                groq_prompt = _format_groq_prompt(prompt)
+                groq_models = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b']
                 for g_model in groq_models:
                     try:
-                        with httpx.Client(timeout=45) as client:
+                        with httpx.Client(timeout=20) as client:
                             res = client.post(
                                 'https://api.groq.com/openai/v1/chat/completions',
                                 headers={'Authorization': f'Bearer {groq_key}', 'Content-Type': 'application/json'},
@@ -500,7 +515,7 @@ def universal_proxy(request):
             oai_key = getattr(settings, 'OPENAI_API_KEY', '')
             if oai_key:
                 try:
-                    with httpx.Client(timeout=60) as client:
+                    with httpx.Client(timeout=25) as client:
                         res = client.post(
                             'https://api.openai.com/v1/chat/completions',
                             headers={'Authorization': f'Bearer {oai_key}', 'Content-Type': 'application/json'},
@@ -528,14 +543,19 @@ def universal_proxy(request):
             ant_key = getattr(settings, 'ANTHROPIC_API_KEY', '')
             if ant_key:
                 try:
-                    with httpx.Client(timeout=90) as client:
+                    with httpx.Client(timeout=40) as client:
+                        ant_headers = {
+                            'x-api-key': ant_key,
+                            'anthropic-version': '2023-06-01',
+                            'Content-Type': 'application/json',
+                        }
+                        ant_ws = getattr(settings, 'ANTHROPIC_WORKSPACE_ID', '') or request.data.get('anthropic_workspace_id', '')
+                        if ant_ws:
+                            ant_headers['anthropic-workspace-id'] = ant_ws
+
                         res = client.post(
                             'https://api.anthropic.com/v1/messages',
-                            headers={
-                                'x-api-key': ant_key,
-                                'anthropic-version': '2023-06-01',
-                                'Content-Type': 'application/json',
-                            },
+                            headers=ant_headers,
                             json={
                                 'model': 'claude-3-5-haiku-20241022',
                                 'max_tokens': 8000,
@@ -665,14 +685,45 @@ def parse_document_endpoint(request):
 
     try:
         if lower_name.endswith('.pdf'):
-            from pypdf import PdfReader
-            reader = PdfReader(io.BytesIO(file_bytes))
-            pages_text = []
-            for i, page in enumerate(reader.pages):
-                txt = page.extract_text() or ''
-                if txt.strip():
-                    pages_text.append(f"--- PAGE {i+1} ---\n{txt.strip()}")
-            extracted_text = "\n\n".join(pages_text).strip()
+            # Step 1: Ultra-fast pypdf layout mode (5-50ms)
+            try:
+                from pypdf import PdfReader
+                reader = PdfReader(io.BytesIO(file_bytes))
+                pages_text = []
+                for i, page in enumerate(reader.pages):
+                    try:
+                        txt = page.extract_text(extraction_mode="layout") or ''
+                    except Exception:
+                        txt = page.extract_text() or ''
+                    if txt.strip():
+                        pages_text.append(f"--- PAGE {i+1} ---\n{txt.strip()}")
+                if pages_text:
+                    extracted_text = "\n\n".join(pages_text).strip()
+            except Exception:
+                extracted_text = ""
+
+            # Step 2: If pypdf extracted nothing or text appears empty/corrupted, use deep pdfplumber
+            is_insufficient = len(extracted_text.strip()) < 50
+            if is_insufficient:
+                try:
+                    import pdfplumber
+                    pages_text = []
+                    with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+                        for i, page in enumerate(pdf.pages):
+                            txt = page.extract_text(x_tolerance=3, y_tolerance=3) or ''
+                            if txt.strip():
+                                pages_text.append(f"--- PAGE {i+1} ---\n{txt.strip()}")
+                    if pages_text:
+                        extracted_text = "\n\n".join(pages_text).strip()
+                except Exception:
+                    pass
+
+            # Step 3: Post-process and sanitize text
+            if extracted_text:
+                import re as _re
+                extracted_text = extracted_text.replace('\x00', '').replace('\ufffd', '')
+                extracted_text = _re.sub(r'([a-zà-ÿ])([A-ZÀ-Ÿ])', r'\1 \2', extracted_text)
+                extracted_text = _re.sub(r'\n{4,}', '\n\n\n', extracted_text)
 
         elif lower_name.endswith('.docx') or lower_name.endswith('.doc'):
             try:
@@ -701,3 +752,228 @@ def parse_document_endpoint(request):
         'is_empty': len(extracted_text.strip()) < 10
     }, status=200)
 
+
+
+# ---------------------------------------------------------------------------
+# 9. Server-Side Vision OCR for Scanned PDFs
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+@ratelimit(key="ip", rate="30/m", block=False)
+@api_view(["POST"])
+@permission_classes([AllowAny])
+@authentication_classes([])
+def ocr_document_endpoint(request):
+    """
+    Server-side OCR for scanned PDF documents.
+    Extracts embedded images from PDF pages via pypdf and native byte scanning,
+    then transcribes via Vision AI (Gemini REST -> Anthropic Claude -> OpenAI GPT-4o).
+    """
+    import io
+    import base64
+
+    filename = request.data.get("filename", "document.pdf")
+    base64_data = request.data.get("base64", "")
+    file_obj = request.FILES.get("file")
+    file_bytes = None
+    max_pages = int(request.data.get("max_pages", 20))
+
+    if file_obj:
+        filename = file_obj.name
+        file_bytes = file_obj.read()
+    elif base64_data:
+        if "," in base64_data:
+            base64_data = base64_data.split(",", 1)[1]
+        try:
+            file_bytes = base64.b64decode(base64_data)
+        except Exception as e:
+            return Response({"error": f"Erreur décodage base64: {str(e)}"}, status=400)
+
+    if not file_bytes:
+        return Response({"error": "Aucun fichier transmis."}, status=400)
+
+    lower_name = filename.lower()
+    ocr_prompt = (
+        "Vous êtes un module OCR juridique d'élite de France Justice. "
+        "Transcrivez INTÉGRALEMENT tout le texte visible dans cette page de décision judiciaire ou document juridique numérisé : "
+        "juridiction, chambre, noms complets des parties, âges, situations et professions, dates, numéro de RG, "
+        "exposé du litige, motifs du juge, montants exacts en euros (€), pensions alimentaires, "
+        "prestations compensatoires, dépens, article 700 du CPC, et l'intégralité du dispositif (PAR CES MOTIFS). "
+        "Ne résumez RIEN. Restituez le texte fidèlement et exhaustivement, ligne par ligne."
+    )
+
+    gemini_key = getattr(settings, "GEMINI_API_KEY", "")
+    anthropic_key = getattr(settings, "ANTHROPIC_API_KEY", "")
+    openai_key = getattr(settings, "OPENAI_API_KEY", "")
+
+    page_contents = []  # list of tuples: ('text', str) or ('image', bytes)
+
+    if not lower_name.endswith(".pdf"):
+        # It's an image file (.png, .jpg, etc.)
+        page_contents = [("image", file_bytes)]
+    else:
+        try:
+            from pypdf import PdfReader
+            reader = PdfReader(io.BytesIO(file_bytes))
+            num_pages = min(len(reader.pages), max_pages)
+
+            for page_num in range(num_pages):
+                page = reader.pages[page_num]
+                # 1. Try digital text extraction first
+                try:
+                    native_text = page.extract_text(extraction_mode="layout") or ""
+                    if native_text.strip() and len(native_text.strip()) > 35:
+                        page_contents.append(("text", native_text.strip()))
+                        continue
+                except Exception:
+                    pass
+
+                # 2. Try extracting images via pypdf page.images
+                found_img = False
+                try:
+                    if hasattr(page, "images") and page.images:
+                        for img_obj in page.images:
+                            if hasattr(img_obj, "data") and img_obj.data and len(img_obj.data) > 4000:
+                                page_contents.append(("image", img_obj.data))
+                                found_img = True
+                                break
+                except Exception:
+                    pass
+
+                if not found_img:
+                    page_contents.append(("text", ""))
+
+        except Exception as e:
+            return Response({"error": f"Erreur lecture PDF: {str(e)}"}, status=500)
+
+        # Fallback: If no images were extracted from PDF pages via pypdf, scan JPEG byte streams
+        all_empty = all(c_type == 'text' and not c_data for c_type, c_data in page_contents)
+        if all_empty or not page_contents:
+            raw_jpegs = []
+            idx = 0
+            flen = len(file_bytes)
+            while idx < flen - 4 and len(raw_jpegs) < max_pages:
+                if file_bytes[idx] == 0xFF and file_bytes[idx+1] == 0xD8 and file_bytes[idx+2] == 0xFF:
+                    start = idx
+                    idx += 3
+                    end = -1
+                    while idx < flen - 1:
+                        if file_bytes[idx] == 0xFF and file_bytes[idx+1] == 0xD9:
+                            end = idx + 2
+                            break
+                        idx += 1
+                    if end != -1 and (end - start) > 7000:
+                        raw_jpegs.append(file_bytes[start:end])
+                else:
+                    idx += 1
+            if raw_jpegs:
+                page_contents = [("image", j) for j in raw_jpegs]
+
+    gemini_models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-flash-latest"]
+    page_texts = []
+
+    for idx, (content_type, content_data) in enumerate(page_contents):
+        page_num = idx + 1
+        page_text = ""
+
+        if content_type == "text":
+            if content_data.strip():
+                page_texts.append(f"--- PAGE {page_num} ---\n{content_data.strip()}")
+            continue
+
+        img_bytes = content_data
+        img_b64 = base64.b64encode(img_bytes).decode("utf-8")
+
+        # Provider 1: Gemini Vision REST API (direct HTTP, supports AQ. keys)
+        if gemini_key:
+            for g_model in gemini_models:
+                try:
+                    with httpx.Client(timeout=35) as client:
+                        res = client.post(
+                            f"https://generativelanguage.googleapis.com/v1beta/models/{g_model}:generateContent?key={gemini_key}",
+                            headers={"Content-Type": "application/json"},
+                            json={
+                                "contents": [{"parts": [
+                                    {"text": ocr_prompt},
+                                    {"inline_data": {"mime_type": "image/jpeg", "data": img_b64}}
+                                ]}],
+                                "generationConfig": {"temperature": 0.1, "maxOutputTokens": 4000}
+                            }
+                        )
+                    if res.status_code == 200:
+                        t = res.json().get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
+                        if t and len(t) > 15:
+                            page_text = t
+                            break
+                    elif res.status_code in [429, 402, 401]:
+                        break
+                except Exception:
+                    continue
+
+        # Provider 2: Anthropic Claude Vision
+        if not page_text and anthropic_key:
+            for c_model in ["claude-3-5-haiku-20241022", "claude-3-5-sonnet-20241022"]:
+                try:
+                    with httpx.Client(timeout=40) as client:
+                        res = client.post(
+                            "https://api.anthropic.com/v1/messages",
+                            headers={
+                                "x-api-key": anthropic_key,
+                                "anthropic-version": "2023-06-01",
+                                "Content-Type": "application/json"
+                            },
+                            json={
+                                "model": c_model,
+                                "max_tokens": 4000,
+                                "messages": [{"role": "user", "content": [
+                                    {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": img_b64}},
+                                    {"type": "text", "text": ocr_prompt}
+                                ]}]
+                            }
+                        )
+                    if res.status_code == 200:
+                        content_list = res.json().get("content", [])
+                        t = "".join(c.get("text", "") for c in content_list if c.get("type") == "text").strip()
+                        if t and len(t) > 15:
+                            page_text = t
+                            break
+                except Exception:
+                    continue
+
+        # Provider 3: OpenAI GPT-4o Vision
+        if not page_text and openai_key:
+            try:
+                with httpx.Client(timeout=35) as client:
+                    res = client.post(
+                        "https://api.openai.com/v1/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {openai_key}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "model": "gpt-4o-mini",
+                            "messages": [{"role": "user", "content": [
+                                {"type": "text", "text": ocr_prompt},
+                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_b64}", "detail": "high"}}
+                            ]}],
+                            "max_tokens": 3500
+                        }
+                    )
+                if res.status_code == 200:
+                    page_text = res.json().get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+            except Exception:
+                pass
+
+        if page_text:
+            page_texts.append(f"--- PAGE {page_num} ---\n{page_text}")
+
+    if not page_texts:
+        return Response({"error": "OCR non disponible pour ce document numérisé.", "is_empty": True}, status=200)
+
+    full_text = "\n\n".join(page_texts)
+    return Response({
+        "filename": filename,
+        "text": full_text,
+        "character_count": len(full_text),
+        "pages_processed": len(page_texts)
+    }, status=200)
