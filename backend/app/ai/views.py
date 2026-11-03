@@ -108,32 +108,71 @@ def _format_groq_prompt(prompt: str) -> str:
 
 
 def _try_gemini(prompt: str, history: list, system: str = SYSTEM_INSTRUCTION):
-    """Attempt Gemini with automatic model fallback (max_output_tokens=16000 for full document analysis)."""
+    """
+    Attempt Gemini via direct REST API (not SDK) for maximum compatibility on Railway.
+    Uses httpx with automatic model fallback. Max output: 16000 tokens for full document analysis.
+    """
+    key = _gemini_key()
+    if not key:
+        return None, 'Gemini API key not configured.'
+
     models = [
-        'gemini-3.5-flash-lite',
         'gemini-3.1-flash-lite',
+        'gemini-3.5-flash-lite',
         'gemini-flash-latest',
         'gemini-3.8-flash',
         'gemini-3.1-flash-image',
     ]
     last_err = None
-    generation_config = {
-        'temperature': 0.35,
-        'max_output_tokens': 16000,
-        'top_p': 0.95,
-    }
+
+    # Build Gemini REST history format
+    gemini_history = []
+    if history and isinstance(history, list):
+        for h in history[-6:]:
+            role = h.get('role', 'user')
+            if role in ('model', 'assistant'):
+                role = 'model'
+            else:
+                role = 'user'
+            parts = h.get('parts', [])
+            txt = ''
+            if parts and isinstance(parts, list):
+                txt = parts[0].get('text', '') if isinstance(parts[0], dict) else str(parts[0])
+            if txt:
+                gemini_history.append({'role': role, 'parts': [{'text': txt[:4000]}]})
+
+    contents = gemini_history + [{'role': 'user', 'parts': [{'text': prompt}]}]
+
     for model_name in models:
         try:
-            model = genai.GenerativeModel(
-                model_name=model_name,
-                system_instruction=system,
-                generation_config=generation_config,
-                tools=None
-            )
-            chat = model.start_chat(history=history or [])
-            response = chat.send_message(prompt)
-            if response and response.text:
-                return response.text, None
+            with httpx.Client(timeout=40) as client:
+                res = client.post(
+                    f'https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={key}',
+                    headers={'Content-Type': 'application/json'},
+                    json={
+                        'system_instruction': {'parts': [{'text': system[:16000]}]},
+                        'contents': contents,
+                        'generationConfig': {
+                            'temperature': 0.35,
+                            'maxOutputTokens': 16000,
+                            'topP': 0.95,
+                        }
+                    }
+                )
+            if res.status_code == 200:
+                data = res.json()
+                text = data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                if text:
+                    return text, None
+            elif res.status_code in (429, 402, 401):
+                last_err = f'Gemini {model_name}: quota/auth HTTP {res.status_code}'
+                break  # Key exhausted — stop trying models
+            elif res.status_code == 503:
+                last_err = f'Gemini {model_name}: 503 surcharge temporaire'
+                continue
+            else:
+                last_err = f'Gemini {model_name}: HTTP {res.status_code}'
+                continue
         except Exception as e:
             last_err = str(e)
             continue

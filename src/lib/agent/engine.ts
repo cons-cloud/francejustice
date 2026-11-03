@@ -546,8 +546,8 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     if (!isInvalidText(generatedText) || geminiKeysToTry.length === 0) return;
     try {
       const modelsToTry = [
-        'gemini-3.5-flash-lite',
         'gemini-3.1-flash-lite',
+        'gemini-3.5-flash-lite',
         'gemini-flash-latest',
         'gemini-3.8-flash',
       ];
@@ -562,7 +562,7 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
             const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
 
             const perModelController = new AbortController();
-            const timeoutId = setTimeout(() => perModelController.abort(), 45000);
+            const timeoutId = setTimeout(() => perModelController.abort(), 25000);
             if (signal) {
               signal.addEventListener('abort', () => perModelController.abort(), { once: true });
             }
@@ -758,29 +758,34 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
           || (import.meta as any).env?.VITE_ANTHROPIC_WORKSPACE_ID 
           || localStorage.getItem('anthropic_workspace_id') 
           || '';
-        if (workspaceId) {
-          anthropicHeaders['anthropic-workspace-id'] = workspaceId;
+        if (effectiveAnthropicKey.startsWith('sk-ant-usr-') && !workspaceId) {
+          // Skip personal user tokens that lack workspace scoping to avoid 400 errors
+          console.warn('[Anthropic] Clé sk-ant-usr sans workspace ID, ignorée');
+        } else {
+          if (workspaceId) {
+            anthropicHeaders['anthropic-workspace-id'] = workspaceId;
+          }
+          const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: anthropicHeaders,
+            body: JSON.stringify({
+              model: anthropicModelName,
+              max_tokens: 8000,
+              system: anthropicSystemContent,
+              messages: [{ role: 'user', content: anthropicUserContent }]
+            })
+          });
+          if (res.ok) {
+            const json = await res.json();
+            const candidate = json?.content?.[0]?.text;
+            if (!isInvalidText(candidate)) {
+              generatedText = cleanAgentOutput(candidate);
+            }
+          } else {
+            const errBody = await res.text().catch(() => '');
+            console.warn(`Anthropic Claude notice (${res.status}): passage au modèle suivant...`, errBody.substring(0, 200));
+          }
         }
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: anthropicHeaders,
-        body: JSON.stringify({
-          model: anthropicModelName,
-          max_tokens: 8000,
-          system: anthropicSystemContent,
-          messages: [{ role: 'user', content: anthropicUserContent }]
-        })
-      });
-      if (res.ok) {
-        const json = await res.json();
-        const candidate = json?.content?.[0]?.text;
-        if (!isInvalidText(candidate)) {
-          generatedText = cleanAgentOutput(candidate);
-        }
-      } else {
-        const errBody = await res.text().catch(() => '');
-        console.warn(`Anthropic Claude notice (${res.status}): passage au modèle suivant...`, errBody.substring(0, 200));
-      }
     } catch (e) {
       console.warn("Anthropic Claude API notice:", e);
     }

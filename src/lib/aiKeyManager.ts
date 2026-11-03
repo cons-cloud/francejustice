@@ -159,11 +159,8 @@ export function getAvailableGeminiKeys(): string[] {
   const currentKey = cachedConfig.gemini_key?.trim();
   const envKey = getEnvGeminiKey();
 
-  // AQ. prefix = GCP Application Default Credentials / service account keys.
-  // These ONLY work with the Python google-generativeai SDK (server-side).
-  // They always return HTTP 404 when used directly with the REST API ?key= param.
-  // → Filter them out from browser-side calls; the backend Django proxy handles them.
-  const isRestCompatible = (k: string) => k.length >= 20 && !k.startsWith('AQ.');
+  // Accept all Gemini API keys (standard AIzaSy... or new Google AI Studio AQ.... format)
+  const isRestCompatible = (k: string) => k.length >= 20;
 
   if (currentKey && isRestCompatible(currentKey) && !isKnownDepletedKey(currentKey) && !runtimeBlacklist.has(currentKey)) {
     keys.push(currentKey);

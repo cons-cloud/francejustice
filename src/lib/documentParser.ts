@@ -272,6 +272,19 @@ export function isValidHumanText(text: string): boolean {
   const avgWordLength = totalWordLength / Math.min(tokens.length, 100);
   if (avgWordLength > 25) return false;
 
+  // 4. Reject hex-encoded binary garbage (long runs of hex chars like "4a2f8c...")
+  const hexRunMatch = trimmed.match(/[0-9a-fA-F]{20,}/g) || [];
+  const hexRunTotal = hexRunMatch.reduce((acc, r) => acc + r.length, 0);
+  if (hexRunTotal / trimmed.length > 0.4) return false;
+
+  // 5. Require minimum ratio of real alphabetic words (at least 30% of tokens must be letters)
+  const alphaTokens = tokens.filter(t => /[a-zA-ZÀ-ÿ]{2,}/.test(t));
+  if (tokens.length > 10 && alphaTokens.length / tokens.length < 0.20) return false;
+
+  // 6. Reject PDF binary streams that survived decompression (high symbol/slash density)
+  const symbolCount = (trimmed.match(/[\/\\<>()[\]{}%@#^*~`|]/g) || []).length;
+  if (symbolCount / trimmed.length > 0.30) return false;
+
   return true;
 }
 
