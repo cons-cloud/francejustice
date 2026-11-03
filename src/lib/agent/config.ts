@@ -19,7 +19,7 @@ export const AVAILABLE_MODELS: LLMModelConfig[] = [
     description: 'Capacité d\'analyse monumentale pour éplucher des centaines de pages de pièces, contrats et jurisprudences.',
     badge: 'Ultra Long-Context',
     requiresCustomApiKey: false,
-    defaultModelName: 'gemini-2.5-pro'
+    defaultModelName: 'gemini-flash-latest'
   },
   {
     id: 'gemini-flash',
@@ -29,7 +29,7 @@ export const AVAILABLE_MODELS: LLMModelConfig[] = [
     description: 'Réponses instantanées et vives avec un raisonnement juridique direct et précis.',
     badge: 'Ultra Rapide',
     requiresCustomApiKey: false,
-    defaultModelName: 'gemini-2.5-flash'
+    defaultModelName: 'gemini-3.5-flash-lite'
   },
   {
     id: 'gpt-4o',

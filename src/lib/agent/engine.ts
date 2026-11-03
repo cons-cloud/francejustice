@@ -290,7 +290,12 @@ ${toolResultsContext ? `=== RÉSULTATS DES OUTILS EXÉCUTÉS PAR L'AGENT DANS CE
 ${attachedFileNames && attachedFileNames.length > 0 ? `=== DOCUMENTS DU DOSSIER REÇUS ===\nFichiers importés par l'utilisateur : ${attachedFileNames.join(', ')}\n` : ''}
 ${(() => {
   if (!extractedText) return '';
-  const isFailedOcr = extractedText.includes('aucun texte OCR extrait') || extractedText.includes('OCR échoué');
+  const isFailedOcr = extractedText.includes('aucun texte OCR extrait')
+    || extractedText.includes('OCR échoué')
+    || (extractedText.includes('[Pièce PDF scannée') && extractedText.length < 300)
+    || (extractedText.includes('[Pièce visuelle') && extractedText.length < 300)
+    || (extractedText.includes('importée pour analyse juridique]') && extractedText.length < 300)
+    || (extractedText.includes('importée pour analyse OCR') && extractedText.length < 300);
   if (isFailedOcr) {
     return `=== NOTE SUR LES PIÈCES JOINTES REÇUES ===\nUn document a été transmis par l'utilisateur (${attachedFileNames?.join(', ') || 'Document'}), mais son texte n'a pas pu être extrait automatiquement.\nIndication : ${extractedText}\nInformez courtoisement l'utilisateur que le fichier a bien été reçu mais qu'il s'agit d'un scan dont le texte n'a pu être lu automatiquement, et invitez-le à coller directement les passages clés.\n`;
   }
@@ -479,10 +484,12 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
 
       if (isInvalidText(generatedText)) {
         const providerHint =
-          selectedModel.provider === 'groq' ? 'groq'
+          hasDocumentAttached ? 'gemini'
+          : selectedModel.provider === 'google' ? 'gemini'
+          : selectedModel.provider === 'groq' ? 'groq'
           : selectedModel.provider === 'openai' ? 'openai'
           : selectedModel.provider === 'anthropic' ? 'anthropic'
-          : 'groq';
+          : 'gemini';
         const formattedHistoryForBackend = (previousTurns || []).map(m => ({
           role: m.role === 'assistant' ? 'model' : 'user',
           parts: [{ text: (m.content || '').substring(0, 4000) }]
@@ -533,12 +540,95 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     return clean.length >= 20;
   };
 
-  // 1. Groq LPU Ultra-Rapide (Priority 1 direct fallback — Llama 3.3 70B / Llama 3.1 8B)
-  if (isInvalidText(generatedText) && (selectedModel.provider === 'groq' || selectedModel.provider === 'francejustice' || effectiveGroqKey) && effectiveGroqKey) {
+  // Helper function to attempt direct Gemini call
+  const tryDirectGemini = async () => {
+    const geminiKeysToTry = getAvailableGeminiKeys();
+    if (!isInvalidText(generatedText) || geminiKeysToTry.length === 0) return;
+    try {
+      const modelsToTry = [
+        'gemini-3.5-flash-lite',
+        'gemini-3.1-flash-lite',
+        'gemini-flash-latest',
+        'gemini-3.8-flash',
+      ];
+
+      for (const cleanGeminiKey of geminiKeysToTry) {
+        if (!isInvalidText(generatedText)) break;
+        let keyDepleted = false;
+
+        for (const m of modelsToTry) {
+          if (keyDepleted) break;
+          try {
+            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
+
+            const perModelController = new AbortController();
+            const timeoutId = setTimeout(() => perModelController.abort(), 45000);
+            if (signal) {
+              signal.addEventListener('abort', () => perModelController.abort(), { once: true });
+            }
+
+            const res = await fetch(geminiUrl, {
+              method: 'POST',
+              signal: perModelController.signal,
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 16000) }] },
+                contents: [{ role: 'user', parts: [{ text: fullPromptForLLM }] }],
+                generationConfig: {
+                  temperature: 0.35,
+                  maxOutputTokens: 8192,
+                  topP: 0.95
+                }
+              })
+            }).finally(() => clearTimeout(timeoutId));
+
+            if (res.ok) {
+              const data = await res.json();
+              const candidate = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (!isInvalidText(candidate)) {
+                generatedText = cleanAgentOutput(candidate);
+                console.log(`[Engine] ✅ Succès Gemini avec le modèle ${m}`);
+                break;
+              }
+            } else if (res.status === 402 || res.status === 429 || res.status === 401) {
+              console.warn(`[Engine] Gemini clé ${cleanGeminiKey.substring(0, 12)}... HTTP ${res.status}, basculement sur la clé suivante...`);
+              await reportKeyFailure('gemini', 'quota_exceeded', `HTTP ${res.status}`, cleanGeminiKey);
+              keyDepleted = true;
+              break;
+            } else if (res.status === 503) {
+              console.warn(`[Engine] Gemini ${m} 503 (charge temporaire) - modèle suivant...`);
+              continue;
+            } else {
+              const errBody = await res.text().catch(() => '');
+              console.warn(`[Engine] Gemini ${m} status ${res.status}:`, errBody.substring(0, 200));
+              continue;
+            }
+          } catch (err: any) {
+            if (err?.name === 'AbortError') {
+              console.warn(`[Engine] Gemini ${m} délai dépassé (45s), modèle suivant...`);
+            } else {
+              console.warn(`[Engine] Gemini ${m} erreur:`, err?.message || err);
+            }
+          }
+          if (!isInvalidText(generatedText)) break;
+        }
+      }
+    } catch (e) {
+      console.warn("Direct Gemini LLM call notice:", e);
+    }
+  };
+
+  // If a document is attached or model is Gemini, prioritize Gemini directly
+  if (isInvalidText(generatedText) && (hasDocumentAttached || selectedModel.provider === 'google')) {
+    await tryDirectGemini();
+  }
+
+  // 1. Groq LPU Ultra-Rapide (Priority 1 direct fallback for short prompts — LPU inference)
+  if (isInvalidText(generatedText) && !hasDocumentAttached && (selectedModel.provider === 'groq' || selectedModel.provider === 'francejustice' || effectiveGroqKey) && effectiveGroqKey) {
     const groqModelName = selectedModel.provider === 'groq' && selectedModel.defaultModelName
       ? selectedModel.defaultModelName
       : 'openai/gpt-oss-120b';
-    const modelsToTry = [groqModelName, 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+    const modelsToTry = [groqModelName, 'openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'];
     const seen = new Set<string>();
     const uniqueModels = modelsToTry.filter(m => !seen.has(m) && seen.add(m));
 
@@ -562,8 +652,8 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
             model: gModel,
             messages: [
               { role: 'system', content: effectiveSystemPrompt.substring(0, 1500) },
-              // Cap at 3500 chars (~2500 tokens) to stay well within Groq 8000 TPM limit
-              { role: 'user', content: fullPromptForLLM.substring(0, 3500) }
+              // Safe margin for Groq 8000 TPM limit on conversational queries
+              { role: 'user', content: fullPromptForLLM.substring(0, 4500) }
             ],
             temperature: 0.25,
             max_tokens: 4000
@@ -595,82 +685,9 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
     }
   }
 
-  // 2. Google Gemini (Client override — AQ. keys work as ?key= query param with gemini models)
-  const geminiKeysToTry = getAvailableGeminiKeys();
-  if (isInvalidText(generatedText) && (selectedModel.provider === 'google' || (selectedModel.provider === 'francejustice' && geminiKeysToTry.length > 0))) {
-    try {
-      const modelsToTry = [
-        'gemini-2.5-flash',
-        'gemini-2.0-flash',
-        'gemini-1.5-flash',
-        'gemini-flash-latest'
-      ];
-
-      for (const cleanGeminiKey of geminiKeysToTry) {
-        if (!isInvalidText(generatedText)) break;
-        let keyDepleted = false;
-
-        for (const m of modelsToTry) {
-          if (keyDepleted) break;
-          try {
-            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanGeminiKey}`;
-
-            // 30s timeout controller so model has sufficient time to analyze legal document
-            const perModelController = new AbortController();
-            const timeoutId = setTimeout(() => perModelController.abort(), 30000);
-            if (signal) {
-              signal.addEventListener('abort', () => perModelController.abort(), { once: true });
-            }
-
-            const res = await fetch(geminiUrl, {
-              method: 'POST',
-              signal: perModelController.signal,
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                system_instruction: { parts: [{ text: effectiveSystemPrompt.substring(0, 8000) }] },
-                contents: [{ role: 'user', parts: [{ text: fullPromptForLLM.substring(0, 3500000) }] }],
-                generationConfig: {
-                  temperature: 0.35,
-                  maxOutputTokens: 8192,
-                  topP: 0.95
-                }
-              })
-            }).finally(() => clearTimeout(timeoutId));
-
-            if (res.ok) {
-              const data = await res.json();
-              const candidate = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (!isInvalidText(candidate)) {
-                generatedText = cleanAgentOutput(candidate);
-                console.log(`[Engine] ✅ Succès Gemini avec le modèle ${m}`);
-                break;
-              }
-            } else if (res.status === 402 || res.status === 429 || res.status === 401) {
-              console.warn(`[Engine] Gemini clé ${cleanGeminiKey.substring(0, 12)}... HTTP ${res.status} (Crédits épuisés), basculement sur la clé de secours...`);
-              await reportKeyFailure('gemini', 'quota_exceeded', `HTTP ${res.status}`, cleanGeminiKey);
-              keyDepleted = true;
-              break; // Try next key in geminiKeysToTry!
-            } else if (res.status === 503) {
-              console.warn(`[Engine] Gemini ${m} 503 (Spike de charge) - basculement immédiat vers le modèle suivant...`);
-              continue;
-            } else {
-              const errBody = await res.text().catch(() => '');
-              console.warn(`[Engine] Gemini ${m} status ${res.status}:`, errBody.substring(0, 200));
-              continue;
-            }
-          } catch (err: any) {
-            if (err?.name === 'AbortError') {
-              console.warn(`[Engine] Gemini ${m} délai dépassé (30s), basculement vers le modèle suivant...`);
-            } else {
-              console.warn(`[Engine] Gemini ${m} erreur réseau ou API:`, err?.message || err);
-            }
-          }
-          if (!isInvalidText(generatedText)) break;
-        }
-      }
-    } catch (e) {
-      console.warn("Direct Gemini LLM call notice:", e);
-    }
+  // 2. Google Gemini fallback if not already executed
+  if (isInvalidText(generatedText)) {
+    await tryDirectGemini();
   }
 
   // 2. OpenAI with custom API key (or France Justice auto fallback to GPT-4o → GPT-3.5 on 429)

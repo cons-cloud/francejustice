@@ -15,10 +15,13 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
   // Provider 1: Google Gemini Vision (Pool de clés avec basculement automatique sur 402/429/401)
   const geminiKeys = getAvailableGeminiKeys();
   const geminiModels = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-flash-latest"
+    "gemini-3.1-flash-image",
+    "gemini-3.1-flash-lite-image",
+    "gemini-2.5-flash-image",
+    "gemini-3.1-flash-image-preview",
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash-lite",
+    "gemini-3.8-flash"
   ];
 
   for (const gKey of geminiKeys) {
@@ -711,6 +714,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
 
   // PRIORITY 0: Instant Server-Side Python Parser (pypdf & python-docx — 15ms execution)
   // Bypasses browser cross-origin worker restrictions, CDN failures and avoids minutes of client-side OCR.
+  let serverTextEmpty = false; // tracks if server parse returned nothing (scanned PDF -> OCR fallback)
   if (!isImage) {
     try {
       const formData = new FormData();
@@ -739,20 +743,25 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
             uploadedAt: Date.now()
           };
         }
+        // Server responded but text layer is empty → this is a scanned PDF, trigger Vision OCR
+        serverTextEmpty = true;
       }
     } catch (serverErr) {
       console.warn('[DocumentParser] Serveur indisponible pour parse direct, fallback navigateur:', serverErr);
     }
   }
 
-  // PRIORITY 0b: Server-Side Vision OCR for Scanned PDFs or Images
-  // If the document had no digital text layer, invoke the server Vision OCR pipeline directly.
-  if (isPdf || isImage) {
+  // PRIORITY 0b: Server-Side Vision OCR — ONLY for scanned PDFs (no text layer) or raw images.
+  // Uses an isolated 90s AbortController so a short caller signal never kills the OCR pipeline.
+  if (isImage || (isPdf && serverTextEmpty)) {
     try {
       const { callOcrProxy } = await import('./backendAI');
-      const ocrData = await callOcrProxy(file);
+      // Isolated signal — never inherits caller's short timeout
+      const ocrController = new AbortController();
+      const ocrTimer = setTimeout(() => ocrController.abort(), 90000);
+      const ocrData = await callOcrProxy(file, ocrController.signal).finally(() => clearTimeout(ocrTimer));
       if (ocrData?.text && ocrData.text.trim().length > 30 && !ocrData.is_empty) {
-        console.log(`[DocumentParser] ✅ OCR serveur Vision (${ocrData.pages_processed || 1} pages, ${ocrData.character_count || ocrData.text.length} car.) pour "${file.name}"`);
+        console.log(`[DocumentParser] ✅ OCR serveur Vision (${ocrData.pages_processed || 1} pages, ${ocrData.text.length} car.) pour "${file.name}"`);
         return {
           id: Math.random().toString(36).substring(2, 9),
           name: file.name,
@@ -763,7 +772,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
         };
       }
     } catch (ocrErr) {
-      console.warn('[DocumentParser] OCR serveur indisponible, fallback local:', ocrErr);
+      console.warn('[DocumentParser] OCR serveur Vision indisponible, fallback local:', ocrErr);
     }
   }
 

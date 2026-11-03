@@ -2506,7 +2506,7 @@ export async function generateLegalDocument(type: string, details: string, targe
   const langName = LANGUAGE_NAMES[lang] || 'French (Français)';
 
   if (geminiApiKey && geminiApiKey.trim().length >= 20) {
-    const docModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest', 'gemini-1.5-pro'];
+    const docModels = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
     for (const docModel of docModels) {
       try {
         const response = await fetch(
@@ -2628,7 +2628,7 @@ export async function chatWithAI(
         ? `${fullPromptWithLang.substring(0, 7500)}\n\n[...Extrait intermédiaire condensé...]\n\n${fullPromptWithLang.substring(fullPromptWithLang.length - 4500)}`
         : fullPromptWithLang;
 
-      const groqModels = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+      const groqModels = ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'];
       for (const gm of groqModels) {
         try {
           const groqController = new AbortController();
@@ -2684,11 +2684,10 @@ export async function chatWithAI(
   if (availableGeminiKeys.length > 0) {
     try {
       const geminiModels = [
-        'gemini-2.5-flash',
-        'gemini-2.0-flash',
-        'gemini-1.5-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-3.1-flash-lite',
         'gemini-flash-latest',
-        'gemini-1.5-pro'
+        'gemini-3.8-flash'
       ];
 
       // Build conversation contents including past user and assistant turns
@@ -2888,7 +2887,7 @@ Question de l'utilisateur : "${userPrompt}"
   const geminiApiKey = aiCfg.gemini_key || import.meta.env.VITE_GEMINI_API_KEY;
 
   if (geminiApiKey && geminiApiKey.trim().length >= 20) {
-    const sumModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest', 'gemini-1.5-pro'];
+    const sumModels = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
     for (const sumModel of sumModels) {
       try {
         const response = await fetch(

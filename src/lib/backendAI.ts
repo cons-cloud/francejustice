@@ -299,7 +299,7 @@ export async function callOcrProxy(
     const formData = new FormData();
     formData.append('file', file);
     formData.append('filename', file.name);
-    formData.append('max_pages', '20');
+    formData.append('max_pages', '8');  // cap at 8 pages to stay under timeout
 
     const headers = await getAuthHeaders();
     delete (headers as any)['Content-Type'];

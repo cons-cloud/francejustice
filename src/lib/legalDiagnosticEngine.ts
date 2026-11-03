@@ -526,7 +526,7 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
   // 1b. OPTIONAL CLIENT-SIDE BYOK GROQ (seulement si l'utilisateur a configuré sa propre clé personnelle)
   const clientGroqKey = getAvailableGroqKey();
   if (!jsonRawText && clientGroqKey) {
-    const groqDiagModels = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+    const groqDiagModels = ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'];
     for (const gModel of groqDiagModels) {
       if (jsonRawText) break;
       try {
@@ -574,7 +574,7 @@ ${extractedDocumentsText || "Aucun document supplémentaire joint."}
 
   // 2. GEMINI FALLBACK IF GROQ DID NOT RETURN COMPLETE JSON
   const availableKeys = getAvailableGeminiKeys();
-  const diagModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest'];
+  const diagModels = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
 
   for (const gKey of availableKeys) {
     if (jsonRawText) break;

@@ -83,9 +83,13 @@ Ouverture proactive invitant à approfondir.
 
 def _gemini_key():
     key = getattr(settings, 'GEMINI_API_KEY', '')
-    if key and not key.startswith('AQ.'):
-        genai.configure(api_key=key)
-        return key
+    # Accept all key formats including AQ. (Gemini API keys from Google AI Studio)
+    if key and key.strip():
+        try:
+            genai.configure(api_key=key.strip())
+        except Exception:
+            pass
+        return key.strip()
     return ''
 
 
@@ -105,7 +109,13 @@ def _format_groq_prompt(prompt: str) -> str:
 
 def _try_gemini(prompt: str, history: list, system: str = SYSTEM_INSTRUCTION):
     """Attempt Gemini with automatic model fallback (max_output_tokens=16000 for full document analysis)."""
-    models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest']
+    models = [
+        'gemini-3.5-flash-lite',
+        'gemini-3.1-flash-lite',
+        'gemini-flash-latest',
+        'gemini-3.8-flash',
+        'gemini-3.1-flash-image',
+    ]
     last_err = None
     generation_config = {
         'temperature': 0.35,
@@ -377,7 +387,7 @@ def groq_proxy(request):
     system_prompt = system_prompt[:16000]
     groq_prompt = _format_groq_prompt(prompt)
 
-    models_to_try = [model, 'openai/gpt-oss-120b', 'openai/gpt-oss-20b']
+    models_to_try = [model, 'openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b']
     seen = set()
     models_to_try = [m for m in models_to_try if not (m in seen or seen.add(m))]
 
@@ -474,7 +484,7 @@ def universal_proxy(request):
             groq_key = getattr(settings, 'GROQ_API_KEY', '')
             if groq_key:
                 groq_prompt = _format_groq_prompt(prompt)
-                groq_models = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b']
+                groq_models = ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b']
                 for g_model in groq_models:
                     try:
                         with httpx.Client(timeout=20) as client:
@@ -776,7 +786,7 @@ def ocr_document_endpoint(request):
     base64_data = request.data.get("base64", "")
     file_obj = request.FILES.get("file")
     file_bytes = None
-    max_pages = int(request.data.get("max_pages", 20))
+    max_pages = min(int(request.data.get("max_pages", 8)), 10)  # Cap at 10 pages to prevent timeout
 
     if file_obj:
         filename = file_obj.name
@@ -869,7 +879,7 @@ def ocr_document_endpoint(request):
             if raw_jpegs:
                 page_contents = [("image", j) for j in raw_jpegs]
 
-    gemini_models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-flash-latest"]
+    gemini_models = ["gemini-3.1-flash-image", "gemini-3.1-flash-lite-image", "gemini-2.5-flash-image", "gemini-3.1-flash-image-preview", "gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-3.8-flash"]
     page_texts = []
 
     for idx, (content_type, content_data) in enumerate(page_contents):
