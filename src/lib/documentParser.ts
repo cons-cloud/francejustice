@@ -745,7 +745,7 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
 
       if (res.ok) {
         const data = await res.json();
-        if (data?.text && data.text.trim().length > 15 && !data.is_empty) {
+        if (data?.text && data.text.trim().length > 15 && !data.is_empty && isValidHumanText(data.text)) {
           console.log(`[DocumentParser] ✅ Extraction instantanée serveur (${data.character_count} car.) pour "${file.name}"`);
           return {
             id: Math.random().toString(36).substring(2, 9),
@@ -756,8 +756,11 @@ export async function parseUploadedFile(file: File): Promise<ParsedDocument> {
             uploadedAt: Date.now()
           };
         }
-        // Server responded but text layer is empty → this is a scanned PDF, trigger Vision OCR
+        // Server responded but text is empty OR binary garbled → scanned PDF → trigger Vision OCR
         serverTextEmpty = true;
+        if (data?.text && !isValidHumanText(data.text)) {
+          console.log(`[DocumentParser] ⚠️ Texte serveur binaire/illisible rejeté, déclenchement OCR Vision pour "${file.name}"`);
+        }
       }
     } catch (serverErr) {
       console.warn('[DocumentParser] Serveur indisponible pour parse direct, fallback navigateur:', serverErr);

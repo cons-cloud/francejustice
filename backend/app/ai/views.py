@@ -81,6 +81,36 @@ Ouverture proactive invitant à approfondir.
 # Helpers
 # ---------------------------------------------------------------------------
 
+def _is_valid_human_text(text: str, min_alpha_ratio: float = 0.25) -> bool:
+    """
+    Checks whether extracted text is genuine human-readable content (not binary garbage,
+    hex streams, font tables or PDF bytecode that slipped through the decompressor).
+    Returns False for any text that is mostly non-alphabetic, so the OCR pipeline kicks in.
+    """
+    if not text or len(text.strip()) < 20:
+        return False
+    t = text.strip()
+    # Count printable ASCII + accented Latin chars
+    printable = sum(1 for c in t if ord(c) >= 32 and (ord(c) <= 126 or 160 <= ord(c) <= 591))
+    if printable / len(t) < 0.70:
+        return False
+    # Require a minimum share of real alphabetic characters
+    alpha = sum(1 for c in t if c.isalpha())
+    if alpha / len(t) < min_alpha_ratio:
+        return False
+    # Reject hex-encoded binary blobs (long runs of hex digits with no spaces)
+    import re as _re_validate
+    hex_runs = _re_validate.findall(r'[0-9A-Fa-f]{20,}', t)
+    hex_total = sum(len(r) for r in hex_runs)
+    if hex_total / len(t) > 0.35:
+        return False
+    # Require at least 3 recognisable word-like tokens
+    words = _re_validate.findall(r'[a-zA-ZÀ-ÿ]{3,}', t)
+    if len(words) < 3:
+        return False
+    return True
+
+
 def _gemini_key():
     key = getattr(settings, 'GEMINI_API_KEY', '')
     # Accept all key formats including AQ. (Gemini API keys from Google AI Studio)
@@ -773,6 +803,9 @@ def parse_document_endpoint(request):
                 extracted_text = extracted_text.replace('\x00', '').replace('\ufffd', '')
                 extracted_text = _re.sub(r'([a-zà-ÿ])([A-ZÀ-Ÿ])', r'\1 \2', extracted_text)
                 extracted_text = _re.sub(r'\n{4,}', '\n\n\n', extracted_text)
+                # Reject binary/garbled text — treat as empty to trigger OCR
+                if not _is_valid_human_text(extracted_text):
+                    extracted_text = ""
 
         elif lower_name.endswith('.docx') or lower_name.endswith('.doc'):
             try:
@@ -868,10 +901,10 @@ def ocr_document_endpoint(request):
 
             for page_num in range(num_pages):
                 page = reader.pages[page_num]
-                # 1. Try digital text extraction first
+                # 1. Try digital text extraction first (only if text is genuine human text, not binary)
                 try:
                     native_text = page.extract_text(extraction_mode="layout") or ""
-                    if native_text.strip() and len(native_text.strip()) > 35:
+                    if native_text.strip() and len(native_text.strip()) > 35 and _is_valid_human_text(native_text):
                         page_contents.append(("text", native_text.strip()))
                         continue
                 except Exception:
