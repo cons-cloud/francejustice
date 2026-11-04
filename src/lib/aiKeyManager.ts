@@ -220,7 +220,9 @@ export async function updateAIConfig(newConfig: Partial<PlatformAIConfig>): Prom
 export async function reportKeyFailure(provider: AIProvider, reason: 'quota_exceeded' | 'invalid_key', errorDetails?: string, failedKey?: string) {
   console.warn(`[AIKeyManager] ⚠️ Clef ${provider.toUpperCase()} en échec: ${reason} (${errorDetails || 'Erreur'})`);
 
-  if (failedKey) {
+  // ONLY permanently blacklist on invalid_key (401), NOT on temporary quota_exceeded (429)
+  // because 429 rate limits are per-minute/per-model and expire quickly.
+  if (failedKey && reason === 'invalid_key') {
     runtimeBlacklist.add(failedKey.trim());
   }
 

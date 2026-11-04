@@ -590,9 +590,12 @@ RÈGLES D'AFFICHAGE ET D'EXCELLENCE (STYLE CLAUDE 3.5 SONNET, GEMINI & CHATGPT) 
                 console.log(`[Engine] ✅ Succès Gemini avec le modèle ${m}`);
                 break;
               }
-            } else if (res.status === 402 || res.status === 429 || res.status === 401) {
+            } else if (res.status === 429) {
+              console.warn(`[Engine] Gemini ${m} HTTP 429 (quota temporaire), bascule vers le modèle suivant...`);
+              continue;
+            } else if (res.status === 402 || res.status === 401) {
               console.warn(`[Engine] Gemini clé ${cleanGeminiKey.substring(0, 12)}... HTTP ${res.status}, basculement sur la clé suivante...`);
-              await reportKeyFailure('gemini', 'quota_exceeded', `HTTP ${res.status}`, cleanGeminiKey);
+              await reportKeyFailure('gemini', 'invalid_key', `HTTP ${res.status}`, cleanGeminiKey);
               keyDepleted = true;
               break;
             } else if (res.status === 503) {

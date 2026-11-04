@@ -2755,9 +2755,12 @@ export async function chatWithAI(
                   automations
                 };
               }
-            } else if (response.status === 402 || response.status === 429 || response.status === 401) {
+            } else if (response.status === 429) {
+              console.warn(`[Gemini] ${geminiModel} HTTP 429 (quota temporaire), bascule vers le modèle suivant...`);
+              continue;
+            } else if (response.status === 402 || response.status === 401) {
               console.warn(`[Gemini] Clé ${cleanKey.substring(0, 12)}... HTTP ${response.status} (Crédits épuisés), basculement sur la clé de secours...`);
-              await reportKeyFailure('gemini', 'quota_exceeded', `HTTP ${response.status}`, cleanKey);
+              await reportKeyFailure('gemini', 'invalid_key', `HTTP ${response.status}`, cleanKey);
               keyDepleted = true;
               break; // Try next key in availableGeminiKeys pool!
             } else {

@@ -12,16 +12,16 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
   const validMimes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
   const mimeType = validMimes.includes(rawMime) ? rawMime : "image/jpeg";
 
-  // Provider 1: Google Gemini Vision (Pool de clés avec basculement automatique sur 402/429/401)
+  // Provider 1: Google Gemini Vision (Pool de clés avec basculement automatique par modèle)
   const geminiKeys = getAvailableGeminiKeys();
   const geminiModels = [
-    "gemini-3.1-flash-image",
-    "gemini-3.1-flash-lite-image",
-    "gemini-2.5-flash-image",
-    "gemini-3.1-flash-image-preview",
     "gemini-3.1-flash-lite",
     "gemini-3.5-flash-lite",
-    "gemini-3.8-flash"
+    "gemini-flash-latest",
+    "gemini-3.8-flash",
+    "gemini-3.1-flash-image",
+    "gemini-3.1-flash-lite-image",
+    "gemini-2.5-flash-image"
   ];
 
   for (const gKey of geminiKeys) {
@@ -50,9 +50,12 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
             console.log(`[OCR] ✅ Gemini Vision (${gModel}) - transcription réussie`);
             return transcribed;
           }
-        } else if (res.status === 402 || res.status === 429 || res.status === 401) {
+        } else if (res.status === 429) {
+          // 429 is per-model in Google AI Studio: try the next model on the same key!
+          console.warn(`[OCR] Gemini ${gModel} HTTP 429 (quota temporaire), bascule vers le modèle suivant...`);
+          continue;
+        } else if (res.status === 402 || res.status === 401) {
           console.warn(`[OCR] Gemini clé ${gKey.substring(0, 12)}... status ${res.status} (Crédits épuisés), basculement sur la clé suivante...`);
-          await reportKeyFailure("gemini", "quota_exceeded", `HTTP ${res.status}`, gKey);
           keyDepleted = true;
           break; // Try next key in geminiKeys pool!
         } else if (res.status === 503) {
@@ -67,7 +70,29 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
     }
   }
 
-  // Provider 2: Anthropic Claude Vision (Fallback haute précision - API keys only, not usr tokens)
+  // Provider 2: Server-Side Vision OCR via Backend Proxy (Gemini REST / Claude / OpenAI)
+  try {
+    const res = await fetch('/api/ai/ocr-document/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: fileName || 'image.jpg',
+        base64: base64Data
+      }),
+      signal: AbortSignal.timeout(45000)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.text && data.text.trim().length > 15 && !data.is_empty) {
+        console.log(`[OCR] ✅ OCR Serveur Vision réussi pour "${fileName}"`);
+        return data.text.trim();
+      }
+    }
+  } catch (backendErr) {
+    console.warn('[OCR] Fallback OCR Serveur Vision indisponible:', backendErr);
+  }
+
+  // Provider 3: Anthropic Claude Vision (Fallback haute précision - API keys only, not usr tokens)
   if (config.anthropic_key && config.anthropic_key.startsWith('sk-ant-api') && config.anthropic_status !== "invalid_key") {
     const claudeVisionModels = ["claude-3-5-sonnet-20241022", "claude-3-7-sonnet-20250219", "claude-3-haiku-20240307"];
     for (const cModel of claudeVisionModels) {
@@ -145,28 +170,6 @@ export async function performVisionOCR(dataUrl: string, fileName?: string): Prom
         console.warn("Vision OCR OpenAI failover trigger:", e?.message);
       }
     }
-  }
-
-  // Provider 4: Server-Side Vision OCR via Backend Proxy (Gemini REST / Claude / OpenAI)
-  try {
-    const res = await fetch('/api/ai/ocr-document/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        filename: fileName || 'image.jpg',
-        base64: base64Data
-      }),
-      signal: AbortSignal.timeout(45000)
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data?.text && data.text.trim().length > 15 && !data.is_empty) {
-        console.log(`[OCR] ✅ OCR Serveur Vision réussi pour "${fileName}"`);
-        return data.text.trim();
-      }
-    }
-  } catch (backendErr) {
-    console.warn('[OCR] Fallback OCR Serveur Vision indisponible:', backendErr);
   }
 
   return `[Pièce visuelle / Image numérisée : "${fileName || "Document"}" importée pour analyse OCR et Vision Multimodale]`;
@@ -668,9 +671,22 @@ export async function extractTextWithPdfJs(buffer: ArrayBuffer): Promise<string 
   return null;
 }
 
+function bufferToBase64(buffer: ArrayBuffer): string {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  const chunkSize = 8192;
+  for (let i = 0; i < len; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, Math.min(i + chunkSize, len))));
+  }
+  return btoa(binary);
+}
+
 /**
  * Full OCR pipeline for scanned PDFs:
- * 1. Convert pages to images via PDF.js (up to 25 pages)
+ * 0. Direct Native PDF Multimodal Ingestion via Gemini (Claude-style — 1 call, full transcription)
+ * 0b. Server-Side OCR Proxy (/api/ai/ocr-document/)
+ * 1. Fallback: Convert pages to images via PDF.js
  * 2. Run Vision OCR on each page
  * 3. Concatenate results
  */
@@ -678,6 +694,89 @@ export async function ocrScannedPdf(buffer: ArrayBuffer, fileName?: string): Pro
   console.log('[OCR] Tentative OCR Vision sur PDF scanné:', fileName);
   if (!buffer || buffer.byteLength === 0) {
     return `[Pièce PDF "${fileName || 'Document'}" reçue pour analyse juridique]`;
+  }
+
+  const ocrPrompt = "Vous êtes un module OCR juridique d'élite. Transcrivez INTÉGRALEMENT tout le texte visible dans ce document numérisé (lettres, chiffres, dates, montants en euros, noms, articles de loi, signatures). Ne faites aucun résumé : restituez fidèlement le texte intégral avec les sauts de ligne appropriés.";
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // STRATEGY 0: Direct Native PDF Multimodal Ingestion via Gemini (Claude-style)
+  // Gemini 1.5/2/3 natively ingests raw application/pdf in ONE single call without
+  // slicing pages into canvas or extracting images. Perfect for handwritten
+  // letters, court judgments, and scanned acts.
+  // ─────────────────────────────────────────────────────────────────────────
+  const geminiKeys = getAvailableGeminiKeys();
+  if (geminiKeys.length > 0 && buffer.byteLength <= 15 * 1024 * 1024) {
+    try {
+      const pdfB64 = bufferToBase64(buffer.slice(0));
+      const geminiModels = [
+        "gemini-3.1-flash-lite",
+        "gemini-3.5-flash-lite",
+        "gemini-flash-latest",
+        "gemini-3.8-flash"
+      ];
+      for (const gKey of geminiKeys) {
+        for (const gModel of geminiModels) {
+          try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${gModel}:generateContent?key=${gKey}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [
+                    { text: ocrPrompt },
+                    { inline_data: { mime_type: "application/pdf", data: pdfB64 } }
+                  ]
+                }],
+                generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
+              })
+            });
+            if (res.ok) {
+              const json = await res.json();
+              const transcribed = json?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+              if (transcribed && transcribed.length > 25 && !transcribed.includes('aucune information visible')) {
+                markKeyActive("gemini");
+                console.log(`[OCR] ✅ Transcription PDF directe réussie via Gemini (${gModel}) - ${transcribed.length} car.`);
+                return transcribed;
+              }
+            } else if (res.status === 429) {
+              console.warn(`[OCR] Direct PDF Gemini ${gModel} 429, essai suivant...`);
+              continue;
+            } else if (res.status === 401) {
+              break;
+            }
+          } catch (e: any) {
+            console.warn(`[OCR] Direct PDF Gemini ${gModel} notice:`, e?.message);
+          }
+        }
+      }
+    } catch (directPdfErr) {
+      console.warn('[OCR] Direct PDF ingestion notice:', directPdfErr);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // STRATEGY 0b: Server-Side OCR Proxy (/api/ai/ocr-document/)
+  // ─────────────────────────────────────────────────────────────────────────
+  try {
+    const pdfB64 = bufferToBase64(buffer.slice(0));
+    const res = await fetch('/api/ai/ocr-document/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: fileName || 'document.pdf',
+        base64: pdfB64
+      }),
+      signal: AbortSignal.timeout(60000)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.text && data.text.trim().length > 25 && !data.is_empty) {
+        console.log(`[OCR] ✅ OCR Serveur Vision réussi pour "${fileName}" (${data.text.length} car.)`);
+        return data.text.trim();
+      }
+    }
+  } catch (backendErr) {
+    console.warn('[OCR] Fallback OCR Serveur Vision notice:', backendErr);
   }
 
   const pageImages = await convertPdfPagesToImages(buffer.slice(0), 100);

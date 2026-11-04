@@ -877,7 +877,7 @@ def ocr_document_endpoint(request):
     lower_name = filename.lower()
     ocr_prompt = (
         "Vous êtes un module OCR juridique d'élite de France Justice. "
-        "Transcrivez INTÉGRALEMENT tout le texte visible dans cette page de décision judiciaire ou document juridique numérisé : "
+        "Transcrivez INTÉGRALEMENT tout le texte visible dans ce document juridique numérisé : "
         "juridiction, chambre, noms complets des parties, âges, situations et professions, dates, numéro de RG, "
         "exposé du litige, motifs du juge, montants exacts en euros (€), pensions alimentaires, "
         "prestations compensatoires, dépens, article 700 du CPC, et l'intégralité du dispositif (PAR CES MOTIFS). "
@@ -888,6 +888,57 @@ def ocr_document_endpoint(request):
     anthropic_key = getattr(settings, "ANTHROPIC_API_KEY", "")
     openai_key = getattr(settings, "OPENAI_API_KEY", "")
 
+    # ─────────────────────────────────────────────────────────────────────
+    # STRATEGY 1 (PRIORITAIRE): Envoyer le PDF ENTIER directement à Gemini.
+    # Gemini 1.5+ accepte application/pdf en inline_data — exactement comme
+    # Claude traite les PDF. Pas d'extraction d'images, pas de conversion.
+    # Fonctionne sur PDF scannés, manuscrits, numériques.
+    # ─────────────────────────────────────────────────────────────────────
+    if gemini_key and lower_name.endswith(".pdf"):
+        pdf_b64 = base64.b64encode(file_bytes).decode("utf-8")
+        # Utiliser les modèles texte/multimodaux qui acceptent PDF inline
+        # (les modèles -image sont quota-épuisés; gemini-3.1-flash-lite supporte bien vision)
+        pdf_gemini_models = [
+            "gemini-3.1-flash-lite",
+            "gemini-3.5-flash-lite",
+            "gemini-flash-latest",
+            "gemini-3.8-flash",
+            "gemini-3.1-flash-image",
+        ]
+        for g_model in pdf_gemini_models:
+            try:
+                with httpx.Client(timeout=60) as client:
+                    res = client.post(
+                        f"https://generativelanguage.googleapis.com/v1beta/models/{g_model}:generateContent?key={gemini_key}",
+                        headers={"Content-Type": "application/json"},
+                        json={
+                            "contents": [{"parts": [
+                                {"text": ocr_prompt},
+                                {"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}}
+                            ]}],
+                            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 8000}
+                        }
+                    )
+                if res.status_code == 200:
+                    t = res.json().get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
+                    if t and len(t) > 20:
+                        return Response({
+                            "filename": filename,
+                            "text": t,
+                            "character_count": len(t),
+                            "pages_processed": 1,
+                            "is_empty": False,
+                            "provider_used": f"gemini-pdf-direct/{g_model}"
+                        }, status=200)
+                elif res.status_code in (429, 402, 401):
+                    break  # quota épuisé sur cette clé — passer à la stratégie suivante
+                # 503 ou autre → essayer le modèle suivant
+            except Exception:
+                continue
+
+    # ─────────────────────────────────────────────────────────────────────
+    # STRATEGY 2: Envoi image brute directe (images et PDFs non-PDF inline)
+    # ─────────────────────────────────────────────────────────────────────
     page_contents = []  # list of tuples: ('text', str) or ('image', bytes)
 
     if not lower_name.endswith(".pdf"):
@@ -951,7 +1002,8 @@ def ocr_document_endpoint(request):
             if raw_jpegs:
                 page_contents = [("image", j) for j in raw_jpegs]
 
-    gemini_models = ["gemini-3.1-flash-image", "gemini-3.1-flash-lite-image", "gemini-2.5-flash-image", "gemini-3.1-flash-image-preview", "gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-3.8-flash"]
+    gemini_models = ["gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-flash-latest",
+                     "gemini-3.1-flash-image", "gemini-3.1-flash-lite-image", "gemini-2.5-flash-image"]
     page_texts = []
 
     for idx, (content_type, content_data) in enumerate(page_contents):
