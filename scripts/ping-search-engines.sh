@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Fast Indexation Ping Script — France Justice (https://francejustice.com)
-# Pings Google, Bing, and IndexNow to trigger instant re-indexing of sitemap.
+# Fast Indexation Script — France Justice (https://francejustice.com)
+# Pings IndexNow (Bing, Yandex, Seznam, Naver) for instant push-indexation.
+# Note: Google & Bing deprecated their legacy GET /ping endpoints in late 2023
+# in favor of IndexNow protocol and Search Console / Webmaster Tools API.
 # ==============================================================================
 
 SITEMAP_URL="https://francejustice.com/sitemap.xml"
@@ -10,17 +12,9 @@ HOST="francejustice.com"
 
 echo "📡 Notification des moteurs de recherche pour France Justice..."
 
-# 1. Ping Google Search Console
-echo -n "• Envoi du Sitemap à Google... "
-curl -s -o /dev/null -w "%{http_code}\n" "https://www.google.com/ping?sitemap=${SITEMAP_URL}" || true
-
-# 2. Ping Bing Webmaster Tools
-echo -n "• Envoi du Sitemap à Bing... "
-curl -s -o /dev/null -w "%{http_code}\n" "https://www.bing.com/ping?sitemap=${SITEMAP_URL}" || true
-
-# 3. Notification IndexNow (Bing, Yandex, Seznam, Naver)
+# 1. Notification IndexNow instantanée (Bing, Copilot, Yandex, Seznam, Naver)
 echo -n "• Soumission IndexNow instantanée (Bing & partenaires)... "
-curl -s -X POST "https://api.indexnow.org/indexnow" \
+HTTP_CODE=$(curl -s -X POST "https://api.indexnow.org/indexnow" \
   -H "Content-Type: application/json; charset=utf-8" \
   -d '{
     "host": "'"${HOST}"'",
@@ -41,6 +35,14 @@ curl -s -X POST "https://api.indexnow.org/indexnow" \
       "https://francejustice.com/about",
       "https://francejustice.com/contact"
     ]
-  }' -o /dev/null -w "%{http_code}\n" || true
+  }' -o /dev/null -w "%{http_code}")
 
+if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
+  echo "✅ ${HTTP_CODE} (URLs acceptées pour indexation immédiate)"
+else
+  echo "ℹ️ Code HTTP reçu : ${HTTP_CODE}"
+fi
+
+echo "• Google Search Console : Sitemap déclaré automatiquement dans robots.txt (${SITEMAP_URL})"
 echo "✅ Protocole d'indexation terminé avec succès."
+
