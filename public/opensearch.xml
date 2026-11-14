@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>France Justice</ShortName>
+  <Description>Recherche juridique dans 75+ codes de loi français, annuaire des avocats et jurisprudence officielle.</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="16" height="16" type="image/svg+xml">https://francejustice.com/favicon.svg</Image>
+  <Url type="text/html" template="https://francejustice.com/database?q={searchTerms}"/>
+  <Url type="application/json" template="https://francejustice.com/api/ai/universal/?q={searchTerms}"/>
+</OpenSearchDescription>

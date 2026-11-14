@@ -1,15 +1,28 @@
-# robots.txt for France Justice (Just-Law) — AI & Search Engine Optimization (SEO / GEO)
+# ==============================================================================
+# robots.txt — France Justice (https://francejustice.com)
+# Standard SEO & Generative Engine Optimization (GEO) Directives
+# ==============================================================================
+
+# Global Default Rule
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /admin
 Disallow: /admin-dashboard
 Disallow: /lawyer-dashboard
-Disallow: /dashboard
+Disallow: /data-purge
+Disallow: /api/
 
-# Dedicated Search Engine & AI Engines Indexing
+# ------------------------------------------------------------------------------
+# 1. Primary Web Search Engine Crawlers
+# ------------------------------------------------------------------------------
 User-agent: Googlebot
 Allow: /
 
 User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-News
 Allow: /
 
 User-agent: Bingbot
@@ -27,36 +40,82 @@ Allow: /
 User-agent: YandexBot
 Allow: /
 
-# Dedicated AI Crawlers (ChatGPT, Gemini, Claude, Perplexity, DeepSeek, ByteDance, Mistral)
+User-agent: Applebot
+Allow: /
+
+# ------------------------------------------------------------------------------
+# 2. Generative Engine Optimization (GEO) & AI Answer Engines Crawlers
+# ------------------------------------------------------------------------------
+# OpenAI (ChatGPT, SearchGPT, GPT-4o, o1, o3)
+User-agent: OAI-SearchBot
+Allow: /
+
 User-agent: GPTBot
 Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
 
-User-agent: Google-Extended
-Allow: /
-
+# Anthropic (Claude 3.5 Sonnet, Claude 3.7, Claude Opus)
 User-agent: ClaudeBot
 Allow: /
 
 User-agent: Claude-Web
 Allow: /
 
+User-agent: anthropic-ai
+Allow: /
+
+# Perplexity AI
 User-agent: PerplexityBot
 Allow: /
 
+# Google Gemini, Vertex AI & Extended Crawlers
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot-Extended
+Allow: /
+
+# DeepSeek
 User-agent: DeepSeekBot
 Allow: /
 
-User-agent: Bytespider
+# Mistral AI (Le Chat)
+User-agent: MistralBot
 Allow: /
 
-User-agent: CCBot
+User-agent: MistralAI
+Allow: /
+
+# Meta AI (Llama)
+User-agent: Meta-ExternalAgent
 Allow: /
 
 User-agent: FacebookExternalHit
 Allow: /
 
-# Sitemap Location
+# Cohere
+User-agent: cohere-ai
+Allow: /
+
+# ByteDance / Doubao
+User-agent: Bytespider
+Allow: /
+
+# Amazon AI & Alexa
+User-agent: Amazonbot
+Allow: /
+
+# Common Crawl (Foundation dataset for global LLMs)
+User-agent: CCBot
+Allow: /
+
+# ------------------------------------------------------------------------------
+# 3. Discovery & Sitemaps
+# ------------------------------------------------------------------------------
 Sitemap: https://francejustice.com/sitemap.xml

@@ -1,118 +1,202 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-  <!-- Core Home & Navigation -->
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd
+                            http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd">
+
+  <!-- 1. Page d'Accueil & Hub National -->
   <url>
     <loc>https://francejustice.com/</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
+    <image:image>
+      <image:loc>https://francejustice.com/og-image.jpg</image:loc>
+      <image:title>France Justice — N°1 Plateforme Juridique IA & Avocats</image:title>
+    </image:image>
   </url>
+
+  <!-- 2. Base de Données Juridique (75+ Codes de loi) -->
   <url>
     <loc>https://francejustice.com/database</loc>
-    <lastmod>2026-10-03</lastmod>
-    <changefreq>always</changefreq>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
-  <url>
-    <loc>https://francejustice.com/services</loc>
-    <lastmod>2026-10-03</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.90</priority>
-  </url>
+
+  <!-- 3. Annuaire Officiel des Avocats de France (164 Barreaux) -->
   <url>
     <loc>https://francejustice.com/lawyers</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.90</priority>
+    <priority>0.95</priority>
   </url>
+
+  <!-- 4. Assistant & IA Juridique Officielle GéniaL'Avocat 24/7 -->
   <url>
     <loc>https://francejustice.com/genia-l</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.90</priority>
   </url>
+
   <url>
     <loc>https://francejustice.com/assistant</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.85</priority>
+    <priority>0.90</priority>
   </url>
+
+  <!-- 5. Services Juridiques en Ligne -->
+  <url>
+    <loc>https://francejustice.com/services</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- 6. Générateur Universel d'Actes & Documents Juridiques PDF -->
   <url>
     <loc>https://francejustice.com/generator</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.85</priority>
+    <priority>0.90</priority>
   </url>
+
+  <!-- 7. Formations Juridiques Diplômantes & Masterclass Académiques -->
   <url>
     <loc>https://francejustice.com/classrooms</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
+
+  <!-- 8. Guides Pratiques des Démarches et Procédures Juridiques -->
   <url>
     <loc>https://francejustice.com/guide</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.80</priority>
+    <priority>0.85</priority>
   </url>
+
+  <url>
+    <loc>https://francejustice.com/guides</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- 9. Actualités Législatives, Réformes & Jurisprudence -->
   <url>
     <loc>https://francejustice.com/news</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- 10. Moteur de Recherche Juridique Global -->
+  <url>
+    <loc>https://francejustice.com/search</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- 11. Foire Aux Questions (FAQ Droit & Procédures) -->
+  <url>
+    <loc>https://francejustice.com/faq</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
 
-  <!-- Informational & Legal Pages -->
+  <!-- 12. À Propos de France Justice (Mission, Déontologie, Gouvernance) -->
   <url>
     <loc>https://francejustice.com/about</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.75</priority>
+    <priority>0.80</priority>
   </url>
-  <url>
-    <loc>https://francejustice.com/legal</loc>
-    <lastmod>2026-10-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://francejustice.com/faq</loc>
-    <lastmod>2026-10-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.75</priority>
-  </url>
+
+  <!-- 13. Contact & Support Déontologique -->
   <url>
     <loc>https://francejustice.com/contact</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- 14. Mentions Légales, RGPD & Déontologie -->
+  <url>
+    <loc>https://francejustice.com/legal</loc>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
   </url>
 
-  <!-- User Portals & Registrations -->
+  <url>
+    <loc>https://francejustice.com/privacy</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+
+  <url>
+    <loc>https://francejustice.com/terms</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+
+  <url>
+    <loc>https://francejustice.com/cookies</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+
+  <!-- 15. Portails d'Accès & Inscription Professionnelle -->
   <url>
     <loc>https://francejustice.com/login</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.60</priority>
   </url>
+
   <url>
     <loc>https://francejustice.com/register</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.65</priority>
   </url>
+
   <url>
     <loc>https://francejustice.com/register/lawyer</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.65</priority>
+    <priority>0.70</priority>
   </url>
+
   <url>
-    <loc>https://francejustice.com/register/academic</loc>
-    <lastmod>2026-10-03</lastmod>
+    <loc>https://francejustice.com/register/professor</loc>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.65</priority>
   </url>
+
+  <url>
+    <loc>https://francejustice.com/register/student</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+
+  <url>
+    <loc>https://francejustice.com/register/doctorate</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+
 </urlset>

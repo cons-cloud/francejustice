@@ -51,6 +51,13 @@ http {
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
         add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
 
+        # Explicit SEO & GEO static files (robots.txt, sitemap.xml, llms.txt, opensearch.xml)
+        location ~* ^/(robots\.txt|sitemap\.xml|llms\.txt|llms-full\.txt|indexnow\.txt|opensearch\.xml)$ {
+            try_files $uri =404;
+            add_header Cache-Control "public, max-age=3600, must-revalidate" always;
+            add_header Access-Control-Allow-Origin "*" always;
+        }
+
         # Cache static assets
         location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
             expires 1y;

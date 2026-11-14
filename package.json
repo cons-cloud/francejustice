@@ -22,6 +22,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
+    "ping-seo": "./scripts/ping-search-engines.sh",
     "test": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vitest run"
   },
   "dependencies": {
