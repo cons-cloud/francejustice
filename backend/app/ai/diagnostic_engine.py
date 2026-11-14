@@ -805,34 +805,44 @@ def run_llm_for_json(prompt: str, system_prompt: str) -> Optional[Dict[str, Any]
             except Exception:
                 continue
 
-    # 2. Tenter Gemini
+    # 2. Tenter Gemini via REST direct avec timeout strict
     gemini_key = getattr(settings, 'GEMINI_API_KEY', '')
     if gemini_key:
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=gemini_key)
-            models = [
-                'gemini-3.5-flash-lite',
-                'gemini-3.1-flash-lite',
-                'gemini-flash-latest',
-                'gemini-3.8-flash',
-            ]
-            for m in models:
-                try:
-                    model = genai.GenerativeModel(
-                        model_name=m,
-                        system_instruction=system_prompt,
-                        generation_config={"response_mime_type": "application/json"}
+        models = [
+            'gemini-3.1-flash-lite',
+            'gemini-3.5-flash-lite',
+            'gemini-flash-latest',
+            'gemini-3.8-flash',
+            'gemini-2.5-flash',
+            'gemini-2.0-flash',
+        ]
+        for m in models:
+            try:
+                with httpx.Client(timeout=25) as client:
+                    res = client.post(
+                        f'https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={gemini_key}',
+                        headers={'Content-Type': 'application/json'},
+                        json={
+                            'system_instruction': {'parts': [{'text': system_prompt[:16000]}]},
+                            'contents': [{'role': 'user', 'parts': [{'text': prompt}]}],
+                            'generationConfig': {
+                                'temperature': 0.2,
+                                'responseMimeType': 'application/json',
+                                'maxOutputTokens': 8000,
+                            }
+                        }
                     )
-                    res = model.generate_content(prompt)
-                    if res and res.text:
-                        parsed = clean_and_parse_json(res.text)
-                        if parsed:
-                            return parsed
-                except Exception:
+                if res.status_code == 200:
+                    raw_content = res.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                    parsed = clean_and_parse_json(raw_content)
+                    if parsed:
+                        return parsed
+                elif res.status_code in (401, 403):
+                    break
+                elif res.status_code in (429, 402):
                     continue
-        except Exception:
-            pass
+            except Exception:
+                continue
 
     # 2. Tenter OpenAI
     openai_key = getattr(settings, 'OPENAI_API_KEY', '')

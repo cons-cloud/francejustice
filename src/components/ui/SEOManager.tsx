@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { SEO_CONFIGS, BASE_URL, DEFAULT_OG_IMAGE, PageSEOConfig } from '../../lib/seoConfigs';
+import { SEO_CONFIGS, BASE_URL, DEFAULT_OG_IMAGE, type PageSEOConfig } from '../../lib/seoConfigs';
 
 interface SEOProps {
   title?: string;

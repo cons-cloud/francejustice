@@ -151,6 +151,8 @@ def _try_gemini(prompt: str, history: list, system: str = SYSTEM_INSTRUCTION):
         'gemini-3.5-flash-lite',
         'gemini-flash-latest',
         'gemini-3.8-flash',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
         'gemini-3.1-flash-image',
     ]
     last_err = None
@@ -194,9 +196,12 @@ def _try_gemini(prompt: str, history: list, system: str = SYSTEM_INSTRUCTION):
                 text = data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
                 if text:
                     return text, None
-            elif res.status_code in (429, 402, 401):
-                last_err = f'Gemini {model_name}: quota/auth HTTP {res.status_code}'
-                break  # Key exhausted — stop trying models
+            elif res.status_code in (401, 403):
+                last_err = f'Gemini {model_name}: auth error HTTP {res.status_code}'
+                break  # Clef invalide — arret
+            elif res.status_code in (429, 402):
+                last_err = f'Gemini {model_name}: quota/rate limit HTTP {res.status_code}'
+                continue  # Quota par modele — essayer le modele suivant !
             elif res.status_code == 503:
                 last_err = f'Gemini {model_name}: 503 surcharge temporaire'
                 continue
@@ -903,6 +908,8 @@ def ocr_document_endpoint(request):
             "gemini-3.5-flash-lite",
             "gemini-flash-latest",
             "gemini-3.8-flash",
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
             "gemini-3.1-flash-image",
         ]
         for g_model in pdf_gemini_models:
@@ -930,8 +937,10 @@ def ocr_document_endpoint(request):
                             "is_empty": False,
                             "provider_used": f"gemini-pdf-direct/{g_model}"
                         }, status=200)
-                elif res.status_code in (429, 402, 401):
-                    break  # quota épuisé sur cette clé — passer à la stratégie suivante
+                elif res.status_code in (401, 403):
+                    break  # Clef invalide — passer a la strategie suivante
+                elif res.status_code in (429, 402):
+                    continue  # Quota temporaire sur ce modele — essayer le modele suivant !
                 # 503 ou autre → essayer le modèle suivant
             except Exception:
                 continue
@@ -1039,8 +1048,10 @@ def ocr_document_endpoint(request):
                         if t and len(t) > 15:
                             page_text = t
                             break
-                    elif res.status_code in [429, 402, 401]:
-                        break
+                    elif res.status_code in [401, 403]:
+                        break  # Clef invalide
+                    elif res.status_code in [429, 402]:
+                        continue  # Quota par modele — essayer le modele suivant !
                 except Exception:
                     continue
 
